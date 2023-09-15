@@ -17,8 +17,7 @@ export default function RootLayout({
 }) {
   return (
       <html lang="en">
-        <body className={font.className + ' flex flex-row'}>
-          <SideBar/>
+        <body className={font.className}>
           {children}
           </body>
       </html>

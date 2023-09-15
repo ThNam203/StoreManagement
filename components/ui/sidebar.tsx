@@ -9,11 +9,9 @@ import {
   CalendarClock,
   Settings,
   LogOut,
-  LucideIcon,
 } from "lucide-react";
 import { Separator } from "./separator";
 import Image from "next/image";
-import { cva } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const SideBarButton = (iconName: string, title: string) => {
