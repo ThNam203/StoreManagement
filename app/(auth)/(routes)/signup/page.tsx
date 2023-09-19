@@ -51,6 +51,7 @@ export default function SignUp() {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
+    console.log("hello");
     console.log(values);
   }
 
@@ -110,36 +111,46 @@ export default function SignUp() {
               )}
             />
           </div>
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-black">Email address</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage className="text-xs" />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel  className="text-black">Password</FormLabel>
-                  <FormControl>
-                    <Input type="password" {...field} />
-                  </FormControl>
-                  <FormMessage className="text-xs" />
-                </FormItem>
-              )}
-            />
-            <Button type="submit" className="my-4 w-full bg-indigo-400 hover:bg-indigo-600 text-white uppercase text-sm">Sign Up</Button>
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-black">Email address</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage className="text-xs" />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-black">Password</FormLabel>
+                <FormControl>
+                  <Input type="password" {...field} />
+                </FormControl>
+                <FormMessage className="text-xs" />
+              </FormItem>
+            )}
+          />
+          <Button
+            type="submit"
+            className="my-4 w-full bg-indigo-400 hover:bg-indigo-600 text-white uppercase text-sm"
+          >
+            Sign Up
+          </Button>
         </form>
       </Form>
-      <p className="ml-auto mr-6 text-xs">Have an account? <Link className="text-blue-500 underline font-bold" href={'/login'}>Login</Link></p>
+      <p className="ml-auto mr-6 text-xs">
+        Have an account?{" "}
+        <Link className="text-blue-500 underline font-bold" href={"/login"}>
+          Login
+        </Link>
+      </p>
     </div>
   );
 }

@@ -13,6 +13,7 @@ import {
 import { Separator } from "./separator";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const SideBarButton = (iconName: string, title: string) => {
   const iconSize = 16;
@@ -82,19 +83,31 @@ const SideBarButton = (iconName: string, title: string) => {
 
 const SideBar = () => {
   return (
-    <section className="flex flex-col items-center w-[64px] lg:min-w-[200px] lg:flex-[0.2] group hover:w-[200px]">
-      <div className="flex flex-row items-center my-4 mx-auto">
+    <div className="flex flex-col items-center min-w-[64px] w-[64px] lg:min-w-[200px] lg:flex-[0.2] group hover:w-[200px]">
+      <div className="flex flex-row items-center mx-auto">
         {/* <img src="/static/web_avatar.png" alt="web avatar" className="w-[32px] h-[32px]"/> */}
         <Image
           src="/static/web_avatar.png"
           alt="web avatar"
-          width={32}
-          height={32}
+          width={48}
+          height={48}
         />
-        <h1 className="ml-2 hidden font-semibold text-xl tracking-tight lg:block group-hover:block">
-          VIRTUAL STORE
+        <h1 className="ml-2 hidden font-bold text-xl tracking-tight lg:block group-hover:block">
+          MSTORE
         </h1>
       </div>
+      <div className="flex flex-row gap-4 w-5/6 bg-slate-100 rounded-xl mx-2 my-2 py-2 justify-center hover:cursor-pointer">
+          <Avatar className="w-9 h-9 border-2 border-dashed border-blue-500 hover:border-solid">
+            <AvatarImage src="https://github.com/shadcn.png" />
+            <AvatarFallback>CN</AvatarFallback>
+          </Avatar>
+          <div className="hidden group-hover:block lg:block">
+            <h4 className="font-medium text-sm">Nam Huynh</h4>
+            <p className="text-xs opacity-75 text-start flex-wrap">
+              Staff
+            </p>
+          </div>
+        </div>
 
       {SideBarButton("GanttChartSquare", "Overview")}
       {SideBarButton("BarChart3", "Analytics")}
@@ -107,7 +120,7 @@ const SideBar = () => {
       <Separator className="w-5/6 my-[8px]" />
       {SideBarButton("Settings", "Settings")}
       {SideBarButton("LogOut", "Logout")}
-    </section>
+    </div>
   );
 };
 

@@ -1,0 +1,29 @@
+.scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+/* Track */
+.scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Handle */
+.scrollbar::-webkit-scrollbar-thumb {
+  background: rgb(147 197 253);
+    border-radius: 2px;
+}
+
+.overview_cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  grid-column-gap: 16px;
+  grid-row-gap: 16px;
+  padding: 0 5px;
+}
+
+.overview_card_1 { grid-area: 1 / 1 / 2 / 2; }
+.overview_card_2 { grid-area: 1 / 2 / 2 / 3; }
+.overview_card_3 { grid-area: 2 / 1 / 3 / 2; }
+.overview_card_4 { grid-area: 2 / 2 / 3 / 3; }
+.overview_card_5 { grid-area: 1 / 3 / 3 / 5; }
