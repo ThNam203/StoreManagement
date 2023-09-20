@@ -27,7 +27,7 @@ ChartJS.register(
 
 export const options = {
   responsive: true,
-  tension: 0.3 // 2. Set the tension (curvature) of the line to your liking.  (You may want to lower this a smidge.)
+  tension: 0.2 // 2. Set the tension (curvature) of the line to your liking.  (You may want to lower this a smidge.)
 };
 
 const labels = ["January", "February", "March", "April", "May", "June", "July"];
@@ -55,6 +55,6 @@ export const data = {
   ]
 };
 
-const OverviewChart = () => (<Line options={options} data={data}></Line>)
+const OverviewChart = () => (<Line className="w-full" options={options} data={data}></Line>)
 
 export default OverviewChart

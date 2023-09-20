@@ -4,7 +4,7 @@ import { Calendar } from "@/components/ui/calendar";
 import Notification from "@/components/ui/notification";
 import SideBar from "@/components/ui/overview_sidebar";
 import { Tabs, TabsList, TabsContent, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Bell } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import styles from "./styles.module.css";
@@ -14,6 +14,11 @@ import { Timeline } from "@/components/ui/overview_timeline";
 import { ChannelItem } from "@/components/ui/overview_channel_item";
 import { ProgramItem } from "@/components/ui/overview_program_item";
 import { Epg, Layout } from "planby";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 const notifications = [
   {
@@ -100,15 +105,29 @@ const notifications = [
 ];
 
 export default function Home() {
-  // const [pageContent, setPageContent] = useState<string>("Overview")
   const [calendarDate, setCalenderDate] = useState(new Date());
   const { isLoading, getEpgProps, getLayoutProps } = useApp();
 
   return (
-    <section className="flex flex-row h-screen w-screen">
-      <SideBar />
-      <div className="text-center flex flex-col bg-slate-100 h-screen max-h-screen px-12 py-2 overflow-hidden">
-        <h2 className="text-start font-semibold text-3xl my-4">Overview</h2>
+    <section className="flex flex-row w-screen">
+      <SideBar className={styles["no-scrollbar"] + " z-10 bg-white"} />
+      <div className="text-center flex flex-col bg-slate-100 px-10 py-2 overflow-hidden ml-[48px] lg:ml-[200px]">
+        <div className="flex flex-row justify-between">
+          <h2 className="text-start font-semibold text-3xl my-4">Overview</h2>
+          <Popover>
+            <PopoverTrigger className="w-[20px] h-[20px] self-center mr-8">
+              <div className="relative">
+                <Bell size={20}/>
+                <p className="absolute bg-blue-500 rounded-full text-xs -top-2 p-[2px] text-center -right-2">10</p>
+              </div>
+            </PopoverTrigger>
+            <PopoverContent className={"max-h-[300px] overflow-auto mr-8 p-2 " + styles.scrollbar}>
+              {notifications.map((notification) => (
+                <Notification {...notification} key={notification!.id} />
+              ))}
+            </PopoverContent>
+          </Popover>
+        </div>
         <div className={styles.overview_cards}>
           <div
             className={
@@ -164,10 +183,10 @@ export default function Home() {
               " rounded-lg shadow-md text-start p-4 border-t flex items-center justify-center"
             }
           >
-            {OverviewChart()}
+            <OverviewChart />
           </div>
         </div>
-        <div className="h-full overflow-hidden">
+        <div className="h-[400px] overflow-hidden z-0">
           <Epg isLoading={isLoading} {...getEpgProps()}>
             <Layout
               {...getLayoutProps()}
@@ -186,7 +205,7 @@ export default function Home() {
           </Epg>
         </div>
       </div>
-      <div className="bg-slate-100 w-[280px] hidden xl:flex xl:flex-col items-center pr-4">
+      <div className="bg-slate-100 w-[280px] hidden xl:flex-col items-center pr-4">
         <Calendar
           mode="single"
           selected={calendarDate}
@@ -205,47 +224,6 @@ export default function Home() {
               <ArrowRight width={12} height={12} className="inline-block" />
             </Link>
           </div>
-          <Tabs
-            defaultValue="today"
-            className="mb-4 flex flex-col overflow-hidden"
-          >
-            <TabsList className="grid w-full grid-cols-2 bg-blue-300">
-              <TabsTrigger
-                value="today"
-                className="data-[state=inactive]:text-white"
-              >
-                Today
-              </TabsTrigger>
-              <TabsTrigger
-                value="last_7_days"
-                className="data-[state=inactive]:text-white"
-              >
-                Last 7 days
-              </TabsTrigger>
-            </TabsList>
-            <TabsContent
-              value="today"
-              className={
-                "shadow-xl rounded-sm border border-gray-200 overflow-y-scroll " +
-                styles.scrollbar
-              }
-            >
-              {notifications.map((notification) => (
-                <Notification {...notification} key={notification!.id} />
-              ))}
-            </TabsContent>
-            <TabsContent
-              value="last_7_days"
-              className={
-                "shadow-xl rounded-sm border border-gray-200 overflow-y-scroll " +
-                styles.scrollbar
-              }
-            >
-              {notifications.map((notification) => (
-                <Notification {...notification} key={notification!.id} />
-              ))}
-            </TabsContent>
-          </Tabs>
         </div>
       </div>
     </section>

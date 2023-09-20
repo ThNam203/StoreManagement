@@ -18,7 +18,7 @@ type NotiData = {
 
 const Notification: React.FC<NotiData> = (data) => {
   return (
-    <div className="flex flex-row gap-2 border-y p-2 border-gray-200">
+    <div className="flex flex-row gap-2 p-2 border-gray-200">
       <Avatar>
         <AvatarImage
           src={data.imageUrl != null ? data.imageUrl : "/static/web_avatar.png"}

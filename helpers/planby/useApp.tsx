@@ -1,4 +1,4 @@
-import React from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { fetchChannels, fetchEpg } from ".";
 import { useEpg } from "planby";
 
@@ -6,12 +6,12 @@ import { useEpg } from "planby";
 import { theme } from "./theme";
 
 export function useApp() {
-  const [channels, setChannels] = React.useState([]);
-  const [epg, setEpg] = React.useState([]);
-  const [isLoading, setIsLoading] = React.useState(false);
+  const [channels, setChannels] = useState([]);
+  const [epg, setEpg] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const channelsData = React.useMemo(() => channels, [channels]);
-  const epgData = React.useMemo(() => epg, [epg]);
+  const channelsData = useMemo(() => channels, [channels]);
+  const epgData = useMemo(() => epg, [epg]);
 
   const { getEpgProps, getLayoutProps } = useEpg({
     channels: channelsData,
@@ -28,7 +28,7 @@ export function useApp() {
     theme
   });
 
-  const handleFetchResources = React.useCallback(async () => {
+  const handleFetchResources = useCallback(async () => {
     setIsLoading(true);
     const epg = await fetchEpg();
     const channels = await fetchChannels();
@@ -37,7 +37,7 @@ export function useApp() {
     setIsLoading(false);
   }, []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     handleFetchResources();
   }, [handleFetchResources]);
 
