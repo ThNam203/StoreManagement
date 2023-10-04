@@ -21,7 +21,7 @@ const originalGroupList: TableRowProps[] = [
     id: nanoid(),
     groupName: "Group 1",
     group: "Staff",
-    note: "",
+    note: "This is note 1",
     operation: {
       remove: true,
       edit: true,
@@ -31,7 +31,7 @@ const originalGroupList: TableRowProps[] = [
     id: nanoid(),
     groupName: "Group 2",
     group: "Staff",
-    note: "",
+    note: "This is note 2",
     operation: {
       remove: true,
       edit: true,
@@ -41,7 +41,7 @@ const originalGroupList: TableRowProps[] = [
     id: nanoid(),
     groupName: "Group 3",
     group: "Staff",
-    note: "aaaaaaaaaaaaaaaaaaaa",
+    note: "This is note 3",
     operation: {
       remove: true,
       edit: true,
@@ -155,8 +155,8 @@ export default function StaffGroupPage() {
         <TableHeader>
           <TableRow>
             <TableHead className="w-[100px]">#</TableHead>
-            <TableHead>Group Name</TableHead>
-            <TableHead>Group</TableHead>
+            <TableHead className="w-[300px]">Group Name</TableHead>
+            <TableHead className="w-[300px]">Group</TableHead>
             <TableHead>Note</TableHead>
             <TableHead className="text-right">Operation</TableHead>
           </TableRow>

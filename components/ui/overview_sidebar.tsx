@@ -130,7 +130,7 @@ const SideBar = ({ className }: { className: string }) => {
   return (
     <div
       className={cn(
-        "flex flex-col fixed left-0 h-full overflow-y-scroll items-center min-w-[64px] w-[64px] lg:min-w-[200px] lg:flex-[0.2] group hover:w-[200px] hover:min-w-[200px]",
+        "flex flex-col fixed left-0 h-full overflow-y-scroll items-center min-w-[64px] w-[64px] lg:min-w-[200px] lg:flex-[0.2] group hover:w-[200px] hover:min-w-[200px] ease-linear duration-200",
         className
       )}
     >

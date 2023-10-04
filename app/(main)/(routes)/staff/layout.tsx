@@ -11,7 +11,7 @@ export default function StaffLayout({
 }) {
   return (
     <section>
-      <div className="w-full h-screen bg-slate-300">
+      <div className="w-full h-screen">
         <div className="w-full h-16 bg-white flex flex-row items-center justify-between px-20">
           <div>
             <span className="text-slate-500 text-xl">Staff Group</span>

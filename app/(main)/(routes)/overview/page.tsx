@@ -109,19 +109,24 @@ export default function Home() {
   const { isLoading, getEpgProps, getLayoutProps } = useApp();
 
   return (
-    <section className="flex flex-row w-screen">
-      <SideBar className={styles["no-scrollbar"] + " z-10 bg-white"} />
-      <div className="text-center flex flex-col bg-slate-100 px-10 py-2 overflow-hidden ml-[48px] lg:ml-[200px]">
+    <section className="flex flex-row w-full">
+      <div className="text-center flex flex-col bg-slate-100 px-10 py-2 overflow-hidden">
         <div className="flex flex-row justify-between">
           <h2 className="text-start font-semibold text-3xl my-4">Overview</h2>
           <Popover>
             <PopoverTrigger className="w-[20px] h-[20px] self-center mr-8">
               <div className="relative">
-                <Bell size={20}/>
-                <p className="absolute bg-blue-500 rounded-full text-xs -top-2 p-[2px] text-center -right-2">10</p>
+                <Bell size={20} />
+                <p className="absolute bg-blue-500 rounded-full text-xs -top-2 p-[2px] text-center -right-2">
+                  10
+                </p>
               </div>
             </PopoverTrigger>
-            <PopoverContent className={"max-h-[300px] overflow-auto mr-8 p-2 " + styles.scrollbar}>
+            <PopoverContent
+              className={
+                "max-h-[300px] overflow-auto mr-8 p-2 " + styles.scrollbar
+              }
+            >
               {notifications.map((notification) => (
                 <Notification {...notification} key={notification!.id} />
               ))}
