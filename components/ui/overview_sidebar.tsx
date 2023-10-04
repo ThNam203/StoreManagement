@@ -126,7 +126,7 @@ const SideBarButton = (
   );
 };
 
-const SideBar = ({className} : {className: string}) => {
+const SideBar = ({ className }: { className: string }) => {
   return (
     <div
       className={cn(
