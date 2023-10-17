@@ -1,24 +1,26 @@
 "use client";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import Notification from "@/components/ui/notification";
-import SideBar from "@/components/ui/overview_sidebar";
-import { Tabs, TabsList, TabsContent, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowRight, Bell } from "lucide-react";
-import Link from "next/link";
-import { useState } from "react";
+import { ArrowRightCircle, Bell } from "lucide-react";
 import styles from "./styles.module.css";
+import scrollbar_style from "../../../../styles/scrollbar.module.css";
 import OverviewChart from "@/components/ui/overview_chart";
-import { useApp } from "@/helpers/planby/useApp";
-import { Timeline } from "@/components/ui/overview_timeline";
-import { ChannelItem } from "@/components/ui/overview_channel_item";
-import { ProgramItem } from "@/components/ui/overview_program_item";
-import { Epg, Layout } from "planby";
+import React from "react";
+import RecentActivityItem from "@/components/ui/overview_recent_activity_item";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import Charts from "@/components/ui/overview_chart";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const notifications = [
   {
@@ -104,13 +106,104 @@ const notifications = [
   },
 ];
 
-export default function Home() {
-  const [calendarDate, setCalenderDate] = useState(new Date());
-  const { isLoading, getEpgProps, getLayoutProps } = useApp();
+const recentActivities = [
+  {
+    id: 1,
+    imageUrl: "https://i.pravatar.cc/300",
+    staff: "Nam",
+    actionDetail: " created a new page",
+    target: " in New Zealand",
+    createdAt: "Now",
+  },
+  {
+    id: 2,
+    imageUrl: "https://i.pravatar.cc/300",
+    staff: "Alex",
+    actionDetail: " made ",
+    target: "a purchase",
+    createdAt: "Now",
+  },
+  {
+    id: 3,
+    imageUrl: "https://i.pravatar.cc/300",
+    staff: "Jessica",
+    actionDetail: " restocked ",
+    target: "the shelves",
+    createdAt: "59 seconds ago",
+  },
+  {
+    id: 4,
+    imageUrl: "https://i.pravatar.cc/300",
+    staff: "David",
+    actionDetail: " updated ",
+    target: "the store's opening hours",
+    createdAt: "5 minutes ago",
+  },
+  {
+    id: 5,
+    imageUrl: "https://i.pravatar.cc/300",
+    staff: "Linda",
+    actionDetail: " processed a refund for ",
+    target: "a customer",
+    createdAt: "3 hours 5 minutes ago",
+  },
+  {
+    id: 6,
+    imageUrl: "https://i.pravatar.cc/300",
+    staff: "Mark",
+    actionDetail: " detected ",
+    target: "a suspicious activity",
+    createdAt: "1 day ago",
+  },
+  {
+    id: 7,
+    imageUrl: "https://i.pravatar.cc/300",
+    staff: "Emily",
+    actionDetail: "reported",
+    target: "an unusual incident",
+    createdAt: "2 days ago",
+  },
+  {
+    id: 8,
+    imageUrl: "https://i.pravatar.cc/300",
+    staff: "John",
+    actionDetail: "witnessed",
+    target: "a security breach",
+    createdAt: "3 days ago",
+  },
+  {
+    id: 9,
+    imageUrl: "https://i.pravatar.cc/300",
+    staff: "Sarah",
+    actionDetail: "noted",
+    target: "a potential threat",
+    createdAt: "4 days ago",
+  },
+  {
+    id: 10,
+    imageUrl: "https://i.pravatar.cc/300",
+    staff: "Michael",
+    actionDetail: "observed",
+    target: "a suspicious package",
+    createdAt: "5 days ago",
+  },
+  {
+    id: 11,
+    imageUrl: "https://i.pravatar.cc/300",
+    staff: "Linda",
+    actionDetail: "flagged",
+    target: "an unauthorized access",
+    createdAt: "6 days ago",
+  },
+];
 
+export default function Home() {
   return (
-    <section className="flex flex-row w-full">
-      <div className="text-center flex flex-col bg-slate-100 px-10 py-2 overflow-hidden">
+    // if we change 832px to another value, we must change it again in styles.module.css
+    // and change the value of mediaquery of notification-board in the same folder
+    // to make it work correctly
+    <div className="flex flex-col min-[832px]:flex-row">
+      <div className="flex flex-col flex-1 px-4 py-2 rounded-sm min-w-0 bg-white">
         <div className="flex flex-row justify-between">
           <h2 className="text-start font-semibold text-3xl my-4">Overview</h2>
           <Popover>
@@ -124,7 +217,8 @@ export default function Home() {
             </PopoverTrigger>
             <PopoverContent
               className={
-                "max-h-[300px] overflow-auto mr-8 p-2 " + styles.scrollbar
+                "max-h-[300px] overflow-auto mr-8 p-2 " +
+                scrollbar_style.scrollbar
               }
             >
               {notifications.map((notification) => (
@@ -182,55 +276,61 @@ export default function Home() {
               <span className="text-green-500">-10%</span> compare to last month
             </p>
           </div>
-          <div
-            className={
-              styles.overview_card_5 +
-              " rounded-lg shadow-md text-start p-4 border-t flex items-center justify-center"
-            }
-          >
-            <OverviewChart />
-          </div>
         </div>
-        <div className="h-[400px] overflow-hidden z-0">
-          <Epg isLoading={isLoading} {...getEpgProps()}>
-            <Layout
-              {...getLayoutProps()}
-              renderTimeline={(props) => <Timeline {...props} />}
-              renderProgram={({ program, ...rest }) => (
-                <ProgramItem
-                  key={program.data.id}
-                  program={program}
-                  {...rest}
-                />
-              )}
-              renderChannel={({ channel }) => (
-                <ChannelItem key={channel.uuid} channel={channel} />
-              )}
+        <div
+          className={
+            " rounded-lg shadow-md text-start p-4 border-t flex flex-col items-center justify-center my-4"
+          }
+        >
+          <div className="flex flex-row items-center w-full">
+            <h3 className="uppercase font-bold start">
+              Doanh thu thuần hôm nay
+            </h3>
+            <ArrowRightCircle
+              size={16}
+              fill="rgb(148 163 184)"
+              className="mx-2"
             />
-          </Epg>
-        </div>
-      </div>
-      <div className="bg-slate-100 w-[280px] hidden xl:flex-col items-center pr-4">
-        <Calendar
-          mode="single"
-          selected={calendarDate}
-          onSelect={(date) => {
-            if (date != null) setCalenderDate(date);
-          }}
-        />
-        <div className="flex flex-col mt-4 overflow-hidden">
-          <div className="font-semibold items-baseline justify-between flex flex-row">
-            <h3 className="items-baseline text-lg">Notifications</h3>
-            <Link
-              href={"/notifications"}
-              className="text-xs text-blue-400 hover:text-blue-600 hover:font-semibold"
-            >
-              Show all
-              <ArrowRight width={12} height={12} className="inline-block" />
-            </Link>
+            <h3 className="uppercase font-bold mr-2">2.245.500VND</h3>
+            <div className="flex-1"></div>
+            <Select defaultValue="apple">
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select a fruit" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Fruits</SelectLabel>
+                  <SelectItem value="apple">Apple</SelectItem>
+                  <SelectItem value="banana">Banana</SelectItem>
+                  <SelectItem value="blueberry">Blueberry</SelectItem>
+                  <SelectItem value="grapes">Grapes</SelectItem>
+                  <SelectItem value="pineapple">Pineapple</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
           </div>
+
+          <Charts.BarChart />
+        </div>
+        {/* <div
+          className={
+            " rounded-lg shadow-md text-start p-4 border-t flex items-center justify-center mb-4"
+          }
+        >
+          <OverviewChart />
+        </div> */}
+      </div>
+      <div className={styles["notification-board"]}>
+        <h3 className="uppercase font-semibold my-2">Recent activities</h3>
+        <div className={scrollbar_style.scrollbar + " overflow-y-scroll"}>
+          {recentActivities.map((activity) => (
+            <RecentActivityItem
+              {...activity}
+              key={activity.id}
+            ></RecentActivityItem>
+          ))}
         </div>
       </div>
-    </section>
+    </div>
   );
 }

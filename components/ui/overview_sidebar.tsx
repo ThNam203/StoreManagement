@@ -30,6 +30,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "./accordion";
+import { Button } from "./button";
 
 const SideBarButton = (
   iconName: string,

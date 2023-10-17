@@ -1,7 +1,8 @@
 import React from "react";
-import { Line } from 'react-chartjs-2'
+import { Line, Bar } from 'react-chartjs-2'
 import {
   Chart as ChartJS,
+  BarElement,
   CategoryScale,
   LinearScale,
   PointElement,
@@ -19,20 +20,22 @@ ChartJS.register(
   LinearScale,
   PointElement,
   LineElement,
+  BarElement,
   Title,
   Tooltip,
   Legend,
   Filler // 1. Register Filler plugin
 );
 
-export const options = {
+const options = {
   responsive: true,
-  tension: 0.2 // 2. Set the tension (curvature) of the line to your liking.  (You may want to lower this a smidge.)
+  maintainAspectRatio: false,
+  tension: 0.2 // 2. Set the tension (curvature) of the line to your liking.  (You may want to lower this a smidge.),
 };
 
 const labels = ["January", "February", "March", "April", "May", "June", "July"];
 
-export const data = {
+const data = {
   labels,
   datasets: [
     {
@@ -55,6 +58,42 @@ export const data = {
   ]
 };
 
-const OverviewChart = () => (<Line className="w-full" options={options} data={data}></Line>)
+const OverviewChart = () => (<Line className="w-full h-full min-h-[350px]" options={options} data={data}></Line>)
 
-export default OverviewChart
+// BAR CHART
+
+const barLabels = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+const barData = {
+  labels: barLabels,
+  datasets: [{
+    label: 'My First Dataset',
+    data: [65, 59, 80, 81, 56, 55, 40, 10, 20, 35, 76, 59],
+    backgroundColor: "#338df6",
+    borderWidth: 1
+  }]
+};
+
+const barConfig = {
+  type: 'bar',
+  data: barData,
+  options: {
+    scales: {
+      y: {
+        beginAtZero: true
+      }
+    },
+    plugins: {
+      legend: {
+        display: false,
+      }
+  }
+  },
+};
+
+const BarChart = () => (<Bar {...barConfig}></Bar>)
+
+const Charts = {
+  BarChart
+}
+
+export default Charts
