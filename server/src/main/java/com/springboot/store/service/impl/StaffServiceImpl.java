@@ -23,9 +23,9 @@ public class StaffServiceImpl implements StaffService {
         this.modelMapper = modelMapper;
     }
     @Override
-    public StaffDto createStaff(StaffDto staffDto) {
+    public StaffDto createStaff(Staff staff) {
         // convert DTO to entity
-        Staff staff = mapToEntity(staffDto);
+//        Staff staff = mapToEntity(staffDto);
 
         // save entity to database
         staff = staffRepository.save(Objects.requireNonNull(staff));

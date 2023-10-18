@@ -1,5 +1,6 @@
 package com.springboot.store.controller;
 
+import com.springboot.store.entity.Staff;
 import com.springboot.store.payload.StaffDto;
 import com.springboot.store.service.StaffService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,13 +22,12 @@ public class StaffController {
 
     // create a new staff
     @PostMapping
-    public ResponseEntity<StaffDto> createStaff(@Valid @RequestBody StaffDto staffDto) {
-        return new ResponseEntity<>(staffService.createStaff(staffDto), null, HttpStatus.CREATED);
+    public ResponseEntity<StaffDto> createStaff(@Valid @RequestBody Staff staff) {
+        return new ResponseEntity<>(staffService.createStaff(staff), null, HttpStatus.CREATED);
     }
 
     // get all staffs
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getAllStaffs(HttpServletRequest request) {
         return new ResponseEntity<>(staffService.getAllStaffs(), null, HttpStatus.OK);
     }
@@ -46,6 +46,7 @@ public class StaffController {
 
     // delete staff by id
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteStaff(@PathVariable(name = "id") int id) {
         staffService.deleteStaff(id);
         return new ResponseEntity<>("Staff entity deleted successfully.", null, HttpStatus.OK);
