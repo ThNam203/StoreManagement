@@ -1,20 +1,24 @@
 package com.springboot.store.service.impl;
 
 import com.springboot.store.entity.Staff;
+import com.springboot.store.entity.StaffRole;
 import com.springboot.store.exception.ResourceNotFoundException;
 import com.springboot.store.payload.StaffDto;
+import com.springboot.store.payload.StaffRoleDto;
 import com.springboot.store.repository.StaffRepository;
 import com.springboot.store.service.StaffService;
 import com.springboot.store.utils.Role;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
 @Service
 public class StaffServiceImpl implements StaffService {
     private StaffRepository staffRepository;
+
     private ModelMapper modelMapper;
 
     // Spring will automatically inject StaffRepository instance into this constructor
@@ -23,9 +27,11 @@ public class StaffServiceImpl implements StaffService {
         this.modelMapper = modelMapper;
     }
     @Override
-    public StaffDto createStaff(Staff staff) {
+    public StaffDto createStaff(Staff staff, Staff creator) {
         // convert DTO to entity
 //        Staff staff = mapToEntity(staffDto);
+        staff.setCreatedAt(new Date());
+        staff.setCreator(creator);
 
         // save entity to database
         staff = staffRepository.save(Objects.requireNonNull(staff));
@@ -66,19 +72,21 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
-    public void deleteStaff(int id) {
+    public void deleteStaff(int id, Staff creator) {
         Staff staff = staffRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Staff", "id", id));
         staffRepository.delete(staff);
     }
 
-    @Override
-    public Role getRoleByEmail(String email) {
-        // get role of staff by email
-        return staffRepository.findByEmail(email).get().getStaffRole().getName();
-    }
 
     private StaffDto mapToDTO(Staff staff) {
-        return modelMapper.map(staff, StaffDto.class);
+        StaffDto staffDto = modelMapper.map(staff, StaffDto.class);
+        if (staff.getStaffRole() != null) {
+            staffDto.setRole(staff.getStaffRole().getName());
+        }
+        if (staff.getCreator() != null) {
+            staffDto.setCreator(staff.getCreator().getName());
+        }
+        return staffDto;
     }
     private Staff mapToEntity(StaffDto staffDto) {
         return modelMapper.map(staffDto, Staff.class);

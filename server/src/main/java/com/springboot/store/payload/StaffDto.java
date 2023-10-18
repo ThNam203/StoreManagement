@@ -1,6 +1,7 @@
 package com.springboot.store.payload;
 
 import com.springboot.store.entity.Staff;
+import com.springboot.store.utils.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -26,6 +27,7 @@ public class StaffDto {
     private String description;
     private String sex;
     private Date birthday;
+    private Role role;
     private Date createdAt;
-    private Staff creator;
+    private String creator;
 }
