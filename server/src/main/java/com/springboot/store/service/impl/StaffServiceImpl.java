@@ -9,6 +9,7 @@ import com.springboot.store.repository.StaffRepository;
 import com.springboot.store.service.StaffService;
 import com.springboot.store.utils.Role;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -18,25 +19,28 @@ import java.util.Objects;
 @Service
 public class StaffServiceImpl implements StaffService {
     private StaffRepository staffRepository;
-
     private ModelMapper modelMapper;
 
+    private PasswordEncoder passwordEncoder;
+
     // Spring will automatically inject StaffRepository instance into this constructor
-    public StaffServiceImpl(StaffRepository staffRepository, ModelMapper modelMapper) {
+    public StaffServiceImpl(StaffRepository staffRepository, ModelMapper modelMapper, PasswordEncoder passwordEncoder) {
         this.staffRepository = staffRepository;
         this.modelMapper = modelMapper;
+        this.passwordEncoder = passwordEncoder;
     }
     @Override
-    public StaffDto createStaff(Staff staff, Staff creator) {
+    public StaffDto createStaff(StaffDto newStaff, Staff creator) {
         // convert DTO to entity
-//        Staff staff = mapToEntity(staffDto);
+        Staff staff = mapToEntity(newStaff);
+//        staff.setPassword(passwordEncoder.encode(newStaff.getPassword()));
         staff.setCreatedAt(new Date());
         staff.setCreator(creator);
 
-        // save entity to database
-        staff = staffRepository.save(Objects.requireNonNull(staff));
+//         save entity to database
+//        staff = staffRepository.save(Objects.requireNonNull(staff));
 
-        // convert entity to DTO
+//         convert entity to DTO
         return mapToDTO(staff);
     }
 
@@ -75,6 +79,11 @@ public class StaffServiceImpl implements StaffService {
     public void deleteStaff(int id, Staff creator) {
         Staff staff = staffRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Staff", "id", id));
         staffRepository.delete(staff);
+    }
+
+    @Override
+    public Staff findByEmail(String email) {
+        return staffRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("Staff", "email", email));
     }
 
 

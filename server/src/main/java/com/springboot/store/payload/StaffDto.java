@@ -1,15 +1,18 @@
 package com.springboot.store.payload;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.springboot.store.entity.Staff;
 import com.springboot.store.utils.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import lombok.Builder;
 import lombok.Data;
 
 import java.util.Date;
 
 @Data
+@Builder
 public class StaffDto {
     private int id;
 
@@ -19,6 +22,8 @@ public class StaffDto {
     @NotEmpty(message = "Email is required")
     @Email(message = "Email is invalid")
     private String email;
+
+    private String password;
 
     private String address;
     private String phoneNumber;

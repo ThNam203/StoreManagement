@@ -3,6 +3,7 @@ package com.springboot.store.auth;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springboot.store.entity.Staff;
 import com.springboot.store.entity.Token;
+import com.springboot.store.exception.CustomException;
 import com.springboot.store.repository.StaffRepository;
 import com.springboot.store.repository.StaffRoleRepository;
 import com.springboot.store.repository.TokenRepository;
@@ -13,6 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,6 +34,10 @@ public class AuthenticationService {
 
     public AuthenticationResponse register(RegisterRequest request) {
 
+        if (staffRepository.existsByEmail(request.getEmail())) {
+            throw new CustomException("Email already in use", HttpStatus.BAD_REQUEST);
+        }
+
         var role = staffRoleRepository.findByName(Role.ADMIN).orElseThrow();
 
         Staff staff = new Staff();
@@ -50,14 +56,20 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
+        // check email and password
+        var user = staffRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new CustomException("Invalid username/password supplied", HttpStatus.UNPROCESSABLE_ENTITY));
+
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new CustomException("Invalid username/password supplied", HttpStatus.UNPROCESSABLE_ENTITY);
+        }
+
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
                         request.getPassword()
                 )
         );
-        var user = staffRepository.findByEmail(request.getEmail())
-                .orElseThrow();
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
         revokeAllUserTokens(user);

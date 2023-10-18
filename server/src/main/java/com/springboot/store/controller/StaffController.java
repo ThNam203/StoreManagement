@@ -30,10 +30,10 @@ public class StaffController {
     // create a new staff
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<StaffDto> createStaff(@Valid @RequestBody Staff staff,
+    public ResponseEntity<StaffDto> createStaff(@Valid @RequestBody StaffDto newStaff,
                                                 HttpServletRequest request) {
         final Staff currentStaff = authService.getCurrentStaff(request);
-        return new ResponseEntity<>(staffService.createStaff(staff, currentStaff), null, HttpStatus.CREATED);
+        return new ResponseEntity<>(staffService.createStaff(newStaff, currentStaff), null, HttpStatus.CREATED);
     }
 
     // get all staffs
