@@ -62,14 +62,14 @@ public class Staff implements UserDetails {
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date createdAt;
 
-    @OneToMany(mappedBy = "staff")
+    @OneToMany(mappedBy = "staff", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Token> tokens;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne()
     @JoinColumn(name = "creator_id")
     private Staff creator;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne()
     @JoinColumn(name = "staff_role_id")
     private StaffRole staffRole;
 

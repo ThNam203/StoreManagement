@@ -1,16 +1,16 @@
 package com.springboot.store.service;
 
 import com.springboot.store.entity.Staff;
-import com.springboot.store.payload.StaffDto;
-import com.springboot.store.utils.Role;
+import com.springboot.store.payload.StaffRequest;
+import com.springboot.store.payload.StaffResponse;
 
 import java.util.List;
 
 public interface StaffService {
-    StaffDto createStaff(StaffDto newStaff, Staff creator);
-    List<StaffDto> getAllStaffs();
-    StaffDto getStaffById(int id);
-    StaffDto updateStaff(int id, StaffDto staffDto);
+    StaffResponse createStaff(StaffRequest newStaff, Staff creator);
+    List<StaffResponse> getAllStaffs();
+    StaffResponse getStaffById(int id);
+    StaffResponse updateStaff(int id, StaffRequest staffRequest, Staff creator);
     void deleteStaff(int id, Staff creator);
     Staff findByEmail(String email);
 }

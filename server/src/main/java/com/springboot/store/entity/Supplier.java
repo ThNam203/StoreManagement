@@ -48,7 +48,7 @@ public class Supplier {
     @JoinColumn(name = "creator_id")
     private Staff creator;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name = "supplier_group_id")
     private SupplierGroup supplierGroup;
 }
