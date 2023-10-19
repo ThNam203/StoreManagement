@@ -109,10 +109,17 @@ public class AuthenticationService {
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         final String refreshToken;
         final String userEmail;
-        if (authHeader == null ||!authHeader.startsWith("Bearer ")) {
+//        if (authHeader == null ||!authHeader.startsWith("Bearer ")) {
+//            return;
+//        }
+//        refreshToken = authHeader.substring(7);
+
+        // get the token from cookie
+        refreshToken = jwtService.getJwtAccessFromCookie(request);
+        if (refreshToken == null || refreshToken.isEmpty()) {
             return;
         }
-        refreshToken = authHeader.substring(7);
+
         userEmail = jwtService.extractUsername(refreshToken);
         if (userEmail != null) {
             var user = this.staffRepository.findByEmail(userEmail)
@@ -125,7 +132,12 @@ public class AuthenticationService {
                         .accessToken(accessToken)
                         .refreshToken(refreshToken)
                         .build();
-                new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
+//                new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
+
+                // set the new access token in the cookie and body response
+                var cookie = jwtService.generateCookie(authResponse.getAccessToken());
+                response.setHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+                response.getWriter().write(new ObjectMapper().writeValueAsString("Refreshed token successfully"));
             }
         }
     }

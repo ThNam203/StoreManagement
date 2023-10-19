@@ -32,11 +32,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String authHeader = request.getHeader("Authorization");
         String jwt;
         final String userEmail;
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+//        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+//            filterChain.doFilter(request, response);
+//            return;
+//        }
+//        jwt = authHeader.substring(7)
+
+        // get the token from cookie
+        jwt = jwtService.getJwtAccessFromCookie(request);
+        if (jwt == null || jwt.isEmpty()) {
             filterChain.doFilter(request, response);
             return;
         }
-        jwt = authHeader.substring(7);
+
         userEmail =  jwtService.extractUsername(jwt);
         // check if the token is valid and set the authentication in the context if it is valid and not set yet (not set yet means the user is not logged in)
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {

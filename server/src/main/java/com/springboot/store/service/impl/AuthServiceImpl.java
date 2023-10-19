@@ -21,8 +21,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public Staff getCurrentStaff(HttpServletRequest request) {
-        final String authHeader = request.getHeader("Authorization");
-        String jwt = authHeader.substring(7);
+//        final String authHeader = request.getHeader("Authorization");
+//        String jwt = authHeader.substring(7);
+        String jwt = jwtService.getJwtAccessFromCookie(request);
         String username = jwtService.extractUsername(jwt);
         return staffRepository.findByEmail(username)
                 .orElseThrow(() -> new RuntimeException("Creator not found"));

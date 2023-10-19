@@ -6,9 +6,13 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.WebUtils;
 
 import java.security.Key;
 import java.util.Date;
@@ -24,6 +28,10 @@ public class JwtServiceImpl implements JwtService {
     private long jwtExpiration;
     @Value("${application.security.jwt.refresh-token.expiration}")
     private long refreshExpiration;
+    @Value("${application.security.jwt..access-token}")
+    private String jwtAccess;
+    @Value("${application.security.jwt.refresh-token}")
+    private String jwtRefresh;
     @Override
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -74,6 +82,26 @@ public class JwtServiceImpl implements JwtService {
         return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
     }
 
+    @Override
+    public ResponseCookie generateCookie(String token) {
+        return generateCookie(jwtAccess, token, "/api");
+    }
+
+    @Override
+    public ResponseCookie generateRefreshCookie(String token) {
+        return generateCookie(jwtRefresh, token, "/api/auth");
+    }
+
+    @Override
+    public String getJwtAccessFromCookie(HttpServletRequest request) {
+        return getCookieValueByName(request, jwtAccess);
+    }
+
+    @Override
+    public String getJwtRefreshFromCookie(HttpServletRequest request) {
+        return getCookieValueByName(request, jwtRefresh);
+    }
+
     private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
@@ -94,5 +122,18 @@ public class JwtServiceImpl implements JwtService {
     private Key getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    private ResponseCookie generateCookie(String name, String value, String path) {
+        return ResponseCookie.from(name, value).path(path).maxAge(24 * 60 * 60).httpOnly(true).build();
+    }
+
+    private String getCookieValueByName(HttpServletRequest request, String name) {
+        Cookie cookie = WebUtils.getCookie(request, name);
+        if (cookie != null) {
+            return cookie.getValue();
+        } else {
+            return null;
+        }
     }
 }
