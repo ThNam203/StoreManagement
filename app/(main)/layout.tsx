@@ -1,8 +1,8 @@
 import "../globals.css";
 import type { Metadata } from "next";
 import { Open_Sans } from "next/font/google";
-import SideBar from "@/components/ui/overview_sidebar";
-import styles from "./styles.module.css";
+import SideBar from "@/components/ui/overview/overview_sidebar";
+import no_scrollbar_style from "../../styles/no_scrollbar.module.css";
 const font = Open_Sans({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -17,9 +17,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={font.className + " overflow-x-hidden bg-white"}>
-        <SideBar className={styles["no-scrollbar"] + " z-10 bg-white"} />
-        <div className="bg-slate-100 overflow-hidden ml-[64px] lg:ml-[200px]">
+      <body className={font.className + "  bg-slate-100"}>
+        <SideBar className={no_scrollbar_style["no-scrollbar"] + " z-10 bg-white"} />
+        <div className="bg-slate-100 ml-[80px] lg:ml-[216px] py-4 pr-4">
           {children}
         </div>
       </body>

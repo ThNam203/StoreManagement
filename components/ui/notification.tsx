@@ -21,7 +21,7 @@ const Notification: React.FC<NotiData> = (data) => {
     <div className="flex flex-row gap-2 p-2 border-gray-200">
       <Avatar>
         <AvatarImage
-          src={data.imageUrl != null ? data.imageUrl : "/static/web_avatar.png"}
+          src={data.imageUrl != null ? data.imageUrl : "/web_avatar.png"}
           width={32}
           height={32}
         />
