@@ -35,6 +35,6 @@ public class CustomerGroup {
     @JoinColumn(name = "creator_id")
     private Staff creator;
 
-    @OneToMany(mappedBy = "customerGroup", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "customerGroup")
     private Set<Customer> customers;
 }

@@ -31,15 +31,15 @@ public class Coupon {
     @Column(name = "amount", nullable = false)
     private int amount;
 
-    @Column(name = "createdAt")
+    @Column(name = "created_at")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdAt;
 
-    @Column(name = "startDate")
+    @Column(name = "start_date")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date startDate;
 
-    @Column(name = "endDate")
+    @Column(name = "end_date")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date endDate;
 

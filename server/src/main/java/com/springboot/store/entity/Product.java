@@ -50,15 +50,15 @@ public class Product {
     @Column(name = "max_quantity")
     private int maxQuantity;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name = "product_group_id")
     private ProductGroup productGroup;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name = "product_brand_id")
     private ProductBrand productBrand;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name = "product_property_id")
     private ProductProperty productProperty;
 

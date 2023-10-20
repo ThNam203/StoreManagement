@@ -50,7 +50,7 @@ public class Customer {
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date createdAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name = "customer_group_id")
     private CustomerGroup customerGroup;
 
