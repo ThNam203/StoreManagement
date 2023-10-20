@@ -1,7 +1,7 @@
 import "../globals.css";
 import type { Metadata } from "next";
 import { Open_Sans } from "next/font/google";
-import SideBar from "@/components/ui/overview_sidebar";
+import SideBar from "@/components/ui/overview/overview_sidebar";
 import no_scrollbar_style from "../../styles/no_scrollbar.module.css";
 const font = Open_Sans({ subsets: ["latin"] });
 

@@ -20,7 +20,7 @@ import {
   User2,
   Truck,
 } from "lucide-react";
-import { Separator } from "./separator";
+import { Separator } from "../separator";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -29,8 +29,8 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "./accordion";
-import { Button } from "./button";
+} from "../accordion";
+import { Button } from "../button";
 
 const SideBarButton = (
   iconName: string,

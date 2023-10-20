@@ -3,15 +3,15 @@ import Notification from "@/components/ui/notification";
 import { ArrowRightCircle, Bell } from "lucide-react";
 import styles from "./styles.module.css";
 import scrollbar_style from "../../../../styles/scrollbar.module.css";
-import OverviewChart from "@/components/ui/overview_chart";
+import OverviewChart from "@/components/ui/overview/overview_chart";
 import React from "react";
-import RecentActivityItem from "@/components/ui/overview_recent_activity_item";
+import RecentActivityItem from "@/components/ui/overview/overview_recent_activity_item";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import Charts from "@/components/ui/overview_chart";
+import Charts from "@/components/ui/overview/overview_chart";
 import {
   Select,
   SelectContent,
