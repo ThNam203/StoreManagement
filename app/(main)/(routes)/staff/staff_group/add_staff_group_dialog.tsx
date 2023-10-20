@@ -22,8 +22,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
-import { Textarea } from "./textarea";
-import { TableRowProps } from "@/app/(main)/(routes)/staff/staff_group/page";
+import { Textarea } from "../../../../../components/ui/textarea";
+import { StaffGroup } from "@/app/(main)/(routes)/staff/props";
 
 const formSchema = z.object({
   group_name: z.string().min(1, {
@@ -34,12 +34,12 @@ const formSchema = z.object({
 
 type Props = {
   open: boolean;
-  data: TableRowProps | null;
-  submit: (values: TableRowProps) => void;
+  data: StaffGroup | null;
+  submit: (values: StaffGroup) => void;
   handleCloseDialog: () => void;
 };
 
-export function AddNewGroupDialog({
+export function AddGroupDialog({
   open,
   data,
   submit,
@@ -74,7 +74,7 @@ export function AddNewGroupDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleCloseDialog}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] xl:w-[500px]">
         <DialogHeader>
           <DialogTitle>Add new group</DialogTitle>
         </DialogHeader>
@@ -86,7 +86,7 @@ export function AddNewGroupDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Group name (*)</FormLabel>
-                  <FormControl>
+                  <FormControl className="w-full">
                     <Input placeholder="Group name" {...field} />
                   </FormControl>
                   <FormMessage />
@@ -99,7 +99,7 @@ export function AddNewGroupDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Note</FormLabel>
-                  <FormControl>
+                  <FormControl className="w-full">
                     <Textarea placeholder="Note" {...field} />
                   </FormControl>
                   <FormMessage />
