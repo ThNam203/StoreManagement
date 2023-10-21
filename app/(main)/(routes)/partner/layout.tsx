@@ -1,6 +1,6 @@
 "use client";
 
-export default function StaffLayout({
+export default function PartnerLayout({
   children, // will be a page or nested layout
 }: {
   children: React.ReactNode;

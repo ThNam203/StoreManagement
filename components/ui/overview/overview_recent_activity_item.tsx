@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "../avatar";
 
 type ActivityModel = {
   id: number;

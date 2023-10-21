@@ -1,78 +1,45 @@
 "use client";
-import { Button } from "@/components/ui/button";
 
-import SearchBar from "@/components/ui/searchbar";
-import { AddNewGroupDialog } from "@/components/ui/staff_group_dialog";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { randomUUID } from "crypto";
-import { MinusSquare, Pencil } from "lucide-react";
-import { useEffect, useState } from "react";
+import { DataTable } from "@/app/(main)/(routes)/staff/staff_group/datatable";
+import { DatePicker } from "@/components/ui/datepicker";
+import { Bell } from "lucide-react";
 import { nanoid } from "nanoid";
+import { ChangeEvent, useEffect, useState } from "react";
+import { StaffGroup } from "../props";
+import { AddGroupDialog } from "./add_staff_group_dialog";
 
-const originalGroupList: TableRowProps[] = [
+const originalGroupList: StaffGroup[] = [
   {
     id: nanoid(),
     groupName: "Group 1",
     group: "Staff",
-    note: "This is note 1",
-    operation: {
-      remove: true,
-      edit: true,
-    },
+    note: "This is group 1",
   },
   {
     id: nanoid(),
     groupName: "Group 2",
     group: "Staff",
-    note: "This is note 2",
-    operation: {
-      remove: true,
-      edit: true,
-    },
+    note: "This is group 2",
   },
   {
     id: nanoid(),
     groupName: "Group 3",
     group: "Staff",
-    note: "This is note 3",
-    operation: {
-      remove: true,
-      edit: true,
-    },
+    note: "This is group 3",
   },
 ];
 
-export type TableRowProps = {
-  id: any;
-  groupName: string;
-  group: string;
-  note: string;
-  operation: {
-    remove: boolean;
-    edit: boolean;
-  };
-};
-
 export default function StaffGroupPage() {
-  const [groupList, setGroupList] = useState<TableRowProps[]>([
-    ...originalGroupList,
-  ]);
+  const [groupList, setGroupList] = useState<StaffGroup[]>(originalGroupList);
   const [open, setOpen] = useState(false);
-  const [groupToEdit, setGroupToEdit] = useState<TableRowProps | null>(null);
+  const [groupToEdit, setGroupToEdit] = useState<StaffGroup | null>(null);
   const [filterList, setFilterList] = useState({});
 
   function handleCloseDialog() {
     setOpen(false);
     setGroupToEdit(null);
   }
-  function handleFormSubmit(values: TableRowProps) {
+  function handleFormSubmit(values: StaffGroup) {
     if (groupToEdit) {
       const index: number = groupList.indexOf(groupToEdit);
       if (index > -1) {
@@ -82,10 +49,6 @@ export default function StaffGroupPage() {
           groupName: values.groupName,
           group: "Staff",
           note: values.note,
-          operation: {
-            remove: true,
-            edit: true,
-          },
         };
 
         newGroupList.splice(index, 1, editedGroup);
@@ -97,17 +60,13 @@ export default function StaffGroupPage() {
         groupName: values.groupName,
         group: "Staff",
         note: values.note,
-        operation: {
-          remove: true,
-          edit: true,
-        },
       };
       setGroupList([...groupList, newGroup]);
     }
     handleCloseDialog();
   }
-  function handleRemoveRow(id: number) {
-    let newGroupList: TableRowProps[] = [];
+  function handleRemoveRow(id: any) {
+    let newGroupList: StaffGroup[] = [];
     groupList.forEach((group) => {
       if (group.id !== id) newGroupList.push(group);
     });
@@ -121,72 +80,51 @@ export default function StaffGroupPage() {
     }
   }, [groupToEdit]);
 
-  function handleEditRow(id: number) {
+  function handleEditRow(id: any) {
     const index: number = groupList.findIndex((group) => group.id === id);
 
     if (index > -1) {
       setGroupToEdit(groupList[index]);
     }
   }
+  function handleSelectAll() {}
+  function handleSelectARow(event: ChangeEvent) {
+    const tableRow = event.target.closest("TableRow");
+
+    tableRow?.setAttribute(
+      "data-state",
+      event.target.ariaChecked ? "selected" : ""
+    );
+  }
 
   return (
-    <div>
-      <div className="flex flex-row justify-between mb-6">
-        <div className="w-96">
-          <div className="font-semibold mb-2 self-center">Search by name</div>
-          <SearchBar />
+    <div className="h-screen">
+      <div className="w-full h-16 bg-white flex flex-row items-center justify-between px-20">
+        <div>
+          <span className="text-slate-500 text-xl">Staff Group</span>
         </div>
-
-        <div className="self-start">
-          <Button variant="default" onClick={() => setOpen(true)}>
-            Add new group
-          </Button>
+        <div className="flex flex-row items-center">
+          <div className="w-[300px]">
+            <DatePicker />
+          </div>
+          <div className="relative hover:opacity-70 ease-linear duration-200 cursor-pointer">
+            <Bell className="ml-6 " />
+            <span className="absolute -top-2 -right-2 w-5 h-5 leading-[1.25rem] rounded-full bg-blue-800 text-white text-xs flex items-center justify-center">
+              10
+            </span>
+          </div>
         </div>
       </div>
 
-      <AddNewGroupDialog
-        open={open}
-        data={groupToEdit}
-        submit={handleFormSubmit}
-        handleCloseDialog={handleCloseDialog}
-      />
-
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[100px]">#</TableHead>
-            <TableHead className="w-[300px]">Group Name</TableHead>
-            <TableHead className="w-[300px]">Group</TableHead>
-            <TableHead>Note</TableHead>
-            <TableHead className="text-right">Operation</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {groupList.map((group, index) => (
-            <TableRow key={group.id}>
-              <TableCell className="font-medium">{index + 1}</TableCell>
-              <TableCell>{group.groupName}</TableCell>
-              <TableCell>{group.group}</TableCell>
-              <TableCell>{group.note}</TableCell>
-              <TableCell className="flex flex-row justify-end text-right">
-                {group.operation.edit ? (
-                  <Pencil
-                    size={20}
-                    className="hover:cursor-pointer hover:opacity-70 ease-linear duration-200"
-                    onClick={() => handleEditRow(group.id)}
-                  />
-                ) : null}
-                {group.operation.remove ? (
-                  <MinusSquare
-                    className="text-red-500 ml-3 hover:cursor-pointer hover:opacity-70 ease-linear duration-200"
-                    onClick={() => handleRemoveRow(group.id)}
-                  />
-                ) : null}
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <div className="bg-white m-6 p-6 rounded-lg">
+        <DataTable data={groupList} setOpenDialog={setOpen} />
+        <AddGroupDialog
+          open={open}
+          data={groupToEdit}
+          submit={handleFormSubmit}
+          handleCloseDialog={handleCloseDialog}
+        />
+      </div>
     </div>
   );
 }

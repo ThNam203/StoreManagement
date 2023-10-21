@@ -5,6 +5,7 @@ import { ArrowRightCircle } from "lucide-react";
 import Image from "next/image";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
 import * as z from "zod";
 import {
   Form,
@@ -16,8 +17,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
+import { useToast } from "@/components/ui/use-toast";
+import { useState } from "react";
+import LoadingCircle from "@/components/ui/loading_circle";
+import AuthService from "@/services/auth_service";
 
-const formSchema = z.object({
+export const registerFormSchema = z.object({
   firstName: z
     .string()
     .min(1, "Must be at least 1 character")
@@ -40,8 +45,8 @@ const formSchema = z.object({
 });
 
 export default function SignUp() {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof registerFormSchema>>({
+    resolver: zodResolver(registerFormSchema),
     defaultValues: {
       firstName: "",
       lastName: "",
@@ -50,9 +55,35 @@ export default function SignUp() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log("hello");
-    console.log(values);
+  const [isRegistering, setIsRegistering] = useState(false);
+  const { toast } = useToast();
+  const router = useRouter();
+
+  function onSubmit(values: z.infer<typeof registerFormSchema>) {
+    setIsRegistering(true);
+      AuthService.Register(values)
+      .then((response) => {
+        router.push('/overview')
+      })
+      .catch((error) => {
+        if (error.response) {
+          toast({
+            variant: "destructive",
+            title: "Register failed",
+            description: error.response.data.message,
+          });
+        } else {
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description:
+              "Something has gone wrong, you can report it to developers!",
+          });
+        }
+      })
+      .finally(() => {
+        setIsRegistering(false);
+      });
   }
 
   return (
@@ -67,9 +98,9 @@ export default function SignUp() {
           width={20}
           height={20}
           src={"/ic_google_144x144.svg"}
-          alt="sign up using google"
+          alt="register using google"
         />
-        <span className="mx-8">Sign up using Google</span>
+        <span className="mx-8">Register using Google</span>
         <ArrowRightCircle
           width={16}
           height={16}
@@ -140,8 +171,12 @@ export default function SignUp() {
           <Button
             type="submit"
             className="my-4 w-full bg-indigo-400 hover:bg-indigo-600 text-white uppercase text-sm"
+            disabled={isRegistering}
           >
             Sign Up
+            <LoadingCircle
+              className={"!w-4 ml-4 " + (isRegistering ? "" : "hidden")}
+            />
           </Button>
         </form>
       </Form>
