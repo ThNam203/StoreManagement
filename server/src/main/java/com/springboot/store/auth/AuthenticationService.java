@@ -49,6 +49,7 @@ public class AuthenticationService {
         staffRepository.save(staff);
         var jwtToken = jwtService.generateToken(staff);
         var refreshToken = jwtService.generateRefreshToken(staff);
+        saveUserToken(staff, refreshToken);
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                     .refreshToken(refreshToken)
@@ -73,7 +74,7 @@ public class AuthenticationService {
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
         revokeAllUserTokens(user);
-        saveUserToken(user, jwtToken);
+        saveUserToken(user, refreshToken);
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
@@ -115,7 +116,7 @@ public class AuthenticationService {
 //        refreshToken = authHeader.substring(7);
 
         // get the token from cookie
-        refreshToken = jwtService.getJwtAccessFromCookie(request);
+        refreshToken = jwtService.getJwtRefreshFromCookie(request);
         if (refreshToken == null || refreshToken.isEmpty()) {
             return;
         }
@@ -124,7 +125,7 @@ public class AuthenticationService {
         if (userEmail != null) {
             var user = this.staffRepository.findByEmail(userEmail)
                     .orElseThrow();
-            if (jwtService.isTokenValid(refreshToken, user)) {
+            if (jwtService.isTokenValid(refreshToken, user) && !jwtService.isRefreshTokenRevoked(refreshToken)) {
                 var accessToken = jwtService.generateToken(user);
                 revokeAllUserTokens(user);
                 saveUserToken(user, accessToken);
@@ -138,6 +139,10 @@ public class AuthenticationService {
                 var cookie = jwtService.generateCookie(authResponse.getAccessToken());
                 response.setHeader(HttpHeaders.SET_COOKIE, cookie.toString());
                 response.getWriter().write(new ObjectMapper().writeValueAsString("Refreshed token successfully"));
+            } else {
+                // status error 401
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write(new ObjectMapper().writeValueAsString("Refresh token is invalid"));
             }
         }
     }

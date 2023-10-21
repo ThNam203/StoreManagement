@@ -16,4 +16,5 @@ public interface JwtService {
     ResponseCookie generateRefreshCookie(String token);
     String getJwtAccessFromCookie(HttpServletRequest request);
     String getJwtRefreshFromCookie(HttpServletRequest request);
+    Boolean isRefreshTokenRevoked(String jwt);
 }
