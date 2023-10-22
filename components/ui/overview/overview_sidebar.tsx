@@ -21,6 +21,16 @@ import {
   User2,
   Truck,
   ArrowLeftCircle,
+  Grid3x3,
+  Eye,
+  Box,
+  PenSquare,
+  ArrowLeftRight,
+  Undo,
+  BaggageClaim,
+  ShoppingBasket,
+  ArrowUpSquare,
+  PackageX,
 } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
@@ -33,8 +43,42 @@ import {
 } from "../accordion";
 import { Button } from "../button";
 import React, { useState } from "react";
+import Link from "next/link";
 
-const LucideIcons = (iconName: string, isCollapsed: boolean | null) => {
+enum IconNames {
+  GanttChartSquare,
+  Receipt,
+  Users,
+  BarChart3,
+  ShoppingCart,
+  Grid3X3,
+  ShoppingBag,
+  Package,
+  User,
+  Contact,
+  CalendarClock,
+  Settings,
+  LogOut,
+  UserCog,
+  Wrench,
+  MenuSquare,
+  CalendarRange,
+  Boxes,
+  Group,
+  User2,
+  Truck,
+  Eye,
+  Box,
+  PenSquare,
+  ArrowLeftRight,
+  Undo,
+  BaggageClaim,
+  ShoppingBasket,
+  ArrowUpSquare,
+  PackageX,
+}
+
+const LucideIcons = (iconName: IconNames, isCollapsed: boolean | null) => {
   const iconSize = 16;
   const iconClasses = cn(
     "m-auto",
@@ -43,59 +87,81 @@ const LucideIcons = (iconName: string, isCollapsed: boolean | null) => {
   );
   let icon: JSX.Element;
   switch (iconName) {
-    case "GanttChartSquare":
+    case IconNames.GanttChartSquare:
       return <GanttChartSquare size={iconSize} className={iconClasses} />;
-    case "Receipt":
+    case IconNames.Receipt:
       return <Receipt size={iconSize} className={iconClasses} />;
-    case "Users":
+    case IconNames.Users:
       return <Users size={iconSize} className={iconClasses} />;
-    case "BarChart3":
+    case IconNames.BarChart3:
       return <BarChart3 size={iconSize} className={iconClasses} />;
-    case "ShoppingCart":
+    case IconNames.ShoppingCart:
       return <ShoppingCart size={iconSize} className={iconClasses} />;
-    case "ShoppingBag":
+    case IconNames.Grid3X3:
+      return <Grid3x3 size={iconSize} className={iconClasses} />;
+    case IconNames.ShoppingBag:
       return <ShoppingBag size={iconSize} className={iconClasses} />;
-    case "Package":
+    case IconNames.Package:
       return <Package size={iconSize} className={iconClasses} />;
-    case "User":
+    case IconNames.User:
       return <User size={iconSize} className={iconClasses} />;
-    case "Contact":
+    case IconNames.Contact:
       return <Contact size={iconSize} className={iconClasses} />;
-    case "CalendarClock":
+    case IconNames.CalendarClock:
       return <CalendarClock size={iconSize} className={iconClasses} />;
-    case "Settings":
+    case IconNames.Settings:
       return <Settings size={iconSize} className={iconClasses} />;
-    case "LogOut":
+    case IconNames.LogOut:
       return <LogOut size={iconSize} className={iconClasses} />;
-    case "UserCog":
+    case IconNames.UserCog:
       return <UserCog size={iconSize} className={iconClasses} />;
-    case "Wrench":
+    case IconNames.Wrench:
       return <Wrench size={iconSize} className={iconClasses} />;
-    case "MenuSquare":
+    case IconNames.MenuSquare:
       return <MenuSquare size={iconSize} className={iconClasses} />;
-    case "CalendarRange":
+    case IconNames.CalendarRange:
       return <CalendarRange size={iconSize} className={iconClasses} />;
-    case "Boxes":
+    case IconNames.Boxes:
       return <Boxes size={iconSize} className={iconClasses} />;
-    case "Group":
+    case IconNames.Group:
       return <Group size={iconSize} className={iconClasses} />;
-    case "User2":
+    case IconNames.User2:
       return <User2 size={iconSize} className={iconClasses} />;
-    case "Truck":
+    case IconNames.Truck:
       return <Truck size={iconSize} className={iconClasses} />;
+    case IconNames.Eye:
+      return <Eye size={iconSize} className={iconClasses} />;
+    case IconNames.Box:
+      return <Box size={iconSize} className={iconClasses} />;
+    case IconNames.PenSquare:
+      return <PenSquare size={iconSize} className={iconClasses} />;
+    case IconNames.ArrowLeftRight:
+      return <ArrowLeftRight size={iconSize} className={iconClasses} />;
+    case IconNames.ArrowUpSquare:
+      return <ArrowUpSquare size={iconSize} className={iconClasses} />;
+    case IconNames.BaggageClaim:
+      return <BaggageClaim size={iconSize} className={iconClasses} />;
+    case IconNames.PackageX:
+      return <PackageX size={iconSize} className={iconClasses} />;
+    case IconNames.ShoppingBasket:
+      return <ShoppingBasket size={iconSize} className={iconClasses} />;
+    case IconNames.Undo:
+      return <Undo size={iconSize} className={iconClasses} />;
   }
 };
 
 const SideBarButton = (
-  iconName: string,
+  iconName: IconNames,
   title: string,
   className: string = "",
-  isCollapsed: boolean | null
+  isCollapsed: boolean | null,
+  href: string
 ) => {
   const icon = LucideIcons(iconName, isCollapsed);
 
   return (
-    <div
+    <Link
+      href={href}
       className={cn(
         "hover:text-blue-700 hover:bg-blue-100",
         title == "Logout" && "hover:text-red-700 hover:bg-red-200",
@@ -123,12 +189,12 @@ const SideBarButton = (
           ) : null
         }
       </p>
-    </div>
+    </Link>
   );
 };
 
 const SideBarAccordion = (
-  iconName: string,
+  iconName: IconNames,
   title: string,
   buttons: JSX.Element[],
   isCollapsed: boolean | null
@@ -153,7 +219,7 @@ const SideBarAccordion = (
               ? "justify-center"
               : isCollapsed == false
               ? "justify-start"
-              : "",
+              : ""
           )}
         >
           <div className="flex flex-row w-full">
@@ -199,12 +265,12 @@ const SideBar = ({
         className={cn(
           "fixed rounded-full translate-x-[-50%] z-20 top-8 ease-linear duration-150 hover:cursor-pointer",
           isCollapsed == null
-            ? "max-lg:rotate-180 left-[64px] lg:left-[200px]"
+            ? "max-lg:rotate-180 left-[64px] lg:left-[232px]"
             : "",
           isCollapsed == true
             ? "left-[64px] rotate-180"
             : isCollapsed == false
-            ? "left-[200px]"
+            ? "left-[232px]"
             : ""
         )}
       />
@@ -212,11 +278,11 @@ const SideBar = ({
         className={cn(
           "flex flex-col fixed left-0 top-0 h-full overflow-y-scroll items-center ease-linear duration-200",
           className,
-          isCollapsed == null ? "w-[64px] lg:w-[200px]" : "",
+          isCollapsed == null ? "w-[64px] lg:w-[232px]" : "",
           isCollapsed == true
             ? "w-[64px]"
             : isCollapsed == false
-            ? "w-[200px]"
+            ? "w-[232px]"
             : ""
         )}
       >
@@ -280,66 +346,173 @@ const SideBar = ({
               </div>
             </AccordionTrigger>
             <AccordionContent>
-              {SideBarButton("UserCog", "Edit profile", "w-full", isCollapsed)}
-              {SideBarButton("LogOut", "Logout", "w-full", isCollapsed)}
+              {SideBarButton(
+                IconNames.UserCog,
+                "Edit Profile",
+                "w-full",
+                isCollapsed,
+                "/profile"
+              )}
+              {SideBarButton(
+                IconNames.LogOut,
+                "Logout",
+                "w-full",
+                isCollapsed,
+                "/logout"
+              )}
             </AccordionContent>
           </AccordionItem>
         </Accordion>
 
-        {SideBarAccordion(
-          "Receipt",
-          "Sales",
-          [SideBarButton("ShoppingCart", "Orders", "!w-full", isCollapsed)],
-          isCollapsed
-        )}
+        {SideBarButton(IconNames.Eye, "Overview", "", isCollapsed, "/overview")}
 
         {SideBarAccordion(
-          "Users",
-          "Partners",
-          [
-            SideBarButton("User2", "Customer group", "!w-full", isCollapsed),
-            SideBarButton("User", "Customers", "!w-full", isCollapsed),
-            SideBarButton("Truck", "Supplier", "!w-full", isCollapsed),
-          ],
-          isCollapsed
-        )}
-
-        {SideBarButton("Package", "Warehouse", "", isCollapsed)}
-        {SideBarButton("BarChart3", "Report", "", isCollapsed)}
-
-        {SideBarAccordion(
-          "ShoppingBag",
+          IconNames.Box,
           "Products",
           [
-            SideBarButton("Group", "Product group", "!w-full", isCollapsed),
-            SideBarButton("Boxes", "Products", "!w-full", isCollapsed),
+            SideBarButton(
+              IconNames.Group,
+              "Catalog",
+              "!w-full",
+              isCollapsed,
+              "/product"
+            ),
+            SideBarButton(
+              IconNames.Wrench,
+              "Price Setting",
+              "!w-full",
+              isCollapsed,
+              "/product-price"
+            ),
+            SideBarButton(
+              IconNames.PenSquare,
+              "Stock Check",
+              "!w-full",
+              isCollapsed,
+              "/stock-check"
+            ),
           ],
           isCollapsed
         )}
 
         {SideBarAccordion(
-          "Contact",
-          "Staff",
+          IconNames.Receipt,
+          "Transaction",
           [
-            SideBarButton("UserCog", "Staff group", "!w-full", isCollapsed),
             SideBarButton(
-              "MenuSquare",
-              "Staff account",
+              IconNames.Receipt,
+              "Invoices",
               "!w-full",
-              isCollapsed
+              isCollapsed,
+              "/invoices"
             ),
-            SideBarButton("Wrench", "Role setting", "!w-full", isCollapsed),
             SideBarButton(
-              "CalendarRange",
-              "Work manage",
+              IconNames.Undo,
+              "Return",
               "!w-full",
-              isCollapsed
+              isCollapsed,
+              "/returns"
+            ),
+            SideBarButton(
+              IconNames.BaggageClaim,
+              "Purchase Orders",
+              "!w-full",
+              isCollapsed,
+              "/purchase-orders"
+            ),
+            SideBarButton(
+              IconNames.ArrowUpSquare,
+              "Purchase Returns",
+              "!w-full",
+              isCollapsed,
+              "/purchase-returns"
+            ),
+            SideBarButton(
+              IconNames.PackageX,
+              "Damaged items",
+              "!w-full",
+              isCollapsed,
+              "/damaged-products"
             ),
           ],
           isCollapsed
         )}
 
-        {SideBarButton("Settings", "Settings", "", isCollapsed)}
+        {SideBarAccordion(
+          IconNames.Users,
+          "Partners",
+          [
+            // SideBarButton("User2", "Customer group", "!w-full", isCollapsed, "/partner/customer_group"),
+            SideBarButton(
+              IconNames.User,
+              "Customers",
+              "!w-full",
+              isCollapsed,
+              "/partner/customer"
+            ),
+            SideBarButton(
+              IconNames.Truck,
+              "Supplier",
+              "!w-full",
+              isCollapsed,
+              "/partner/supplier"
+            ),
+          ],
+          isCollapsed
+        )}
+
+        {/* {SideBarButton("Package", "Warehouse", "", isCollapsed, "")} */}
+        {SideBarButton(
+          IconNames.BarChart3,
+          "Reports",
+          "",
+          isCollapsed,
+          "/reports"
+        )}
+
+        {SideBarAccordion(
+          IconNames.Contact,
+          "Staff",
+          [
+            SideBarButton(
+              IconNames.UserCog,
+              "Staff Group",
+              "!w-full",
+              isCollapsed,
+              "/staff/staff-group"
+            ),
+            SideBarButton(
+              IconNames.MenuSquare,
+              "Staff Account",
+              "!w-full",
+              isCollapsed,
+              "/staff/staff-account"
+            ),
+            SideBarButton(
+              IconNames.Wrench,
+              "Role Setting",
+              "!w-full",
+              isCollapsed,
+              "/staff/staff-role"
+            ),
+            SideBarButton(
+              IconNames.CalendarRange,
+              "Work Manage",
+              "!w-full",
+              isCollapsed,
+              "/"
+            ),
+          ],
+          isCollapsed
+        )}
+
+        {SideBarButton(
+          IconNames.Settings,
+          "Settings",
+          "",
+          isCollapsed,
+          "/settings"
+        )}
       </div>
     </div>
   );

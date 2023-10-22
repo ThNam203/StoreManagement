@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const notifications = [
   {
@@ -322,14 +323,14 @@ export default function Home() {
       </div>
       <div className={styles["notification-board"]}>
         <h3 className="uppercase font-semibold my-2">Recent activities</h3>
-        <div className={scrollbar_style.scrollbar + " overflow-y-scroll"}>
+        <ScrollArea scrollHideDelay={100}>
           {recentActivities.map((activity) => (
             <RecentActivityItem
               {...activity}
               key={activity.id}
             ></RecentActivityItem>
           ))}
-        </div>
+        </ScrollArea>
       </div>
     </div>
   );

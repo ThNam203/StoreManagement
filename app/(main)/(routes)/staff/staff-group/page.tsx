@@ -1,6 +1,6 @@
 "use client";
 
-import { DataTable } from "@/app/(main)/(routes)/staff/staff_group/datatable";
+import { DataTable } from "@/app/(main)/(routes)/staff/staff-group/datatable";
 import { DatePicker } from "@/components/ui/datepicker";
 import { Bell } from "lucide-react";
 import { nanoid } from "nanoid";

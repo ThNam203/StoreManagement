@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/table";
 import { columns } from "./columns";
 import { StaffGroup } from "../entities";
-import { AddStaffDialog } from "../staff_account/add_staff_dialog";
+import { AddStaffDialog } from "../staff-account/add_staff_dialog";
 import { AddGroupDialog } from "./add_staff_group_dialog";
 type Props = {
   data: StaffGroup[];
