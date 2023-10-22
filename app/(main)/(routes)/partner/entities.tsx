@@ -8,10 +8,8 @@ export type Customer = {
   email: string;
   birthday: string;
   image: string;
-  description: string;
   creator: string;
   createdDate: string;
-  status: string;
   note: string;
   //id, name, phone_number, date_of_birth, address, sex, email, customer_group, image, description, creator, created_date, status (working or not working)
 };

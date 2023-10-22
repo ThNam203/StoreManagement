@@ -8,9 +8,10 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 
-import { Staff } from "@/app/(main)/(routes)/staff/props";
+import { Staff } from "@/app/(main)/(routes)/staff/entities";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -32,6 +33,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../../../../components/ui/select";
+import { nanoid } from "nanoid";
 
 const formSchema = z.object({
   id: z.any(),
@@ -48,18 +50,11 @@ const formSchema = z.object({
 });
 
 type Props = {
-  open: boolean;
   data?: Staff;
   submit: (values: Staff) => void;
-  handleCloseDialog: () => void;
 };
 
-export function AddStaffDialog({
-  open,
-  data,
-  submit,
-  handleCloseDialog,
-}: Props) {
+export function AddStaffDialog({ data, submit }: Props) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -69,7 +64,7 @@ export function AddStaffDialog({
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     const newGroup: Staff = {
-      id: -1,
+      id: nanoid(9),
       name: values.name,
       staffGroup: values.staffGroup,
       position: values.position,
@@ -84,11 +79,12 @@ export function AddStaffDialog({
     if (submit) {
       submit(newGroup);
       form.reset();
+      setOpen(false);
     }
   }
-
+  const [open, setOpen] = useState(false);
   function handleCancelDialog() {
-    handleCloseDialog();
+    setOpen(false);
     form.reset();
   }
 
@@ -98,7 +94,10 @@ export function AddStaffDialog({
   const positionList = ["Owner", "Cashier", "Safe Guard", "Manager", "Cleaner"];
 
   return (
-    <Dialog open={open} onOpenChange={handleCloseDialog}>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="default">Add new staff</Button>
+      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Add new staff</DialogTitle>

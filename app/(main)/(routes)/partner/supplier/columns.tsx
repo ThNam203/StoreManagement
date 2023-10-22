@@ -10,8 +10,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal } from "lucide-react";
-import { Supplier } from "../props";
+import {
+  ArrowDown01,
+  ArrowDown10,
+  ArrowDownAz,
+  ArrowDownZa,
+  MoreHorizontal,
+} from "lucide-react";
+import { Supplier } from "../entities";
 
 export const columns: ColumnDef<Supplier>[] = [
   {
@@ -38,11 +44,29 @@ export const columns: ColumnDef<Supplier>[] = [
   {
     accessorKey: "id",
     header: "ID",
-    cell: ({ row }) => <div>{row.getValue("id")}</div>,
+    cell: ({ row }) => <div className="w-[100px]">{row.getValue("id")}</div>,
   },
   {
     accessorKey: "name",
-    header: "Supplier Name",
+    header: ({ column }) => {
+      return (
+        <div
+          className="w-[140px] flex flex-row hover:opacity-80 ease-linear duration-200 hover:cursor-pointer"
+          onClick={() => column.toggleSorting()}
+        >
+          <span>Supplier Name</span>
+          {column.getIsSorted() === false ? null : (
+            <div>
+              {column.getIsSorted() === "asc" ? (
+                <ArrowDownAz className="ml-2 h-4 w-4" />
+              ) : (
+                <ArrowDownZa className="ml-2 h-4 w-4" />
+              )}
+            </div>
+          )}
+        </div>
+      );
+    },
     cell: ({ row }) => <div className="capitalize">{row.getValue("name")}</div>,
   },
   {
@@ -52,15 +76,53 @@ export const columns: ColumnDef<Supplier>[] = [
   },
   {
     accessorKey: "email",
-    header: "Email",
+    header: ({ column }) => {
+      return (
+        <div
+          className="w-[120px] flex flex-row hover:opacity-80 ease-linear duration-200 hover:cursor-pointer"
+          onClick={() => column.toggleSorting()}
+        >
+          <span>Email</span>
+          {column.getIsSorted() === false ? null : (
+            <div>
+              {column.getIsSorted() === "asc" ? (
+                <ArrowDownAz className="ml-2 h-4 w-4" />
+              ) : (
+                <ArrowDownZa className="ml-2 h-4 w-4" />
+              )}
+            </div>
+          )}
+        </div>
+      );
+    },
     cell: ({ row }) => <div>{row.getValue("email")}</div>,
   },
   {
-    header: "Debt",
+    accessorKey: "debt",
+    header: ({ column }) => {
+      return (
+        <div
+          className="w-fit flex flex-row hover:opacity-80 ease-linear duration-200 hover:cursor-pointer"
+          onClick={() => column.toggleSorting()}
+        >
+          <span>Debt</span>
+        </div>
+      );
+    },
     cell: ({ row }) => <div className="text-center">0</div>,
   },
   {
-    header: "Total buy",
+    accessorKey: "totalBuy",
+    header: ({ column }) => {
+      return (
+        <div
+          className="w-fit flex flex-row hover:opacity-80 ease-linear duration-200 hover:cursor-pointer"
+          onClick={() => column.toggleSorting()}
+        >
+          <span>Total Buy</span>
+        </div>
+      );
+    },
     cell: ({ row }) => <div className="text-center">0</div>,
   },
   {
