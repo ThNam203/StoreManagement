@@ -203,7 +203,7 @@ const SideBarAccordion = (
     <Accordion
       type="single"
       collapsible={true}
-      className="w-5/6 bg-slate-100 rounded-xl mx-2 my-1 hover:cursor-pointer"
+      className="w-5/6 bg-slate-100 rounded-md mx-2 my-1"
     >
       <AccordionItem value="item-1">
         <AccordionTrigger
@@ -311,7 +311,7 @@ const SideBar = ({
         <Accordion
           type="single"
           collapsible={true}
-          className="w-5/6 bg-slate-100 rounded-xl mx-2 my-2 px-2 hover:cursor-pointer"
+          className="w-5/6 bg-slate-100 rounded-md mx-2 my-2 px-2"
         >
           <AccordionItem value="item-1">
             <AccordionTrigger
@@ -375,7 +375,7 @@ const SideBar = ({
               "Catalog",
               "!w-full",
               isCollapsed,
-              "/product"
+              "/catalog"
             ),
             SideBarButton(
               IconNames.Wrench,
