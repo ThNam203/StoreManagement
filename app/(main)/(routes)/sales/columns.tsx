@@ -10,15 +10,18 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
 import {
+  ArrowDown,
   ArrowDown01,
   ArrowDown10,
   ArrowDownAZ,
   ArrowDownZA,
+  ArrowUp,
   MoreHorizontal,
 } from "lucide-react";
-import { Staff } from "../entities";
+import { FormType, Transaction } from "./entities";
+import { formatPrice } from "./utils";
 
-export const columns: ColumnDef<Staff>[] = [
+export const columns: ColumnDef<Transaction>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -41,14 +44,14 @@ export const columns: ColumnDef<Staff>[] = [
     cell: ({ row }) => <div>{row.index + 1}</div>,
   },
   {
-    accessorKey: "name",
+    accessorKey: "id",
     header: ({ column }) => {
       return (
         <div
           className="w-[100px] flex flex-row hover:opacity-80 ease-linear duration-200 hover:cursor-pointer"
           onClick={() => column.toggleSorting()}
         >
-          <span>Staff Name</span>
+          <span>Form ID</span>
           {column.getIsSorted() === false ? null : (
             <div>
               {column.getIsSorted() === "asc" ? (
@@ -61,29 +64,40 @@ export const columns: ColumnDef<Staff>[] = [
         </div>
       );
     },
-    cell: ({ row }) => <div className="capitalize">{row.getValue("name")}</div>,
+    cell: ({ row }) => <div>{row.getValue("id")}</div>,
   },
   {
-    accessorKey: "position",
-    header: "Position",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("position")}</div>
-    ),
-  },
-  {
-    accessorKey: "phoneNumber",
-    header: "Phone Number",
-    cell: ({ row }) => <div>{row.getValue("phoneNumber")}</div>,
-  },
-  {
-    accessorKey: "email",
+    accessorKey: "createdDate",
     header: ({ column }) => {
       return (
         <div
           className="w-[100px] flex flex-row hover:opacity-80 ease-linear duration-200 hover:cursor-pointer"
           onClick={() => column.toggleSorting()}
         >
-          <span>Email</span>
+          <span>Time</span>
+          {column.getIsSorted() === false ? null : (
+            <div>
+              {column.getIsSorted() === "asc" ? (
+                <ArrowDown className="ml-2 h-4 w-4" />
+              ) : (
+                <ArrowUp className="ml-2 h-4 w-4" />
+              )}
+            </div>
+          )}
+        </div>
+      );
+    },
+    cell: ({ row }) => <div>{row.getValue("createdDate")}</div>,
+  },
+  {
+    accessorKey: "formType",
+    header: ({ column }) => {
+      return (
+        <div
+          className="w-[150px] flex flex-row hover:opacity-80 ease-linear duration-200 hover:cursor-pointer"
+          onClick={() => column.toggleSorting()}
+        >
+          <span>Type</span>
           {column.getIsSorted() === false ? null : (
             <div>
               {column.getIsSorted() === "asc" ? (
@@ -96,7 +110,62 @@ export const columns: ColumnDef<Staff>[] = [
         </div>
       );
     },
-    cell: ({ row }) => <div>{row.getValue("email")}</div>,
+    cell: ({ row }) => <div>{row.getValue("formType")}</div>,
+  },
+  {
+    accessorKey: "targetName",
+    header: ({ column }) => {
+      return (
+        <div
+          className="w-[100px] flex flex-row hover:opacity-80 ease-linear duration-200 hover:cursor-pointer"
+          onClick={() => column.toggleSorting()}
+        >
+          <span>Receiver/Payer</span>
+          {column.getIsSorted() === false ? null : (
+            <div>
+              {column.getIsSorted() === "asc" ? (
+                <ArrowDownAZ className="ml-2 h-4 w-4" />
+              ) : (
+                <ArrowDownZA className="ml-2 h-4 w-4" />
+              )}
+            </div>
+          )}
+        </div>
+      );
+    },
+    cell: ({ row }) => <div>{row.getValue("targetName")}</div>,
+  },
+  {
+    accessorKey: "value",
+    header: ({ column }) => {
+      return (
+        <div
+          className="w-[100px] flex flex-row hover:opacity-80 ease-linear duration-200 hover:cursor-pointer"
+          onClick={() => column.toggleSorting()}
+        >
+          <span>Value</span>
+          {column.getIsSorted() === false ? null : (
+            <div>
+              {column.getIsSorted() === "asc" ? (
+                <ArrowDown01 className="ml-2 h-4 w-4" />
+              ) : (
+                <ArrowDown10 className="ml-2 h-4 w-4" />
+              )}
+            </div>
+          )}
+        </div>
+      );
+    },
+    cell: ({ row }) => {
+      const isExpense = row.getValue("formType") === FormType.EXPENSE;
+      const className = isExpense ? "text-[#be1c26]" : "text-[green]";
+      return (
+        <div className={`font-bold + ${className}`}>
+          {isExpense ? <span>-</span> : <span>+</span>}
+          {formatPrice(row.getValue("value"))}
+        </div>
+      );
+    },
   },
   {
     id: "actions",

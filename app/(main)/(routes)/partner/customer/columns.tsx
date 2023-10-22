@@ -9,8 +9,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal } from "lucide-react";
-import { Customer } from "../props";
+import { ArrowDownAZ, ArrowDownZA, MoreHorizontal } from "lucide-react";
+import { Customer } from "../entities";
 import { DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
 
 export const columns: ColumnDef<Customer>[] = [
@@ -42,12 +42,48 @@ export const columns: ColumnDef<Customer>[] = [
   },
   {
     accessorKey: "name",
-    header: "Customer Name",
+    header: ({ column }) => {
+      return (
+        <div
+          className="w-[140px] flex flex-row hover:opacity-80 ease-linear duration-200 hover:cursor-pointer"
+          onClick={() => column.toggleSorting()}
+        >
+          <span>Customer Name</span>
+          {column.getIsSorted() === false ? null : (
+            <div>
+              {column.getIsSorted() === "asc" ? (
+                <ArrowDownAZ className="ml-2 h-4 w-4" />
+              ) : (
+                <ArrowDownZA className="ml-2 h-4 w-4" />
+              )}
+            </div>
+          )}
+        </div>
+      );
+    },
     cell: ({ row }) => <div className="capitalize">{row.getValue("name")}</div>,
   },
   {
     accessorKey: "customerGroup",
-    header: "Customer Group",
+    header: ({ column }) => {
+      return (
+        <div
+          className="w-[140px] flex flex-row hover:opacity-80 ease-linear duration-200 hover:cursor-pointer"
+          onClick={() => column.toggleSorting()}
+        >
+          <span>Customer Group</span>
+          {column.getIsSorted() === false ? null : (
+            <div>
+              {column.getIsSorted() === "asc" ? (
+                <ArrowDownAZ className="ml-2 h-4 w-4" />
+              ) : (
+                <ArrowDownZA className="ml-2 h-4 w-4" />
+              )}
+            </div>
+          )}
+        </div>
+      );
+    },
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("customerGroup")}</div>
     ),
@@ -58,7 +94,17 @@ export const columns: ColumnDef<Customer>[] = [
     cell: ({ row }) => <div>{row.getValue("phoneNumber")}</div>,
   },
   {
-    header: "Total sales",
+    accessorKey: "totalSales",
+    header: ({ column }) => {
+      return (
+        <div
+          className="w-fit flex flex-row hover:opacity-80 ease-linear duration-200 hover:cursor-pointer"
+          onClick={() => column.toggleSorting()}
+        >
+          <span>Total Sales</span>
+        </div>
+      );
+    },
     cell: ({ row }) => <div className="text-center">0</div>,
   },
   {

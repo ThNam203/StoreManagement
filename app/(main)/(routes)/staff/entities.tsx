@@ -15,6 +15,5 @@ export type Staff = {
 export type StaffGroup = {
   id: any;
   groupName: string;
-  group: string;
   note: string;
 };
