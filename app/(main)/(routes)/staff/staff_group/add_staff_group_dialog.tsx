@@ -8,6 +8,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 
 import { Button } from "@/components/ui/button";
@@ -23,7 +24,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { Textarea } from "../../../../../components/ui/textarea";
-import { StaffGroup } from "@/app/(main)/(routes)/staff/props";
+import { StaffGroup } from "@/app/(main)/(routes)/staff/entities";
+import { nanoid } from "nanoid";
+import { useState } from "react";
 
 const formSchema = z.object({
   group_name: z.string().min(1, {
@@ -33,18 +36,11 @@ const formSchema = z.object({
 });
 
 type Props = {
-  open: boolean;
-  data: StaffGroup | null;
+  data?: StaffGroup | null;
   submit: (values: StaffGroup) => void;
-  handleCloseDialog: () => void;
 };
 
-export function AddGroupDialog({
-  open,
-  data,
-  submit,
-  handleCloseDialog,
-}: Props) {
+export function AddGroupDialog({ data, submit }: Props) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -56,10 +52,10 @@ export function AddGroupDialog({
       note: data && data.note ? data.note : "",
     },
   });
-
+  const [open, setOpen] = useState(false);
   function onSubmit(values: z.infer<typeof formSchema>) {
     const newGroup = {
-      id: -1,
+      id: data && data.id ? data.id : nanoid(9),
       groupName: values.group_name,
       group: "",
       note: values.note,
@@ -70,10 +66,19 @@ export function AddGroupDialog({
     };
     submit(newGroup);
     form.reset();
+    setOpen(false);
   }
 
+  const handleCancelDialog = () => {
+    form.reset();
+    setOpen(false);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={handleCloseDialog}>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="default">Add new group</Button>
+      </DialogTrigger>
       <DialogContent className="sm:max-w-[425px] xl:w-[500px]">
         <DialogHeader>
           <DialogTitle>Add new group</DialogTitle>
@@ -110,7 +115,7 @@ export function AddGroupDialog({
               <Button type="submit" variant={"default"} className="mr-3">
                 Save
               </Button>
-              <Button type="button" onClick={handleCloseDialog}>
+              <Button type="button" onClick={handleCancelDialog}>
                 Cancel
               </Button>
             </div>

@@ -1,5 +1,4 @@
 "use client";
-
 import {
   Collapsible,
   CollapsibleContent,
@@ -11,82 +10,78 @@ import { nanoid } from "nanoid";
 import { Combobox } from "@/components/ui/combobox";
 import { useEffect, useState } from "react";
 import { DataTable } from "./datatable";
-import { Customer } from "../entities";
-import { AddCustomerDialog } from "./add_customer_dialog";
-
-const originalCustomerList: Customer[] = [
+import {
+  FormType,
+  Status,
+  TargetType,
+  Transaction,
+  TransactionType,
+} from "./entities";
+import { MakeExpenseDialog } from "./make_expense_dialog";
+import { MakeReceiptDialog } from "./make_receipt_dialog";
+const originalSalesList: Transaction[] = [
   {
-    id: nanoid(9),
-    name: "David Silva",
-    customerGroup: "Family",
-    phoneNumber: "0123456789",
-    address: "222 ABC Street",
-    sex: "male",
-    email: "david@gmail.com",
-    birthday: "1/1/1980",
-    image: "",
-    creator: "",
-    createdDate: new Date().toLocaleDateString("en-GB"),
+    id: nanoid(9).toUpperCase(),
+    targetType: TargetType.CUSTOMER,
+    targetName: "David",
+    formType: FormType.RECEIPT,
+    transactionType: TransactionType.CASH,
+    value: "100000",
+    creator: "NGUYEN VAN A",
+    createdDate: new Date().toLocaleString(),
+    status: Status.PAID,
     note: "",
   },
   {
-    id: nanoid(9),
-    name: "Pep GuardDiola",
-    customerGroup: "Single",
-    phoneNumber: "0123456788",
-    address: "221 ABC Street",
-    sex: "female",
-    email: "pep@gmail.com",
-    birthday: "1/1/1981",
-    image: "",
-    creator: "",
-    createdDate: new Date().toLocaleDateString("en-GB"),
+    id: nanoid(9).toUpperCase(),
+    targetType: TargetType.CUSTOMER,
+    targetName: "Henry",
+    formType: FormType.RECEIPT,
+    transactionType: TransactionType.TRANSFER,
+    value: "200000",
+    creator: "NGUYEN VAN B",
+    createdDate: new Date().toLocaleString(),
+    status: Status.CANCELLED,
     note: "",
   },
   {
-    id: nanoid(9),
-    name: "Harry Maguire",
-    customerGroup: "Single",
-    phoneNumber: "0123456787",
-    address: "22 ABC Street",
-    sex: "male",
-    email: "harry@gmail.com",
-    birthday: "1/1/1990",
-    image: "",
-    creator: "",
-    createdDate: new Date().toLocaleDateString("en-GB"),
+    id: nanoid(9).toUpperCase(),
+    targetType: TargetType.SUPPLIER,
+    targetName: "Mary",
+    formType: FormType.EXPENSE,
+    transactionType: TransactionType.TRANSFER,
+    value: "20000000",
+    creator: "NGUYEN VAN C",
+    createdDate: new Date().toLocaleString(),
+    status: Status.PAID,
     note: "",
   },
 ];
 
-const groupList = ["Family", "Single"];
-
-const branchList = ["Center Branch", "Branch 1", "Branch 2", "Branch 3"];
-
-export default function StaffInfoPage() {
-  const [customerList, setCustomerList] = useState<Customer[]>([]);
+export default function SalesPage() {
+  const [salesList, setSalesList] = useState<Transaction[]>([]);
 
   useEffect(() => {
-    setCustomerList(originalCustomerList);
+    setSalesList(originalSalesList);
   }, []);
 
-  function handleFormSubmit(values: Customer) {
-    setCustomerList((prev) => [...prev, values]);
+  function handleFormSubmit(values: Transaction) {
+    setSalesList((prev) => [...prev, values]);
   }
 
   return (
     <div className="grid grid-cols-6 gap-4">
       <div className="col-start-1 col-span-6">
         <span className="text-slate-500 text-xl cursor-default select-none">
-          Customer
+          Fund Ledger
         </span>
       </div>
       <div className="col-start-1 col-span-5">
         <div className="p-4 rounded-lg bg-white overflow-hidden">
-          <DataTable data={customerList} onSubmit={handleFormSubmit} />
+          <DataTable data={salesList} onSubmit={handleFormSubmit} />
         </div>
       </div>
-      <div className="col-start-6 col-span-1">
+      {/* <div className="col-start-6 col-span-1">
         <Collapsible className="rounded-lg bg-white p-4">
           <div className="flex flex-row justify-between">
             <span className="font-bold select-none">Customer Group</span>
@@ -116,7 +111,7 @@ export default function StaffInfoPage() {
             <Combobox placeholder="Select branch..." optionList={branchList} />
           </CollapsibleContent>
         </Collapsible>
-      </div>
+      </div> */}
     </div>
   );
 }

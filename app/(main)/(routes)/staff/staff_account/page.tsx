@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/collapsible";
 import { ChevronDown } from "lucide-react";
 import { nanoid } from "nanoid";
-import { Staff } from "../props";
+import { Staff } from "../entities";
 
 import { Combobox } from "@/components/ui/combobox";
 import { useState } from "react";
@@ -62,27 +62,26 @@ const branchList = ["Center Branch", "Branch 1", "Branch 2", "Branch 3"];
 
 export default function StaffInfoPage() {
   const [staffList, setStaffList] = useState<Staff[]>(originalStaffList);
-  const [open, setOpen] = useState(false);
 
   function handleFormSubmit(values: Staff) {
     setStaffList((prev) => [...prev, values]);
-    console.log(values);
-    handleCloseDialog();
-  }
-
-  function handleCloseDialog() {
-    setOpen(false);
   }
 
   return (
-    <div className="flex flex-row h-screen p-6">
-      <div className="w-[300px] h-full pr-6">
+    <div className="grid grid-cols-6 gap-4">
+      <div className="col-start-1 col-span-6">
         <span className="text-slate-500 text-xl cursor-default select-none">
           Staff
         </span>
-
-        <div className="mt-7">
-          <Collapsible className="rounded-lg bg-white  p-4">
+      </div>
+      <div className="col-start-1 col-span-5">
+        <div className="p-4 rounded-lg bg-white overflow-hidden">
+          <DataTable data={staffList} onSubmit={handleFormSubmit} />
+        </div>
+      </div>
+      <div className="col-start-6 col-span-1">
+        <div className="flex flex-col">
+          <Collapsible className="w-full rounded-lg bg-white p-4">
             <div className="flex flex-row justify-between">
               <span className="font-bold select-none">Position</span>
               <CollapsibleTrigger asChild>
@@ -100,7 +99,7 @@ export default function StaffInfoPage() {
             </CollapsibleContent>
           </Collapsible>
 
-          <Collapsible className="rounded-lg bg-white mt-4 p-4">
+          <Collapsible className="w-full rounded-lg bg-white p-4 mt-4">
             <div className="flex flex-row justify-between">
               <span className="font-bold select-none">Branch</span>
               <CollapsibleTrigger asChild>
@@ -117,17 +116,6 @@ export default function StaffInfoPage() {
               />
             </CollapsibleContent>
           </Collapsible>
-        </div>
-      </div>
-      <div className="w-full">
-        <AddStaffDialog
-          open={open}
-          submit={handleFormSubmit}
-          handleCloseDialog={handleCloseDialog}
-        />
-
-        <div className="mt-4 p-4 rounded-lg bg-white overflow-hidden">
-          <DataTable data={staffList} setOpenDialog={setOpen} />
         </div>
       </div>
     </div>

@@ -30,13 +30,14 @@ import {
 import { ChevronDown } from "lucide-react";
 import * as React from "react";
 import { columns } from "./columns";
-import { Supplier } from "../props";
+import { Supplier } from "../entities";
+import { AddSupplierDialog } from "./add_supplier_dialog";
 type Props = {
   data: Supplier[];
-  setOpenDialog: (open: boolean) => void;
+  onSubmit: (values: Supplier) => void;
 };
 
-export function DataTable({ data, setOpenDialog }: Props) {
+export function DataTable({ data, onSubmit }: Props) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -64,6 +65,10 @@ export function DataTable({ data, setOpenDialog }: Props) {
     },
   });
 
+  const handleSubmit = (values: Supplier) => {
+    if (onSubmit) onSubmit(values);
+  };
+
   return (
     <div className="w-full">
       <div className="flex items-center justify-between py-4">
@@ -75,14 +80,10 @@ export function DataTable({ data, setOpenDialog }: Props) {
           }
           className="max-w-sm"
         />
-        <div>
-          <Button
-            variant="default"
-            onClick={() => setOpenDialog(true)}
-            className="mr-4"
-          >
-            Add new supplier
-          </Button>
+        <div className="flex flex-row">
+          <div className="mr-2">
+            <AddSupplierDialog submit={handleSubmit} />
+          </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="ml-auto">

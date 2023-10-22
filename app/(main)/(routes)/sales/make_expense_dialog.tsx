@@ -10,7 +10,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-import { Staff } from "@/app/(main)/(routes)/staff/entities";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -25,77 +24,88 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Camera } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+
+import {
+  FormType,
+  Status,
+  TargetType,
+  Transaction,
+  TransactionType,
+} from "./entities";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../../../../../components/ui/select";
-import { Supplier } from "../entities";
-import { DialogTrigger } from "@radix-ui/react-dialog";
+} from "@/components/ui/select";
 import { nanoid } from "nanoid";
+import { DialogTrigger } from "@radix-ui/react-dialog";
 
 const formSchema = z.object({
   id: z.any(),
-  name: z.string().min(1, { message: "Name must be at least one character" }),
-  phoneNumber: z.string(),
-  address: z.string(),
-  email: z.string().email(),
-  supplierGroup: z.string(),
-  companyName: z.string(),
+  createdDate: z.string(),
+  value: z.string(),
+  creator: z.string(),
+  transactionType: z.nativeEnum(TransactionType),
+  targetType: z.nativeEnum(TargetType),
+  targetName: z.string(),
   note: z.string().optional(),
 });
 
 type Props = {
-  data?: Supplier;
-  submit: (values: Supplier) => void;
+  data?: Transaction;
+  submit: (values: Transaction) => void;
 };
 
-export function AddSupplierDialog({ data, submit }: Props) {
+export function MakeExpenseDialog({ data, submit }: Props) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      createdDate: new Date().toLocaleString(),
+      value: "0",
+    },
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    const newGroup: Supplier = {
+    const expense: Transaction = {
       id: nanoid(9),
-      name: values.name,
-      phoneNumber: values.phoneNumber,
-      address: values.address,
-      email: values.email,
-      supplierGroup: values.supplierGroup,
-      image: "",
-      description: "",
-      companyName: values.companyName,
-      creator: "",
-      createdDate: new Date().toLocaleDateString("en-GB"),
-      status: "",
+      createdDate: values.createdDate
+        ? new Date(values.createdDate).toLocaleString()
+        : new Date().toLocaleString(),
+      formType: FormType.EXPENSE,
+      value: values.value,
+      creator: values.creator,
+      transactionType: values.transactionType,
+      targetType: values.targetType,
+      targetName: values.targetName,
+      status: Status.PAID,
       note: values.note ? values.note : "",
     };
     if (submit) {
-      submit(newGroup);
+      submit(expense);
       form.reset();
       setOpen(false);
     }
   }
-
   const [open, setOpen] = useState(false);
   function handleCancelDialog() {
     setOpen(false);
     form.reset();
   }
 
-  const supplierGroups = ["Group 1", "Group 2", "Group 3", "Group 4"];
+  const transactionTypes = Object.values(TransactionType);
+  const staffList = ["NGUYEN VAN A", "NGUYEN VAN B", "NGUYEN VAN C"];
+  const targetTypes = Object.values(TargetType);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="default">Add new supplier</Button>
+        <Button variant="default">Make Expense Form</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add new staff</DialogTitle>
+          <DialogTitle>Create Expense Form</DialogTitle>
         </DialogHeader>
         <div className="w-full">
           <Form {...form}>
@@ -107,7 +117,7 @@ export function AddSupplierDialog({ data, submit }: Props) {
                     name="id"
                     render={({ field }) => (
                       <FormItem className="flex flex-row items-center">
-                        <FormLabel className="w-1/3">Supplier ID</FormLabel>
+                        <FormLabel className="w-1/3">Expense ID</FormLabel>
 
                         <FormControl className="w-2/3">
                           <Input placeholder="Automatic code" disabled />
@@ -115,16 +125,17 @@ export function AddSupplierDialog({ data, submit }: Props) {
                       </FormItem>
                     )}
                   />
+
                   <FormField
                     control={form.control}
-                    name="name"
+                    name="createdDate"
                     render={({ field }) => (
                       <FormItem className="mt-2">
                         <div className="flex flex-row items-center">
-                          <FormLabel className="w-1/3">Name (*)</FormLabel>
+                          <FormLabel className="w-1/3">Time</FormLabel>
 
                           <FormControl className="w-2/3">
-                            <Input {...field} />
+                            <Input type="datetime-local" {...field} />
                           </FormControl>
                         </div>
                       </FormItem>
@@ -133,91 +144,12 @@ export function AddSupplierDialog({ data, submit }: Props) {
 
                   <FormField
                     control={form.control}
-                    name="phoneNumber"
-                    render={({ field }) => (
-                      <FormItem className="mt-2">
-                        <div className="flex flex-row items-center">
-                          <FormLabel className="w-1/3">Phone number</FormLabel>
-
-                          <FormControl>
-                            <Input
-                              {...field}
-                              maxLength={11}
-                              minLength={10}
-                              className="w-2/3"
-                              onKeyUp={(e: any) => {
-                                e.target.value = e.target.value.replace(
-                                  /\D/g,
-                                  ""
-                                );
-                                // Pass the event to the field prop
-                                field.onChange(e);
-                              }}
-                            />
-                          </FormControl>
-                        </div>
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="address"
-                    render={({ field }) => (
-                      <FormItem className="mt-2">
-                        <div className="flex flex-row items-center">
-                          <FormLabel className="w-1/3">Address</FormLabel>
-
-                          <FormControl className="w-2/3">
-                            <Input {...field} />
-                          </FormControl>
-                        </div>
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <div className="flex flex-col ml-4 w-[400px]">
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem className="mt-2">
-                        <div className="flex flex-row items-center">
-                          <FormLabel className="w-1/3">Email</FormLabel>
-
-                          <FormControl className="w-2/3">
-                            <Input type="email" {...field} />
-                          </FormControl>
-                        </div>
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="companyName"
-                    render={({ field }) => (
-                      <FormItem className="mt-2">
-                        <div className="flex flex-row items-center">
-                          <FormLabel className="w-1/3">Company</FormLabel>
-
-                          <FormControl className="w-2/3">
-                            <Input {...field} />
-                          </FormControl>
-                        </div>
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="supplierGroup"
+                    name="transactionType"
                     render={({ field }) => (
                       <FormItem className="mt-2">
                         <div className="flex flex-row items-center">
                           <FormLabel className="w-1/3">
-                            Supplier Group
+                            Transaction Type
                           </FormLabel>
                           <Select
                             onValueChange={field.onChange}
@@ -229,15 +161,117 @@ export function AddSupplierDialog({ data, submit }: Props) {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {supplierGroups.map((group) => {
+                              {transactionTypes.map((type) => {
                                 return (
-                                  <SelectItem key={group} value={group}>
-                                    {group}
+                                  <SelectItem key={type} value={type}>
+                                    {type}
                                   </SelectItem>
                                 );
                               })}
                             </SelectContent>
                           </Select>
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="value"
+                    render={({ field }) => (
+                      <FormItem className="mt-2">
+                        <div className="flex flex-row items-center">
+                          <FormLabel className="w-1/3">Value</FormLabel>
+
+                          <FormControl className="w-2/3">
+                            <Input
+                              type="number"
+                              placeholder="0"
+                              {...field}
+                              onKeyUp={(e: any) => {
+                                e.target.value = parseInt(e.target.value);
+                                field.onChange(e);
+                              }}
+                            />
+                          </FormControl>
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="creator"
+                    render={({ field }) => (
+                      <FormItem className="mt-2">
+                        <div className="flex flex-row items-center">
+                          <FormLabel className="w-1/3">Creator</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <FormControl className="w-2/3">
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select staff" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {staffList.map((staff) => {
+                                return (
+                                  <SelectItem key={staff} value={staff}>
+                                    {staff}
+                                  </SelectItem>
+                                );
+                              })}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="targetType"
+                    render={({ field }) => (
+                      <FormItem className="mt-2">
+                        <div className="flex flex-row items-center">
+                          <FormLabel className="w-1/3">Receiver Type</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <FormControl className="w-2/3">
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select type" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {targetTypes.map((type) => {
+                                return (
+                                  <SelectItem key={type} value={type}>
+                                    {type}
+                                  </SelectItem>
+                                );
+                              })}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="targetName"
+                    render={({ field }) => (
+                      <FormItem className="mt-2">
+                        <div className="flex flex-row items-center">
+                          <FormLabel className="w-1/3">Receiver Name</FormLabel>
+
+                          <FormControl className="w-2/3">
+                            <Input {...field} />
+                          </FormControl>
                         </div>
                       </FormItem>
                     )}

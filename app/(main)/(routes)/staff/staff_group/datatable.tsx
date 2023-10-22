@@ -31,13 +31,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { columns } from "./columns";
-import { StaffGroup } from "../props";
+import { StaffGroup } from "../entities";
+import { AddStaffDialog } from "../staff_account/add_staff_dialog";
+import { AddGroupDialog } from "./add_staff_group_dialog";
 type Props = {
   data: StaffGroup[];
-  setOpenDialog: (open: boolean) => void;
+  onSubmit: (values: StaffGroup) => void;
 };
 
-export function DataTable({ data, setOpenDialog }: Props) {
+export function DataTable({ data, onSubmit }: Props) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -64,7 +66,40 @@ export function DataTable({ data, setOpenDialog }: Props) {
       rowSelection,
     },
   });
+  const handleSubmit = (values: StaffGroup) => {
+    if (onSubmit) onSubmit(values);
+  };
+  // function handleRemoveRow(id: any) {
+  //   let newGroupList: StaffGroup[] = [];
+  //   groupList.forEach((group) => {
+  //     if (group.id !== id) newGroupList.push(group);
+  //   });
 
+  //   setGroupList(newGroupList);
+  // }
+
+  // useEffect(() => {
+  //   if (groupToEdit) {
+  //     setOpen(true);
+  //   }
+  // }, [groupToEdit]);
+
+  // function handleEditRow(id: any) {
+  //   const index: number = groupList.findIndex((group) => group.id === id);
+
+  //   if (index > -1) {
+  //     setGroupToEdit(groupList[index]);
+  //   }
+  // }
+  // function handleSelectAll() {}
+  // function handleSelectARow(event: ChangeEvent) {
+  //   const tableRow = event.target.closest("TableRow");
+
+  //   tableRow?.setAttribute(
+  //     "data-state",
+  //     event.target.ariaChecked ? "selected" : ""
+  //   );
+  // }
   return (
     <div className="w-full">
       <div className="flex items-center justify-between py-4">
@@ -78,14 +113,10 @@ export function DataTable({ data, setOpenDialog }: Props) {
           }
           className="max-w-sm"
         />
-        <div>
-          <Button
-            variant="default"
-            onClick={() => setOpenDialog(true)}
-            className="mr-4"
-          >
-            Add new group
-          </Button>
+        <div className="flex flex-row">
+          <div className="mr-2">
+            <AddGroupDialog submit={handleSubmit} />
+          </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="ml-auto">
