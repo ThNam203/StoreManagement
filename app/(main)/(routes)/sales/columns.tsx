@@ -18,7 +18,7 @@ import {
   ArrowUp,
   MoreHorizontal,
 } from "lucide-react";
-import { FormType, Transaction } from "./entities";
+import { FormType, TargetType, Transaction } from "./entities";
 import { formatPrice } from "./utils";
 
 export const columns: ColumnDef<Transaction>[] = [
@@ -71,7 +71,7 @@ export const columns: ColumnDef<Transaction>[] = [
     header: ({ column }) => {
       return (
         <div
-          className="w-[100px] flex flex-row hover:opacity-80 ease-linear duration-200 hover:cursor-pointer"
+          className="w-[180px] flex flex-row hover:opacity-80 ease-linear duration-200 hover:cursor-pointer"
           onClick={() => column.toggleSorting()}
         >
           <span>Time</span>
@@ -90,11 +90,34 @@ export const columns: ColumnDef<Transaction>[] = [
     cell: ({ row }) => <div>{row.getValue("createdDate")}</div>,
   },
   {
+    accessorKey: "creator",
+    header: ({ column }) => {
+      return (
+        <div
+          className="w-[120px] flex flex-row hover:opacity-80 ease-linear duration-200 hover:cursor-pointer"
+          onClick={() => column.toggleSorting()}
+        >
+          <span>Creator</span>
+          {column.getIsSorted() === false ? null : (
+            <div>
+              {column.getIsSorted() === "asc" ? (
+                <ArrowDownAZ className="ml-2 h-4 w-4" />
+              ) : (
+                <ArrowDownZA className="ml-2 h-4 w-4" />
+              )}
+            </div>
+          )}
+        </div>
+      );
+    },
+    cell: ({ row }) => <div>{row.getValue("creator")}</div>,
+  },
+  {
     accessorKey: "formType",
     header: ({ column }) => {
       return (
         <div
-          className="w-[150px] flex flex-row hover:opacity-80 ease-linear duration-200 hover:cursor-pointer"
+          className="w-[170px] flex flex-row hover:opacity-80 ease-linear duration-200 hover:cursor-pointer"
           onClick={() => column.toggleSorting()}
         >
           <span>Type</span>
@@ -110,7 +133,37 @@ export const columns: ColumnDef<Transaction>[] = [
         </div>
       );
     },
-    cell: ({ row }) => <div>{row.getValue("formType")}</div>,
+    cell: ({ row }) => {
+      const prefix =
+        row.getValue("formType") === FormType.EXPENSE
+          ? "Pay for"
+          : "Receive from";
+      const suffixes = row.getValue("targetType");
+      return <div>{`${prefix} ${suffixes}`}</div>;
+    },
+  },
+  {
+    accessorKey: "targetType",
+    header: ({ column }) => {
+      return (
+        <div
+          className="w-[180px] flex flex-row hover:opacity-80 ease-linear duration-200 hover:cursor-pointer"
+          onClick={() => column.toggleSorting()}
+        >
+          <span>Receiver/Payer Type</span>
+          {column.getIsSorted() === false ? null : (
+            <div>
+              {column.getIsSorted() === "asc" ? (
+                <ArrowDownAZ className="ml-2 h-4 w-4" />
+              ) : (
+                <ArrowDownZA className="ml-2 h-4 w-4" />
+              )}
+            </div>
+          )}
+        </div>
+      );
+    },
+    cell: ({ row }) => <div>{row.getValue("targetType")}</div>,
   },
   {
     accessorKey: "targetName",
@@ -166,6 +219,34 @@ export const columns: ColumnDef<Transaction>[] = [
         </div>
       );
     },
+  },
+  {
+    accessorKey: "status",
+    header: ({ column }) => {
+      return (
+        <div
+          className="w-[100px] flex flex-row hover:opacity-80 ease-linear duration-200 hover:cursor-pointer"
+          onClick={() => column.toggleSorting()}
+        >
+          <span>Status</span>
+          {column.getIsSorted() === false ? null : (
+            <div>
+              {column.getIsSorted() === "asc" ? (
+                <ArrowDownAZ className="ml-2 h-4 w-4" />
+              ) : (
+                <ArrowDownZA className="ml-2 h-4 w-4" />
+              )}
+            </div>
+          )}
+        </div>
+      );
+    },
+    cell: ({ row }) => <div>{row.getValue("status")}</div>,
+  },
+  {
+    accessorKey: "note",
+    header: "Note",
+    cell: ({ row }) => <div>{row.getValue("note")}</div>,
   },
   {
     id: "actions",

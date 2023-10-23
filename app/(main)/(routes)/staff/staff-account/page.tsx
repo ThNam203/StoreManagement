@@ -69,13 +69,9 @@ export default function StaffInfoPage() {
 
   return (
     <div className="grid grid-cols-6 gap-4">
-      <div className="col-start-1 col-span-6">
-        <span className="text-slate-500 text-xl cursor-default select-none">
-          Staff
-        </span>
-      </div>
       <div className="col-start-1 col-span-5">
         <div className="p-4 rounded-lg bg-white overflow-hidden">
+          <h2 className="text-start font-semibold text-3xl my-4">Staff</h2>
           <DataTable data={staffList} onSubmit={handleFormSubmit} />
         </div>
       </div>

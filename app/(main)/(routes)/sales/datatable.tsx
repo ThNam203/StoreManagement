@@ -34,6 +34,8 @@ import { FormType, Transaction } from "./entities";
 import { formatPrice } from "./utils";
 import { MakeExpenseDialog } from "./make_expense_dialog";
 import { MakeReceiptDialog } from "./make_receipt_dialog";
+import { exportExcel } from "@/utils/commonUtils";
+
 type Props = {
   data: Transaction[];
   onSubmit: (values: Transaction) => void;
@@ -45,7 +47,17 @@ export function DataTable({ data, onSubmit }: Props) {
     []
   );
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
+    React.useState<VisibilityState>({
+      id: true,
+      createdDate: true,
+      formType: true,
+      targetName: true,
+      value: true,
+      creator: false,
+      targetType: false,
+      status: false,
+      note: false,
+    });
   const [rowSelection, setRowSelection] = React.useState({});
 
   const table = useReactTable({
@@ -72,6 +84,69 @@ export function DataTable({ data, onSubmit }: Props) {
     if (onSubmit) onSubmit(values);
   };
 
+  //get header through id of column to export excel
+  const columnHeader = {
+    "#": "#",
+    id: "Form ID",
+    createdDate: "Time",
+    formType: "Type",
+    value: "Value",
+    creator: "Creator",
+    transactionType: "Transaction Type",
+    targetType: "Receiver/Payer Type",
+    targetName: "Receiver/Payer",
+    status: "Status",
+    note: "Note",
+  };
+  const handleExportExcel = () => {
+    //get id of visible column in datatable
+    const visibleColumnIds = table
+      .getVisibleFlatColumns()
+      .map((column) => column.id);
+
+    //take list of header and value to export excel
+    let toExport = data.map((item, index) => {
+      var row: object = {};
+      visibleColumnIds.map((header) => {
+        const headerContent = columnHeader[header as keyof typeof columnHeader];
+
+        if (headerContent === "#") {
+          row = {
+            ...row,
+            [headerContent]: index + 1,
+          };
+        } else if (header === "formType") {
+          const typePrefix =
+            item.formType === FormType.EXPENSE ? "Pay for" : "Receive from";
+          const typeSubfix = item.targetType;
+          const type = `${typePrefix} ${typeSubfix}`;
+          row = {
+            ...row,
+            [headerContent]: type,
+          };
+        } else if (header === "value") {
+          const value = item[header as keyof typeof item];
+          //
+          row = {
+            ...row,
+            [headerContent]: type,
+          };
+        } else if (headerContent !== undefined) {
+          row = {
+            ...row,
+            [headerContent]: item[header as keyof typeof item],
+          };
+        } else {
+          console.log("header of undefined", header);
+        }
+      });
+      console.log("Temp: ", row);
+      return row;
+    });
+
+    exportExcel(toExport, "Fund Ledger", "Fund Ledger");
+  };
+
   const beginningFund = 200000000;
   const totalExpense = 1500000;
   const totalReceipt = 1000000;
@@ -96,6 +171,11 @@ export function DataTable({ data, onSubmit }: Props) {
           <div className="mr-2">
             <MakeExpenseDialog submit={handleSubmit} />
           </div>
+          <div className="mr-2">
+            <Button variant={"default"} onClick={handleExportExcel}>
+              Export Excel
+            </Button>
+          </div>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -108,18 +188,21 @@ export function DataTable({ data, onSubmit }: Props) {
                 .getAllColumns()
                 .filter((column) => column.getCanHide())
                 .map((column) => {
-                  return (
-                    <DropdownMenuCheckboxItem
-                      key={column.id}
-                      className="capitalize"
-                      checked={column.getIsVisible()}
-                      onCheckedChange={(value) =>
-                        column.toggleVisibility(!!value)
-                      }
-                    >
-                      {column.id}
-                    </DropdownMenuCheckboxItem>
-                  );
+                  const headerContent =
+                    columnHeader[column.id as keyof typeof columnHeader];
+                  if (headerContent !== undefined)
+                    return (
+                      <DropdownMenuCheckboxItem
+                        key={column.id}
+                        className="capitalize"
+                        checked={column.getIsVisible()}
+                        onCheckedChange={(value) =>
+                          column.toggleVisibility(!!value)
+                        }
+                      >
+                        {headerContent}
+                      </DropdownMenuCheckboxItem>
+                    );
                 })}
             </DropdownMenuContent>
           </DropdownMenu>
