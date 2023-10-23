@@ -9,8 +9,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal } from "lucide-react";
-import { Staff } from "../props";
+import {
+  ArrowDown01,
+  ArrowDown10,
+  ArrowDownAZ,
+  ArrowDownZA,
+  MoreHorizontal,
+} from "lucide-react";
+import { Staff } from "../entities";
 
 export const columns: ColumnDef<Staff>[] = [
   {
@@ -36,7 +42,25 @@ export const columns: ColumnDef<Staff>[] = [
   },
   {
     accessorKey: "name",
-    header: "Staff Name",
+    header: ({ column }) => {
+      return (
+        <div
+          className="w-[100px] flex flex-row hover:opacity-80 ease-linear duration-200 hover:cursor-pointer"
+          onClick={() => column.toggleSorting()}
+        >
+          <span>Staff Name</span>
+          {column.getIsSorted() === false ? null : (
+            <div>
+              {column.getIsSorted() === "asc" ? (
+                <ArrowDownAZ className="ml-2 h-4 w-4" />
+              ) : (
+                <ArrowDownZA className="ml-2 h-4 w-4" />
+              )}
+            </div>
+          )}
+        </div>
+      );
+    },
     cell: ({ row }) => <div className="capitalize">{row.getValue("name")}</div>,
   },
   {
@@ -48,12 +72,30 @@ export const columns: ColumnDef<Staff>[] = [
   },
   {
     accessorKey: "phoneNumber",
-    header: "Phone number",
+    header: "Phone Number",
     cell: ({ row }) => <div>{row.getValue("phoneNumber")}</div>,
   },
   {
     accessorKey: "email",
-    header: "Email",
+    header: ({ column }) => {
+      return (
+        <div
+          className="w-[100px] flex flex-row hover:opacity-80 ease-linear duration-200 hover:cursor-pointer"
+          onClick={() => column.toggleSorting()}
+        >
+          <span>Email</span>
+          {column.getIsSorted() === false ? null : (
+            <div>
+              {column.getIsSorted() === "asc" ? (
+                <ArrowDownAZ className="ml-2 h-4 w-4" />
+              ) : (
+                <ArrowDownZA className="ml-2 h-4 w-4" />
+              )}
+            </div>
+          )}
+        </div>
+      );
+    },
     cell: ({ row }) => <div>{row.getValue("email")}</div>,
   },
   {

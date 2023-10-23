@@ -9,8 +9,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal } from "lucide-react";
-import { StaffGroup } from "../props";
+import { ArrowDownAZ, ArrowDownZA, MoreHorizontal } from "lucide-react";
+import { StaffGroup } from "../entities";
 
 export const columns: ColumnDef<StaffGroup>[] = [
   {
@@ -36,16 +36,27 @@ export const columns: ColumnDef<StaffGroup>[] = [
   },
   {
     accessorKey: "groupName",
-    header: "Group Name",
+    header: ({ column }) => {
+      return (
+        <div
+          className="w-[120px] flex flex-row hover:opacity-80 ease-linear duration-200 hover:cursor-pointer"
+          onClick={() => column.toggleSorting()}
+        >
+          <span>Group Name</span>
+          {column.getIsSorted() === false ? null : (
+            <div>
+              {column.getIsSorted() === "asc" ? (
+                <ArrowDownAZ className="ml-2 h-4 w-4" />
+              ) : (
+                <ArrowDownZA className="ml-2 h-4 w-4" />
+              )}
+            </div>
+          )}
+        </div>
+      );
+    },
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("groupName")}</div>
-    ),
-  },
-  {
-    accessorKey: "group",
-    header: "Group",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("group")}</div>
     ),
   },
   {

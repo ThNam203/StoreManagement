@@ -1,5 +1,19 @@
 "use client";
 
+import {
+  ColumnDef,
+  ColumnFiltersState,
+  SortingState,
+  VisibilityState,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+import { ChevronDown } from "lucide-react";
+import * as React from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -16,25 +30,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  ColumnFiltersState,
-  SortingState,
-  VisibilityState,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
-import { ChevronDown } from "lucide-react";
-import * as React from "react";
 import { columns } from "./columns";
-import { Customer } from "../entities";
-import { AddCustomerDialog } from "./add_customer_dialog";
+import { StaffGroup } from "../entities";
+import { AddStaffDialog } from "../staff-account/add_staff_dialog";
+import { AddGroupDialog } from "./add_staff_group_dialog";
 type Props = {
-  data: Customer[];
-  onSubmit: (values: Customer) => void;
+  data: StaffGroup[];
+  onSubmit: (values: StaffGroup) => void;
 };
 
 export function DataTable({ data, onSubmit }: Props) {
@@ -64,23 +66,56 @@ export function DataTable({ data, onSubmit }: Props) {
       rowSelection,
     },
   });
-  const handleSubmit = (values: Customer) => {
+  const handleSubmit = (values: StaffGroup) => {
     if (onSubmit) onSubmit(values);
   };
+  // function handleRemoveRow(id: any) {
+  //   let newGroupList: StaffGroup[] = [];
+  //   groupList.forEach((group) => {
+  //     if (group.id !== id) newGroupList.push(group);
+  //   });
+
+  //   setGroupList(newGroupList);
+  // }
+
+  // useEffect(() => {
+  //   if (groupToEdit) {
+  //     setOpen(true);
+  //   }
+  // }, [groupToEdit]);
+
+  // function handleEditRow(id: any) {
+  //   const index: number = groupList.findIndex((group) => group.id === id);
+
+  //   if (index > -1) {
+  //     setGroupToEdit(groupList[index]);
+  //   }
+  // }
+  // function handleSelectAll() {}
+  // function handleSelectARow(event: ChangeEvent) {
+  //   const tableRow = event.target.closest("TableRow");
+
+  //   tableRow?.setAttribute(
+  //     "data-state",
+  //     event.target.ariaChecked ? "selected" : ""
+  //   );
+  // }
   return (
     <div className="w-full">
       <div className="flex items-center justify-between py-4">
         <Input
-          placeholder="Filter name..."
-          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+          placeholder="Filter group name..."
+          value={
+            (table.getColumn("groupName")?.getFilterValue() as string) ?? ""
+          }
           onChange={(event) =>
-            table.getColumn("name")?.setFilterValue(event.target.value)
+            table.getColumn("groupName")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />
         <div className="flex flex-row">
           <div className="mr-2">
-            <AddCustomerDialog submit={handleSubmit} />
+            <AddGroupDialog submit={handleSubmit} />
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

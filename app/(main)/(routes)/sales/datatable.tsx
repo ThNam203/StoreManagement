@@ -29,14 +29,17 @@ import {
 } from "@tanstack/react-table";
 import { ChevronDown } from "lucide-react";
 import * as React from "react";
-import { Staff } from "../props";
 import { columns } from "./columns";
+import { FormType, Transaction } from "./entities";
+import { formatPrice } from "./utils";
+import { MakeExpenseDialog } from "./make_expense_dialog";
+import { MakeReceiptDialog } from "./make_receipt_dialog";
 type Props = {
-  data: Staff[];
-  setOpenDialog: (open: boolean) => void;
+  data: Transaction[];
+  onSubmit: (values: Transaction) => void;
 };
 
-export function DataTable({ data, setOpenDialog }: Props) {
+export function DataTable({ data, onSubmit }: Props) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -56,6 +59,7 @@ export function DataTable({ data, setOpenDialog }: Props) {
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    enableSortingRemoval: true,
     state: {
       sorting,
       columnFilters,
@@ -64,25 +68,35 @@ export function DataTable({ data, setOpenDialog }: Props) {
     },
   });
 
+  const handleSubmit = (values: Transaction) => {
+    if (onSubmit) onSubmit(values);
+  };
+
+  const beginningFund = 200000000;
+  const totalExpense = 1500000;
+  const totalReceipt = 1000000;
+
   return (
     <div className="w-full">
       <div className="flex items-center justify-between py-4">
         <Input
-          placeholder="Filter name..."
-          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+          placeholder="Filter time..."
+          value={
+            (table.getColumn("createdDate")?.getFilterValue() as string) ?? ""
+          }
           onChange={(event) =>
-            table.getColumn("name")?.setFilterValue(event.target.value)
+            table.getColumn("createdDate")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />
-        <div>
-          <Button
-            variant="default"
-            onClick={() => setOpenDialog(true)}
-            className="mr-4"
-          >
-            Add new staff
-          </Button>
+        <div className="flex flex-row">
+          <div className="mr-2">
+            <MakeReceiptDialog submit={handleSubmit} />
+          </div>
+          <div className="mr-2">
+            <MakeExpenseDialog submit={handleSubmit} />
+          </div>
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="ml-auto">
@@ -109,6 +123,30 @@ export function DataTable({ data, setOpenDialog }: Props) {
                 })}
             </DropdownMenuContent>
           </DropdownMenu>
+        </div>
+      </div>
+      <div className="grid grid-cols-7 gap-4 py-4">
+        <div className="col-start-4 col-span-1 text-right">
+          Beginning Fund <br />{" "}
+          <span className="font-bold">{formatPrice(beginningFund)}</span>
+        </div>
+        <div className="col-start-5 col-span-1 text-right">
+          Total Receipt <br />{" "}
+          <span className="text-[#005ac3] font-bold">
+            {formatPrice(totalExpense)}
+          </span>
+        </div>
+        <div className="col-start-6 col-span-1 text-right">
+          Total Expense <br />{" "}
+          <span className="text-[#be1c26] font-bold">
+            - {formatPrice(totalReceipt)}
+          </span>
+        </div>
+        <div className="col-start-7 col-span-1 text-right">
+          Remaining Fund <br />{" "}
+          <span className="text-[green] font-bold">
+            {formatPrice(beginningFund - (totalExpense - totalReceipt))}
+          </span>
         </div>
       </div>
       <div className="rounded-md border">

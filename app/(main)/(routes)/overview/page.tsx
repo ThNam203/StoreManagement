@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const notifications = [
   {
@@ -197,7 +198,7 @@ const recentActivities = [
   },
 ];
 
-export default function Home() {
+export default function OverviewPage() {
   return (
     // if we change 832px to another value, we must change it again in styles.module.css
     // and change the value of mediaquery of notification-board in the same folder
@@ -207,7 +208,7 @@ export default function Home() {
         <div className="flex flex-row justify-between">
           <h2 className="text-start font-semibold text-3xl my-4">Overview</h2>
           <Popover>
-            <PopoverTrigger className="w-[20px] h-[20px] self-center mr-8">
+            <PopoverTrigger className="w-[20px] h-[20px] self-center mr-4">
               <div className="relative">
                 <Bell size={20} />
                 <p className="absolute bg-blue-500 rounded-full text-xs -top-2 p-[2px] text-center -right-2">
@@ -322,14 +323,14 @@ export default function Home() {
       </div>
       <div className={styles["notification-board"]}>
         <h3 className="uppercase font-semibold my-2">Recent activities</h3>
-        <div className={scrollbar_style.scrollbar + " overflow-y-scroll"}>
+        <ScrollArea scrollHideDelay={100}>
           {recentActivities.map((activity) => (
             <RecentActivityItem
               {...activity}
               key={activity.id}
             ></RecentActivityItem>
           ))}
-        </div>
+        </ScrollArea>
       </div>
     </div>
   );

@@ -1,19 +1,5 @@
 "use client";
 
-import {
-  ColumnDef,
-  ColumnFiltersState,
-  SortingState,
-  VisibilityState,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
-import { ChevronDown } from "lucide-react";
-import * as React from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -30,14 +16,28 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  ColumnFiltersState,
+  SortingState,
+  VisibilityState,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+import { ChevronDown } from "lucide-react";
+import * as React from "react";
+import { Staff } from "../entities";
 import { columns } from "./columns";
-import { StaffGroup } from "../props";
+import { AddStaffDialog } from "./add_staff_dialog";
 type Props = {
-  data: StaffGroup[];
-  setOpenDialog: (open: boolean) => void;
+  data: Staff[];
+  onSubmit: (values: Staff) => void;
 };
 
-export function DataTable({ data, setOpenDialog }: Props) {
+export function DataTable({ data, onSubmit }: Props) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -57,6 +57,7 @@ export function DataTable({ data, setOpenDialog }: Props) {
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    enableSortingRemoval: true,
     state: {
       sorting,
       columnFilters,
@@ -64,28 +65,24 @@ export function DataTable({ data, setOpenDialog }: Props) {
       rowSelection,
     },
   });
-
+  const handleSubmit = (values: Staff) => {
+    if (onSubmit) onSubmit(values);
+  };
   return (
     <div className="w-full">
       <div className="flex items-center justify-between py-4">
         <Input
-          placeholder="Filter group name..."
-          value={
-            (table.getColumn("groupName")?.getFilterValue() as string) ?? ""
-          }
+          placeholder="Filter name..."
+          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
-            table.getColumn("groupName")?.setFilterValue(event.target.value)
+            table.getColumn("name")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />
-        <div>
-          <Button
-            variant="default"
-            onClick={() => setOpenDialog(true)}
-            className="mr-4"
-          >
-            Add new group
-          </Button>
+        <div className="flex flex-row">
+          <div className="mr-2">
+            <AddStaffDialog submit={handleSubmit} />
+          </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="ml-auto">

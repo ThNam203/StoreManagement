@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-import { Staff } from "@/app/(main)/(routes)/staff/props";
+import { Staff } from "@/app/(main)/(routes)/staff/entities";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -32,7 +32,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../../../../components/ui/select";
-import { Customer } from "../props";
+import { Customer } from "../entities";
+import { DialogTrigger } from "@radix-ui/react-dialog";
+import { nanoid } from "nanoid";
 
 const formSchema = z.object({
   id: z.any(),
@@ -43,27 +45,16 @@ const formSchema = z.object({
   sex: z.string(),
   email: z.string().email().optional(),
   birthday: z.string().optional(),
-  image: z.string(),
-  description: z.string(),
-  creator: z.string(),
-  createdDate: z.string(),
-  status: z.string(),
+  image: z.string().optional(),
   note: z.string().optional(),
 });
 
 type Props = {
-  open: boolean;
   data?: Customer;
   submit: (values: Customer) => void;
-  handleCloseDialog: () => void;
 };
 
-export function AddCustomerDialog({
-  open,
-  data,
-  submit,
-  handleCloseDialog,
-}: Props) {
+export function AddCustomerDialog({ data, submit }: Props) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -73,7 +64,7 @@ export function AddCustomerDialog({
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     const newGroup: Customer = {
-      id: -1,
+      id: nanoid(9),
       name: values.name,
       customerGroup: values.customerGroup,
       phoneNumber: values.phoneNumber,
@@ -81,29 +72,30 @@ export function AddCustomerDialog({
       sex: values.sex,
       email: values.email ? values.email : "",
       birthday: values.birthday ? values.birthday : "",
-      image: values.image,
-      description: values.description,
-      creator: values.creator,
-      createdDate: values.createdDate,
-      status: values.status,
+      image: values.image ? values.image : "",
+      creator: "",
+      createdDate: new Date().toLocaleString(),
       note: values.note ? values.note : "",
     };
     if (submit) {
-      console.log(newGroup);
       submit(newGroup);
       form.reset();
+      setOpen(false);
     }
   }
-
+  const [open, setOpen] = useState(false);
   function handleCancelDialog() {
-    handleCloseDialog();
+    setOpen(false);
     form.reset();
   }
 
   const customerGroupList = ["Single", "Company"];
 
   return (
-    <Dialog open={open} onOpenChange={handleCloseDialog}>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="default">Add new customer</Button>
+      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Add new customer</DialogTitle>
@@ -314,12 +306,7 @@ export function AddCustomerDialog({
               </div>
 
               <div className="flex flex-row justify-end">
-                <Button
-                  type="submit"
-                  onClick={form.handleSubmit(onSubmit)}
-                  variant={"default"}
-                  className="mr-3"
-                >
+                <Button type="submit" variant={"default"} className="mr-3">
                   Save
                 </Button>
                 <Button type="button" onClick={handleCancelDialog}>
