@@ -62,7 +62,7 @@ public class AuthenticationService {
                 .orElseThrow(() -> new CustomException("Invalid username/password supplied", HttpStatus.UNPROCESSABLE_ENTITY));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new CustomException("Invalid username/password supplied", HttpStatus.UNPROCESSABLE_ENTITY);
+            throw new CustomException("Invalid username/password supplied.", HttpStatus.UNPROCESSABLE_ENTITY);
         }
 
         authenticationManager.authenticate(

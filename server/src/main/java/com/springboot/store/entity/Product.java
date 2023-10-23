@@ -3,6 +3,8 @@ package com.springboot.store.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Set;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -62,5 +64,7 @@ public class Product {
     @JoinColumn(name = "product_property_id")
     private ProductProperty productProperty;
 
+    @OneToMany(cascade = CascadeType.ALL)
+    private Set<Media> images;
 
 }

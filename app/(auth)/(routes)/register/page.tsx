@@ -149,7 +149,7 @@ export default function SignUp() {
               <FormItem>
                 <FormLabel className="text-black">Email address</FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input {...field} className="w-full"/>
                 </FormControl>
                 <FormMessage className="text-xs" />
               </FormItem>
@@ -162,7 +162,7 @@ export default function SignUp() {
               <FormItem>
                 <FormLabel className="text-black">Password</FormLabel>
                 <FormControl>
-                  <Input type="password" {...field} />
+                  <Input type="password" className="w-full" {...field} />
                 </FormControl>
                 <FormMessage className="text-xs" />
               </FormItem>

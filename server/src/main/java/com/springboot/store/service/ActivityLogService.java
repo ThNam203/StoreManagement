@@ -6,7 +6,7 @@ import com.springboot.store.entity.Staff;
 import java.util.List;
 
 public interface ActivityLogService {
-    void save(String action, String description, Staff staff);
+    void save(String action, String description, String actor);
 
     List<ActivityLog> getLogs();
 }

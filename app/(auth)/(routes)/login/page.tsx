@@ -117,7 +117,7 @@ export default function LogIn() {
               <FormItem>
                 <FormLabel className="text-black">Email address</FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input className="w-full" {...field} />
                 </FormControl>
                 <FormMessage className="text-xs" />
               </FormItem>
@@ -130,7 +130,7 @@ export default function LogIn() {
               <FormItem>
                 <FormLabel className="text-black">Password</FormLabel>
                 <FormControl>
-                  <Input type="password" {...field} />
+                  <Input className="w-full" type="password" {...field} />
                 </FormControl>
                 <FormMessage className="text-xs" />
               </FormItem>

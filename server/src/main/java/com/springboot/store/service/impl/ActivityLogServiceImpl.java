@@ -7,6 +7,7 @@ import com.springboot.store.service.ActivityLogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -14,11 +15,12 @@ import java.util.List;
 public class ActivityLogServiceImpl implements ActivityLogService {
     private final ActivityLogRepository activityLogRepository;
     @Override
-    public void save(String action, String description, Staff staff) {
+    public void save(String action, String description, String actor) {
         ActivityLog activityLog = ActivityLog.builder()
                 .action(action)
                 .description(description)
-                .staff(staff)
+                .actor(actor)
+                .time(new Date())
                 .build();
         activityLogRepository.save(activityLog);
     }

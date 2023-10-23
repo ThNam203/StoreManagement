@@ -1,16 +1,20 @@
 package com.springboot.store.service.impl;
 
+import com.springboot.store.entity.Media;
 import com.springboot.store.entity.Staff;
 import com.springboot.store.exception.CustomException;
 import com.springboot.store.exception.ResourceNotFoundException;
 import com.springboot.store.payload.StaffRequest;
 import com.springboot.store.payload.StaffResponse;
+import com.springboot.store.repository.MediaRepository;
 import com.springboot.store.repository.StaffRepository;
 import com.springboot.store.repository.StaffRoleRepository;
+import com.springboot.store.service.ActivityLogService;
 import com.springboot.store.service.StaffService;
 import com.springboot.store.utils.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -24,16 +28,22 @@ public class StaffServiceImpl implements StaffService {
     private final StaffRepository staffRepository;
     private final PasswordEncoder passwordEncoder;
     private final StaffRoleRepository staffRoleRepository;
+    private final ActivityLogService activityLogService;
+    private final MediaRepository mediaRepository;
 
     @Override
-    public StaffResponse createStaff(StaffRequest newStaff, Staff creator) {
+    public StaffResponse createStaff(StaffRequest newStaff) {
         // check if staff is valid
         isStaffValid(newStaff);
+
+        Staff creator = getAuthorizedStaff();
 
         // check if creator is admin
         if (creator.getStaffRole().getName() != Role.ADMIN) {
             throw new CustomException("Only admin can create staff", HttpStatus.UNPROCESSABLE_ENTITY);
         }
+
+
 
         // convert DTO to entity
         Staff staff = mapToEntity(newStaff);
@@ -41,10 +51,21 @@ public class StaffServiceImpl implements StaffService {
         staff.setCreatedAt(new Date());
         staff.setCreator(creator);
 
-//         save entity to database
+        if (newStaff.getAvatar() != null) {
+            Media avatar = Media.builder()
+                    .url(newStaff.getAvatar())
+                    .build();
+//            avatar = mediaRepository.save(avatar);
+            staff.setAvatar(avatar);
+        }
+
+        // save entity to database
         staff = staffRepository.save(Objects.requireNonNull(staff));
 
-//         convert entity to DTO
+        // save activity log
+        activityLogService.save("CREATE", "Create new staff", creator.getName());
+
+        // convert entity to DTO
         return mapToResponse(staff);
     }
 
@@ -62,11 +83,13 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
-    public StaffResponse updateStaff(int id, StaffRequest staffRequest, Staff creator) {
+    public StaffResponse updateStaff(int id, StaffRequest staffRequest) {
         Staff staff = staffRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Staff", "id", id));
 
         // check if staff is valid
         isStaffValid(staffRequest);
+
+        Staff creator = getAuthorizedStaff();
 
         // check if role changed and if creator is admin
         if (staffRequest.getRole() != null && !staffRequest.getRole().equals(staff.getStaffRole().getName())
@@ -74,24 +97,35 @@ public class StaffServiceImpl implements StaffService {
             throw new CustomException("Only admin can change staff role", HttpStatus.UNPROCESSABLE_ENTITY);
         }
 
+        Media avatarUrl = Media.builder()
+                .url(staffRequest.getAvatar())
+                .build();
+
         staff.setName(staffRequest.getName());
         staff.setAddress(staffRequest.getAddress());
         staff.setPhoneNumber(staffRequest.getPhoneNumber());
         staff.setFacebook(staffRequest.getFacebook());
-        staff.setAvatar(staffRequest.getAvatar());
+        staff.setAvatar(avatarUrl);
         staff.setDescription(staffRequest.getDescription());
         staff.setSex(staffRequest.getSex());
         staff.setBirthday(staffRequest.getBirthday());
 
         staff = staffRepository.save(staff);
 
+        // save activity log
+        activityLogService.save("UPDATE", "Update staff with id " + id, creator.getName());
+
         return mapToResponse(staff);
     }
 
     @Override
-    public void deleteStaff(int id, Staff creator) {
+    public void deleteStaff(int id) {
+        Staff creator = getAuthorizedStaff();
         Staff staff = staffRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Staff", "id", id));
         staffRepository.delete(staff);
+
+        // save activity log
+        activityLogService.save("DELETE", "Delete staff with id " + id, creator.getName());
     }
 
     @Override
@@ -108,12 +142,12 @@ public class StaffServiceImpl implements StaffService {
                 .address(staff.getAddress())
                 .phoneNumber(staff.getPhoneNumber())
                 .facebook(staff.getFacebook())
-                .avatar(staff.getAvatar())
                 .description(staff.getDescription())
                 .birthday(staff.getBirthday())
+                .createdAt(staff.getCreatedAt())
+                .avatar(staff.getAvatar() != null ? staff.getAvatar().getUrl() : null)
                 // if staffRole is not null, get name of staffRole
                 .role(staff.getStaffRole() != null ? staff.getStaffRole().getName() : null)
-                .createdAt(staff.getCreatedAt())
                 // if creator is not null, get name of creator
                 .creator(staff.getCreator() != null ? staff.getCreator().getName() : null)
                 .build();
@@ -127,7 +161,6 @@ public class StaffServiceImpl implements StaffService {
                 .address(staffRequest.getAddress())
                 .phoneNumber(staffRequest.getPhoneNumber())
                 .facebook(staffRequest.getFacebook())
-                .avatar(staffRequest.getAvatar())
                 .description(staffRequest.getDescription())
                 .sex(staffRequest.getSex())
                 .birthday(staffRequest.getBirthday())
@@ -161,5 +194,11 @@ public class StaffServiceImpl implements StaffService {
         if (newStaff.getRole() != null && !staffRoleRepository.existsByName(newStaff.getRole())) {
             throw new CustomException("Role is invalid", HttpStatus.UNPROCESSABLE_ENTITY);
         }
+    }
+
+    private Staff getAuthorizedStaff() {
+        return staffRepository.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName()).orElseThrow(
+            () -> new CustomException("You not found", HttpStatus.UNPROCESSABLE_ENTITY)
+        );
     }
 }
