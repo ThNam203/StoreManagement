@@ -59,10 +59,10 @@ export default function StaffGroupPage() {
   return (
     <div className="grid grid-cols-6 gap-4">
       <div className="col-start-1 col-span-6">
-        <span className="text-slate-500 text-xl">Staff Group</span>
-      </div>
-      <div className="col-start-1 col-span-6">
         <div className="bg-white p-6 rounded-lg">
+          <h2 className="text-start font-semibold text-3xl my-4">
+            Staff Group
+          </h2>
           <DataTable data={groupList} onSubmit={handleFormSubmit} />
         </div>
       </div>
