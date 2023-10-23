@@ -35,6 +35,9 @@ import { formatPrice } from "./utils";
 import { MakeExpenseDialog } from "./make_expense_dialog";
 import { MakeReceiptDialog } from "./make_receipt_dialog";
 import { exportExcel } from "@/utils/commonUtils";
+import Filter from "@/components/ui/filter";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 type Props = {
   data: Transaction[];
@@ -126,10 +129,13 @@ export function DataTable({ data, onSubmit }: Props) {
           };
         } else if (header === "value") {
           const value = item[header as keyof typeof item];
-          //
+          const isExpense = item["formType"] === FormType.EXPENSE;
+          const expenseValue = "-" + value;
+          const receiveValue = "+" + value;
+
           row = {
             ...row,
-            [headerContent]: type,
+            [headerContent]: isExpense ? expenseValue : receiveValue,
           };
         } else if (headerContent !== undefined) {
           row = {
@@ -183,7 +189,7 @@ export function DataTable({ data, onSubmit }: Props) {
                 Columns <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="end" className="flex flex-col p-2">
               {table
                 .getAllColumns()
                 .filter((column) => column.getCanHide())
@@ -192,16 +198,25 @@ export function DataTable({ data, onSubmit }: Props) {
                     columnHeader[column.id as keyof typeof columnHeader];
                   if (headerContent !== undefined)
                     return (
-                      <DropdownMenuCheckboxItem
+                      <div
+                        className="flex flex-row items-center space-x-2 p-2 rounded-md select-none hover:cursor-pointer hover:bg-[#f5f5f4] ease-linear duration-100"
                         key={column.id}
-                        className="capitalize"
-                        checked={column.getIsVisible()}
-                        onCheckedChange={(value) =>
-                          column.toggleVisibility(!!value)
+                        onClick={() =>
+                          column.toggleVisibility(!column.getIsVisible())
                         }
                       >
-                        {headerContent}
-                      </DropdownMenuCheckboxItem>
+                        <Checkbox
+                          key={column.id}
+                          className="capitalize"
+                          checked={column.getIsVisible()}
+                          onCheckedChange={(value) =>
+                            column.toggleVisibility(!!value)
+                          }
+                        ></Checkbox>
+                        <Label className="cursor-pointer">
+                          {headerContent}
+                        </Label>
+                      </div>
                     );
                 })}
             </DropdownMenuContent>
