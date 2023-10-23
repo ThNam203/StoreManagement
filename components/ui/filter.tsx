@@ -28,8 +28,7 @@ const Filter = ({
   onSingleChoiceChanged?: (position: number, value: string) => void;
   onMultiChoicesChanged?: (
     positions: number[],
-    prop: string,
-    value: boolean | string
+    values: string[],
   ) => void;
 }) => {
   if (defaultPosition == undefined) defaultPosition = -1;
@@ -49,7 +48,7 @@ const Filter = ({
       }
     }
     if (onMultiChoicesChanged)
-      onMultiChoicesChanged(defaultPositions!, choices[position], checkedState);
+      onMultiChoicesChanged(defaultPositions!, choices.filter((val, index) => defaultPositions!.includes(index)));
   };
 
   return (
