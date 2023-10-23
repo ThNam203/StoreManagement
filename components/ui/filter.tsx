@@ -25,34 +25,38 @@ const Filter = ({
   choices: string[];
   defaultPosition?: number;
   defaultPositions?: number[];
-  onSingleChoiceChanged?: (position: number) => void;
-  onMultiChoicesChanged?: (positions: number[]) => void;
+  onSingleChoiceChanged?: (position: number, value: string) => void;
+  onMultiChoicesChanged?: (
+    positions: number[],
+    prop: string,
+    value: boolean | string
+  ) => void;
 }) => {
   if (defaultPosition == undefined) defaultPosition = -1;
   if (defaultPositions == undefined) defaultPositions = [];
-
   const multiChoicesHandler = (
     checkedState: boolean | "indeterminate",
     position: number
   ) => {
     if (checkedState === true) {
-      if (!defaultPositions!.includes(position))
+      if (!defaultPositions!.includes(position)) {
         defaultPositions!.push(position);
+      }
     } else {
       const removePos = defaultPositions!.indexOf(position);
-      if (removePos != -1) defaultPositions!.splice(removePos, 1);
+      if (removePos != -1) {
+        defaultPositions!.splice(removePos, 1);
+      }
     }
-
-    console.log(defaultPositions!);
-
-    if (onMultiChoicesChanged) onMultiChoicesChanged(defaultPositions!);
+    if (onMultiChoicesChanged)
+      onMultiChoicesChanged(defaultPositions!, choices[position], checkedState);
   };
 
   return (
     <Accordion
       type="single"
       collapsible={true}
-      className="w-[200px] bg-white rounded-md mx-2 my-2 px-4"
+      className="w-[200px] bg-white rounded-md px-4"
     >
       <AccordionItem value="item-1">
         <AccordionTrigger>
@@ -65,14 +69,17 @@ const Filter = ({
               onValueChange={(position) => {
                 console.log(position);
                 if (onSingleChoiceChanged)
-                  onSingleChoiceChanged(parseInt(position));
+                  onSingleChoiceChanged(
+                    parseInt(position),
+                    choices[parseInt(position)]
+                  );
               }}
             >
               {choices.map((choice, index) => (
                 <div key={index} className="flex items-center space-x-3">
-                  <RadioGroupItem value={index.toString()} id={"r" + index} />
+                  <RadioGroupItem value={index.toString()} id={title + index} />
                   <Label
-                    htmlFor={"r" + index}
+                    htmlFor={title + index}
                     className="text-[0.8rem] hover:cursor-pointer font-normal"
                   >
                     {choice}
@@ -86,13 +93,14 @@ const Filter = ({
                 <div key={index} className="flex items-center space-x-3">
                   <Checkbox
                     value={index}
-                    id={"r" + index}
+                    id={title + index}
                     onCheckedChange={(checkedState) =>
+                      // multiChoicesHandler(checkedState, index);
                       multiChoicesHandler(checkedState, index)
                     }
                   />
                   <Label
-                    htmlFor={"r" + index}
+                    htmlFor={title + index}
                     className="text-[0.8rem] hover:cursor-pointer font-normal"
                   >
                     {choice}

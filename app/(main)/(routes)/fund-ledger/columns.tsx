@@ -21,6 +21,21 @@ import {
 import { FormType, TargetType, Transaction } from "./entities";
 import { formatPrice } from "./utils";
 
+export const columnHeader = {
+  "#": "#",
+  id: "Form ID",
+  createdDate: "Time",
+  description: "Description",
+  formType: "Form Type",
+  value: "Value",
+  creator: "Creator",
+  transactionType: "Transaction Type",
+  targetType: "Receiver/Payer Type",
+  targetName: "Receiver/Payer",
+  status: "Status",
+  note: "Note",
+};
+
 export const columns: ColumnDef<Transaction>[] = [
   {
     id: "select",
@@ -51,7 +66,7 @@ export const columns: ColumnDef<Transaction>[] = [
           className="w-[100px] flex flex-row hover:opacity-80 ease-linear duration-200 hover:cursor-pointer"
           onClick={() => column.toggleSorting()}
         >
-          <span>Form ID</span>
+          <span>{columnHeader["id"]}</span>
           {column.getIsSorted() === false ? null : (
             <div>
               {column.getIsSorted() === "asc" ? (
@@ -74,7 +89,7 @@ export const columns: ColumnDef<Transaction>[] = [
           className="w-[180px] flex flex-row hover:opacity-80 ease-linear duration-200 hover:cursor-pointer"
           onClick={() => column.toggleSorting()}
         >
-          <span>Time</span>
+          <span>{columnHeader["createdDate"]}</span>
           {column.getIsSorted() === false ? null : (
             <div>
               {column.getIsSorted() === "asc" ? (
@@ -97,7 +112,7 @@ export const columns: ColumnDef<Transaction>[] = [
           className="w-[120px] flex flex-row hover:opacity-80 ease-linear duration-200 hover:cursor-pointer"
           onClick={() => column.toggleSorting()}
         >
-          <span>Creator</span>
+          <span>{columnHeader["creator"]}</span>
           {column.getIsSorted() === false ? null : (
             <div>
               {column.getIsSorted() === "asc" ? (
@@ -113,14 +128,14 @@ export const columns: ColumnDef<Transaction>[] = [
     cell: ({ row }) => <div>{row.getValue("creator")}</div>,
   },
   {
-    accessorKey: "formType",
+    accessorKey: "description",
     header: ({ column }) => {
       return (
         <div
           className="w-[170px] flex flex-row hover:opacity-80 ease-linear duration-200 hover:cursor-pointer"
           onClick={() => column.toggleSorting()}
         >
-          <span>Type</span>
+          <span>{columnHeader["description"]}</span>
           {column.getIsSorted() === false ? null : (
             <div>
               {column.getIsSorted() === "asc" ? (
@@ -134,23 +149,66 @@ export const columns: ColumnDef<Transaction>[] = [
       );
     },
     cell: ({ row }) => {
-      const prefix =
-        row.getValue("formType") === FormType.EXPENSE
-          ? "Pay for"
-          : "Receive from";
-      const suffixes = row.getValue("targetType");
-      return <div>{`${prefix} ${suffixes}`}</div>;
+      return <div>{row.getValue("description")}</div>;
     },
   },
   {
-    accessorKey: "targetType",
+    accessorKey: "formType",
+    header: ({ column }) => {
+      return (
+        <div
+          className="w-[170px] flex flex-row hover:opacity-80 ease-linear duration-200 hover:cursor-pointer"
+          onClick={() => column.toggleSorting()}
+        >
+          <span>{columnHeader["formType"]}</span>
+          {column.getIsSorted() === false ? null : (
+            <div>
+              {column.getIsSorted() === "asc" ? (
+                <ArrowDownAZ className="ml-2 h-4 w-4" />
+              ) : (
+                <ArrowDownZA className="ml-2 h-4 w-4" />
+              )}
+            </div>
+          )}
+        </div>
+      );
+    },
+    cell: ({ row }) => {
+      return <div>{row.getValue("formType")}</div>;
+    },
+  },
+  {
+    accessorKey: "transactionType",
     header: ({ column }) => {
       return (
         <div
           className="w-[180px] flex flex-row hover:opacity-80 ease-linear duration-200 hover:cursor-pointer"
           onClick={() => column.toggleSorting()}
         >
-          <span>Receiver/Payer Type</span>
+          <span>{columnHeader["transactionType"]}</span>
+          {column.getIsSorted() === false ? null : (
+            <div>
+              {column.getIsSorted() === "asc" ? (
+                <ArrowDownAZ className="ml-2 h-4 w-4" />
+              ) : (
+                <ArrowDownZA className="ml-2 h-4 w-4" />
+              )}
+            </div>
+          )}
+        </div>
+      );
+    },
+    cell: ({ row }) => <div>{row.getValue("transactionType")}</div>,
+  },
+  {
+    accessorKey: "targetType",
+    header: ({ column }) => {
+      return (
+        <div
+          className="w-[150px] flex flex-row hover:opacity-80 ease-linear duration-200 hover:cursor-pointer"
+          onClick={() => column.toggleSorting()}
+        >
+          <span>{columnHeader["targetType"]}</span>
           {column.getIsSorted() === false ? null : (
             <div>
               {column.getIsSorted() === "asc" ? (
@@ -173,7 +231,7 @@ export const columns: ColumnDef<Transaction>[] = [
           className="w-[100px] flex flex-row hover:opacity-80 ease-linear duration-200 hover:cursor-pointer"
           onClick={() => column.toggleSorting()}
         >
-          <span>Receiver/Payer</span>
+          <span>{columnHeader["targetName"]}</span>
           {column.getIsSorted() === false ? null : (
             <div>
               {column.getIsSorted() === "asc" ? (
@@ -196,7 +254,7 @@ export const columns: ColumnDef<Transaction>[] = [
           className="w-[100px] flex flex-row hover:opacity-80 ease-linear duration-200 hover:cursor-pointer"
           onClick={() => column.toggleSorting()}
         >
-          <span>Value</span>
+          <span>{columnHeader["value"]}</span>
           {column.getIsSorted() === false ? null : (
             <div>
               {column.getIsSorted() === "asc" ? (
@@ -228,7 +286,7 @@ export const columns: ColumnDef<Transaction>[] = [
           className="w-[100px] flex flex-row hover:opacity-80 ease-linear duration-200 hover:cursor-pointer"
           onClick={() => column.toggleSorting()}
         >
-          <span>Status</span>
+          <span>{columnHeader["status"]}</span>
           {column.getIsSorted() === false ? null : (
             <div>
               {column.getIsSorted() === "asc" ? (
@@ -245,7 +303,7 @@ export const columns: ColumnDef<Transaction>[] = [
   },
   {
     accessorKey: "note",
-    header: "Note",
+    header: columnHeader["note"],
     cell: ({ row }) => <div>{row.getValue("note")}</div>,
   },
   {

@@ -74,6 +74,7 @@ export function MakeExpenseDialog({ data, submit }: Props) {
         ? new Date(values.createdDate).toLocaleString()
         : new Date().toLocaleString(),
       formType: FormType.EXPENSE,
+      description: "Pay for" + values.targetType,
       value: values.value,
       creator: values.creator,
       transactionType: values.transactionType,

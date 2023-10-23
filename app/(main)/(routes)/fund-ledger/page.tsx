@@ -19,12 +19,15 @@ import {
 } from "./entities";
 import { MakeExpenseDialog } from "./make_expense_dialog";
 import { MakeReceiptDialog } from "./make_receipt_dialog";
+import Filter from "@/components/ui/filter";
+import { columnHeader } from "./columns";
 const originalSalesList: Transaction[] = [
   {
     id: nanoid(9).toUpperCase(),
     targetType: TargetType.CUSTOMER,
     targetName: "David",
     formType: FormType.RECEIPT,
+    description: "Receive from Customer",
     transactionType: TransactionType.CASH,
     value: "100000",
     creator: "NGUYEN VAN A",
@@ -37,6 +40,7 @@ const originalSalesList: Transaction[] = [
     targetType: TargetType.CUSTOMER,
     targetName: "Henry",
     formType: FormType.RECEIPT,
+    description: "Receive from Customer",
     transactionType: TransactionType.TRANSFER,
     value: "200000",
     creator: "NGUYEN VAN B",
@@ -49,6 +53,7 @@ const originalSalesList: Transaction[] = [
     targetType: TargetType.SUPPLIER,
     targetName: "Mary",
     formType: FormType.EXPENSE,
+    description: "Pay for Supplier",
     transactionType: TransactionType.TRANSFER,
     value: "20000000",
     creator: "NGUYEN VAN C",
@@ -60,6 +65,8 @@ const originalSalesList: Transaction[] = [
 
 export default function SalesPage() {
   const [salesList, setSalesList] = useState<Transaction[]>([]);
+  const [filter, setFilter] = useState({});
+  const [filteredSaleList, setFilteredSaleList] = useState([]);
 
   useEffect(() => {
     setSalesList(originalSalesList);
@@ -69,47 +76,68 @@ export default function SalesPage() {
     setSalesList((prev) => [...prev, values]);
   }
 
+  useEffect(() => {
+    console.log(filter);
+  }, [filter]);
+
+  const handleMultiFilterChange = (
+    position: number[],
+    prop: string,
+    value: boolean | string
+  ) => {
+    if (value !== "indeterminate")
+      setFilter((prev) => ({ ...prev, [prop]: value }));
+    else setFilter((prev) => ({ ...prev, [prop]: null }));
+  };
+
   return (
     <div className="grid grid-cols-6 gap-4">
       <div className="col-start-1 col-span-5">
-        <div className="p-4 rounded-lg bg-white overflow-hidden">
+        <div className="w-full p-4 rounded-lg bg-white overflow-hidden">
           <h2 className="text-start font-semibold text-3xl my-4">
             Fund Ledger
           </h2>
           <DataTable data={salesList} onSubmit={handleFormSubmit} />
         </div>
       </div>
-      {/* <div className="col-start-6 col-span-1">
-        <Collapsible className="rounded-lg bg-white p-4">
-          <div className="flex flex-row justify-between">
-            <span className="font-bold select-none">Customer Group</span>
-            <CollapsibleTrigger asChild>
-              <ChevronDown
-                color="black"
-                className="opacity-60 hover:opacity-100 cursor-pointer"
-              />
-            </CollapsibleTrigger>
-          </div>
-          <CollapsibleContent className="data-[state=open]:animate-[slide-down_0.2s_ease-out] data-[state=closed]:animate-[slide-up_0.2s_ease-out] overflow-hidden mt-2">
-            <Combobox placeholder="Select group..." optionList={groupList} />
-          </CollapsibleContent>
-        </Collapsible>
-
-        <Collapsible className="rounded-lg bg-white mt-4 p-4">
-          <div className="flex flex-row justify-between">
-            <span className="font-bold select-none">Created Date</span>
-            <CollapsibleTrigger asChild>
-              <ChevronDown
-                color="black"
-                className="opacity-60 hover:opacity-100 cursor-pointer"
-              />
-            </CollapsibleTrigger>
-          </div>
-          <CollapsibleContent className="data-[state=open]:animate-[slide-down_0.2s_ease-out] data-[state=closed]:animate-[slide-up_0.2s_ease-out] overflow-hidden mt-2">
-            <Combobox placeholder="Select branch..." optionList={branchList} />
-          </CollapsibleContent>
-        </Collapsible>
-      </div> */}
+      <div className="col-start-6 col-span-1">
+        <div className="w-full flex flex-col space-y-4">
+          <Filter
+            title="Transaction Type"
+            choices={Object.values(TransactionType)}
+            isSingleChoice={false}
+            onMultiChoicesChanged={handleMultiFilterChange}
+          />
+          <Filter
+            title="Form Type"
+            choices={Object.values(FormType)}
+            isSingleChoice={false}
+            onMultiChoicesChanged={handleMultiFilterChange}
+          />
+          <Filter
+            title="Status"
+            choices={Object.values(Status)}
+            isSingleChoice={false}
+            onMultiChoicesChanged={handleMultiFilterChange}
+          />
+          <Filter
+            title="Creator"
+            choices={salesList.map((row) => row.creator)}
+            isSingleChoice={false}
+            onMultiChoicesChanged={handleMultiFilterChange}
+          />
+          <Filter
+            title="Receiver/Payer Type"
+            choices={salesList.map((row) => row.targetType)}
+            isSingleChoice={false}
+          />
+          <Filter
+            title="Receiver/Payer"
+            choices={salesList.map((row) => row.targetName)}
+            isSingleChoice={false}
+          />
+        </div>
+      </div>
     </div>
   );
 }

@@ -74,6 +74,7 @@ export function MakeReceiptDialog({ data, submit }: Props) {
         ? new Date(values.createdDate).toLocaleString()
         : new Date().toLocaleString(),
       formType: FormType.RECEIPT,
+      description: "Receive from" + values.targetType,
       value: values.value,
       creator: values.creator,
       transactionType: values.transactionType,

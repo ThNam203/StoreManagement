@@ -29,7 +29,7 @@ import {
 } from "@tanstack/react-table";
 import { ChevronDown } from "lucide-react";
 import * as React from "react";
-import { columns } from "./columns";
+import { columnHeader, columns } from "./columns";
 import { FormType, Transaction } from "./entities";
 import { formatPrice } from "./utils";
 import { MakeExpenseDialog } from "./make_expense_dialog";
@@ -41,10 +41,11 @@ import { Label } from "@/components/ui/label";
 
 type Props = {
   data: Transaction[];
+  pfilter?: object;
   onSubmit: (values: Transaction) => void;
 };
 
-export function DataTable({ data, onSubmit }: Props) {
+export function DataTable({ data, onSubmit, pfilter }: Props) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -53,7 +54,9 @@ export function DataTable({ data, onSubmit }: Props) {
     React.useState<VisibilityState>({
       id: true,
       createdDate: true,
-      formType: true,
+      description: true,
+      formType: false,
+      transactionType: false,
       targetName: true,
       value: true,
       creator: false,
@@ -62,6 +65,7 @@ export function DataTable({ data, onSubmit }: Props) {
       note: false,
     });
   const [rowSelection, setRowSelection] = React.useState({});
+  const [filter, setFilter] = React.useState("");
 
   const table = useReactTable({
     data,
@@ -75,11 +79,13 @@ export function DataTable({ data, onSubmit }: Props) {
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     enableSortingRemoval: true,
+    onGlobalFilterChange: setFilter,
     state: {
       sorting,
       columnFilters,
       columnVisibility,
       rowSelection,
+      globalFilter: filter,
     },
   });
 
@@ -88,19 +94,6 @@ export function DataTable({ data, onSubmit }: Props) {
   };
 
   //get header through id of column to export excel
-  const columnHeader = {
-    "#": "#",
-    id: "Form ID",
-    createdDate: "Time",
-    formType: "Type",
-    value: "Value",
-    creator: "Creator",
-    transactionType: "Transaction Type",
-    targetType: "Receiver/Payer Type",
-    targetName: "Receiver/Payer",
-    status: "Status",
-    note: "Note",
-  };
   const handleExportExcel = () => {
     //get id of visible column in datatable
     const visibleColumnIds = table
@@ -108,7 +101,7 @@ export function DataTable({ data, onSubmit }: Props) {
       .map((column) => column.id);
 
     //take list of header and value to export excel
-    let toExport = data.map((item, index) => {
+    let toExport = data.map((dataRow, index) => {
       var row: object = {};
       visibleColumnIds.map((header) => {
         const headerContent = columnHeader[header as keyof typeof columnHeader];
@@ -118,18 +111,18 @@ export function DataTable({ data, onSubmit }: Props) {
             ...row,
             [headerContent]: index + 1,
           };
-        } else if (header === "formType") {
+        } else if (header === "description") {
           const typePrefix =
-            item.formType === FormType.EXPENSE ? "Pay for" : "Receive from";
-          const typeSubfix = item.targetType;
+            dataRow.formType === FormType.EXPENSE ? "Pay for" : "Receive from";
+          const typeSubfix = dataRow.targetType;
           const type = `${typePrefix} ${typeSubfix}`;
           row = {
             ...row,
             [headerContent]: type,
           };
         } else if (header === "value") {
-          const value = item[header as keyof typeof item];
-          const isExpense = item["formType"] === FormType.EXPENSE;
+          const value = dataRow[header as keyof typeof dataRow];
+          const isExpense = dataRow["formType"] === FormType.EXPENSE;
           const expenseValue = "-" + value;
           const receiveValue = "+" + value;
 
@@ -140,7 +133,7 @@ export function DataTable({ data, onSubmit }: Props) {
         } else if (headerContent !== undefined) {
           row = {
             ...row,
-            [headerContent]: item[header as keyof typeof item],
+            [headerContent]: dataRow[header as keyof typeof dataRow],
           };
         } else {
           console.log("header of undefined", header);
@@ -161,13 +154,9 @@ export function DataTable({ data, onSubmit }: Props) {
     <div className="w-full">
       <div className="flex items-center justify-between py-4">
         <Input
-          placeholder="Filter time..."
-          value={
-            (table.getColumn("createdDate")?.getFilterValue() as string) ?? ""
-          }
-          onChange={(event) =>
-            table.getColumn("createdDate")?.setFilterValue(event.target.value)
-          }
+          placeholder="Type anything..."
+          value={filter}
+          onChange={(event) => setFilter(event.target.value)}
           className="max-w-sm"
         />
         <div className="flex flex-row">

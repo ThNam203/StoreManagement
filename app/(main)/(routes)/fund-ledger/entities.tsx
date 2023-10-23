@@ -1,6 +1,7 @@
 export type Transaction = {
   id: any;
   createdDate: string;
+  description: string;
   formType: FormType;
   value: string;
   creator: string;
