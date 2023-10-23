@@ -7,10 +7,10 @@ import com.springboot.store.payload.StaffResponse;
 import java.util.List;
 
 public interface StaffService {
-    StaffResponse createStaff(StaffRequest newStaff, Staff creator);
+    StaffResponse createStaff(StaffRequest newStaff);
     List<StaffResponse> getAllStaffs();
     StaffResponse getStaffById(int id);
-    StaffResponse updateStaff(int id, StaffRequest staffRequest, Staff creator);
-    void deleteStaff(int id, Staff creator);
+    StaffResponse updateStaff(int id, StaffRequest staffRequest);
+    void deleteStaff(int id);
     Staff findByEmail(String email);
 }

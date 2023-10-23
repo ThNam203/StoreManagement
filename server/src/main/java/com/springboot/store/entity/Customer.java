@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Date;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -58,4 +59,6 @@ public class Customer {
     @JoinColumn(name = "creator_id")
     private Staff creator;
 
+    @OneToMany(cascade = CascadeType.ALL)
+    private Set<Media> images;
 }
