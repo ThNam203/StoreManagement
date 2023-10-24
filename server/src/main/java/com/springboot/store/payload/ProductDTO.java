@@ -25,4 +25,5 @@ public class ProductDTO {
     private int maxQuantity;
     private Set<MediaDTO> images;
 
+
 }
