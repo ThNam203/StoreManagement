@@ -11,6 +11,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Builder
 
+
 @Entity
 @Table(name = "products")
 public class Product {
