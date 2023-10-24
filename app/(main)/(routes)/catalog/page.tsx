@@ -1,5 +1,9 @@
 "use client";
-import { ChoicesFilter, TimeFilter } from "@/components/ui/filter";
+import {
+  ChoicesFilter,
+  SearchFilter,
+  TimeFilter,
+} from "@/components/ui/filter";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
 
 export default function Catalog() {
@@ -38,6 +42,26 @@ export default function Catalog() {
           className="my-4"
         />
 
+        <TimeFilter
+          title="Sinh nhật"
+          className="my-4"
+          onRangeTimeFilterChanged={(range) => console.log(range)}
+          onSingleTimeFilterChanged={(filterTime) => console.log(filterTime)}
+        />
+
+        <SearchFilter
+          title="Cửa hàng"
+          placeholder="Tìm kiếm cửa hàng"
+          className="my-4"
+          choices={[
+            "Cửa hàng A",
+            "Cửa hàng B",
+            "Cửa hàng CCửa hàng C",
+            "Cửa hàng D",
+            "Cửa hàng F",
+          ]}
+        />
+
         <ChoicesFilter
           title="Tồn kho"
           isSingleChoice
@@ -50,12 +74,6 @@ export default function Catalog() {
             "Hết hàng trong kho",
           ]}
           className="my-4"
-        />
-
-        <TimeFilter
-          title="Sinh nhật"
-          onRangeTimeFilterChanged={(range) => console.log(range)}
-          onSingleTimeFilterChanged={(filterTime) => console.log(filterTime)}
         />
       </ScrollArea>
     </div>

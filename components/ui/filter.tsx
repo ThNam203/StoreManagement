@@ -1,5 +1,6 @@
 "use client";
 
+import scrollbar_style from "../../styles/scrollbar.module.css";
 import "react-date-range/dist/styles.css"; // main style file
 import "react-date-range/dist/theme/default.css"; // theme css file
 import {
@@ -12,12 +13,13 @@ import { DateRangePicker } from "react-date-range";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "./checkbox";
-import { useRef, useState } from "react";
 import { cn } from "@/lib/utils";
-import { CalendarDays, Maximize2, PlusCircle } from "lucide-react";
-import Link from "next/link";
+import { CalendarDays, Check, Maximize2, PlusCircle, X, XCircle } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 import { Button } from "./button";
+import { useEffect, useState } from "react";
+import { Input } from "./input";
+import { ScrollArea } from "./scroll-area";
 
 const ChoicesFilter = ({
   title,
@@ -183,6 +185,7 @@ type FilterTime =
 const TimeFilter = ({
   title,
   className,
+  alwaysOpen,
   filterDay = [FilterDay.Today, FilterDay.LastDay],
   filterWeek = [FilterWeek.ThisWeek, FilterWeek.LastWeek, FilterWeek.Last7Days],
   filterMonth = [
@@ -197,6 +200,7 @@ const TimeFilter = ({
 }: {
   title: string;
   className?: string;
+  alwaysOpen?: boolean;
   filterDay?: FilterDay[];
   filterWeek?: FilterWeek[];
   filterMonth?: FilterMonth[];
@@ -222,12 +226,12 @@ const TimeFilter = ({
   return (
     <Accordion
       type="single"
-      collapsible={true}
+      collapsible={!alwaysOpen}
       defaultValue="item-1"
       className={cn("w-[260px] bg-white rounded-md px-4", className)}
     >
       <AccordionItem value="item-1">
-        <AccordionTrigger>
+        <AccordionTrigger showArrowFunc={alwaysOpen ? "hidden" : ""}>
           <div className="flex flex-row items-center w-full">
             <p className="text-[0.8rem] leading-4 font-bold text-start flex-1">
               {title}
@@ -419,4 +423,121 @@ const TimeFilter = ({
   );
 };
 
-export { ChoicesFilter, TimeFilter };
+const SearchFilter = ({
+  title,
+  placeholder,
+  alwaysOpen,
+  choices,
+  className,
+  onValuesChanged,
+}: {
+  title: string;
+  placeholder: string;
+  alwaysOpen?: boolean;
+  choices: string[];
+  className?: string;
+  onValuesChanged?: (values: string[]) => void;
+}) => {
+  const [showSearchValue, setShowSearchvalue] = useState(false);
+  const [chosenValues, setChosenValues] = useState<string[]>([]);
+  const [searchInput, setSearchInput] = useState("");
+
+  useEffect(() => {
+    if (onValuesChanged) onValuesChanged(chosenValues);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chosenValues])
+
+  return (
+    <Accordion
+      type="single"
+      collapsible={!alwaysOpen}
+      defaultValue="item-1"
+      className={cn("w-[260px] bg-white rounded-md px-4", className)}
+    >
+      <AccordionItem value="item-1">
+        <AccordionTrigger showArrowFunc={alwaysOpen ? "hidden" : ""}>
+          <div className="flex flex-row items-center w-full">
+            <p className="text-[0.8rem] leading-4 font-bold text-start flex-1">
+              {title}
+            </p>
+          </div>
+        </AccordionTrigger>
+        <AccordionContent className="overflow-visible">
+          <div className="flex flex-col mb-4 relative">
+            <Input
+              className="w-full focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0"
+              placeholder={placeholder}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onFocus={() => setShowSearchvalue(true)}
+              onBlur={() => setShowSearchvalue(false)}
+            />
+            {showSearchValue ? (
+              <div
+                className={cn(
+                  "absolute top-[100%] overflow-y-auto left-0 max-h-[200px] w-full shadow-sm shadow-gray-600 z-[90000]",
+                  scrollbar_style.scrollbar
+                )}
+              >
+                <ul>
+                  {choices
+                    .filter((value) => value.includes(searchInput.trim()))
+                    .map((value, idx) => (
+                      <li
+                        key={idx}
+                        className="p-2 bg-slate-100 hover:cursor-pointer hover:bg-slate-300 flex flex-row items-center"
+                        onClick={(e) => {
+                          if (chosenValues.includes(value))
+                            setChosenValues((prev) =>
+                              prev.filter((v) => v !== value)
+                            );
+                          else setChosenValues((prev) => [...prev, value]);
+                          e.stopPropagation();
+                        }}
+
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                        }}
+                      >
+                        <p className="flex-1">{value}</p>
+                        {chosenValues.includes(value) ? (
+                          <Check size={16} />
+                        ) : null}
+                      </li>
+                    ))}
+                </ul>
+              </div>
+            ) : null}
+          </div>
+          {chosenValues.map((val, idx) => (
+            <div key={idx} className="flex flex-row items-center space-x-3 mb-3">
+              <p className="text-[0.8rem] flex-1 hover:cursor-pointer font-normal">
+                {val}
+              </p>
+              <XCircle
+                size={16}
+                color="#FFFFFF"
+                fill="rgb(96 165 250)"
+                className="w-4 h-4 hover:cursor-pointer p-0"
+                onClick={(e) =>
+                  setChosenValues((prev) => prev.filter((v) => v !== val))
+                }
+              />
+            </div>
+          ))}
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
+  );
+};
+
+export {
+  ChoicesFilter,
+  TimeFilter,
+  SearchFilter,
+  FilterDay,
+  FilterMonth,
+  FilterWeek,
+  FilterQuarter,
+  FilterYear,
+};
