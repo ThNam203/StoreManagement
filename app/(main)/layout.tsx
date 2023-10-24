@@ -56,7 +56,7 @@ export default function RootLayout({
         />
         <div
           className={cn(
-            "bg-slate-100 ml-[80px] py-4 pr-4 ease-linear duration-150",
+            "bg-slate-100 ml-[80px] py-2 pr-4 ease-linear duration-150",
             isSideBarCollapsed ? "" : "lg:ml-[248px]"
           )}
         >
