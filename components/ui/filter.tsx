@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 import {
   CalendarDays,
   Check,
+  Filter,
   Maximize2,
   PlusCircle,
   X,
@@ -24,7 +25,7 @@ import {
 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 import { Button } from "./button";
-import { StrictMode, useEffect, useState } from "react";
+import React, { StrictMode, useEffect, useState } from "react";
 import { Input } from "./input";
 import { ScrollArea } from "./scroll-area";
 
@@ -65,12 +66,12 @@ const ChoicesFilter = ({
   ) => {
     if (checkedState === true) {
       if (!positions.includes(position)) {
-        setPositions(prev => [...prev, position])
+        setPositions((prev) => [...prev, position]);
       }
     } else {
       const removePos = positions!.indexOf(position);
       if (removePos != -1) {
-        setPositions(prev => prev.filter((_, idx) => idx !== removePos))
+        setPositions((prev) => prev.filter((_, idx) => idx !== removePos));
       }
     }
   };
@@ -81,14 +82,14 @@ const ChoicesFilter = ({
         positions,
         choices.filter((val, index) => positions!.includes(index))
       );
-  }, [positions, onMultiChoicesChanged])
+  }, [positions, onMultiChoicesChanged]);
 
   return (
     <Accordion
       type="single"
       collapsible={!alwaysOpen}
       defaultValue="item-1"
-      className={cn("w-[260px] bg-white rounded-md px-4", className)}
+      className={cn("w-full bg-white rounded-md px-4", className)}
     >
       <AccordionItem value="item-1">
         <AccordionTrigger showArrowFunc={alwaysOpen ? "hidden" : ""}>
@@ -114,12 +115,9 @@ const ChoicesFilter = ({
               className="gap-3 pb-2"
               defaultValue={position.toString()}
               onValueChange={(pos) => {
-                setPosition(position)
+                setPosition(position);
                 if (onSingleChoiceChanged)
-                  onSingleChoiceChanged(
-                    parseInt(pos),
-                    choices[parseInt(pos)]
-                  );
+                  onSingleChoiceChanged(parseInt(pos), choices[parseInt(pos)]);
               }}
             >
               {choices.map((choice, index) => (
@@ -243,7 +241,7 @@ const TimeFilter = ({
       type="single"
       collapsible={!alwaysOpen}
       defaultValue="item-1"
-      className={cn("w-[260px] bg-white rounded-md px-4", className)}
+      className={cn("w-full bg-white rounded-md px-4", className)}
     >
       <AccordionItem value="item-1">
         <AccordionTrigger showArrowFunc={alwaysOpen ? "hidden" : ""}>
@@ -467,7 +465,7 @@ const SearchFilter = ({
       type="single"
       collapsible={!alwaysOpen}
       defaultValue="item-1"
-      className={cn("w-[260px] bg-white rounded-md px-4", className)}
+      className={cn("w-full bg-white rounded-md px-4", className)}
     >
       <AccordionItem value="item-1">
         <AccordionTrigger showArrowFunc={alwaysOpen ? "hidden" : ""}>
@@ -548,10 +546,85 @@ const SearchFilter = ({
   );
 };
 
+const PageWithFilters = ({
+  title,
+  filters,
+  headerButtons,
+  children
+}: {
+  title: string;
+  filters: React.JSX.Element[];
+  headerButtons: React.JSX.Element[];
+  children: React.ReactNode;
+}) => {
+  const [openFilter, setOpenFilter] = useState(false);
+
+  useEffect(() => {
+    const screenObserver = (e: MediaQueryListEvent) => {
+      if (e.matches) setOpenFilter(false);
+    };
+
+    const mql = window.matchMedia("(min-width: 768px)");
+    mql.addEventListener("change", screenObserver);
+
+    return () => {
+      mql.removeEventListener("change", screenObserver);
+    };
+  }, []);
+
+  return (
+    <>
+      <div className="flex flex-col flex-1 px-4 py-2 rounded-sm min-w-0 bg-white lg:mr-[260px] md:mr-[200px]">
+        <div className="flex flex-row items-center">
+          <h2 className="flex-1 text-start font-semibold text-2xl my-4">
+            {title}
+          </h2>
+          <div className="flex-1 min-w-[8px]" />
+          {...headerButtons}
+          <Filter
+            size={20}
+            className="ml-2 md:hidden hover:cursor-pointer"
+            onClick={(e) => setOpenFilter((prev) => !prev)}
+          />
+        </div>
+        {children}
+      </div>
+      <div
+        className={cn(
+          "h-[96vh] fixed top-2",
+          openFilter
+            ? "h-screen w-screen p-3 top-0 left-0 z-50 bg-slate-400"
+            : "lg:w-[260px] md:right-2 md:w-[200px] max-md:hidden"
+        )}
+      >
+        <div className="flex flex-col">
+          <ScrollArea className={openFilter ? "pr-[1px]" : ""}>
+            <div className={openFilter ? "h-[calc(96vh-40px)]" : "h-[96vh]"}>
+              {...filters}
+            </div>
+          </ScrollArea>
+          {openFilter ? (
+            <Button
+              className="mt-2"
+              onClick={(e) => {
+                e.stopPropagation();
+                setOpenFilter(false);
+              }}
+            >
+              Close Filters
+            </Button>
+          ) : null}
+        </div>
+      </div>
+    </>
+  );
+};
+
 export {
   ChoicesFilter,
   TimeFilter,
   SearchFilter,
+  PageWithFilters,
   FilterDay,
   FilterMonth,
   FilterWeek,
