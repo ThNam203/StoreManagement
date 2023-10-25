@@ -1,6 +1,7 @@
 package com.springboot.store.config;
 
 import com.springboot.store.repository.TokenRepository;
+import com.springboot.store.service.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 public class LogoutService implements LogoutHandler {
 
     private final TokenRepository tokenRepository;
+    private final JwtService jwtService;
 
     @Override
     public void logout(
@@ -23,10 +25,16 @@ public class LogoutService implements LogoutHandler {
     ) {
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
-        if (authHeader == null ||!authHeader.startsWith("Bearer ")) {
+//        if (authHeader == null ||!authHeader.startsWith("Bearer ")) {
+//            return;
+//        }
+//        jwt = authHeader.substring(7);
+
+        jwt = jwtService.getJwtRefreshFromCookie(request);
+        if (jwt == null || jwt.isEmpty()) {
             return;
         }
-        jwt = authHeader.substring(7);
+
         var storedToken = tokenRepository.findByToken(jwt)
                 .orElse(null);
         if (storedToken != null) {

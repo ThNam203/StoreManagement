@@ -45,8 +45,6 @@ public class Staff implements UserDetails {
     @Column(name = "facebook")
     private String facebook;
 
-    @Column(name = "avatar")
-    private String avatar;
 
     @Column(name = "description")
     private String description;
@@ -62,14 +60,18 @@ public class Staff implements UserDetails {
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date createdAt;
 
-    @OneToMany(mappedBy = "staff")
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "avatar_id")
+    private Media avatar;
+
+    @OneToMany(mappedBy = "staff", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Token> tokens;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne()
     @JoinColumn(name = "creator_id")
     private Staff creator;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne()
     @JoinColumn(name = "staff_role_id")
     private StaffRole staffRole;
 

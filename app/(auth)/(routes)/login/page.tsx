@@ -16,8 +16,13 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
+import AuthService from "@/services/auth_service";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ui/use-toast";
+import LoadingCircle from "@/components/ui/loading_circle";
 
-const formSchema = z.object({
+export const loginFormSchema = z.object({
   email: z
     .string()
     .min(3, "Must be at least 3 characters")
@@ -35,22 +40,52 @@ const formSchema = z.object({
 });
 
 export default function LogIn() {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof loginFormSchema>>({
+    resolver: zodResolver(loginFormSchema),
     defaultValues: {
       email: "",
       password: "",
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const { toast } = useToast();
+  const router = useRouter();
+
+  function onSubmit(values: z.infer<typeof loginFormSchema>) {
+    setIsLoggingIn(true);
+    AuthService.Login(values)
+      .then()
+      .then((response) => {
+        router.push("/overview");
+      })
+      .catch((error) => {
+        if (error.response) {
+          toast({
+            variant: "destructive",
+            title: "Login failed",
+            description: error.response.data.message,
+          });
+        } else {
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description:
+              "Something has gone wrong, you can report it to developers!",
+          });
+        }
+      })
+      .finally(() => {
+        setIsLoggingIn(false);
+      });
   }
 
   return (
     <div className="flex flex-col h-auto p-8 shadow-2xl rounded-md">
       <h4 className="text-lg font-bold">Log in</h4>
-      <p className="text-gray-500 text-sm mb-6">to continue to start using website</p>
+      <p className="text-gray-500 text-sm mb-6">
+        to continue to start using website
+      </p>
       <Button
         variant={"ghost"}
         className="border border-solid border-slate-200 group"
@@ -75,36 +110,50 @@ export default function LogIn() {
       </div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-black">Email address</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage className="text-xs" />
-                </FormItem>
-              )}
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-black">Email address</FormLabel>
+                <FormControl>
+                  <Input className="w-full" {...field} />
+                </FormControl>
+                <FormMessage className="text-xs" />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-black">Password</FormLabel>
+                <FormControl>
+                  <Input className="w-full" type="password" {...field} />
+                </FormControl>
+                <FormMessage className="text-xs" />
+              </FormItem>
+            )}
+          />
+          <Button
+            type="submit"
+            className="my-4 w-full bg-indigo-400 hover:bg-indigo-600 text-white uppercase text-sm"
+            disabled={isLoggingIn}
+          >
+            Log In
+            <LoadingCircle
+              className={"!w-4 ml-4 " + (isLoggingIn ? "" : "hidden")}
             />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel  className="text-black">Password</FormLabel>
-                  <FormControl>
-                    <Input type="password" {...field} />
-                  </FormControl>
-                  <FormMessage className="text-xs" />
-                </FormItem>
-              )}
-            />
-            <Button type="submit" className="my-4 w-full bg-indigo-400 hover:bg-indigo-600 text-white uppercase text-sm">Log In</Button>
+          </Button>
         </form>
       </Form>
-      <p className="ml-auto mr-6 text-xs">No account? <Link className="text-blue-500 underline font-bold" href={'/signup'}>Sign up</Link></p>
+      <p className="ml-auto mr-6 text-xs">
+        No account?{" "}
+        <Link className="text-blue-500 underline font-bold" href={"/register"}>
+          Sign up
+        </Link>
+      </p>
     </div>
   );
 }

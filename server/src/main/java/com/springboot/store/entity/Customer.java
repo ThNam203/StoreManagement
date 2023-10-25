@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Date;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -50,7 +51,7 @@ public class Customer {
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date createdAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name = "customer_group_id")
     private CustomerGroup customerGroup;
 
@@ -58,4 +59,6 @@ public class Customer {
     @JoinColumn(name = "creator_id")
     private Staff creator;
 
+    @OneToMany(cascade = CascadeType.ALL)
+    private Set<Media> images;
 }

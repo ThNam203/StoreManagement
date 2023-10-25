@@ -8,5 +8,5 @@ import java.util.Optional;
 
 public interface StaffRoleRepository extends JpaRepository<StaffRole, Integer> {
     Optional<StaffRole> findByName(Role name);
-    boolean existsByName(String name);
+    boolean existsByName(Role name);
 }
