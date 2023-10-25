@@ -8,6 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Supplier } from "@/entities/Supplier";
 import { DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
 import {
@@ -17,7 +18,6 @@ import {
   ArrowDownZa,
   MoreHorizontal,
 } from "lucide-react";
-import { Supplier } from "../entities";
 
 export const columns: ColumnDef<Supplier>[] = [
   {

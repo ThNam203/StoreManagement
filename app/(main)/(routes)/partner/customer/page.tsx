@@ -11,8 +11,8 @@ import { nanoid } from "nanoid";
 import { Combobox } from "@/components/ui/combobox";
 import { useEffect, useState } from "react";
 import { DataTable } from "./datatable";
-import { Customer } from "../entities";
 import { AddCustomerDialog } from "./add_customer_dialog";
+import { Customer } from "@/entities/Customer";
 
 const originalCustomerList: Customer[] = [
   {

@@ -14,7 +14,14 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "./checkbox";
 import { cn } from "@/lib/utils";
-import { CalendarDays, Check, Maximize2, PlusCircle, X, XCircle } from "lucide-react";
+import {
+  CalendarDays,
+  Check,
+  Maximize2,
+  PlusCircle,
+  X,
+  XCircle,
+} from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 import { Button } from "./button";
 import { useEffect, useState } from "react";
@@ -444,8 +451,8 @@ const SearchFilter = ({
 
   useEffect(() => {
     if (onValuesChanged) onValuesChanged(chosenValues);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chosenValues])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chosenValues]);
 
   return (
     <Accordion
@@ -494,7 +501,6 @@ const SearchFilter = ({
                           else setChosenValues((prev) => [...prev, value]);
                           e.stopPropagation();
                         }}
-
                         onMouseDown={(e) => {
                           e.preventDefault();
                         }}
@@ -510,7 +516,10 @@ const SearchFilter = ({
             ) : null}
           </div>
           {chosenValues.map((val, idx) => (
-            <div key={idx} className="flex flex-row items-center space-x-3 mb-3">
+            <div
+              key={idx}
+              className="flex flex-row items-center space-x-3 mb-3"
+            >
               <p className="text-[0.8rem] flex-1 hover:cursor-pointer font-normal">
                 {val}
               </p>

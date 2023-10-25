@@ -30,22 +30,26 @@ import {
 import { ChevronDown } from "lucide-react";
 import * as React from "react";
 import { columnHeader, columns } from "./columns";
-import { FormType, Transaction } from "./entities";
+import {
+  FormType,
+  Status,
+  TargetType,
+  Transaction,
+  TransactionType,
+} from "@/entities/Transaction";
 import { formatPrice } from "./utils";
 import { MakeExpenseDialog } from "./make_expense_dialog";
 import { MakeReceiptDialog } from "./make_receipt_dialog";
 import { exportExcel } from "@/utils/commonUtils";
-import Filter from "@/components/ui/filter";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 
 type Props = {
   data: Transaction[];
-  pfilter?: object;
   onSubmit: (values: Transaction) => void;
 };
 
-export function DataTable({ data, onSubmit, pfilter }: Props) {
+export function DataTable({ data, onSubmit }: Props) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -65,7 +69,7 @@ export function DataTable({ data, onSubmit, pfilter }: Props) {
       note: false,
     });
   const [rowSelection, setRowSelection] = React.useState({});
-  const [filter, setFilter] = React.useState("");
+  const [filterInput, setFilterInput] = React.useState("");
 
   const table = useReactTable({
     data,
@@ -79,20 +83,19 @@ export function DataTable({ data, onSubmit, pfilter }: Props) {
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     enableSortingRemoval: true,
-    onGlobalFilterChange: setFilter,
+    onGlobalFilterChange: setFilterInput,
     state: {
       sorting,
       columnFilters,
       columnVisibility,
       rowSelection,
-      globalFilter: filter,
+      globalFilter: filterInput,
     },
   });
 
   const handleSubmit = (values: Transaction) => {
     if (onSubmit) onSubmit(values);
   };
-
   //get header through id of column to export excel
   const handleExportExcel = () => {
     //get id of visible column in datatable
@@ -155,8 +158,8 @@ export function DataTable({ data, onSubmit, pfilter }: Props) {
       <div className="flex items-center justify-between py-4">
         <Input
           placeholder="Type anything..."
-          value={filter}
-          onChange={(event) => setFilter(event.target.value)}
+          value={filterInput}
+          onChange={(event) => setFilterInput(event.target.value)}
           className="max-w-sm"
         />
         <div className="flex flex-row">

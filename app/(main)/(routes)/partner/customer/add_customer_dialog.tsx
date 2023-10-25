@@ -8,9 +8,9 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 
-import { Staff } from "@/app/(main)/(routes)/staff/entities";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -32,9 +32,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../../../../components/ui/select";
-import { Customer } from "../entities";
-import { DialogTrigger } from "@radix-ui/react-dialog";
 import { nanoid } from "nanoid";
+import { Customer } from "@/entities/Customer";
 
 const formSchema = z.object({
   id: z.any(),

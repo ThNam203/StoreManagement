@@ -10,8 +10,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowDownAZ, ArrowDownZA, MoreHorizontal } from "lucide-react";
-import { Customer } from "../entities";
 import { DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
+import { Customer } from "@/entities/Customer";
 
 export const columns: ColumnDef<Customer>[] = [
   {

@@ -31,7 +31,7 @@ import {
   TargetType,
   Transaction,
   TransactionType,
-} from "./entities";
+} from "@/entities/Transaction";
 import {
   Select,
   SelectContent,
