@@ -10,9 +10,10 @@ import { nanoid } from "nanoid";
 
 import { Combobox } from "@/components/ui/combobox";
 import { useEffect, useState } from "react";
-import { Supplier } from "../entities";
+
 import { AddSupplierDialog } from "./add_supplier_dialog";
 import { DataTable } from "./datatable";
+import { Supplier } from "@/entities/Supplier";
 
 const originalSupplierList: Supplier[] = [
   {
@@ -77,13 +78,9 @@ export default function StaffInfoPage() {
 
   return (
     <div className="grid grid-cols-6 gap-4">
-      <div className="col-start-1 col-span-6">
-        <span className="text-slate-500 text-xl cursor-default select-none">
-          Supplier
-        </span>
-      </div>
       <div className="col-start-1 col-span-5">
         <div className="p-4 rounded-lg bg-white overflow-hidden">
+          <h2 className="text-start font-semibold text-3xl my-4">Supplier</h2>
           <DataTable data={supplierList} onSubmit={handleFormSubmit} />
         </div>
       </div>

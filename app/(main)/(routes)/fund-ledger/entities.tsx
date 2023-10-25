@@ -1,6 +1,7 @@
 export type Transaction = {
   id: any;
   createdDate: string;
+  description: string;
   formType: FormType;
   value: string;
   creator: string;
@@ -13,22 +14,22 @@ export type Transaction = {
 };
 
 export enum FormType {
-  EXPENSE = "EXPENSE",
-  RECEIPT = "RECEIPT",
+  EXPENSE = "Expense",
+  RECEIPT = "Receipt",
 }
 
 export enum TransactionType {
-  CASH = "PAY BY CASH",
-  TRANSFER = "BANK TRANSFER",
+  CASH = "Pay by cash",
+  TRANSFER = "Bank Transfer",
 }
 
 export enum Status {
-  PAID = "PAID",
-  CANCELLED = "CANCELLED",
+  PAID = "Paid",
+  CANCELLED = "Cancelled",
 }
 
 export enum TargetType {
-  CUSTOMER = "CUSTOMER",
-  SUPPLIER = "SUPPLIER",
-  STAFF = "STAFF",
+  CUSTOMER = "Customer",
+  SUPPLIER = "Supplier",
+  STAFF = "Staff",
 }

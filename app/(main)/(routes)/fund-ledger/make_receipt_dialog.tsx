@@ -31,7 +31,7 @@ import {
   TargetType,
   Transaction,
   TransactionType,
-} from "./entities";
+} from "@/entities/Transaction";
 import {
   Select,
   SelectContent,
@@ -58,7 +58,7 @@ type Props = {
   submit: (values: Transaction) => void;
 };
 
-export function MakeExpenseDialog({ data, submit }: Props) {
+export function MakeReceiptDialog({ data, submit }: Props) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -68,12 +68,13 @@ export function MakeExpenseDialog({ data, submit }: Props) {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    const expense: Transaction = {
+    const receipt: Transaction = {
       id: nanoid(9),
       createdDate: values.createdDate
         ? new Date(values.createdDate).toLocaleString()
         : new Date().toLocaleString(),
-      formType: FormType.EXPENSE,
+      formType: FormType.RECEIPT,
+      description: "Receive from" + values.targetType,
       value: values.value,
       creator: values.creator,
       transactionType: values.transactionType,
@@ -83,7 +84,7 @@ export function MakeExpenseDialog({ data, submit }: Props) {
       note: values.note ? values.note : "",
     };
     if (submit) {
-      submit(expense);
+      submit(receipt);
       form.reset();
       setOpen(false);
     }
@@ -101,11 +102,11 @@ export function MakeExpenseDialog({ data, submit }: Props) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="default">Make Expense Form</Button>
+        <Button variant="default">Make Receipt Form</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create Expense Form</DialogTitle>
+          <DialogTitle>Create Receipt Form</DialogTitle>
         </DialogHeader>
         <div className="w-full">
           <Form {...form}>
@@ -117,7 +118,7 @@ export function MakeExpenseDialog({ data, submit }: Props) {
                     name="id"
                     render={({ field }) => (
                       <FormItem className="flex flex-row items-center">
-                        <FormLabel className="w-1/3">Expense ID</FormLabel>
+                        <FormLabel className="w-1/3">Receipt ID</FormLabel>
 
                         <FormControl className="w-2/3">
                           <Input placeholder="Automatic code" disabled />
@@ -236,7 +237,7 @@ export function MakeExpenseDialog({ data, submit }: Props) {
                     render={({ field }) => (
                       <FormItem className="mt-2">
                         <div className="flex flex-row items-center">
-                          <FormLabel className="w-1/3">Receiver Type</FormLabel>
+                          <FormLabel className="w-1/3">Payer Type</FormLabel>
                           <Select
                             onValueChange={field.onChange}
                             defaultValue={field.value}
@@ -267,7 +268,7 @@ export function MakeExpenseDialog({ data, submit }: Props) {
                     render={({ field }) => (
                       <FormItem className="mt-2">
                         <div className="flex flex-row items-center">
-                          <FormLabel className="w-1/3">Receiver Name</FormLabel>
+                          <FormLabel className="w-1/3">Payer Name</FormLabel>
 
                           <FormControl className="w-2/3">
                             <Input {...field} />

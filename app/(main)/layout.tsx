@@ -52,11 +52,14 @@ export default function RootLayout({
         <SideBar
           isSideBarCollapsed={isSideBarCollapsed}
           changeSideBarCollapsibility={changeSideBarCollapsibilityOnClick}
-          className={no_scrollbar_style["no-scrollbar"] + " z-10 bg-white shadow-gray-300 shadow-md"}
+          className={
+            no_scrollbar_style["no-scrollbar"] +
+            " z-10 bg-white shadow-gray-300 shadow-md"
+          }
         />
         <div
           className={cn(
-            "bg-slate-100 ml-[80px] py-4 pr-4 ease-linear duration-150",
+            "bg-slate-100 ml-[80px] py-2 pr-4 ease-linear duration-150",
             isSideBarCollapsed ? "" : "lg:ml-[248px]"
           )}
         >
