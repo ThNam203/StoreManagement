@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 import { Button } from "./button";
-import { useEffect, useState } from "react";
+import { StrictMode, useEffect, useState } from "react";
 import { Input } from "./input";
 import { ScrollArea } from "./scroll-area";
 
@@ -55,27 +55,33 @@ const ChoicesFilter = ({
 }) => {
   if (defaultPosition == undefined) defaultPosition = -1;
   if (defaultPositions == undefined) defaultPositions = [];
+
+  const [position, setPosition] = useState(defaultPosition);
+  const [positions, setPositions] = useState(defaultPositions);
+
   const multiChoicesHandler = (
     checkedState: boolean | "indeterminate",
     position: number
   ) => {
     if (checkedState === true) {
-      if (!defaultPositions!.includes(position)) {
-        defaultPositions!.push(position);
+      if (!positions.includes(position)) {
+        setPositions(prev => [...prev, position])
       }
     } else {
-      const removePos = defaultPositions!.indexOf(position);
+      const removePos = positions!.indexOf(position);
       if (removePos != -1) {
-        defaultPositions!.splice(removePos, 1);
+        setPositions(prev => prev.filter((_, idx) => idx !== removePos))
       }
     }
+  };
 
+  useEffect(() => {
     if (onMultiChoicesChanged)
       onMultiChoicesChanged(
-        defaultPositions!,
-        choices.filter((val, index) => defaultPositions!.includes(index))
+        positions,
+        choices.filter((val, index) => positions!.includes(index))
       );
-  };
+  }, [positions, onMultiChoicesChanged])
 
   return (
     <Accordion
@@ -106,12 +112,13 @@ const ChoicesFilter = ({
           {isSingleChoice ? (
             <RadioGroup
               className="gap-3 pb-2"
-              defaultValue={defaultPosition.toString()}
-              onValueChange={(position) => {
+              defaultValue={position.toString()}
+              onValueChange={(pos) => {
+                setPosition(position)
                 if (onSingleChoiceChanged)
                   onSingleChoiceChanged(
-                    parseInt(position),
-                    choices[parseInt(position)]
+                    parseInt(pos),
+                    choices[parseInt(pos)]
                   );
               }}
             >
@@ -134,6 +141,7 @@ const ChoicesFilter = ({
                   <Checkbox
                     value={index}
                     id={title + index}
+                    checked={positions.includes(index)}
                     onCheckedChange={(checkedState) =>
                       multiChoicesHandler(checkedState, index)
                     }
