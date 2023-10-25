@@ -8,6 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Staff } from "@/entities/Staff";
 import { ColumnDef } from "@tanstack/react-table";
 import {
   ArrowDown01,
@@ -16,7 +17,6 @@ import {
   ArrowDownZA,
   MoreHorizontal,
 } from "lucide-react";
-import { Staff } from "../../../../../entities/Staff";
 
 export const columns: ColumnDef<Staff>[] = [
   {
@@ -39,6 +39,29 @@ export const columns: ColumnDef<Staff>[] = [
   {
     header: "#",
     cell: ({ row }) => <div>{row.index + 1}</div>,
+  },
+  {
+    accessorKey: "id",
+    header: ({ column }) => {
+      return (
+        <div
+          className="w-[100px] flex flex-row hover:opacity-80 ease-linear duration-200 hover:cursor-pointer"
+          onClick={() => column.toggleSorting()}
+        >
+          <span>Staff ID</span>
+          {column.getIsSorted() === false ? null : (
+            <div>
+              {column.getIsSorted() === "asc" ? (
+                <ArrowDownAZ className="ml-2 h-4 w-4" />
+              ) : (
+                <ArrowDownZA className="ml-2 h-4 w-4" />
+              )}
+            </div>
+          )}
+        </div>
+      );
+    },
+    cell: ({ row }) => <div className="capitalize">{row.getValue("id")}</div>,
   },
   {
     accessorKey: "name",

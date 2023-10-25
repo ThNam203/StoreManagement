@@ -43,6 +43,8 @@ import { MakeReceiptDialog } from "./make_receipt_dialog";
 import { exportExcel } from "@/utils/commonUtils";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { DataTableViewOptions } from "@/components/ui/my_table_column_visibility_toggle";
+import { DataTablePagination } from "@/components/ui/my_table_pagination";
 
 type Props = {
   data: Transaction[];
@@ -154,7 +156,7 @@ export function DataTable({ data, onSubmit }: Props) {
   const totalReceipt = 1000000;
 
   return (
-    <div className="w-full">
+    <div className="w-full space-y-2">
       <div className="flex items-center justify-between py-4">
         <Input
           placeholder="Type anything..."
@@ -175,44 +177,11 @@ export function DataTable({ data, onSubmit }: Props) {
             </Button>
           </div>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="ml-auto">
-                Columns <ChevronDown className="ml-2 h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="flex flex-col p-2">
-              {table
-                .getAllColumns()
-                .filter((column) => column.getCanHide())
-                .map((column) => {
-                  const headerContent =
-                    columnHeader[column.id as keyof typeof columnHeader];
-                  if (headerContent !== undefined)
-                    return (
-                      <div
-                        className="flex flex-row items-center space-x-2 p-2 rounded-md select-none hover:cursor-pointer hover:bg-[#f5f5f4] ease-linear duration-100"
-                        key={column.id}
-                        onClick={() =>
-                          column.toggleVisibility(!column.getIsVisible())
-                        }
-                      >
-                        <Checkbox
-                          key={column.id}
-                          className="capitalize"
-                          checked={column.getIsVisible()}
-                          onCheckedChange={(value) =>
-                            column.toggleVisibility(!!value)
-                          }
-                        ></Checkbox>
-                        <Label className="cursor-pointer">
-                          {headerContent}
-                        </Label>
-                      </div>
-                    );
-                })}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <DataTableViewOptions
+            title="Columns"
+            table={table}
+            columnHeaders={columnHeader}
+          />
         </div>
       </div>
       <div className="grid grid-cols-7 gap-4 py-4">
@@ -289,30 +258,7 @@ export function DataTable({ data, onSubmit }: Props) {
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="flex-1 text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel().rows.length} of{" "}
-          {table.getFilteredRowModel().rows.length} row(s) selected.
-        </div>
-        <div className="space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Next
-          </Button>
-        </div>
-      </div>
+      <DataTablePagination table={table} />
     </div>
   );
 }

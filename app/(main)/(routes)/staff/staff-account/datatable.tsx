@@ -29,9 +29,9 @@ import {
 } from "@tanstack/react-table";
 import { ChevronDown } from "lucide-react";
 import * as React from "react";
-import { Staff } from "../../../../../entities/Staff";
 import { columns } from "./columns";
 import { AddStaffDialog } from "./add_staff_dialog";
+import { Staff } from "@/entities/Staff";
 type Props = {
   data: Staff[];
   onSubmit: (values: Staff) => void;

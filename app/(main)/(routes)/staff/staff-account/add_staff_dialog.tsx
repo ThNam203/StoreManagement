@@ -11,7 +11,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-import { Staff } from "@/entities/Staff";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -34,6 +33,7 @@ import {
   SelectValue,
 } from "../../../../../components/ui/select";
 import { nanoid } from "nanoid";
+import { Staff } from "@/entities/Staff";
 
 const formSchema = z.object({
   id: z.any(),
@@ -66,7 +66,6 @@ export function AddStaffDialog({ data, submit }: Props) {
     const newGroup: Staff = {
       id: nanoid(9),
       name: values.name,
-      staffGroup: values.staffGroup,
       position: values.position,
       branch: values.branch,
       CCCD: values.CCCD,
@@ -75,6 +74,9 @@ export function AddStaffDialog({ data, submit }: Props) {
       sex: values.sex,
       email: values.email,
       birthday: values.birthday.toString(),
+      note: "",
+      createAt: "",
+      avatar: "",
     };
     if (submit) {
       submit(newGroup);
