@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.multipart.MultipartResolver;
 
 @Configuration
 @RequiredArgsConstructor
@@ -53,4 +54,5 @@ public class ApplicationConfig {
     public ModelMapper modelMapper() {
         return new ModelMapper();
     }
+
 }

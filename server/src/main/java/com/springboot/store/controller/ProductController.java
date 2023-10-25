@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/products")
@@ -48,7 +49,7 @@ public class ProductController {
     }
 
     @PostMapping
-    public ResponseEntity<ProductDTO> createProduct(@RequestBody ProductDTO productDTO,@RequestPart(value = "file", required = false) MultipartFile file) {
+    public ResponseEntity<ProductDTO> createProduct(@RequestPart("data") ProductDTO productDTO,@RequestPart(value = "file",required = false) MultipartFile file) {
         ProductDTO createdProduct = productService.createProduct(productDTO,file);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdProduct);
     }

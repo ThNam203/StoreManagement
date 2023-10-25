@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -21,12 +22,14 @@ import java.util.stream.Collectors;
 public class ProductServiceImpl implements ProductService {
    private final ProductRepository productRepository;
    private final ModelMapper modelMapper;
-   private final FileService fileService;
+    private final FileService fileService;
+
    @Autowired
    public ProductServiceImpl(ProductRepository productRepository, ModelMapper modelMapper, FileService fileService) {
        this.productRepository = productRepository;
        this.modelMapper = modelMapper;
-       this.fileService = fileService;
+         this.fileService = fileService;
+
    }
 
    @Override
@@ -45,21 +48,18 @@ public class ProductServiceImpl implements ProductService {
 
    @Override
    public ProductDTO createProduct(ProductDTO productDTO, MultipartFile file) {
-      if (file != null && !file.isEmpty()) {
-         // Upload file and get the image URL from FileService
-         String imageUrl = fileService.uploadFile(file);
-
-         // Create a new MediaDTO with the provided URL
-         MediaDTO mediaDTO = new MediaDTO();
-         mediaDTO.setUrl(imageUrl);
-
-         // Add the mediaDTO to the product's images set
-         productDTO.getImages().add(mediaDTO);
-      }
 
       Product product = modelMapper.map(productDTO, Product.class);
-      product = productRepository.save(product);
 
+      product = productRepository.save(product);
+      if(file != null){
+         String url = fileService.uploadFile(file);
+         Media media = Media.builder().url(url).build();
+         Set<Media> media1=new HashSet<>();
+         product.setImages(media1);
+         media1.add(media);
+         productRepository.save(product);
+      }
       return modelMapper.map(product, ProductDTO.class);
    }
 
@@ -68,9 +68,7 @@ public class ProductServiceImpl implements ProductService {
       Product existingProduct = productRepository.findById(id)
               .orElseThrow(() -> new EntityNotFoundException("Product not found with id: " + id));
 
-      // Update existingProduct with data from productDTO
       existingProduct.setName(productDTO.getName());
-      // Update other fields as needed
       existingProduct.setBarcode(productDTO.getBarcode());
       existingProduct.setLocation(productDTO.getLocation());
       existingProduct.setOriginalPrice(productDTO.getOriginalPrice());
