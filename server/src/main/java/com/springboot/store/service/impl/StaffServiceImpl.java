@@ -106,7 +106,7 @@ public class StaffServiceImpl implements StaffService {
         staff.setPhoneNumber(staffRequest.getPhoneNumber());
         staff.setFacebook(staffRequest.getFacebook());
         staff.setAvatar(avatarUrl);
-        staff.setDescription(staffRequest.getDescription());
+        staff.setNote(staffRequest.getDescription());
         staff.setSex(staffRequest.getSex());
         staff.setBirthday(staffRequest.getBirthday());
 
@@ -142,7 +142,7 @@ public class StaffServiceImpl implements StaffService {
                 .address(staff.getAddress())
                 .phoneNumber(staff.getPhoneNumber())
                 .facebook(staff.getFacebook())
-                .description(staff.getDescription())
+                .note(staff.getNote())
                 .birthday(staff.getBirthday())
                 .createdAt(staff.getCreatedAt())
                 .avatar(staff.getAvatar() != null ? staff.getAvatar().getUrl() : null)
@@ -161,7 +161,7 @@ public class StaffServiceImpl implements StaffService {
                 .address(staffRequest.getAddress())
                 .phoneNumber(staffRequest.getPhoneNumber())
                 .facebook(staffRequest.getFacebook())
-                .description(staffRequest.getDescription())
+                .note(staffRequest.getNote())
                 .sex(staffRequest.getSex())
                 .birthday(staffRequest.getBirthday())
                 .staffRole(staffRequest.getRole() != null
