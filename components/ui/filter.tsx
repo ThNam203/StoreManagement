@@ -28,6 +28,7 @@ import { Button } from "./button";
 import React, { StrictMode, useEffect, useState } from "react";
 import { Input } from "./input";
 import { ScrollArea } from "./scroll-area";
+import format from "date-fns/format";
 
 const ChoicesFilter = ({
   title,
@@ -381,9 +382,9 @@ const TimeFilter = ({
                 htmlFor={title + "2"}
                 className="text-[0.8rem] flex-1 hover:cursor-pointer font-normal"
               >
-                {rangeState.startDate.toLocaleDateString() +
+                {format(rangeState.startDate, 'dd/MM/yyyy') +
                   " - " +
-                  rangeState.endDate.toLocaleDateString()}
+                  format(rangeState.endDate, 'dd/MM/yyyy')}
               </Label>
               <Popover
                 open={isRangeFilterOpen}
