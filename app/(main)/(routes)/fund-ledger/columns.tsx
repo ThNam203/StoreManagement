@@ -18,7 +18,13 @@ import {
   ArrowUp,
   MoreHorizontal,
 } from "lucide-react";
-import { FormType, TargetType, Transaction } from "./entities";
+import {
+  FormType,
+  Status,
+  TargetType,
+  Transaction,
+  TransactionType,
+} from "@/entities/Transaction";
 import { formatPrice } from "./utils";
 
 export const columnHeader = {

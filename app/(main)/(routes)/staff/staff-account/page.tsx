@@ -7,12 +7,12 @@ import {
 } from "@/components/ui/collapsible";
 import { ChevronDown } from "lucide-react";
 import { nanoid } from "nanoid";
-import { Staff } from "../entities";
 
 import { Combobox } from "@/components/ui/combobox";
 import { useState } from "react";
 import { AddStaffDialog } from "./add_staff_dialog";
 import { DataTable } from "./datatable";
+import { Staff } from "@/entities/Staff";
 
 const originalStaffList: Staff[] = [
   {

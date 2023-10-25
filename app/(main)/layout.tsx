@@ -52,7 +52,10 @@ export default function RootLayout({
         <SideBar
           isSideBarCollapsed={isSideBarCollapsed}
           changeSideBarCollapsibility={changeSideBarCollapsibilityOnClick}
-          className={no_scrollbar_style["no-scrollbar"] + " z-10 bg-white shadow-gray-300 shadow-md"}
+          className={
+            no_scrollbar_style["no-scrollbar"] +
+            " z-10 bg-white shadow-gray-300 shadow-md"
+          }
         />
         <div
           className={cn(

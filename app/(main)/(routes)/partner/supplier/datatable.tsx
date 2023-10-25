@@ -30,7 +30,7 @@ import {
 import { ChevronDown } from "lucide-react";
 import * as React from "react";
 import { columns } from "./columns";
-import { Supplier } from "../entities";
+import { Supplier } from "../../../../../entities/Supplier";
 import { AddSupplierDialog } from "./add_supplier_dialog";
 type Props = {
   data: Supplier[];

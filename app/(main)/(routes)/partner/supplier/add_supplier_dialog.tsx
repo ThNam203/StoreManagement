@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-import { Staff } from "@/app/(main)/(routes)/staff/entities";
+import { Staff } from "@/entities/Staff";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -32,7 +32,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../../../../components/ui/select";
-import { Supplier } from "../entities";
+import { Supplier } from "../../../../../entities/Supplier";
 import { DialogTrigger } from "@radix-ui/react-dialog";
 import { nanoid } from "nanoid";
 

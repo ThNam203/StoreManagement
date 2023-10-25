@@ -11,7 +11,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-import { Staff } from "@/app/(main)/(routes)/staff/entities";
+import { Staff } from "@/entities/Staff";
 import { Button } from "@/components/ui/button";
 import {
   Form,

@@ -17,7 +17,7 @@ import {
   ArrowDownZa,
   MoreHorizontal,
 } from "lucide-react";
-import { Supplier } from "../entities";
+import { Supplier } from "../../../../../entities/Supplier";
 
 export const columns: ColumnDef<Supplier>[] = [
   {

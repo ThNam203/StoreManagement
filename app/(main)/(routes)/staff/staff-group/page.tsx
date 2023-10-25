@@ -5,7 +5,11 @@ import { DatePicker } from "@/components/ui/datepicker";
 import { Bell } from "lucide-react";
 import { nanoid } from "nanoid";
 import { ChangeEvent, useEffect, useState } from "react";
+<<<<<<< HEAD
+import { StaffGroup } from "../../../../../entities/Staff";
+=======
 import { StaffGroup } from "../entities";
+>>>>>>> bf43b37179f455d9a9c3a762eb90350227164466
 import { AddGroupDialog } from "./add_staff_group_dialog";
 
 const originalGroupList: StaffGroup[] = [

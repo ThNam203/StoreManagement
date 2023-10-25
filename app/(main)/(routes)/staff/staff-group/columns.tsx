@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowDownAZ, ArrowDownZA, MoreHorizontal } from "lucide-react";
-import { StaffGroup } from "../entities";
+import { StaffGroup } from "../../../../../entities/Staff";
 
 export const columns: ColumnDef<StaffGroup>[] = [
   {
