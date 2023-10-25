@@ -206,7 +206,7 @@ export default function OverviewPage() {
     <div className="flex flex-col min-[832px]:flex-row">
       <div className="flex flex-col flex-1 px-4 py-2 rounded-sm min-w-0 bg-white">
         <div className="flex flex-row justify-between">
-          <h2 className="text-start font-semibold text-3xl my-4">Overview</h2>
+          <h2 className="text-start font-semibold text-2xl my-4">Overview</h2>
           <Popover>
             <PopoverTrigger className="w-[20px] h-[20px] self-center mr-4">
               <div className="relative">

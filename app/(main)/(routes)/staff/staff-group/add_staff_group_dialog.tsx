@@ -9,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 
 import { Button } from "@/components/ui/button";
@@ -38,8 +39,11 @@ const formSchema = z.object({
 type Props = {
   data?: StaffGroup | null;
   submit: (values: StaffGroup) => void;
+  data?: StaffGroup | null;
+  submit: (values: StaffGroup) => void;
 };
 
+export function AddGroupDialog({ data, submit }: Props) {
 export function AddGroupDialog({ data, submit }: Props) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -53,8 +57,10 @@ export function AddGroupDialog({ data, submit }: Props) {
     },
   });
   const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   function onSubmit(values: z.infer<typeof formSchema>) {
     const newGroup = {
+      id: data && data.id ? data.id : nanoid(9),
       id: data && data.id ? data.id : nanoid(9),
       groupName: values.group_name,
       group: "",
@@ -67,6 +73,7 @@ export function AddGroupDialog({ data, submit }: Props) {
     submit(newGroup);
     form.reset();
     setOpen(false);
+    setOpen(false);
   }
 
   const handleCancelDialog = () => {
@@ -74,7 +81,17 @@ export function AddGroupDialog({ data, submit }: Props) {
     setOpen(false);
   };
 
+  const handleCancelDialog = () => {
+    form.reset();
+    setOpen(false);
+  };
+
   return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="default">Add new group</Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px] xl:w-[500px]">
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="default">Add new group</Button>
@@ -92,6 +109,7 @@ export function AddGroupDialog({ data, submit }: Props) {
                 <FormItem>
                   <FormLabel>Group name (*)</FormLabel>
                   <FormControl className="w-full">
+                  <FormControl className="w-full">
                     <Input placeholder="Group name" {...field} />
                   </FormControl>
                   <FormMessage />
@@ -105,6 +123,7 @@ export function AddGroupDialog({ data, submit }: Props) {
                 <FormItem>
                   <FormLabel>Note</FormLabel>
                   <FormControl className="w-full">
+                  <FormControl className="w-full">
                     <Textarea placeholder="Note" {...field} />
                   </FormControl>
                   <FormMessage />
@@ -115,6 +134,7 @@ export function AddGroupDialog({ data, submit }: Props) {
               <Button type="submit" variant={"default"} className="mr-3">
                 Save
               </Button>
+              <Button type="button" onClick={handleCancelDialog}>
               <Button type="button" onClick={handleCancelDialog}>
                 Cancel
               </Button>
