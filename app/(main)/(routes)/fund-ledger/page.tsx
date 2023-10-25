@@ -21,7 +21,8 @@ import {
   Transaction,
   TransactionType,
 } from "@/entities/Transaction";
-import { ChoicesFilter } from "@/components/ui/filter";
+import { ChoicesFilter, PageWithFilters } from "@/components/ui/filter";
+import { Button } from "@/components/ui/button";
 const originalSalesList: Transaction[] = [
   {
     id: nanoid(9).toUpperCase(),
@@ -95,7 +96,7 @@ export default function SalesPage() {
     };
     fetchData();
   }, []);
-  
+
   useEffect(() => {
     const newSaleList: Transaction[] = salesList.filter((row) => {
       if (
@@ -130,7 +131,6 @@ export default function SalesPage() {
         return false;
       return true;
     });
-    console.log("new sale list:", newSaleList);
     setFilterSaleList([...newSaleList]);
   }, [filter, salesList]);
 
@@ -184,64 +184,73 @@ export default function SalesPage() {
       }));
   };
 
+  const filters = [
+    <div key={1} className="flex flex-col space-y-2">
+      <ChoicesFilter
+        key={1}
+        title="Transaction Type"
+        choices={Object.values(TransactionType)}
+        isSingleChoice={false}
+        defaultPositions={defaultFilterPosition.defaultTransactionTypePosition}
+        onMultiChoicesChanged={handleTransactionTypeChange}
+      />
+
+      <ChoicesFilter
+        key={2}
+        title="Form Type"
+        choices={Object.values(FormType)}
+        isSingleChoice={false}
+        defaultPositions={defaultFilterPosition.defaultFormTypePosition}
+        onMultiChoicesChanged={handleFormTypeChange}
+      />
+
+      <ChoicesFilter
+        key={3}
+        title="Status"
+        choices={Object.values(Status)}
+        isSingleChoice={false}
+        defaultPositions={defaultFilterPosition.defaultStatusPosition}
+        onMultiChoicesChanged={handleStatusChange}
+      />
+
+      <ChoicesFilter
+        key={4}
+        title="Creator"
+        choices={salesList.map((row) => row.creator)}
+        isSingleChoice={false}
+        defaultPositions={defaultFilterPosition.defaultCreatorPosition}
+        onMultiChoicesChanged={handleCreatorChange}
+      />
+
+      <ChoicesFilter
+        key={5}
+        title="Receiver/Payer Type"
+        choices={salesList.map((row) => row.targetType)}
+        isSingleChoice={false}
+        defaultPositions={defaultFilterPosition.defaultTargetTypePosition}
+        onMultiChoicesChanged={handleTargetTypeChange}
+      />
+
+      <ChoicesFilter
+        key={6}
+        title="Receiver/Payer"
+        choices={salesList.map((row) => row.targetName)}
+        isSingleChoice={false}
+        defaultPositions={defaultFilterPosition.defaultTargetNamePosition}
+        onMultiChoicesChanged={handleTargetNameChange}
+      />
+    </div>,
+  ];
+
+  const headerButtons = [<Button key={0}>More+</Button>];
+
   return (
-    <div className="grid grid-cols-6 gap-4">
-      <div className="col-start-1 col-span-5">
-        <div className="w-full p-4 rounded-lg bg-white overflow-hidden">
-          <h2 className="text-start font-semibold text-3xl my-4">
-            Fund Ledger
-          </h2>
-          <DataTable data={filteredSaleList} onSubmit={handleFormSubmit} />
-        </div>
-      </div>
-      <div className="col-start-6 col-span-1">
-        <div className="w-full flex flex-col space-y-4">
-          <ChoicesFilter
-            title="Transaction Type"
-            choices={Object.values(TransactionType)}
-            isSingleChoice={false}
-            defaultPositions={
-              defaultFilterPosition.defaultTransactionTypePosition
-            }
-            onMultiChoicesChanged={handleTransactionTypeChange}
-          />
-          <ChoicesFilter
-            title="Form Type"
-            choices={Object.values(FormType)}
-            isSingleChoice={false}
-            defaultPositions={defaultFilterPosition.defaultFormTypePosition}
-            onMultiChoicesChanged={handleFormTypeChange}
-          />
-          <ChoicesFilter
-            title="Status"
-            choices={Object.values(Status)}
-            isSingleChoice={false}
-            defaultPositions={defaultFilterPosition.defaultStatusPosition}
-            onMultiChoicesChanged={handleStatusChange}
-          />
-          <ChoicesFilter
-            title="Creator"
-            choices={salesList.map((row) => row.creator)}
-            isSingleChoice={false}
-            defaultPositions={defaultFilterPosition.defaultCreatorPosition}
-            onMultiChoicesChanged={handleCreatorChange}
-          />
-          <ChoicesFilter
-            title="Receiver/Payer Type"
-            choices={salesList.map((row) => row.targetType)}
-            isSingleChoice={false}
-            defaultPositions={defaultFilterPosition.defaultTargetTypePosition}
-            onMultiChoicesChanged={handleTargetTypeChange}
-          />
-          <ChoicesFilter
-            title="Receiver/Payer"
-            choices={salesList.map((row) => row.targetName)}
-            isSingleChoice={false}
-            defaultPositions={defaultFilterPosition.defaultTargetNamePosition}
-            onMultiChoicesChanged={handleTargetNameChange}
-          />
-        </div>
-      </div>
-    </div>
+    <PageWithFilters
+      title="Fund Ledger"
+      filters={filters}
+      headerButtons={headerButtons}
+    >
+      <DataTable data={filteredSaleList} onSubmit={handleFormSubmit} />
+    </PageWithFilters>
   );
 }

@@ -9,50 +9,57 @@ import { ChevronDown } from "lucide-react";
 import { nanoid } from "nanoid";
 
 import { Combobox } from "@/components/ui/combobox";
-import { useState } from "react";
-import { AddStaffDialog } from "./add_staff_dialog";
-import { DataTable } from "./datatable";
 import { Staff } from "@/entities/Staff";
+import { useEffect, useState } from "react";
+import { DataTable } from "./datatable";
+import { ChoicesFilter, PageWithFilters } from "@/components/ui/filter";
+import { Button } from "@/components/ui/button";
 
 const originalStaffList: Staff[] = [
   {
-    id: nanoid(),
+    avatar: "",
+    id: "1",
     name: "Henry",
-    staffGroup: null,
-    position: "Safe guard",
-    branch: "Center",
-    CCCD: "012301923012",
-    phoneNumber: "0123456789",
-    address: "address",
-    sex: "male",
     email: "henry@gmail.com",
-    birthday: "1/1/2003",
+    address: "address",
+    phoneNumber: "0123456789",
+    note: "",
+    sex: "male",
+    CCCD: "012301923012",
+    birthday: new Date("2003-8-4").toLocaleDateString(),
+    createAt: new Date().toLocaleDateString(),
+    branch: "Center",
+    position: "Safe guard",
   },
   {
-    id: nanoid(),
+    avatar: "",
+    id: "2",
+    name: "Mary",
+    email: "mary@gmail.com",
+    address: "address Mary",
+    phoneNumber: "0123456769",
+    note: "",
+    sex: "female",
+    CCCD: "012301923011",
+    birthday: new Date("2003-4-4").toLocaleDateString(),
+    createAt: new Date().toLocaleDateString(),
+    branch: "Branch 1",
+    position: "Cashier",
+  },
+  {
+    avatar: "",
+    id: "3",
     name: "David",
-    staffGroup: null,
-    position: "Staff",
-    branch: "Center",
-    CCCD: "012301923013",
-    phoneNumber: "0123456788",
-    address: "address",
-    sex: "male",
     email: "david@gmail.com",
-    birthday: "1/1/2003",
-  },
-  {
-    id: nanoid(),
-    name: "Laura",
-    staffGroup: null,
-    position: "Store Manager",
-    branch: "Center",
-    CCCD: "012301923014",
-    phoneNumber: "0123456787",
-    address: "address",
+    address: "address David",
+    phoneNumber: "0124456789",
+    note: "",
     sex: "male",
-    email: "laura@gmail.com",
-    birthday: "1/1/2003",
+    CCCD: "012301943012",
+    birthday: new Date("2003-8-8").toLocaleDateString(),
+    createAt: new Date().toLocaleDateString(),
+    branch: "Branch 2",
+    position: "Store Manager",
   },
 ];
 
@@ -60,60 +67,41 @@ const positionList = ["Owner", "Cashier", "Safe Guard", "Manager", "Cleaner"];
 
 const branchList = ["Center Branch", "Branch 1", "Branch 2", "Branch 3"];
 
+const filters = [
+  <div key={1} className="flex flex-col space-y-2">
+    <ChoicesFilter
+      title="Position"
+      isSingleChoice={false}
+      choices={positionList}
+    />
+    <ChoicesFilter title="Branch" isSingleChoice={false} choices={branchList} />
+  </div>,
+];
+
+const headerButtons = [<Button key={1}>More+</Button>];
+
+const formatID = (id: number) => {
+  return `KH${id.toString().padStart(4, "0")}`;
+};
+
 export default function StaffInfoPage() {
-  const [staffList, setStaffList] = useState<Staff[]>(originalStaffList);
+  const [staffList, setStaffList] = useState<Staff[]>([]);
+  useEffect(() => {
+    const res = originalStaffList;
+    setStaffList(res);
+  }, []);
 
   function handleFormSubmit(values: Staff) {
     setStaffList((prev) => [...prev, values]);
   }
 
   return (
-    <div className="grid grid-cols-6 gap-4">
-      <div className="col-start-1 col-span-5">
-        <div className="p-4 rounded-lg bg-white overflow-hidden">
-          <h2 className="text-start font-semibold text-3xl my-4">Staff</h2>
-          <DataTable data={staffList} onSubmit={handleFormSubmit} />
-        </div>
-      </div>
-      <div className="col-start-6 col-span-1">
-        <div className="flex flex-col">
-          <Collapsible className="w-full rounded-lg bg-white p-4">
-            <div className="flex flex-row justify-between">
-              <span className="font-bold select-none">Position</span>
-              <CollapsibleTrigger asChild>
-                <ChevronDown
-                  color="black"
-                  className="opacity-60 hover:opacity-100 cursor-pointer"
-                />
-              </CollapsibleTrigger>
-            </div>
-            <CollapsibleContent className="data-[state=open]:animate-[slide-down_0.2s_ease-out] data-[state=closed]:animate-[slide-up_0.2s_ease-out] overflow-hidden mt-2">
-              <Combobox
-                placeholder="Select position..."
-                optionList={positionList}
-              />
-            </CollapsibleContent>
-          </Collapsible>
-
-          <Collapsible className="w-full rounded-lg bg-white p-4 mt-4">
-            <div className="flex flex-row justify-between">
-              <span className="font-bold select-none">Branch</span>
-              <CollapsibleTrigger asChild>
-                <ChevronDown
-                  color="black"
-                  className="opacity-60 hover:opacity-100 cursor-pointer"
-                />
-              </CollapsibleTrigger>
-            </div>
-            <CollapsibleContent className="data-[state=open]:animate-[slide-down_0.2s_ease-out] data-[state=closed]:animate-[slide-up_0.2s_ease-out] overflow-hidden mt-2">
-              <Combobox
-                placeholder="Select branch..."
-                optionList={branchList}
-              />
-            </CollapsibleContent>
-          </Collapsible>
-        </div>
-      </div>
-    </div>
+    <PageWithFilters
+      title="Staff"
+      filters={filters}
+      headerButtons={headerButtons}
+    >
+      <DataTable data={staffList} onSubmit={handleFormSubmit} />
+    </PageWithFilters>
   );
 }
