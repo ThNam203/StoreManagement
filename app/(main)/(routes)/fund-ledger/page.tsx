@@ -13,7 +13,6 @@ import { DataTable } from "./datatable";
 
 import { MakeExpenseDialog } from "./make_expense_dialog";
 import { MakeReceiptDialog } from "./make_receipt_dialog";
-import Filter from "@/components/ui/filter";
 import { columnHeader } from "./columns";
 import {
   FormType,
@@ -22,6 +21,7 @@ import {
   Transaction,
   TransactionType,
 } from "@/entities/Transaction";
+import { ChoicesFilter } from "@/components/ui/filter";
 const originalSalesList: Transaction[] = [
   {
     id: nanoid(9).toUpperCase(),
@@ -194,7 +194,7 @@ export default function SalesPage() {
       </div>
       <div className="col-start-6 col-span-1">
         <div className="w-full flex flex-col space-y-4">
-          <Filter
+          <ChoicesFilter
             title="Transaction Type"
             choices={Object.values(TransactionType)}
             isSingleChoice={false}
@@ -203,35 +203,35 @@ export default function SalesPage() {
             }
             onMultiChoicesChanged={handleTransactionTypeChange}
           />
-          <Filter
+          <ChoicesFilter
             title="Form Type"
             choices={Object.values(FormType)}
             isSingleChoice={false}
             defaultPositions={defaultFilterPosition.defaultFormTypePosition}
             onMultiChoicesChanged={handleFormTypeChange}
           />
-          <Filter
+          <ChoicesFilter
             title="Status"
             choices={Object.values(Status)}
             isSingleChoice={false}
             defaultPositions={defaultFilterPosition.defaultStatusPosition}
             onMultiChoicesChanged={handleStatusChange}
           />
-          <Filter
+          <ChoicesFilter
             title="Creator"
             choices={salesList.map((row) => row.creator)}
             isSingleChoice={false}
             defaultPositions={defaultFilterPosition.defaultCreatorPosition}
             onMultiChoicesChanged={handleCreatorChange}
           />
-          <Filter
+          <ChoicesFilter
             title="Receiver/Payer Type"
             choices={salesList.map((row) => row.targetType)}
             isSingleChoice={false}
             defaultPositions={defaultFilterPosition.defaultTargetTypePosition}
             onMultiChoicesChanged={handleTargetTypeChange}
           />
-          <Filter
+          <ChoicesFilter
             title="Receiver/Payer"
             choices={salesList.map((row) => row.targetName)}
             isSingleChoice={false}

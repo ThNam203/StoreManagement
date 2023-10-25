@@ -41,7 +41,6 @@ import { formatPrice } from "./utils";
 import { MakeExpenseDialog } from "./make_expense_dialog";
 import { MakeReceiptDialog } from "./make_receipt_dialog";
 import { exportExcel } from "@/utils/commonUtils";
-import Filter from "@/components/ui/filter";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 
