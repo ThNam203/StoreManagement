@@ -75,6 +75,7 @@ export default function SalesPage() {
     targetType: [] as string[],
     targetName: [] as string[],
   });
+
   const [defaultFilterPosition, setDefaultFilterPosition] = useState({
     defaultTransactionTypePosition: [] as number[],
     defaultFormTypePosition: [] as number[],
@@ -94,6 +95,7 @@ export default function SalesPage() {
     };
     fetchData();
   }, []);
+  
   useEffect(() => {
     const newSaleList: Transaction[] = salesList.filter((row) => {
       if (
