@@ -30,7 +30,7 @@ export function DataTableViewOptions<TData>({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="ml-auto">
+        <Button variant="outline" className="ml-auto whitespace-nowrap">
           {title} <Settings2 className="ml-2 h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>

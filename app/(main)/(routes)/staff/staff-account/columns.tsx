@@ -8,6 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { DataTableColumnHeader } from "@/components/ui/my_table_column_header";
 import { Staff } from "@/entities/Staff";
 import { ColumnDef } from "@tanstack/react-table";
 import {
@@ -17,6 +18,22 @@ import {
   ArrowDownZA,
   MoreHorizontal,
 } from "lucide-react";
+
+export const columnHeader = {
+  avatar: "Avatar",
+  id: "Staff ID",
+  name: "Staff Name",
+  email: "Email",
+  address: "Address",
+  phoneNumber: "Phone Number",
+  note: "Note",
+  sex: "Sex",
+  CCCD: "CCCD",
+  birthday: "Birthday",
+  createAt: "Date Modified",
+  branch: "Branch",
+  position: "Position",
+};
 
 export const columns: ColumnDef<Staff>[] = [
   {
@@ -42,85 +59,90 @@ export const columns: ColumnDef<Staff>[] = [
   },
   {
     accessorKey: "id",
-    header: ({ column }) => {
-      return (
-        <div
-          className="w-[100px] flex flex-row hover:opacity-80 ease-linear duration-200 hover:cursor-pointer"
-          onClick={() => column.toggleSorting()}
-        >
-          <span>Staff ID</span>
-          {column.getIsSorted() === false ? null : (
-            <div>
-              {column.getIsSorted() === "asc" ? (
-                <ArrowDownAZ className="ml-2 h-4 w-4" />
-              ) : (
-                <ArrowDownZA className="ml-2 h-4 w-4" />
-              )}
-            </div>
-          )}
-        </div>
-      );
-    },
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={columnHeader["id"]} />
+    ),
     cell: ({ row }) => <div className="capitalize">{row.getValue("id")}</div>,
   },
   {
     accessorKey: "name",
-    header: ({ column }) => {
-      return (
-        <div
-          className="w-[100px] flex flex-row hover:opacity-80 ease-linear duration-200 hover:cursor-pointer"
-          onClick={() => column.toggleSorting()}
-        >
-          <span>Staff Name</span>
-          {column.getIsSorted() === false ? null : (
-            <div>
-              {column.getIsSorted() === "asc" ? (
-                <ArrowDownAZ className="ml-2 h-4 w-4" />
-              ) : (
-                <ArrowDownZA className="ml-2 h-4 w-4" />
-              )}
-            </div>
-          )}
-        </div>
-      );
-    },
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={columnHeader["name"]} />
+    ),
     cell: ({ row }) => <div className="capitalize">{row.getValue("name")}</div>,
   },
   {
+    accessorKey: "birthday",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={columnHeader["birthday"]} />
+    ),
+    cell: ({ row }) => <div>{row.getValue("birthday")}</div>,
+  },
+  {
+    accessorKey: "sex",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={columnHeader["sex"]} />
+    ),
+    cell: ({ row }) => <div>{row.getValue("sex")}</div>,
+  },
+  {
+    accessorKey: "CCCD",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={columnHeader["CCCD"]} />
+    ),
+    cell: ({ row }) => <div>{row.getValue("CCCD")}</div>,
+  },
+  {
     accessorKey: "position",
-    header: "Position",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={columnHeader["position"]} />
+    ),
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("position")}</div>
     ),
   },
   {
+    accessorKey: "branch",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={columnHeader["branch"]} />
+    ),
+    cell: ({ row }) => <div>{row.getValue("branch")}</div>,
+  },
+  {
     accessorKey: "phoneNumber",
-    header: "Phone Number",
+    header: ({ column }) => (
+      <DataTableColumnHeader
+        column={column}
+        title={columnHeader["phoneNumber"]}
+        disableSorting
+      />
+    ),
     cell: ({ row }) => <div>{row.getValue("phoneNumber")}</div>,
   },
   {
     accessorKey: "email",
-    header: ({ column }) => {
-      return (
-        <div
-          className="w-[100px] flex flex-row hover:opacity-80 ease-linear duration-200 hover:cursor-pointer"
-          onClick={() => column.toggleSorting()}
-        >
-          <span>Email</span>
-          {column.getIsSorted() === false ? null : (
-            <div>
-              {column.getIsSorted() === "asc" ? (
-                <ArrowDownAZ className="ml-2 h-4 w-4" />
-              ) : (
-                <ArrowDownZA className="ml-2 h-4 w-4" />
-              )}
-            </div>
-          )}
-        </div>
-      );
-    },
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={columnHeader["email"]} />
+    ),
     cell: ({ row }) => <div>{row.getValue("email")}</div>,
   },
+  {
+    accessorKey: "address",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={columnHeader["address"]} />
+    ),
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("address")}</div>
+    ),
+  },
+  {
+    accessorKey: "note",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={columnHeader["note"]} />
+    ),
+    cell: ({ row }) => <div>{row.getValue("note")}</div>,
+  },
+
   {
     id: "actions",
     enableHiding: false,

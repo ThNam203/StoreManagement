@@ -165,7 +165,9 @@ export const columns: ColumnDef<Transaction>[] = [
   },
   {
     accessorKey: "note",
-    header: columnHeader["note"],
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={columnHeader["note"]} />
+    ),
     cell: ({ row }) => <div>{row.getValue("note")}</div>,
   },
   {
