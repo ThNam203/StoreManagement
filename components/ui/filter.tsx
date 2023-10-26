@@ -382,9 +382,9 @@ const TimeFilter = ({
                 htmlFor={title + "2"}
                 className="text-[0.8rem] flex-1 hover:cursor-pointer font-normal"
               >
-                {format(rangeState.startDate, 'dd/MM/yyyy') +
+                {format(rangeState.startDate, "dd/MM/yyyy") +
                   " - " +
-                  format(rangeState.endDate, 'dd/MM/yyyy')}
+                  format(rangeState.endDate, "dd/MM/yyyy")}
               </Label>
               <Popover
                 open={isRangeFilterOpen}
@@ -551,7 +551,7 @@ const PageWithFilters = ({
   title,
   filters,
   headerButtons,
-  children
+  children,
 }: {
   title: string;
   filters: React.JSX.Element[];

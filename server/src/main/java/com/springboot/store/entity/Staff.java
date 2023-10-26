@@ -19,7 +19,8 @@ import java.util.List;
 @Entity
 @Table(
         name = "staff", uniqueConstraints = {
-                @UniqueConstraint(name = "staff_email_unique", columnNames = {"email"})
+                @UniqueConstraint(name = "staff_email_unique", columnNames = {"email"}),
+                @UniqueConstraint(name = "staff_cccd_unique", columnNames = {"cccd"})
         }
 )
 public class Staff implements UserDetails {
@@ -36,6 +37,9 @@ public class Staff implements UserDetails {
     @Column(name = "password", nullable = false)
     private String password;
 
+    @Column(name = "cccd")
+    private String cccd;
+
     @Column(name = "address")
     private String address;
 
@@ -46,11 +50,17 @@ public class Staff implements UserDetails {
     private String facebook;
 
 
-    @Column(name = "description")
-    private String description;
+    @Column(name = "note")
+    private String note;
 
     @Column(name = "sex")
     private String sex;
+
+    @Column(name = "position")
+    private String position;
+
+    @Column(name = "branch")
+    private String branch;
 
     @Column(name = "birthday")
     @JsonFormat(pattern="yyyy-MM-dd")

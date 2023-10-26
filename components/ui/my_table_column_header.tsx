@@ -15,24 +15,33 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Ban } from "lucide-react";
 
 interface DataTableColumnHeaderProps<TData, TValue>
   extends React.HTMLAttributes<HTMLDivElement> {
   column: Column<TData, TValue>;
   title: string;
+  disableSorting?: boolean;
 }
 
 export function DataTableColumnHeader<TData, TValue>({
   column,
   title,
   className,
+  disableSorting = false,
 }: DataTableColumnHeaderProps<TData, TValue>) {
   if (!column.getCanSort()) {
     return <div className={cn(className)}>{title}</div>;
   }
 
   return (
-    <div className={cn("flex items-center space-x-2", className)}>
+    <div
+      className={cn(
+        "flex items-center space-x-2",
+        className,
+        disableSorting ? "pointer-events-none" : ""
+      )}
+    >
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
@@ -40,13 +49,13 @@ export function DataTableColumnHeader<TData, TValue>({
             size="sm"
             className="-ml-3 h-8 data-[state=open]:bg-accent"
           >
-            <span>{title}</span>
+            <span className="w-fit whitespace-nowrap">{title}</span>
             {column.getIsSorted() === "desc" ? (
               <ArrowDownIcon className="ml-2 h-4 w-4" />
             ) : column.getIsSorted() === "asc" ? (
               <ArrowUpIcon className="ml-2 h-4 w-4" />
             ) : (
-              <CaretSortIcon className="ml-2 h-4 w-4" />
+              <div className="ml-2 h-4 w-4" />
             )}
           </Button>
         </DropdownMenuTrigger>
@@ -58,6 +67,10 @@ export function DataTableColumnHeader<TData, TValue>({
           <DropdownMenuItem onClick={() => column.toggleSorting(true)}>
             <ArrowDownIcon className="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
             Desc
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => column.clearSorting()}>
+            <Ban className="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
+            No sorting
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => column.toggleVisibility(false)}>

@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/table";
 import {
   ColumnFiltersState,
+  RowSelectionState,
   SortingState,
   VisibilityState,
   flexRender,
@@ -43,6 +44,9 @@ import { MakeReceiptDialog } from "./make_receipt_dialog";
 import { exportExcel } from "@/utils/commonUtils";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { DataTableViewOptions } from "@/components/ui/my_table_column_visibility_toggle";
+import { DataTablePagination } from "@/components/ui/my_table_pagination";
+import { DataTableContent } from "@/components/ui/my_table_content";
 
 type Props = {
   data: Transaction[];
@@ -68,7 +72,7 @@ export function DataTable({ data, onSubmit }: Props) {
       status: false,
       note: false,
     });
-  const [rowSelection, setRowSelection] = React.useState({});
+  const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
   const [filterInput, setFilterInput] = React.useState("");
 
   const table = useReactTable({
@@ -82,7 +86,6 @@ export function DataTable({ data, onSubmit }: Props) {
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
-    enableSortingRemoval: true,
     onGlobalFilterChange: setFilterInput,
     state: {
       sorting,
@@ -154,10 +157,10 @@ export function DataTable({ data, onSubmit }: Props) {
   const totalReceipt = 1000000;
 
   return (
-    <div className="w-full">
+    <div className="w-full space-y-2">
       <div className="flex items-center justify-between py-4">
         <Input
-          placeholder="Type anything..."
+          placeholder="Search anything..."
           value={filterInput}
           onChange={(event) => setFilterInput(event.target.value)}
           className="max-w-sm"
@@ -175,44 +178,11 @@ export function DataTable({ data, onSubmit }: Props) {
             </Button>
           </div>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="ml-auto">
-                Columns <ChevronDown className="ml-2 h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="flex flex-col p-2">
-              {table
-                .getAllColumns()
-                .filter((column) => column.getCanHide())
-                .map((column) => {
-                  const headerContent =
-                    columnHeader[column.id as keyof typeof columnHeader];
-                  if (headerContent !== undefined)
-                    return (
-                      <div
-                        className="flex flex-row items-center space-x-2 p-2 rounded-md select-none hover:cursor-pointer hover:bg-[#f5f5f4] ease-linear duration-100"
-                        key={column.id}
-                        onClick={() =>
-                          column.toggleVisibility(!column.getIsVisible())
-                        }
-                      >
-                        <Checkbox
-                          key={column.id}
-                          className="capitalize"
-                          checked={column.getIsVisible()}
-                          onCheckedChange={(value) =>
-                            column.toggleVisibility(!!value)
-                          }
-                        ></Checkbox>
-                        <Label className="cursor-pointer">
-                          {headerContent}
-                        </Label>
-                      </div>
-                    );
-                })}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <DataTableViewOptions
+            title="Columns"
+            table={table}
+            columnHeaders={columnHeader}
+          />
         </div>
       </div>
       <div className="grid grid-cols-7 gap-4 py-4">
@@ -239,80 +209,7 @@ export function DataTable({ data, onSubmit }: Props) {
           </span>
         </div>
       </div>
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="flex-1 text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel().rows.length} of{" "}
-          {table.getFilteredRowModel().rows.length} row(s) selected.
-        </div>
-        <div className="space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Next
-          </Button>
-        </div>
-      </div>
+      <DataTableContent columns={columns} data={data} table={table} />
     </div>
   );
 }

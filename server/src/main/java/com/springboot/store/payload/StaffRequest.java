@@ -25,12 +25,15 @@ public class StaffRequest {
     @Email(message = "Email is invalid")
     private String email;
     private String password;
+    private String cccd;
     private String address;
     private String phoneNumber;
     private String facebook;
     private String avatar;
-    private String description;
+    private String note;
     private String sex;
+    private String position;
+    private String branch;
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date birthday;
     private Role role;
