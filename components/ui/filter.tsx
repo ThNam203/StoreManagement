@@ -37,8 +37,8 @@ const ChoicesFilter = ({
   alwaysOpen,
   choices,
   className,
-  defaultPosition,
-  defaultPositions,
+  defaultValue,
+  defaultValues = [],
   onPlusButtonClicked,
   onSingleChoiceChanged,
   onMultiChoicesChanged,
@@ -49,41 +49,29 @@ const ChoicesFilter = ({
   alwaysOpen?: boolean;
   choices: string[];
   className?: string;
-  defaultPosition?: number;
-  defaultPositions?: number[];
+  defaultValue?: string;
+  defaultValues?: string[];
   onPlusButtonClicked?: () => void;
-  onSingleChoiceChanged?: (position: number, value: string) => void;
-  onMultiChoicesChanged?: (positions: number[], values: string[]) => void;
+  onSingleChoiceChanged?: (value: string) => void;
+  onMultiChoicesChanged?: (values: string[]) => void;
 }) => {
-  if (defaultPosition == undefined) defaultPosition = -1;
-  if (defaultPositions == undefined) defaultPositions = [];
-
-  const [position, setPosition] = useState(defaultPosition);
-  const [positions, setPositions] = useState(defaultPositions);
-
   const multiChoicesHandler = (
     checkedState: boolean | "indeterminate",
-    position: number
+    checkedValue: string
   ) => {
     if (checkedState === true) {
-      if (!positions.includes(position)) {
-        setPositions((prev) => [...prev, position]);
-      }
+      if (!defaultValues.includes(checkedValue))
+        defaultValues.push(checkedValue);
     } else {
-      const removePos = positions!.indexOf(position);
-      if (removePos != -1) {
-        setPositions((prev) => prev.filter((_, idx) => idx !== removePos));
-      }
+      const removePos = defaultValues.indexOf(checkedValue);
+      if (removePos != -1) defaultValues.splice(removePos, 1);
     }
-  };
 
-  useEffect(() => {
     if (onMultiChoicesChanged)
       onMultiChoicesChanged(
-        positions,
-        choices.filter((val, index) => positions!.includes(index))
+        defaultValues
       );
-  }, [positions, onMultiChoicesChanged]);
+  };
 
   return (
     <Accordion
@@ -114,16 +102,15 @@ const ChoicesFilter = ({
           {isSingleChoice ? (
             <RadioGroup
               className="gap-3 pb-2"
-              defaultValue={position.toString()}
-              onValueChange={(pos) => {
-                setPosition(position);
+              defaultValue={defaultValue}
+              onValueChange={(val) => {
                 if (onSingleChoiceChanged)
-                  onSingleChoiceChanged(parseInt(pos), choices[parseInt(pos)]);
+                  onSingleChoiceChanged(val);
               }}
             >
               {choices.map((choice, index) => (
                 <div key={index} className="flex items-center space-x-3">
-                  <RadioGroupItem value={index.toString()} id={title + index} />
+                  <RadioGroupItem value={choice} id={title + index} />
                   <Label
                     htmlFor={title + index}
                     className="text-[0.8rem] hover:cursor-pointer font-normal"
@@ -140,9 +127,9 @@ const ChoicesFilter = ({
                   <Checkbox
                     value={index}
                     id={title + index}
-                    checked={positions.includes(index)}
+                    checked={defaultValues!.includes(choice)}
                     onCheckedChange={(checkedState) =>
-                      multiChoicesHandler(checkedState, index)
+                      multiChoicesHandler(checkedState, choice)
                     }
                   />
                   <Label
@@ -200,6 +187,9 @@ const TimeFilter = ({
   title,
   className,
   alwaysOpen,
+  defaultSingleTime = FilterYear.AllTime,
+  defaultRangeTime = { startDate: new Date(), endDate: new Date() },
+  usingSingleTime = true,
   filterDay = [FilterDay.Today, FilterDay.LastDay],
   filterWeek = [FilterWeek.ThisWeek, FilterWeek.LastWeek, FilterWeek.Last7Days],
   filterMonth = [
@@ -215,6 +205,9 @@ const TimeFilter = ({
   title: string;
   className?: string;
   alwaysOpen?: boolean;
+  defaultSingleTime: FilterTime;
+  defaultRangeTime: { startDate: Date; endDate: Date };
+  usingSingleTime: boolean;
   filterDay?: FilterDay[];
   filterWeek?: FilterWeek[];
   filterMonth?: FilterMonth[];
@@ -223,19 +216,9 @@ const TimeFilter = ({
   onSingleTimeFilterChanged: (filterTime: FilterTime) => void;
   onRangeTimeFilterChanged: (range: { startDate: Date; endDate: Date }) => void;
 }) => {
-  const [singleTime, setSingleTime] = useState<FilterTime>(FilterYear.AllTime);
   const [isSingleFilter, setIsSingleFilter] = useState(true);
   const [isRangeFilterOpen, setIsRangeFilterOpen] = useState(false);
-  const [tempRangeState, setTempRangeState] = useState<{
-    startDate: Date;
-    endDate: Date;
-    key: string;
-  } | null>(null);
-  const [rangeState, setRangeState] = useState({
-    startDate: new Date(),
-    endDate: new Date(),
-    key: "selection",
-  });
+  let tempRange: { startDate: Date; endDate: Date } = defaultRangeTime;
 
   return (
     <Accordion
@@ -260,15 +243,16 @@ const TimeFilter = ({
                 id={title + "1"}
                 checked={isSingleFilter}
                 onClick={() => {
+                  if (isSingleFilter) return;
                   setIsSingleFilter(true);
-                  onSingleTimeFilterChanged(singleTime);
+                  onSingleTimeFilterChanged(defaultSingleTime);
                 }}
               />
               <Label
                 htmlFor={title + "1"}
                 className="text-[0.8rem] flex-1 hover:cursor-pointer font-normal"
               >
-                {singleTime}
+                {defaultSingleTime}
               </Label>
               <Popover>
                 <PopoverTrigger>
@@ -282,7 +266,6 @@ const TimeFilter = ({
                         <li
                           className="mt-5 cursor-pointer"
                           onClick={() => {
-                            setSingleTime(val);
                             setIsSingleFilter(true);
                             onSingleTimeFilterChanged(val);
                           }}
@@ -300,7 +283,6 @@ const TimeFilter = ({
                         <li
                           className="mt-5 cursor-pointer"
                           onClick={() => {
-                            setSingleTime(val);
                             setIsSingleFilter(true);
                             onSingleTimeFilterChanged(val);
                           }}
@@ -318,7 +300,6 @@ const TimeFilter = ({
                         <li
                           className="mt-5 cursor-pointer"
                           onClick={() => {
-                            setSingleTime(val);
                             setIsSingleFilter(true);
                             onSingleTimeFilterChanged(val);
                           }}
@@ -336,7 +317,6 @@ const TimeFilter = ({
                         <li
                           className="mt-5 cursor-pointer"
                           onClick={() => {
-                            setSingleTime(val);
                             setIsSingleFilter(true);
                             onSingleTimeFilterChanged(val);
                           }}
@@ -354,7 +334,6 @@ const TimeFilter = ({
                         <li
                           className="mt-5 cursor-pointer"
                           onClick={() => {
-                            setSingleTime(val);
                             setIsSingleFilter(true);
                             onSingleTimeFilterChanged(val);
                           }}
@@ -375,41 +354,37 @@ const TimeFilter = ({
                 checked={!isSingleFilter}
                 onClick={() => {
                   setIsSingleFilter(false);
-                  onRangeTimeFilterChanged(rangeState);
+                  onRangeTimeFilterChanged(defaultRangeTime);
                 }}
               />
               <Label
                 htmlFor={title + "2"}
                 className="text-[0.8rem] flex-1 hover:cursor-pointer font-normal"
               >
-                {format(rangeState.startDate, "dd/MM/yyyy") +
+                {format(defaultRangeTime.startDate, "dd/MM/yyyy") +
                   " - " +
-                  format(rangeState.endDate, "dd/MM/yyyy")}
+                  format(defaultRangeTime.endDate, "dd/MM/yyyy")}
               </Label>
               <Popover
                 open={isRangeFilterOpen}
-                onOpenChange={(isOpen) => {
-                  setTempRangeState(rangeState);
-                  setIsRangeFilterOpen(isOpen);
-                }}
+                onOpenChange={setIsRangeFilterOpen}
               >
                 <PopoverTrigger>
                   <CalendarDays size={16} />
                 </PopoverTrigger>
                 <PopoverContent className="w-auto -translate-x-4 flex flex-col">
                   <DateRangePicker
-                    ranges={[tempRangeState!]}
+                    ranges={[{ ...tempRange, key: "selection" }]}
                     onChange={(item) => {
                       if (
                         item.selection.startDate &&
                         item.selection.endDate &&
                         item.selection.key
                       ) {
-                        setTempRangeState({
+                        tempRange = {
                           startDate: item.selection.startDate,
                           endDate: item.selection.endDate,
-                          key: item.selection.key,
-                        });
+                        };
                         setIsSingleFilter(false);
                       }
                     }}
@@ -418,10 +393,7 @@ const TimeFilter = ({
                     className="bg-blue-400 hover:bg-blue-500 text-white mt-2"
                     onClick={(e) => {
                       e.stopPropagation();
-                      if (tempRangeState) {
-                        setRangeState(tempRangeState);
-                        onRangeTimeFilterChanged(tempRangeState);
-                      }
+                      onRangeTimeFilterChanged(tempRange);
                       setIsRangeFilterOpen(false);
                     }}
                   >
@@ -441,6 +413,7 @@ const SearchFilter = ({
   title,
   placeholder,
   alwaysOpen,
+  chosenValues,
   choices,
   className,
   onValuesChanged,
@@ -448,12 +421,12 @@ const SearchFilter = ({
   title: string;
   placeholder: string;
   alwaysOpen?: boolean;
+  chosenValues: string[];
   choices: string[];
   className?: string;
   onValuesChanged?: (values: string[]) => void;
 }) => {
   const [showSearchValue, setShowSearchvalue] = useState(false);
-  const [chosenValues, setChosenValues] = useState<string[]>([]);
   const [searchInput, setSearchInput] = useState("");
 
   useEffect(() => {
@@ -501,11 +474,12 @@ const SearchFilter = ({
                         key={idx}
                         className="p-2 bg-slate-100 hover:cursor-pointer hover:bg-slate-300 flex flex-row items-center"
                         onClick={(e) => {
+                          if (!onValuesChanged) return;
                           if (chosenValues.includes(value))
-                            setChosenValues((prev) =>
-                              prev.filter((v) => v !== value)
+                            onValuesChanged(
+                              chosenValues.filter((v) => v !== value)
                             );
-                          else setChosenValues((prev) => [...prev, value]);
+                          else onValuesChanged([...chosenValues, value]);
                           e.stopPropagation();
                         }}
                         onMouseDown={(e) => {
@@ -535,9 +509,10 @@ const SearchFilter = ({
                 color="#FFFFFF"
                 fill="rgb(96 165 250)"
                 className="w-4 h-4 hover:cursor-pointer p-0"
-                onClick={(e) =>
-                  setChosenValues((prev) => prev.filter((v) => v !== val))
-                }
+                onClick={(e) => {
+                  if (onValuesChanged)
+                    onValuesChanged(chosenValues.filter((v) => v !== val));
+                }}
               />
             </div>
           ))}
