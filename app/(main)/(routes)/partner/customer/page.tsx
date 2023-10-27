@@ -154,9 +154,8 @@ export default function StaffInfoPage() {
   // ];
 
   return (
-    <div></div>
-    // <PageWithFilters title="Customer" filters={filters} headerButtons={}>
-    //   <DataTable data={customerList} onSubmit={handleFormSubmit} />
-    // </PageWithFilters>
+    <PageWithFilters title="Customer" filters={[]} headerButtons={[]}>
+      <DataTable data={customerList} onSubmit={handleFormSubmit} />
+    </PageWithFilters>
   );
 }
