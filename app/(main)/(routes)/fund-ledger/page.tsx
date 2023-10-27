@@ -99,55 +99,55 @@ export default function SalesPage() {
     fetchData();
   }, []);
 
-  useEffect(() => {
-    const newSaleList: Transaction[] = salesList.filter((row) => {
-      // const filterKeys = Object.keys(filter);
-      // for (let key of filterKeys) {
-      //   console.log("key: ", key);
-      //   if (
-      //     filter[key as keyof typeof filter].length > 0 &&
-      //     !filter[key as keyof typeof filter].includes(
-      //       row[key as keyof typeof row].toString()
-      //     )
-      //   )
-      //     return false;
-      // }
-      // return true;
-      console.log("here");
-      if (
-        filter.transactionType.length > 0 &&
-        !filter.transactionType.includes(row.transactionType.toString())
-      )
-        return false;
-      if (
-        filter.formType.length > 0 &&
-        !filter.formType.includes(row.formType.toString())
-      )
-        return false;
-      if (
-        filter.status.length > 0 &&
-        !filter.status.includes(row.status.toString())
-      )
-        return false;
-      if (
-        filter.creator.length > 0 &&
-        !filter.creator.includes(row.creator.toString())
-      )
-        return false;
-      if (
-        filter.targetType.length > 0 &&
-        !filter.targetType.includes(row.targetType.toString())
-      )
-        return false;
-      if (
-        filter.targetName.length > 0 &&
-        !filter.targetName.includes(row.targetName.toString())
-      )
-        return false;
-      return true;
-    });
-    // setFilterSaleList([...newSaleList]);
-  }, [filter, salesList]);
+  // useEffect(() => {
+  //   const newSaleList: Transaction[] = salesList.filter((row) => {
+  //     // const filterKeys = Object.keys(filter);
+  //     // for (let key of filterKeys) {
+  //     //   console.log("key: ", key);
+  //     //   if (
+  //     //     filter[key as keyof typeof filter].length > 0 &&
+  //     //     !filter[key as keyof typeof filter].includes(
+  //     //       row[key as keyof typeof row].toString()
+  //     //     )
+  //     //   )
+  //     //     return false;
+  //     // }
+  //     // return true;
+  //     console.log("here");
+  //     if (
+  //       filter.transactionType.length > 0 &&
+  //       !filter.transactionType.includes(row.transactionType.toString())
+  //     )
+  //       return false;
+  //     if (
+  //       filter.formType.length > 0 &&
+  //       !filter.formType.includes(row.formType.toString())
+  //     )
+  //       return false;
+  //     if (
+  //       filter.status.length > 0 &&
+  //       !filter.status.includes(row.status.toString())
+  //     )
+  //       return false;
+  //     if (
+  //       filter.creator.length > 0 &&
+  //       !filter.creator.includes(row.creator.toString())
+  //     )
+  //       return false;
+  //     if (
+  //       filter.targetType.length > 0 &&
+  //       !filter.targetType.includes(row.targetType.toString())
+  //     )
+  //       return false;
+  //     if (
+  //       filter.targetName.length > 0 &&
+  //       !filter.targetName.includes(row.targetName.toString())
+  //     )
+  //       return false;
+  //     return true;
+  //   });
+  //   // setFilterSaleList([...newSaleList]);
+  // }, [filter, salesList]);
 
   //function
   function handleFormSubmit(values: Transaction) {
@@ -265,7 +265,7 @@ export default function SalesPage() {
       filters={filters}
       headerButtons={headerButtons}
     >
-      <DataTable data={filteredSaleList} onSubmit={handleFormSubmit} />
+      <DataTable data={salesList} onSubmit={handleFormSubmit} />
     </PageWithFilters>
   );
 }

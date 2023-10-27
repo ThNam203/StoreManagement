@@ -47,6 +47,7 @@ export function DataTable({ data, onSubmit }: Props) {
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({
+      avatar: false,
       id: true,
       name: true,
       email: true,

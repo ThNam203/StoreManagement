@@ -5,7 +5,6 @@ import { Transaction } from "@/entities/Transaction";
 import { ColumnDef } from "@tanstack/react-table";
 
 export const columnHeader = {
-  "#": "#",
   id: "Form ID",
   createdDate: "Time",
   description: "Description",
