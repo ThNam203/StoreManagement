@@ -114,7 +114,6 @@ export const columns: ColumnDef<Staff>[] = [
       <DataTableColumnHeader
         column={column}
         title={columnHeader["phoneNumber"]}
-        disableSorting
       />
     ),
     cell: ({ row }) => <div>{row.getValue("phoneNumber")}</div>,

@@ -21,27 +21,19 @@ interface DataTableColumnHeaderProps<TData, TValue>
   extends React.HTMLAttributes<HTMLDivElement> {
   column: Column<TData, TValue>;
   title: string;
-  disableSorting?: boolean;
 }
 
 export function DataTableColumnHeader<TData, TValue>({
   column,
   title,
   className,
-  disableSorting = false,
 }: DataTableColumnHeaderProps<TData, TValue>) {
   if (!column.getCanSort()) {
     return <div className={cn(className)}>{title}</div>;
   }
 
   return (
-    <div
-      className={cn(
-        "flex items-center space-x-2",
-        className,
-        disableSorting ? "pointer-events-none" : ""
-      )}
-    >
+    <div className={cn("flex items-center space-x-2", className)}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
