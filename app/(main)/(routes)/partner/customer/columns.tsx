@@ -12,6 +12,29 @@ import { ColumnDef } from "@tanstack/react-table";
 import { ArrowDownAZ, ArrowDownZA, MoreHorizontal } from "lucide-react";
 import { DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
 import { Customer } from "@/entities/Customer";
+import { DataTableColumnHeader } from "@/components/ui/my_table_column_header";
+
+export const columnHeader = {
+  "#": "#",
+  id: "Customer ID",
+  name: "Customer Name",
+  customerType: "Customer Type",
+  phoneNumber: "Phone Number",
+  address: "Address",
+  sex: "Sex",
+  email: "Email",
+  birthday: "Birthday",
+  creator: "Creator",
+  createdDate: "Date Modified",
+  company: "Company",
+  taxId: "Tax ID",
+  note: "Note",
+  lastTransaction: "Last Transaction",
+  debt: "Debt",
+  sale: "Sale",
+  finalSale: "Final Sale",
+  status: "Status",
+};
 
 export const columns: ColumnDef<Customer>[] = [
   {
@@ -37,76 +60,170 @@ export const columns: ColumnDef<Customer>[] = [
   },
   {
     accessorKey: "id",
-    header: "ID",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={columnHeader["id"]} />
+    ),
     cell: ({ row }) => <div>{row.getValue("id")}</div>,
   },
   {
     accessorKey: "name",
-    header: ({ column }) => {
-      return (
-        <div
-          className="w-[140px] flex flex-row hover:opacity-80 ease-linear duration-200 hover:cursor-pointer"
-          onClick={() => column.toggleSorting()}
-        >
-          <span>Customer Name</span>
-          {column.getIsSorted() === false ? null : (
-            <div>
-              {column.getIsSorted() === "asc" ? (
-                <ArrowDownAZ className="ml-2 h-4 w-4" />
-              ) : (
-                <ArrowDownZA className="ml-2 h-4 w-4" />
-              )}
-            </div>
-          )}
-        </div>
-      );
-    },
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={columnHeader["name"]} />
+    ),
     cell: ({ row }) => <div className="capitalize">{row.getValue("name")}</div>,
   },
   {
-    accessorKey: "customerGroup",
-    header: ({ column }) => {
-      return (
-        <div
-          className="w-[140px] flex flex-row hover:opacity-80 ease-linear duration-200 hover:cursor-pointer"
-          onClick={() => column.toggleSorting()}
-        >
-          <span>Customer Group</span>
-          {column.getIsSorted() === false ? null : (
-            <div>
-              {column.getIsSorted() === "asc" ? (
-                <ArrowDownAZ className="ml-2 h-4 w-4" />
-              ) : (
-                <ArrowDownZA className="ml-2 h-4 w-4" />
-              )}
-            </div>
-          )}
-        </div>
-      );
-    },
+    accessorKey: "customerType",
+    header: ({ column }) => (
+      <DataTableColumnHeader
+        column={column}
+        title={columnHeader["customerType"]}
+      />
+    ),
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("customerGroup")}</div>
+      <div className="capitalize">{row.getValue("customerType")}</div>
     ),
   },
   {
     accessorKey: "phoneNumber",
-    header: "Phone Number",
+    header: ({ column }) => (
+      <DataTableColumnHeader
+        column={column}
+        title={columnHeader["phoneNumber"]}
+        disableSorting
+      />
+    ),
     cell: ({ row }) => <div>{row.getValue("phoneNumber")}</div>,
   },
+
   {
-    accessorKey: "totalSales",
-    header: ({ column }) => {
-      return (
-        <div
-          className="w-fit flex flex-row hover:opacity-80 ease-linear duration-200 hover:cursor-pointer"
-          onClick={() => column.toggleSorting()}
-        >
-          <span>Total Sales</span>
-        </div>
-      );
-    },
-    cell: ({ row }) => <div className="text-center">0</div>,
+    accessorKey: "address",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={columnHeader["address"]} />
+    ),
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("address")}</div>
+    ),
   },
+  {
+    accessorKey: "sex",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={columnHeader["sex"]} />
+    ),
+    cell: ({ row }) => <div className="capitalize">{row.getValue("sex")}</div>,
+  },
+  {
+    accessorKey: "email",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={columnHeader["email"]} />
+    ),
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("email")}</div>
+    ),
+  },
+  {
+    accessorKey: "birthday",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={columnHeader["birthday"]} />
+    ),
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("birthday")}</div>
+    ),
+  },
+  {
+    accessorKey: "creator",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={columnHeader["creator"]} />
+    ),
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("creator")}</div>
+    ),
+  },
+  {
+    accessorKey: "createdDate",
+    header: ({ column }) => (
+      <DataTableColumnHeader
+        column={column}
+        title={columnHeader["createdDate"]}
+      />
+    ),
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("createdDate")}</div>
+    ),
+  },
+  {
+    accessorKey: "company",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={columnHeader["company"]} />
+    ),
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("company")}</div>
+    ),
+  },
+  {
+    accessorKey: "taxId",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={columnHeader["taxId"]} />
+    ),
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("taxId")}</div>
+    ),
+  },
+  {
+    accessorKey: "note",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={columnHeader["note"]} />
+    ),
+    cell: ({ row }) => <div className="capitalize">{row.getValue("note")}</div>,
+  },
+  {
+    accessorKey: "lastTransaction",
+    header: ({ column }) => (
+      <DataTableColumnHeader
+        column={column}
+        title={columnHeader["lastTransaction"]}
+      />
+    ),
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("lastTransaction")}</div>
+    ),
+  },
+  {
+    accessorKey: "debt",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={columnHeader["debt"]} />
+    ),
+    cell: ({ row }) => <div className="capitalize">{row.getValue("debt")}</div>,
+  },
+  {
+    accessorKey: "sale",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={columnHeader["sale"]} />
+    ),
+    cell: ({ row }) => <div className="capitalize">{row.getValue("sale")}</div>,
+  },
+  {
+    accessorKey: "finalSale",
+    header: ({ column }) => (
+      <DataTableColumnHeader
+        column={column}
+        title={columnHeader["finalSale"]}
+      />
+    ),
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("finalSale")}</div>
+    ),
+  },
+  {
+    accessorKey: "status",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={columnHeader["status"]} />
+    ),
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("status")}</div>
+    ),
+  },
+
   {
     id: "actions",
     enableHiding: false,

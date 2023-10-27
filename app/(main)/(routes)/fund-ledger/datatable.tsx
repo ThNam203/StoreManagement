@@ -182,6 +182,8 @@ export function DataTable({ data, onSubmit }: Props) {
             title="Columns"
             table={table}
             columnHeaders={columnHeader}
+            cols={2}
+            rowPerCols={6}
           />
         </div>
       </div>

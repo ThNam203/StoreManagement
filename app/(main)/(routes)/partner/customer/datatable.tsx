@@ -29,9 +29,11 @@ import {
 } from "@tanstack/react-table";
 import { ChevronDown } from "lucide-react";
 import * as React from "react";
-import { columns } from "./columns";
+import { columnHeader, columns } from "./columns";
 import { AddCustomerDialog } from "./add_customer_dialog";
 import { Customer } from "@/entities/Customer";
+import { DataTableViewOptions } from "@/components/ui/my_table_column_visibility_toggle";
+import { DataTableContent } from "@/components/ui/my_table_content";
 type Props = {
   data: Customer[];
   onSubmit: (values: Customer) => void;
@@ -43,7 +45,27 @@ export function DataTable({ data, onSubmit }: Props) {
     []
   );
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
+    React.useState<VisibilityState>({
+      "#": true,
+      id: true,
+      name: true,
+      customerType: false,
+      phoneNumber: true,
+      address: false,
+      sex: false,
+      email: false,
+      birthday: false,
+      creator: false,
+      createdDate: false,
+      company: false,
+      taxId: false,
+      note: false,
+      lastTransaction: false,
+      debt: true,
+      sale: true,
+      finalSale: true,
+      status: false,
+    });
   const [rowSelection, setRowSelection] = React.useState({});
 
   const table = useReactTable({
@@ -82,108 +104,17 @@ export function DataTable({ data, onSubmit }: Props) {
           <div className="mr-2">
             <AddCustomerDialog submit={handleSubmit} />
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="ml-auto">
-                Columns <ChevronDown className="ml-2 h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {table
-                .getAllColumns()
-                .filter((column) => column.getCanHide())
-                .map((column) => {
-                  return (
-                    <DropdownMenuCheckboxItem
-                      key={column.id}
-                      className="capitalize"
-                      checked={column.getIsVisible()}
-                      onCheckedChange={(value) =>
-                        column.toggleVisibility(!!value)
-                      }
-                    >
-                      {column.id}
-                    </DropdownMenuCheckboxItem>
-                  );
-                })}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <DataTableViewOptions
+            table={table}
+            title="Columns"
+            columnHeaders={columnHeader}
+            cols={3}
+            rowPerCols={7}
+          />
         </div>
       </div>
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="flex-1 text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel().rows.length} of{" "}
-          {table.getFilteredRowModel().rows.length} row(s) selected.
-        </div>
-        <div className="space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Next
-          </Button>
-        </div>
-      </div>
+
+      <DataTableContent columns={columns} data={data} table={table} />
     </div>
   );
 }

@@ -21,7 +21,11 @@ import {
   Transaction,
   TransactionType,
 } from "@/entities/Transaction";
-import { ChoicesFilter, PageWithFilters } from "@/components/ui/filter";
+import {
+  ChoicesFilter,
+  PageWithFilters,
+  SearchFilter,
+} from "@/components/ui/filter";
 import { Button } from "@/components/ui/button";
 const originalSalesList: Transaction[] = [
   {
@@ -81,9 +85,7 @@ export default function SalesPage() {
     defaultTransactionTypePosition: [] as number[],
     defaultFormTypePosition: [] as number[],
     defaultStatusPosition: [] as number[],
-    defaultCreatorPosition: [] as number[],
     defaultTargetTypePosition: [] as number[],
-    defaultTargetNamePosition: [] as number[],
   });
 
   // hook use effect
@@ -99,6 +101,19 @@ export default function SalesPage() {
 
   useEffect(() => {
     const newSaleList: Transaction[] = salesList.filter((row) => {
+      // const filterKeys = Object.keys(filter);
+      // for (let key of filterKeys) {
+      //   console.log("key: ", key);
+      //   if (
+      //     filter[key as keyof typeof filter].length > 0 &&
+      //     !filter[key as keyof typeof filter].includes(
+      //       row[key as keyof typeof row].toString()
+      //     )
+      //   )
+      //     return false;
+      // }
+      // return true;
+      console.log("here");
       if (
         filter.transactionType.length > 0 &&
         !filter.transactionType.includes(row.transactionType.toString())
@@ -131,7 +146,7 @@ export default function SalesPage() {
         return false;
       return true;
     });
-    setFilterSaleList([...newSaleList]);
+    // setFilterSaleList([...newSaleList]);
   }, [filter, salesList]);
 
   //function
@@ -160,7 +175,7 @@ export default function SalesPage() {
     if (values.length > 0) setFilter((prev) => ({ ...prev, status: values }));
     else setFilter((prev) => ({ ...prev, status: Object.values(Status) }));
   };
-  const handleCreatorChange = (position: number[], values: string[]) => {
+  const handleCreatorChange = (values: string[]) => {
     if (values.length > 0) setFilter((prev) => ({ ...prev, creator: values }));
     else
       setFilter((prev) => ({
@@ -174,7 +189,7 @@ export default function SalesPage() {
     else
       setFilter((prev) => ({ ...prev, targetType: Object.values(TargetType) }));
   };
-  const handleTargetNameChange = (position: number[], values: string[]) => {
+  const handleTargetNameChange = (values: string[]) => {
     if (values.length > 0)
       setFilter((prev) => ({ ...prev, targetName: values }));
     else
@@ -213,31 +228,31 @@ export default function SalesPage() {
         onMultiChoicesChanged={handleStatusChange}
       />
 
-      <ChoicesFilter
+      <SearchFilter
         key={4}
-        title="Creator"
         choices={salesList.map((row) => row.creator)}
-        isSingleChoice={false}
-        defaultPositions={defaultFilterPosition.defaultCreatorPosition}
-        onMultiChoicesChanged={handleCreatorChange}
+        title="Creator"
+        placeholder="Select creator"
+        alwaysOpen
+        onValuesChanged={handleCreatorChange}
       />
 
       <ChoicesFilter
         key={5}
         title="Receiver/Payer Type"
-        choices={salesList.map((row) => row.targetType)}
+        choices={Object.values(TargetType)}
         isSingleChoice={false}
         defaultPositions={defaultFilterPosition.defaultTargetTypePosition}
         onMultiChoicesChanged={handleTargetTypeChange}
       />
 
-      <ChoicesFilter
+      <SearchFilter
         key={6}
         title="Receiver/Payer"
         choices={salesList.map((row) => row.targetName)}
-        isSingleChoice={false}
-        defaultPositions={defaultFilterPosition.defaultTargetNamePosition}
-        onMultiChoicesChanged={handleTargetNameChange}
+        placeholder="Select reveiver/payer"
+        alwaysOpen
+        onValuesChanged={handleTargetNameChange}
       />
     </div>,
   ];
