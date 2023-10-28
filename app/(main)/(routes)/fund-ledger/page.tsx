@@ -106,22 +106,22 @@ export default function SalesPage() {
     setSalesList((prev) => [...prev, values]);
   }
 
-  const handleTransactionTypeChange = (values: string[]) => {
+  const updateTransactionTypeFilter = (values: string[]) => {
     setFilter((prev) => ({ ...prev, transactionType: values }));
   };
-  const handleFormTypeChange = (values: string[]) => {
+  const updateFormTypeFilter = (values: string[]) => {
     setFilter((prev) => ({ ...prev, formType: values }));
   };
-  const handleStatusChange = (values: string[]) => {
+  const updateStatusFilter = (values: string[]) => {
     setFilter((prev) => ({ ...prev, status: values }));
   };
-  const handleCreatorChange = (values: string[]) => {
+  const updateCreatorFilter = (values: string[]) => {
     setFilter((prev) => ({ ...prev, creator: values }));
   };
-  const handleTargetTypeChange = (values: string[]) => {
+  const updateTargetTypeFilter = (values: string[]) => {
     setFilter((prev) => ({ ...prev, targetType: values }));
   };
-  const handleTargetNameChange = (values: string[]) => {
+  const updateTargetNameFilter = (values: string[]) => {
     setFilter((prev) => ({ ...prev, targetName: values }));
   };
 
@@ -133,7 +133,7 @@ export default function SalesPage() {
         choices={Object.values(TransactionType)}
         isSingleChoice={false}
         defaultValues={filter.transactionType}
-        onMultiChoicesChanged={handleTransactionTypeChange}
+        onMultiChoicesChanged={updateTransactionTypeFilter}
       />
 
       <ChoicesFilter
@@ -142,7 +142,7 @@ export default function SalesPage() {
         choices={Object.values(FormType)}
         isSingleChoice={false}
         defaultValues={filter.formType}
-        onMultiChoicesChanged={handleFormTypeChange}
+        onMultiChoicesChanged={updateFormTypeFilter}
       />
 
       <ChoicesFilter
@@ -151,17 +151,17 @@ export default function SalesPage() {
         choices={Object.values(Status)}
         isSingleChoice={false}
         defaultValues={filter.status}
-        onMultiChoicesChanged={handleStatusChange}
+        onMultiChoicesChanged={updateStatusFilter}
       />
 
       <SearchFilter
         key={4}
-        choices={salesList.map((row) => row.creator)}
+        choices={Array.from(new Set(salesList.map((row) => row.creator)))}
         chosenValues={filter.creator}
         title="Creator"
         placeholder="Select creator"
         alwaysOpen
-        onValuesChanged={handleCreatorChange}
+        onValuesChanged={updateCreatorFilter}
       />
 
       <ChoicesFilter
@@ -170,17 +170,17 @@ export default function SalesPage() {
         choices={Object.values(TargetType)}
         isSingleChoice={false}
         defaultValues={filter.targetType}
-        onMultiChoicesChanged={handleTargetTypeChange}
+        onMultiChoicesChanged={updateTargetTypeFilter}
       />
 
       <SearchFilter
         key={6}
         title="Receiver/Payer"
         chosenValues={filter.targetName}
-        choices={salesList.map((row) => row.targetName)}
+        choices={Array.from(new Set(salesList.map((row) => row.targetName)))}
         placeholder="Select reveiver/payer"
         alwaysOpen
-        onValuesChanged={handleTargetNameChange}
+        onValuesChanged={updateTargetNameFilter}
       />
     </div>,
   ];

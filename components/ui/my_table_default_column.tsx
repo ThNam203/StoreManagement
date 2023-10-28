@@ -10,7 +10,7 @@ import {
 import { MoreHorizontal } from "lucide-react";
 import { Button } from "./button";
 
-export function defaultColumn<T>(
+function defaultColumn<T>(
   accessorKey: string,
   columnHeader: object,
   disableSorting: boolean = false
@@ -28,7 +28,7 @@ export function defaultColumn<T>(
   return col;
 }
 
-export function getColumns<T>(columnHeader: object): ColumnDef<T>[] {
+function getColumns<T>(columnHeader: object): ColumnDef<T>[] {
   const columns: ColumnDef<T>[] = [
     {
       id: "select",
@@ -89,3 +89,5 @@ export function getColumns<T>(columnHeader: object): ColumnDef<T>[] {
   columns.push(lastCol);
   return columns;
 }
+
+export { defaultColumn, getColumns };

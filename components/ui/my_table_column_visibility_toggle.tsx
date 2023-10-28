@@ -25,7 +25,7 @@ interface DataTableViewOptionsProps<TData> {
   rowPerCols?: number;
 }
 
-export function DataTableViewOptions<TData>({
+function DataTableViewOptions<TData>({
   title,
   table,
   columnHeaders,
@@ -95,3 +95,5 @@ export function DataTableViewOptions<TData>({
     </DropdownMenu>
   );
 }
+
+export { DataTableViewOptions };

@@ -21,10 +21,8 @@ export function filterTable<T>(
   listToFilter: Array<T>
 ): Array<T> {
   const filterList = listToFilter.filter((row) => {
-    console.log("here");
     const filterKeys = Object.keys(filter);
     for (let key of filterKeys) {
-      console.log("key: ", key);
       if (
         filter[key as keyof typeof filter].length > 0 &&
         !filter[key as keyof typeof filter].includes(

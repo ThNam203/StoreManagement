@@ -67,10 +67,7 @@ const ChoicesFilter = ({
       if (removePos != -1) defaultValues.splice(removePos, 1);
     }
 
-    if (onMultiChoicesChanged)
-      onMultiChoicesChanged(
-        defaultValues
-      );
+    if (onMultiChoicesChanged) onMultiChoicesChanged(defaultValues);
   };
 
   return (
@@ -104,8 +101,7 @@ const ChoicesFilter = ({
               className="gap-3 pb-2"
               defaultValue={defaultValue}
               onValueChange={(val) => {
-                if (onSingleChoiceChanged)
-                  onSingleChoiceChanged(val);
+                if (onSingleChoiceChanged) onSingleChoiceChanged(val);
               }}
             >
               {choices.map((choice, index) => (
@@ -522,6 +518,77 @@ const SearchFilter = ({
   );
 };
 
+const RangeFilter = ({
+  title,
+  firstLabel = "From",
+  firstPlaceholder = "Start value",
+  secondLabel = "To",
+  secondPlaceholder = "End value",
+  alwaysOpen,
+  startValue,
+  endValue,
+  className,
+  onValuesChanged,
+}: {
+  title: string;
+  firstPlaceholder?: string;
+  firstLabel?: string;
+  secondPlaceholder?: string;
+  secondLabel?: string;
+  alwaysOpen?: boolean;
+  startValue: number;
+  endValue: number;
+  className?: string;
+  onValuesChanged?: (startValue: number, endValue: number) => void;
+}) => {
+  const [_startValue, setStartValue] = useState(-1);
+  const [_endValue, setEndValue] = useState(-1);
+
+  useEffect(() => {
+    if (onValuesChanged) onValuesChanged(_startValue, _endValue);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [_startValue, _endValue]);
+
+  return (
+    <Accordion
+      type="single"
+      collapsible={!alwaysOpen}
+      defaultValue="item-1"
+      className={cn("w-full bg-white rounded-md px-4", className)}
+    >
+      <AccordionItem value="item-1">
+        <AccordionTrigger showArrowFunc={alwaysOpen ? "hidden" : ""}>
+          <div className="flex flex-row items-center w-full">
+            <p className="text-[0.8rem] leading-4 font-bold text-start flex-1">
+              {title}
+            </p>
+          </div>
+        </AccordionTrigger>
+        <AccordionContent className="overflow-hidden">
+          <div className="flex flex-col mb-4 relative space-y-2">
+            <div className="flex flex-row justify-between items-center space-x-2">
+              <Label className="w-[50px]">{firstLabel}</Label>
+              <Input
+                className="w-full focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0"
+                placeholder={firstPlaceholder}
+                onChange={(e) => setStartValue(Number.parseInt(e.target.value))}
+              />
+            </div>
+            <div className="flex flex-row justify-between items-center space-x-2">
+              <Label className="w-[50px]">{secondLabel}</Label>
+              <Input
+                className="w-full focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0"
+                placeholder={secondPlaceholder}
+                onChange={(e) => setEndValue(Number.parseInt(e.target.value))}
+              />
+            </div>
+          </div>
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
+  );
+};
+
 const PageWithFilters = ({
   title,
   filters,
@@ -600,6 +667,7 @@ export {
   ChoicesFilter,
   TimeFilter,
   SearchFilter,
+  RangeFilter,
   PageWithFilters,
   FilterDay,
   FilterMonth,

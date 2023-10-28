@@ -13,7 +13,12 @@ import { useEffect, useState } from "react";
 import { DataTable } from "./datatable";
 import { AddCustomerDialog } from "./add_customer_dialog";
 import { Customer, CustomerType, Status } from "@/entities/Customer";
-import { PageWithFilters, SearchFilter } from "@/components/ui/filter";
+import {
+  PageWithFilters,
+  RangeFilter,
+  SearchFilter,
+  TimeFilter,
+} from "@/components/ui/filter";
 
 const originalCustomerList: Customer[] = [
   {
@@ -81,12 +86,19 @@ const originalCustomerList: Customer[] = [
   },
 ];
 
-const groupList = ["Family", "Single"];
-
-const branchList = ["Center Branch", "Branch 1", "Branch 2", "Branch 3"];
-
 export default function StaffInfoPage() {
   const [customerList, setCustomerList] = useState<Customer[]>([]);
+  const [filter, setFilter] = useState({
+    customerGroup: [] as string[],
+    createdDate: [] as string[],
+    birthday: [] as string[],
+    lastTransaction: [] as string[],
+    sale: [] as number[],
+    debt: [] as number[],
+    customerType: [] as string[],
+    sex: [] as string[],
+    status: [] as string[],
+  });
 
   useEffect(() => {
     setCustomerList(originalCustomerList);
@@ -96,65 +108,59 @@ export default function StaffInfoPage() {
     setCustomerList((prev) => [...prev, values]);
   }
 
-  // const filters = [
-  //   <div key={1} className="flex flex-col space-y-2">
-  //     <SearchFilter
-  //       key={1}
-  //       title="Customer Group"
-  //       choices={Array.from(new Set(customerList.map(customer => customer.customerGroup)))}
-  //       alwaysOpen
-  //       onValuesChanged={handleTransactionTypeChange}
-  //     />
+  const updateCustomerGroupFilter = (values: string[]) => {
+    setFilter((prev) => ({ ...prev, customerGroup: values }));
+  };
+  const updateCreatedDateFilter = (values: string[]) => {
+    setFilter((prev) => ({ ...prev, createdDate: values }));
+  };
+  const updateBirthdayFilter = (values: string[]) => {
+    setFilter((prev) => ({ ...prev, birthday: values }));
+  };
+  const updateLastTransactionFilter = (values: string[]) => {
+    setFilter((prev) => ({ ...prev, lastTransaction: values }));
+  };
+  const updateSaleFilter = (values: string[]) => {
+    const ivalues: number[] = values.map((value) => Number.parseInt(value));
+    setFilter((prev) => ({ ...prev, sale: ivalues }));
+  };
+  const updateDebtFilter = (values: string[]) => {
+    const ivalues: number[] = values.map((value) => Number.parseInt(value));
+    setFilter((prev) => ({ ...prev, debt: ivalues }));
+  };
+  const updateCustomerTypeFilter = (values: string[]) => {
+    setFilter((prev) => ({ ...prev, customerType: values }));
+  };
+  const updateSexFilter = (values: string[]) => {
+    setFilter((prev) => ({ ...prev, sex: values }));
+  };
+  const updateStatusFilter = (values: string[]) => {
+    setFilter((prev) => ({ ...prev, status: values }));
+  };
 
-  //     <ChoicesFilter
-  //       key={2}
-  //       title="Form Type"
-  //       choices={Object.values(FormType)}
-  //       isSingleChoice={false}
-  //       defaultPositions={defaultFilterPosition.defaultFormTypePosition}
-  //       onMultiChoicesChanged={handleFormTypeChange}
-  //     />
-
-  //     <ChoicesFilter
-  //       key={3}
-  //       title="Status"
-  //       choices={Object.values(Status)}
-  //       isSingleChoice={false}
-  //       defaultPositions={defaultFilterPosition.defaultStatusPosition}
-  //       onMultiChoicesChanged={handleStatusChange}
-  //     />
-
-  //     <SearchFilter
-  //       key={4}
-  //       choices={salesList.map((row) => row.creator)}
-  //       title="Creator"
-  //       placeholder="Select creator"
-  //       alwaysOpen
-  //       onValuesChanged={handleCreatorChange}
-  //     />
-
-  //     <ChoicesFilter
-  //       key={5}
-  //       title="Receiver/Payer Type"
-  //       choices={Object.values(TargetType)}
-  //       isSingleChoice={false}
-  //       defaultPositions={defaultFilterPosition.defaultTargetTypePosition}
-  //       onMultiChoicesChanged={handleTargetTypeChange}
-  //     />
-
-  //     <SearchFilter
-  //       key={6}
-  //       title="Receiver/Payer"
-  //       choices={salesList.map((row) => row.targetName)}
-  //       placeholder="Select reveiver/payer"
-  //       alwaysOpen
-  //       onValuesChanged={handleTargetNameChange}
-  //     />
-  //   </div>,
-  // ];
+  const filters = [
+    <div key={1} className="flex flex-col space-y-2">
+      <SearchFilter
+        key={1}
+        title="Customer Group"
+        placeholder="Select customer group"
+        choices={Array.from(
+          customerList.map((customer) => customer.customerGroup)
+        )}
+        chosenValues={filter.customerGroup}
+        alwaysOpen
+        onValuesChanged={updateCustomerGroupFilter}
+      />
+      {/* <TimeFilter 
+        key={2}
+        
+      /> */}
+      <RangeFilter key={2} startValue={0} endValue={0} title="Date Modified" />
+    </div>,
+  ];
 
   return (
-    <PageWithFilters title="Customer" filters={[]} headerButtons={[]}>
+    <PageWithFilters title="Customer" filters={filters} headerButtons={[]}>
       <DataTable data={customerList} onSubmit={handleFormSubmit} />
     </PageWithFilters>
   );
