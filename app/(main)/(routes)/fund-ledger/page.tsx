@@ -27,6 +27,7 @@ import {
   SearchFilter,
 } from "@/components/ui/filter";
 import { Button } from "@/components/ui/button";
+import { filterTable } from "@/utils";
 const originalSalesList: Transaction[] = [
   {
     id: nanoid(9).toUpperCase(),
@@ -81,13 +82,6 @@ export default function SalesPage() {
     targetName: [] as string[],
   });
 
-  const [defaultFilterPosition, setDefaultFilterPosition] = useState({
-    defaultTransactionTypePosition: [] as number[],
-    defaultFormTypePosition: [] as number[],
-    defaultStatusPosition: [] as number[],
-    defaultTargetTypePosition: [] as number[],
-  });
-
   // hook use effect
   useEffect(() => {
     const fetchData = async () => {
@@ -99,104 +93,36 @@ export default function SalesPage() {
     fetchData();
   }, []);
 
-  // useEffect(() => {
-  //   const newSaleList: Transaction[] = salesList.filter((row) => {
-  //     // const filterKeys = Object.keys(filter);
-  //     // for (let key of filterKeys) {
-  //     //   console.log("key: ", key);
-  //     //   if (
-  //     //     filter[key as keyof typeof filter].length > 0 &&
-  //     //     !filter[key as keyof typeof filter].includes(
-  //     //       row[key as keyof typeof row].toString()
-  //     //     )
-  //     //   )
-  //     //     return false;
-  //     // }
-  //     // return true;
-  //     console.log("here");
-  //     if (
-  //       filter.transactionType.length > 0 &&
-  //       !filter.transactionType.includes(row.transactionType.toString())
-  //     )
-  //       return false;
-  //     if (
-  //       filter.formType.length > 0 &&
-  //       !filter.formType.includes(row.formType.toString())
-  //     )
-  //       return false;
-  //     if (
-  //       filter.status.length > 0 &&
-  //       !filter.status.includes(row.status.toString())
-  //     )
-  //       return false;
-  //     if (
-  //       filter.creator.length > 0 &&
-  //       !filter.creator.includes(row.creator.toString())
-  //     )
-  //       return false;
-  //     if (
-  //       filter.targetType.length > 0 &&
-  //       !filter.targetType.includes(row.targetType.toString())
-  //     )
-  //       return false;
-  //     if (
-  //       filter.targetName.length > 0 &&
-  //       !filter.targetName.includes(row.targetName.toString())
-  //     )
-  //       return false;
-  //     return true;
-  //   });
-  //   // setFilterSaleList([...newSaleList]);
-  // }, [filter, salesList]);
+  useEffect(() => {
+    const newSaleList: Transaction[] = filterTable<Transaction>(
+      filter,
+      salesList
+    );
+    setFilterSaleList([...newSaleList]);
+  }, [filter, salesList]);
 
   //function
   function handleFormSubmit(values: Transaction) {
     setSalesList((prev) => [...prev, values]);
   }
 
-  const handleTransactionTypeChange = (
-    position: number[],
-    values: string[]
-  ) => {
-    if (values.length > 0)
-      setFilter((prev) => ({ ...prev, transactionType: values }));
-    else
-      setFilter((prev) => ({
-        ...prev,
-        transactionType: Object.values(TransactionType),
-      }));
+  const handleTransactionTypeChange = (values: string[]) => {
+    setFilter((prev) => ({ ...prev, transactionType: values }));
   };
-
-  const handleFormTypeChange = (position: number[], values: string[]) => {
-    if (values.length > 0) setFilter((prev) => ({ ...prev, formType: values }));
-    else setFilter((prev) => ({ ...prev, formType: Object.values(FormType) }));
+  const handleFormTypeChange = (values: string[]) => {
+    setFilter((prev) => ({ ...prev, formType: values }));
   };
-  const handleStatusChange = (position: number[], values: string[]) => {
-    if (values.length > 0) setFilter((prev) => ({ ...prev, status: values }));
-    else setFilter((prev) => ({ ...prev, status: Object.values(Status) }));
+  const handleStatusChange = (values: string[]) => {
+    setFilter((prev) => ({ ...prev, status: values }));
   };
   const handleCreatorChange = (values: string[]) => {
-    if (values.length > 0) setFilter((prev) => ({ ...prev, creator: values }));
-    else
-      setFilter((prev) => ({
-        ...prev,
-        creator: salesList.map((row) => row.creator),
-      }));
+    setFilter((prev) => ({ ...prev, creator: values }));
   };
-  const handleTargetTypeChange = (position: number[], values: string[]) => {
-    if (values.length > 0)
-      setFilter((prev) => ({ ...prev, targetType: values }));
-    else
-      setFilter((prev) => ({ ...prev, targetType: Object.values(TargetType) }));
+  const handleTargetTypeChange = (values: string[]) => {
+    setFilter((prev) => ({ ...prev, targetType: values }));
   };
   const handleTargetNameChange = (values: string[]) => {
-    if (values.length > 0)
-      setFilter((prev) => ({ ...prev, targetName: values }));
-    else
-      setFilter((prev) => ({
-        ...prev,
-        targetName: salesList.map((row) => row.targetName),
-      }));
+    setFilter((prev) => ({ ...prev, targetName: values }));
   };
 
   const filters = [
@@ -206,7 +132,7 @@ export default function SalesPage() {
         title="Transaction Type"
         choices={Object.values(TransactionType)}
         isSingleChoice={false}
-        defaultPositions={defaultFilterPosition.defaultTransactionTypePosition}
+        defaultValues={filter.transactionType}
         onMultiChoicesChanged={handleTransactionTypeChange}
       />
 
@@ -215,7 +141,7 @@ export default function SalesPage() {
         title="Form Type"
         choices={Object.values(FormType)}
         isSingleChoice={false}
-        defaultPositions={defaultFilterPosition.defaultFormTypePosition}
+        defaultValues={filter.formType}
         onMultiChoicesChanged={handleFormTypeChange}
       />
 
@@ -224,13 +150,14 @@ export default function SalesPage() {
         title="Status"
         choices={Object.values(Status)}
         isSingleChoice={false}
-        defaultPositions={defaultFilterPosition.defaultStatusPosition}
+        defaultValues={filter.status}
         onMultiChoicesChanged={handleStatusChange}
       />
 
       <SearchFilter
         key={4}
         choices={salesList.map((row) => row.creator)}
+        chosenValues={filter.creator}
         title="Creator"
         placeholder="Select creator"
         alwaysOpen
@@ -242,13 +169,14 @@ export default function SalesPage() {
         title="Receiver/Payer Type"
         choices={Object.values(TargetType)}
         isSingleChoice={false}
-        defaultPositions={defaultFilterPosition.defaultTargetTypePosition}
+        defaultValues={filter.targetType}
         onMultiChoicesChanged={handleTargetTypeChange}
       />
 
       <SearchFilter
         key={6}
         title="Receiver/Payer"
+        chosenValues={filter.targetName}
         choices={salesList.map((row) => row.targetName)}
         placeholder="Select reveiver/payer"
         alwaysOpen
@@ -265,7 +193,7 @@ export default function SalesPage() {
       filters={filters}
       headerButtons={headerButtons}
     >
-      <DataTable data={salesList} onSubmit={handleFormSubmit} />
+      <DataTable data={filteredSaleList} onSubmit={handleFormSubmit} />
     </PageWithFilters>
   );
 }

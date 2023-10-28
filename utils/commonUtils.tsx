@@ -13,3 +13,27 @@ export const exportExcel = (
     resolve("oke");
   });
 };
+
+type Filter = Record<string, any>;
+
+export function filterTable<T>(
+  filter: Filter,
+  listToFilter: Array<T>
+): Array<T> {
+  const filterList = listToFilter.filter((row) => {
+    console.log("here");
+    const filterKeys = Object.keys(filter);
+    for (let key of filterKeys) {
+      console.log("key: ", key);
+      if (
+        filter[key as keyof typeof filter].length > 0 &&
+        !filter[key as keyof typeof filter].includes(
+          row[key as keyof typeof row]
+        )
+      )
+        return false;
+    }
+    return true;
+  });
+  return filterList;
+}
