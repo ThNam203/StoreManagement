@@ -19,47 +19,10 @@ import java.net.URL;
 import java.util.Calendar;
 import java.util.Date;
 
-@Service
-@Slf4j
-public class FileService {
-    @Autowired
-    private AmazonS3 s3;
-    @Value("${aws.s3.bucket}")
-    private String bucketName;
 
-    public String uploadFile(MultipartFile file ){
-        File fileObj = convertMultiPartToFile(file);
-        String fileName = System.currentTimeMillis()+"_"+file.getOriginalFilename();
-        s3.putObject(new PutObjectRequest(bucketName,fileName,fileObj));
-        fileObj.delete();
-        return "https://"+bucketName+".s3.amazonaws.com/"+fileName;
-    }
-    public byte[] downloadFile(String fileName){
-        S3Object s3Object = s3.getObject(bucketName,fileName);
-        S3ObjectInputStream inputStream = s3Object.getObjectContent();
-        try{
-            byte[] content = IOUtils.toByteArray(inputStream);
-            return content;
-        }catch (IOException e){
-            e.printStackTrace();
-        }
-        return null;
-    }
+public interface FileService {
+    String uploadFile(MultipartFile file);
+    byte[] downloadFile(String fileName);
+    String deleteFile(String fileName);
 
-    public String deleteFile(String fileName){
-        s3.deleteObject(bucketName,fileName);
-        return fileName+" removed ...";
-    }
-
-    private File convertMultiPartToFile(MultipartFile file){
-        File convertedFile = new File(file.getOriginalFilename());
-        try{
-            FileOutputStream fos = new FileOutputStream(convertedFile);
-            fos.write(file.getBytes());
-            fos.close();
-        }catch (IOException e){
-            log.error("Error converting multipartFile to file",e);
-        }
-        return convertedFile;
-    }
 }

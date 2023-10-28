@@ -2,12 +2,13 @@ package com.springboot.store.service.impl;
 
 import com.springboot.store.entity.Media;
 import com.springboot.store.entity.Product;
-import com.springboot.store.payload.MediaDTO;
 import com.springboot.store.payload.ProductDTO;
+import com.springboot.store.repository.MediaRepository;
 import com.springboot.store.repository.ProductRepository;
 import com.springboot.store.service.FileService;
 import com.springboot.store.service.ProductService;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,18 +20,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
    private final ProductRepository productRepository;
+   private final MediaRepository mediaRepository;
    private final ModelMapper modelMapper;
-    private final FileService fileService;
+   private final FileService fileService;
 
-   @Autowired
-   public ProductServiceImpl(ProductRepository productRepository, ModelMapper modelMapper, FileService fileService) {
-       this.productRepository = productRepository;
-       this.modelMapper = modelMapper;
-         this.fileService = fileService;
-
-   }
 
    @Override
    public ProductDTO getProductById(int id) {
@@ -47,7 +43,7 @@ public class ProductServiceImpl implements ProductService {
    }
 
    @Override
-   public ProductDTO createProduct(ProductDTO productDTO, MultipartFile file) {
+   public ProductDTO createProduct(MultipartFile file, ProductDTO productDTO) {
 
       Product product = modelMapper.map(productDTO, Product.class);
 
@@ -80,10 +76,11 @@ public class ProductServiceImpl implements ProductService {
       existingProduct.setMinQuantity(productDTO.getMinQuantity());
       existingProduct.setMaxQuantity(productDTO.getMaxQuantity());
 
-      Set<MediaDTO> mediaDTOs = productDTO.getImages();
+      Set<String> mediaDTOs = productDTO.getImages();
       if (mediaDTOs != null && !mediaDTOs.isEmpty()) {
          Set<Media> mediaEntities = mediaDTOs.stream()
-                 .map(mediaDTO -> modelMapper.map(mediaDTO, Media.class))
+                 .map(mediaDTO -> mediaRepository.findByUrl(mediaDTO)
+                         .orElseThrow(() -> new EntityNotFoundException("Media not found with url: " + mediaDTO)))
                  .collect(Collectors.toSet());
          existingProduct.setImages(mediaEntities);
       }
