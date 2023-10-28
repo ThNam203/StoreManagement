@@ -1,15 +1,17 @@
 export type Staff = {
-  id: any;
+  avatar: string;
+  id: string;
   name: string;
-  staffGroup: any;
-  position: string;
-  branch: string;
-  CCCD: string;
-  phoneNumber: string;
-  address: string;
-  sex: string;
   email: string;
+  address: string;
+  phoneNumber: string;
+  note: string;
+  sex: string;
+  CCCD: string;
   birthday: string;
+  createAt: string;
+  branch: string;
+  position: string;
 };
 
 export type StaffGroup = {

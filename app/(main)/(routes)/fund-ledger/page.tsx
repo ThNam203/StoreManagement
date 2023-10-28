@@ -21,7 +21,12 @@ import {
   Transaction,
   TransactionType,
 } from "@/entities/Transaction";
-import { ChoicesFilter } from "@/components/ui/filter";
+import {
+  ChoicesFilter,
+  PageWithFilters,
+  SearchFilter,
+} from "@/components/ui/filter";
+import { Button } from "@/components/ui/button";
 const originalSalesList: Transaction[] = [
   {
     id: nanoid(9).toUpperCase(),
@@ -80,9 +85,7 @@ export default function SalesPage() {
     defaultTransactionTypePosition: [] as number[],
     defaultFormTypePosition: [] as number[],
     defaultStatusPosition: [] as number[],
-    defaultCreatorPosition: [] as number[],
     defaultTargetTypePosition: [] as number[],
-    defaultTargetNamePosition: [] as number[],
   });
 
   // hook use effect
@@ -95,44 +98,56 @@ export default function SalesPage() {
     };
     fetchData();
   }, []);
-  
-  useEffect(() => {
-    const newSaleList: Transaction[] = salesList.filter((row) => {
-      if (
-        filter.transactionType.length > 0 &&
-        !filter.transactionType.includes(row.transactionType.toString())
-      )
-        return false;
-      if (
-        filter.formType.length > 0 &&
-        !filter.formType.includes(row.formType.toString())
-      )
-        return false;
-      if (
-        filter.status.length > 0 &&
-        !filter.status.includes(row.status.toString())
-      )
-        return false;
-      if (
-        filter.creator.length > 0 &&
-        !filter.creator.includes(row.creator.toString())
-      )
-        return false;
-      if (
-        filter.targetType.length > 0 &&
-        !filter.targetType.includes(row.targetType.toString())
-      )
-        return false;
-      if (
-        filter.targetName.length > 0 &&
-        !filter.targetName.includes(row.targetName.toString())
-      )
-        return false;
-      return true;
-    });
-    console.log("new sale list:", newSaleList);
-    setFilterSaleList([...newSaleList]);
-  }, [filter, salesList]);
+
+  // useEffect(() => {
+  //   const newSaleList: Transaction[] = salesList.filter((row) => {
+  //     // const filterKeys = Object.keys(filter);
+  //     // for (let key of filterKeys) {
+  //     //   console.log("key: ", key);
+  //     //   if (
+  //     //     filter[key as keyof typeof filter].length > 0 &&
+  //     //     !filter[key as keyof typeof filter].includes(
+  //     //       row[key as keyof typeof row].toString()
+  //     //     )
+  //     //   )
+  //     //     return false;
+  //     // }
+  //     // return true;
+  //     console.log("here");
+  //     if (
+  //       filter.transactionType.length > 0 &&
+  //       !filter.transactionType.includes(row.transactionType.toString())
+  //     )
+  //       return false;
+  //     if (
+  //       filter.formType.length > 0 &&
+  //       !filter.formType.includes(row.formType.toString())
+  //     )
+  //       return false;
+  //     if (
+  //       filter.status.length > 0 &&
+  //       !filter.status.includes(row.status.toString())
+  //     )
+  //       return false;
+  //     if (
+  //       filter.creator.length > 0 &&
+  //       !filter.creator.includes(row.creator.toString())
+  //     )
+  //       return false;
+  //     if (
+  //       filter.targetType.length > 0 &&
+  //       !filter.targetType.includes(row.targetType.toString())
+  //     )
+  //       return false;
+  //     if (
+  //       filter.targetName.length > 0 &&
+  //       !filter.targetName.includes(row.targetName.toString())
+  //     )
+  //       return false;
+  //     return true;
+  //   });
+  //   // setFilterSaleList([...newSaleList]);
+  // }, [filter, salesList]);
 
   //function
   function handleFormSubmit(values: Transaction) {
@@ -160,7 +175,7 @@ export default function SalesPage() {
     if (values.length > 0) setFilter((prev) => ({ ...prev, status: values }));
     else setFilter((prev) => ({ ...prev, status: Object.values(Status) }));
   };
-  const handleCreatorChange = (position: number[], values: string[]) => {
+  const handleCreatorChange = (values: string[]) => {
     if (values.length > 0) setFilter((prev) => ({ ...prev, creator: values }));
     else
       setFilter((prev) => ({
@@ -174,7 +189,7 @@ export default function SalesPage() {
     else
       setFilter((prev) => ({ ...prev, targetType: Object.values(TargetType) }));
   };
-  const handleTargetNameChange = (position: number[], values: string[]) => {
+  const handleTargetNameChange = (values: string[]) => {
     if (values.length > 0)
       setFilter((prev) => ({ ...prev, targetName: values }));
     else
@@ -184,64 +199,73 @@ export default function SalesPage() {
       }));
   };
 
+  const filters = [
+    <div key={1} className="flex flex-col space-y-2">
+      <ChoicesFilter
+        key={1}
+        title="Transaction Type"
+        choices={Object.values(TransactionType)}
+        isSingleChoice={false}
+        defaultPositions={defaultFilterPosition.defaultTransactionTypePosition}
+        onMultiChoicesChanged={handleTransactionTypeChange}
+      />
+
+      <ChoicesFilter
+        key={2}
+        title="Form Type"
+        choices={Object.values(FormType)}
+        isSingleChoice={false}
+        defaultPositions={defaultFilterPosition.defaultFormTypePosition}
+        onMultiChoicesChanged={handleFormTypeChange}
+      />
+
+      <ChoicesFilter
+        key={3}
+        title="Status"
+        choices={Object.values(Status)}
+        isSingleChoice={false}
+        defaultPositions={defaultFilterPosition.defaultStatusPosition}
+        onMultiChoicesChanged={handleStatusChange}
+      />
+
+      <SearchFilter
+        key={4}
+        choices={salesList.map((row) => row.creator)}
+        title="Creator"
+        placeholder="Select creator"
+        alwaysOpen
+        onValuesChanged={handleCreatorChange}
+      />
+
+      <ChoicesFilter
+        key={5}
+        title="Receiver/Payer Type"
+        choices={Object.values(TargetType)}
+        isSingleChoice={false}
+        defaultPositions={defaultFilterPosition.defaultTargetTypePosition}
+        onMultiChoicesChanged={handleTargetTypeChange}
+      />
+
+      <SearchFilter
+        key={6}
+        title="Receiver/Payer"
+        choices={salesList.map((row) => row.targetName)}
+        placeholder="Select reveiver/payer"
+        alwaysOpen
+        onValuesChanged={handleTargetNameChange}
+      />
+    </div>,
+  ];
+
+  const headerButtons = [<Button key={0}>More+</Button>];
+
   return (
-    <div className="grid grid-cols-6 gap-4">
-      <div className="col-start-1 col-span-5">
-        <div className="w-full p-4 rounded-lg bg-white overflow-hidden">
-          <h2 className="text-start font-semibold text-3xl my-4">
-            Fund Ledger
-          </h2>
-          <DataTable data={filteredSaleList} onSubmit={handleFormSubmit} />
-        </div>
-      </div>
-      <div className="col-start-6 col-span-1">
-        <div className="w-full flex flex-col space-y-4">
-          <ChoicesFilter
-            title="Transaction Type"
-            choices={Object.values(TransactionType)}
-            isSingleChoice={false}
-            defaultPositions={
-              defaultFilterPosition.defaultTransactionTypePosition
-            }
-            onMultiChoicesChanged={handleTransactionTypeChange}
-          />
-          <ChoicesFilter
-            title="Form Type"
-            choices={Object.values(FormType)}
-            isSingleChoice={false}
-            defaultPositions={defaultFilterPosition.defaultFormTypePosition}
-            onMultiChoicesChanged={handleFormTypeChange}
-          />
-          <ChoicesFilter
-            title="Status"
-            choices={Object.values(Status)}
-            isSingleChoice={false}
-            defaultPositions={defaultFilterPosition.defaultStatusPosition}
-            onMultiChoicesChanged={handleStatusChange}
-          />
-          <ChoicesFilter
-            title="Creator"
-            choices={salesList.map((row) => row.creator)}
-            isSingleChoice={false}
-            defaultPositions={defaultFilterPosition.defaultCreatorPosition}
-            onMultiChoicesChanged={handleCreatorChange}
-          />
-          <ChoicesFilter
-            title="Receiver/Payer Type"
-            choices={salesList.map((row) => row.targetType)}
-            isSingleChoice={false}
-            defaultPositions={defaultFilterPosition.defaultTargetTypePosition}
-            onMultiChoicesChanged={handleTargetTypeChange}
-          />
-          <ChoicesFilter
-            title="Receiver/Payer"
-            choices={salesList.map((row) => row.targetName)}
-            isSingleChoice={false}
-            defaultPositions={defaultFilterPosition.defaultTargetNamePosition}
-            onMultiChoicesChanged={handleTargetNameChange}
-          />
-        </div>
-      </div>
-    </div>
+    <PageWithFilters
+      title="Fund Ledger"
+      filters={filters}
+      headerButtons={headerButtons}
+    >
+      <DataTable data={salesList} onSubmit={handleFormSubmit} />
+    </PageWithFilters>
   );
 }
