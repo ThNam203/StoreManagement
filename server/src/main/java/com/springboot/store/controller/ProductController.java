@@ -2,22 +2,17 @@ package com.springboot.store.controller;
 
 import com.springboot.store.entity.Media;
 import com.springboot.store.entity.Product;
-import com.springboot.store.payload.MediaDTO;
 import com.springboot.store.payload.ProductDTO;
-import com.springboot.store.repository.MediaRepository;
 import com.springboot.store.repository.ProductRepository;
 import com.springboot.store.service.FileService;
 import com.springboot.store.service.ProductService;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/api/products")
@@ -49,8 +44,9 @@ public class ProductController {
     }
 
     @PostMapping
-    public ResponseEntity<ProductDTO> createProduct(@RequestPart("data") ProductDTO productDTO,@RequestPart(value = "file",required = false) MultipartFile file) {
-        ProductDTO createdProduct = productService.createProduct(productDTO,file);
+    public ResponseEntity<ProductDTO> createProduct(@RequestPart(value = "file",required = false) MultipartFile file,
+                                                    @RequestPart("data") ProductDTO productDTO) {
+        ProductDTO createdProduct = productService.createProduct(file, productDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdProduct);
     }
 

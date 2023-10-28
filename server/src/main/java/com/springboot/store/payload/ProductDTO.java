@@ -23,7 +23,5 @@ public class ProductDTO {
     private String note;
     private int minQuantity;
     private int maxQuantity;
-    private Set<MediaDTO> images;
-
-
+    private Set<String> images;
 }

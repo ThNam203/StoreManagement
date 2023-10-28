@@ -18,4 +18,9 @@ public class Media {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String url;
+
+    @Override
+    public String toString() {
+        return url;
+    }
 }

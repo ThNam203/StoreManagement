@@ -9,7 +9,7 @@ import java.util.List;
 public interface ProductService {
     ProductDTO getProductById(int id);
     List<ProductDTO> getAllProducts();
-    ProductDTO createProduct(ProductDTO productDTO, MultipartFile file);
+    ProductDTO createProduct(MultipartFile file, ProductDTO productDTO);
     ProductDTO updateProduct(int id,ProductDTO productDTO);
     void deleteProduct(int id);
 }
