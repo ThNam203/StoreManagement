@@ -179,6 +179,48 @@ type FilterTime =
   | FilterQuarter
   | FilterYear;
 
+const TimerFilterRangePicker = ({
+  defaultValue,
+  onValueChange,
+  setIsRangeFilterOpen,
+}: {
+  defaultValue: { startDate: Date; endDate: Date };
+  onValueChange?: (val: { startDate: Date; endDate: Date }) => void;
+  setIsRangeFilterOpen: (val: boolean) => void;
+}) => {
+  const [tempRange, setTempRange] = useState(defaultValue);
+
+  return (
+    <>
+      <DateRangePicker
+        ranges={[{ ...tempRange, key: "selection" }]}
+        onChange={(item) => {
+          if (
+            item.selection.startDate &&
+            item.selection.endDate &&
+            item.selection.key
+          ) {
+            setTempRange({
+              startDate: item.selection.startDate,
+              endDate: item.selection.endDate,
+            });
+          }
+        }}
+      />
+      <Button
+        className="bg-blue-400 hover:bg-blue-500 text-white mt-2"
+        onClick={(e) => {
+          e.stopPropagation();
+          if (onValueChange) onValueChange(tempRange);
+          setIsRangeFilterOpen(false);
+        }}
+      >
+        Done
+      </Button>
+    </>
+  );
+};
+
 const TimeFilter = ({
   title,
   className,
@@ -217,7 +259,7 @@ const TimeFilter = ({
 }) => {
   const [isSingleFilter, setIsSingleFilter] = useState(true);
   const [isRangeFilterOpen, setIsRangeFilterOpen] = useState(false);
-  let tempRange: { startDate: Date; endDate: Date } = defaultRangeTime;
+  let tempRange = defaultRangeTime;
 
   return (
     <Accordion
@@ -379,33 +421,11 @@ const TimeFilter = ({
                   <CalendarDays size={16} />
                 </PopoverTrigger>
                 <PopoverContent className="w-auto -translate-x-4 flex flex-col">
-                  <DateRangePicker
-                    ranges={[{ ...tempRange, key: "selection" }]}
-                    onChange={(item) => {
-                      if (
-                        item.selection.startDate &&
-                        item.selection.endDate &&
-                        item.selection.key
-                      ) {
-                        tempRange = {
-                          startDate: item.selection.startDate,
-                          endDate: item.selection.endDate,
-                        };
-                        setIsSingleFilter(false);
-                      }
-                    }}
+                  <TimerFilterRangePicker
+                    defaultValue={defaultRangeTime}
+                    onValueChange={onRangeTimeFilterChanged}
+                    setIsRangeFilterOpen={setIsRangeFilterOpen}
                   />
-                  <Button
-                    className="bg-blue-400 hover:bg-blue-500 text-white mt-2"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (onRangeTimeFilterChanged)
-                        onRangeTimeFilterChanged(tempRange);
-                      setIsRangeFilterOpen(false);
-                    }}
-                  >
-                    Done
-                  </Button>
                 </PopoverContent>
               </Popover>
             </div>
