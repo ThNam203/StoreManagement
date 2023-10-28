@@ -12,13 +12,19 @@ import { Combobox } from "@/components/ui/combobox";
 import { useEffect, useState } from "react";
 import { DataTable } from "./datatable";
 import { AddCustomerDialog } from "./add_customer_dialog";
-import { Customer, CustomerType, Status } from "@/entities/Customer";
+import { Customer, CustomerType, Sex, Status } from "@/entities/Customer";
 import {
+  ChoicesFilter,
   PageWithFilters,
   RangeFilter,
   SearchFilter,
   TimeFilter,
 } from "@/components/ui/filter";
+import {
+  handleMultipleFilter,
+  handleRangeFilter,
+  handleSingleFilter,
+} from "@/utils";
 
 const originalCustomerList: Customer[] = [
   {
@@ -28,7 +34,7 @@ const originalCustomerList: Customer[] = [
     customerGroup: "",
     phoneNumber: "0123456789",
     address: "222 ABC Street",
-    sex: "male",
+    sex: Sex.MALE,
     email: "david@gmail.com",
     birthday: "1/1/1980",
     creator: "",
@@ -49,7 +55,7 @@ const originalCustomerList: Customer[] = [
     customerGroup: "",
     phoneNumber: "0123456789",
     address: "222 ABC Street",
-    sex: "male",
+    sex: Sex.MALE,
     email: "harry@gmail.com",
     birthday: "1/1/1980",
     creator: "",
@@ -70,7 +76,7 @@ const originalCustomerList: Customer[] = [
     customerGroup: "",
     phoneNumber: "0123456789",
     address: "222 ABC Street",
-    sex: "male",
+    sex: Sex.MALE,
     email: "john@gmail.com",
     birthday: "1/1/1980",
     creator: "",
@@ -88,54 +94,85 @@ const originalCustomerList: Customer[] = [
 
 export default function StaffInfoPage() {
   const [customerList, setCustomerList] = useState<Customer[]>([]);
-  const [filter, setFilter] = useState({
+  const [filteredCustomerList, setFilteredCustomerList] = useState<Customer[]>(
+    []
+  );
+  const [multiFilter, setMultiFilter] = useState({
     customerGroup: [] as string[],
-    createdDate: [] as string[],
-    birthday: [] as string[],
-    lastTransaction: [] as string[],
+    customerType: [] as string[],
     sale: [] as number[],
     debt: [] as number[],
-    customerType: [] as string[],
     sex: [] as string[],
     status: [] as string[],
+  });
+  const [rangeFilter, setRangeFilter] = useState({
+    createdDate: {
+      startDate: new Date(),
+      endDate: new Date(),
+    },
+    birthday: {
+      startDate: new Date(),
+      endDate: new Date(),
+    },
+    lastTransaction: {
+      startDate: new Date(),
+      endDate: new Date(),
+    },
   });
 
   useEffect(() => {
     setCustomerList(originalCustomerList);
   }, []);
 
+  useEffect(() => {
+    var filteredList = [...customerList];
+    filteredList = handleMultipleFilter(multiFilter, filteredList);
+    filteredList = handleRangeFilter(rangeFilter, filteredList);
+
+    setFilteredCustomerList([...filteredList]);
+  }, [multiFilter, rangeFilter, customerList]);
+
   function handleFormSubmit(values: Customer) {
     setCustomerList((prev) => [...prev, values]);
   }
 
-  const updateCustomerGroupFilter = (values: string[]) => {
-    setFilter((prev) => ({ ...prev, customerGroup: values }));
+  const updateCustomerGroupMultiFilter = (values: string[]) => {
+    setMultiFilter((prev) => ({ ...prev, customerGroup: values }));
   };
-  const updateCreatedDateFilter = (values: string[]) => {
-    setFilter((prev) => ({ ...prev, createdDate: values }));
+  const updateCreatedDateRangeFilter = (range: {
+    startDate: Date;
+    endDate: Date;
+  }) => {
+    setRangeFilter((prev) => ({ ...prev, createdDate: range }));
   };
-  const updateBirthdayFilter = (values: string[]) => {
-    setFilter((prev) => ({ ...prev, birthday: values }));
+  const updateBirthdayRangeFilter = (range: {
+    startDate: Date;
+    endDate: Date;
+  }) => {
+    setRangeFilter((prev) => ({ ...prev, birthday: range }));
   };
-  const updateLastTransactionFilter = (values: string[]) => {
-    setFilter((prev) => ({ ...prev, lastTransaction: values }));
+  const updateLastTransactionRangeFilter = (range: {
+    startDate: Date;
+    endDate: Date;
+  }) => {
+    setRangeFilter((prev) => ({ ...prev, lastTransaction: range }));
   };
   const updateSaleFilter = (values: string[]) => {
     const ivalues: number[] = values.map((value) => Number.parseInt(value));
-    setFilter((prev) => ({ ...prev, sale: ivalues }));
+    setMultiFilter((prev) => ({ ...prev, sale: ivalues }));
   };
   const updateDebtFilter = (values: string[]) => {
     const ivalues: number[] = values.map((value) => Number.parseInt(value));
-    setFilter((prev) => ({ ...prev, debt: ivalues }));
+    setMultiFilter((prev) => ({ ...prev, debt: ivalues }));
   };
-  const updateCustomerTypeFilter = (values: string[]) => {
-    setFilter((prev) => ({ ...prev, customerType: values }));
+  const updateCustomerTypeMultiFilter = (values: string[]) => {
+    setMultiFilter((prev) => ({ ...prev, customerType: values }));
   };
-  const updateSexFilter = (values: string[]) => {
-    setFilter((prev) => ({ ...prev, sex: values }));
+  const updateSexMultiFilter = (values: string[]) => {
+    setMultiFilter((prev) => ({ ...prev, sex: values }));
   };
   const updateStatusFilter = (values: string[]) => {
-    setFilter((prev) => ({ ...prev, status: values }));
+    setMultiFilter((prev) => ({ ...prev, status: values }));
   };
 
   const filters = [
@@ -145,23 +182,54 @@ export default function StaffInfoPage() {
         title="Customer Group"
         placeholder="Select customer group"
         choices={Array.from(
-          customerList.map((customer) => customer.customerGroup)
+          new Set(customerList.map((customer) => customer.customerGroup))
         )}
-        chosenValues={filter.customerGroup}
-        alwaysOpen
-        onValuesChanged={updateCustomerGroupFilter}
+        chosenValues={multiFilter.customerGroup}
+        onValuesChanged={updateCustomerGroupMultiFilter}
       />
-      {/* <TimeFilter 
+      <TimeFilter
         key={2}
-        
-      /> */}
-      <RangeFilter key={2} startValue={0} endValue={0} title="Date Modified" />
+        title="Date Modified"
+        usingSingleTime={false}
+        defaultRangeTime={rangeFilter.createdDate}
+        onRangeTimeFilterChanged={updateCreatedDateRangeFilter}
+      />
+      <TimeFilter
+        key={3}
+        title="Birthday"
+        usingSingleTime={false}
+        defaultRangeTime={rangeFilter.birthday}
+        onRangeTimeFilterChanged={updateBirthdayRangeFilter}
+      />
+      <TimeFilter
+        key={4}
+        title="Last Transaction"
+        usingSingleTime={false}
+        defaultRangeTime={rangeFilter.lastTransaction}
+        onRangeTimeFilterChanged={updateLastTransactionRangeFilter}
+      />
+      <ChoicesFilter
+        key={5}
+        title="Customer Type"
+        choices={Object.values(CustomerType)}
+        isSingleChoice={false}
+        defaultValues={multiFilter.customerType}
+        onMultiChoicesChanged={updateCustomerTypeMultiFilter}
+      />
+      <ChoicesFilter
+        key={6}
+        title="Sex"
+        choices={Object.values(Sex)}
+        isSingleChoice={false}
+        defaultValues={multiFilter.sex}
+        onMultiChoicesChanged={updateSexMultiFilter}
+      />
     </div>,
   ];
 
   return (
     <PageWithFilters title="Customer" filters={filters} headerButtons={[]}>
-      <DataTable data={customerList} onSubmit={handleFormSubmit} />
+      <DataTable data={filteredCustomerList} onSubmit={handleFormSubmit} />
     </PageWithFilters>
   );
 }

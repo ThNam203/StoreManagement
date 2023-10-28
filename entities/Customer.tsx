@@ -5,7 +5,7 @@ export type Customer = {
   customerGroup: string;
   phoneNumber: string;
   address: string;
-  sex: string;
+  sex: Sex;
   email: string;
   birthday: string;
   creator: string;
@@ -33,4 +33,8 @@ export enum CustomerType {
 export enum Status {
   WORKING = "Working",
   NOT_WORKING = "Not Working",
+}
+export enum Sex {
+  MALE = "Male",
+  FEMALE = "Female",
 }

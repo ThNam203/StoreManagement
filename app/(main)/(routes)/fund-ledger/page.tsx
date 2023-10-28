@@ -76,9 +76,6 @@ export default function SalesPage() {
     targetType: [] as string[],
     targetName: [] as string[],
   });
-  const [singleFilter, setSingleFilter] = useState({
-    transactionType: "",
-  });
   const [rangeFilter, setRangeFilter] = useState({
     createdDate: {
       startDate: new Date(),
@@ -100,11 +97,10 @@ export default function SalesPage() {
   useEffect(() => {
     var filteredList = [...salesList];
     filteredList = handleMultipleFilter<Transaction>(multiFilter, filteredList);
-    filteredList = handleSingleFilter<Transaction>(singleFilter, filteredList);
     filteredList = handleRangeFilter<Transaction>(rangeFilter, filteredList);
 
     setFilterSaleList([...filteredList]);
-  }, [multiFilter, singleFilter, rangeFilter, salesList]);
+  }, [multiFilter, rangeFilter, salesList]);
 
   //function
   function handleFormSubmit(values: Transaction) {
@@ -116,9 +112,6 @@ export default function SalesPage() {
     endDate: Date;
   }) => {
     setRangeFilter((prev) => ({ ...prev, createdDate: range }));
-  };
-  const updateTransactionTypeSingleFilter = (value: string) => {
-    setSingleFilter((prev) => ({ ...prev, transactionType: value }));
   };
 
   const updateTransactionTypeMultiFilter = (values: string[]) => {
@@ -142,8 +135,15 @@ export default function SalesPage() {
 
   const filters = [
     <div key={1} className="flex flex-col space-y-2">
-      <ChoicesFilter
+      <TimeFilter
         key={1}
+        title="Date Modified"
+        usingSingleTime={false}
+        defaultRangeTime={rangeFilter.createdDate}
+        onRangeTimeFilterChanged={updateCreatedDateRangeFilter}
+      />
+      <ChoicesFilter
+        key={2}
         title="Transaction Type"
         choices={Object.values(TransactionType)}
         isSingleChoice={false}
@@ -152,7 +152,7 @@ export default function SalesPage() {
       />
 
       <ChoicesFilter
-        key={2}
+        key={3}
         title="Form Type"
         choices={Object.values(FormType)}
         isSingleChoice={false}
@@ -161,7 +161,7 @@ export default function SalesPage() {
       />
 
       <ChoicesFilter
-        key={3}
+        key={4}
         title="Status"
         choices={Object.values(Status)}
         isSingleChoice={false}
@@ -170,7 +170,7 @@ export default function SalesPage() {
       />
 
       <SearchFilter
-        key={4}
+        key={5}
         choices={Array.from(new Set(salesList.map((row) => row.creator)))}
         chosenValues={multiFilter.creator}
         title="Creator"
@@ -180,7 +180,7 @@ export default function SalesPage() {
       />
 
       <ChoicesFilter
-        key={5}
+        key={6}
         title="Receiver/Payer Type"
         choices={Object.values(TargetType)}
         isSingleChoice={false}
@@ -189,30 +189,13 @@ export default function SalesPage() {
       />
 
       <SearchFilter
-        key={6}
+        key={7}
         title="Receiver/Payer"
         chosenValues={multiFilter.targetName}
         choices={Array.from(new Set(salesList.map((row) => row.targetName)))}
         placeholder="Select reveiver/payer"
         alwaysOpen
         onValuesChanged={updateTargetNameMultiFilter}
-      />
-
-      <ChoicesFilter
-        key={7}
-        title="Single Transaction Type"
-        choices={Object.values(TransactionType)}
-        isSingleChoice={true}
-        defaultValue={singleFilter.transactionType}
-        onSingleChoiceChanged={updateTransactionTypeSingleFilter}
-      />
-
-      <TimeFilter
-        key={8}
-        title="Date Modified"
-        usingSingleTime={false}
-        defaultRangeTime={rangeFilter.createdDate}
-        onRangeTimeFilterChanged={updateCreatedDateRangeFilter}
       />
     </div>,
   ];

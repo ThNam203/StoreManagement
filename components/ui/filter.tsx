@@ -456,7 +456,7 @@ const SearchFilter = ({
             </p>
           </div>
         </AccordionTrigger>
-        <AccordionContent className="overflow-visible">
+        <AccordionContent className="overflow-hidden">
           <div className="flex flex-col mb-4 relative">
             <Input
               className="w-full focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0"
