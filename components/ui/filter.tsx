@@ -182,7 +182,7 @@ type FilterTime =
 const TimeFilter = ({
   title,
   className,
-  alwaysOpen,
+  alwaysOpen = false,
   defaultSingleTime = FilterYear.AllTime,
   defaultRangeTime = { startDate: new Date(), endDate: new Date() },
   usingSingleTime = true,
@@ -201,16 +201,19 @@ const TimeFilter = ({
   title: string;
   className?: string;
   alwaysOpen?: boolean;
-  defaultSingleTime: FilterTime;
-  defaultRangeTime: { startDate: Date; endDate: Date };
+  defaultSingleTime?: FilterTime;
+  defaultRangeTime?: { startDate: Date; endDate: Date };
   usingSingleTime: boolean;
   filterDay?: FilterDay[];
   filterWeek?: FilterWeek[];
   filterMonth?: FilterMonth[];
   filterQuarter?: FilterQuarter[];
   filterYear?: FilterYear[];
-  onSingleTimeFilterChanged: (filterTime: FilterTime) => void;
-  onRangeTimeFilterChanged: (range: { startDate: Date; endDate: Date }) => void;
+  onSingleTimeFilterChanged?: (filterTime: FilterTime) => void;
+  onRangeTimeFilterChanged?: (range: {
+    startDate: Date;
+    endDate: Date;
+  }) => void;
 }) => {
   const [isSingleFilter, setIsSingleFilter] = useState(true);
   const [isRangeFilterOpen, setIsRangeFilterOpen] = useState(false);
@@ -241,7 +244,8 @@ const TimeFilter = ({
                 onClick={() => {
                   if (isSingleFilter) return;
                   setIsSingleFilter(true);
-                  onSingleTimeFilterChanged(defaultSingleTime);
+                  if (onSingleTimeFilterChanged)
+                    onSingleTimeFilterChanged(defaultSingleTime);
                 }}
               />
               <Label
@@ -263,7 +267,8 @@ const TimeFilter = ({
                           className="mt-5 cursor-pointer"
                           onClick={() => {
                             setIsSingleFilter(true);
-                            onSingleTimeFilterChanged(val);
+                            if (onSingleTimeFilterChanged)
+                              onSingleTimeFilterChanged(val);
                           }}
                           key={idx}
                         >
@@ -280,7 +285,8 @@ const TimeFilter = ({
                           className="mt-5 cursor-pointer"
                           onClick={() => {
                             setIsSingleFilter(true);
-                            onSingleTimeFilterChanged(val);
+                            if (onSingleTimeFilterChanged)
+                              onSingleTimeFilterChanged(val);
                           }}
                           key={idx}
                         >
@@ -297,7 +303,8 @@ const TimeFilter = ({
                           className="mt-5 cursor-pointer"
                           onClick={() => {
                             setIsSingleFilter(true);
-                            onSingleTimeFilterChanged(val);
+                            if (onSingleTimeFilterChanged)
+                              onSingleTimeFilterChanged(val);
                           }}
                           key={idx}
                         >
@@ -314,7 +321,8 @@ const TimeFilter = ({
                           className="mt-5 cursor-pointer"
                           onClick={() => {
                             setIsSingleFilter(true);
-                            onSingleTimeFilterChanged(val);
+                            if (onSingleTimeFilterChanged)
+                              onSingleTimeFilterChanged(val);
                           }}
                           key={idx}
                         >
@@ -331,7 +339,8 @@ const TimeFilter = ({
                           className="mt-5 cursor-pointer"
                           onClick={() => {
                             setIsSingleFilter(true);
-                            onSingleTimeFilterChanged(val);
+                            if (onSingleTimeFilterChanged)
+                              onSingleTimeFilterChanged(val);
                           }}
                           key={idx}
                         >
@@ -350,7 +359,8 @@ const TimeFilter = ({
                 checked={!isSingleFilter}
                 onClick={() => {
                   setIsSingleFilter(false);
-                  onRangeTimeFilterChanged(defaultRangeTime);
+                  if (onRangeTimeFilterChanged)
+                    onRangeTimeFilterChanged(defaultRangeTime);
                 }}
               />
               <Label
@@ -389,7 +399,8 @@ const TimeFilter = ({
                     className="bg-blue-400 hover:bg-blue-500 text-white mt-2"
                     onClick={(e) => {
                       e.stopPropagation();
-                      onRangeTimeFilterChanged(tempRange);
+                      if (onRangeTimeFilterChanged)
+                        onRangeTimeFilterChanged(tempRange);
                       setIsRangeFilterOpen(false);
                     }}
                   >
@@ -541,13 +552,10 @@ const RangeFilter = ({
   className?: string;
   onValuesChanged?: (startValue: number, endValue: number) => void;
 }) => {
-  const [_startValue, setStartValue] = useState(-1);
-  const [_endValue, setEndValue] = useState(-1);
-
   useEffect(() => {
-    if (onValuesChanged) onValuesChanged(_startValue, _endValue);
+    if (onValuesChanged) onValuesChanged(startValue, endValue);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [_startValue, _endValue]);
+  }, [startValue, endValue]);
 
   return (
     <Accordion
@@ -571,7 +579,10 @@ const RangeFilter = ({
               <Input
                 className="w-full focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0"
                 placeholder={firstPlaceholder}
-                onChange={(e) => setStartValue(Number.parseInt(e.target.value))}
+                onChange={(e) => {
+                  if (onValuesChanged)
+                    onValuesChanged(Number.parseInt(e.target.value), endValue);
+                }}
               />
             </div>
             <div className="flex flex-row justify-between items-center space-x-2">
@@ -579,7 +590,13 @@ const RangeFilter = ({
               <Input
                 className="w-full focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0"
                 placeholder={secondPlaceholder}
-                onChange={(e) => setEndValue(Number.parseInt(e.target.value))}
+                onChange={(e) => {
+                  if (onValuesChanged)
+                    onValuesChanged(
+                      startValue,
+                      Number.parseInt(e.target.value)
+                    );
+                }}
               />
             </div>
           </div>

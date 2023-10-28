@@ -7,7 +7,7 @@ export type Transaction = {
   transactionType: TransactionType;
   value: string;
   creator: string;
-  createdDate: string;
+  createdDate: Date;
   status: Status;
   note: string;
 };

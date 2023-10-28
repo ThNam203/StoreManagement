@@ -1,19 +1,16 @@
 "use client";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import { ChevronDown } from "lucide-react";
 import { nanoid } from "nanoid";
 
-import { Combobox } from "@/components/ui/combobox";
 import { useEffect, useState } from "react";
 import { DataTable } from "./datatable";
 
-import { MakeExpenseDialog } from "./make_expense_dialog";
-import { MakeReceiptDialog } from "./make_receipt_dialog";
-import { columnHeader } from "./columns";
+import { Button } from "@/components/ui/button";
+import {
+  ChoicesFilter,
+  PageWithFilters,
+  SearchFilter,
+  TimeFilter,
+} from "@/components/ui/filter";
 import {
   FormType,
   Status,
@@ -22,12 +19,10 @@ import {
   TransactionType,
 } from "@/entities/Transaction";
 import {
-  ChoicesFilter,
-  PageWithFilters,
-  SearchFilter,
-} from "@/components/ui/filter";
-import { Button } from "@/components/ui/button";
-import { filterTable } from "@/utils";
+  handleMultipleFilter,
+  handleRangeFilter,
+  handleSingleFilter,
+} from "@/utils";
 const originalSalesList: Transaction[] = [
   {
     id: nanoid(9).toUpperCase(),
@@ -38,7 +33,7 @@ const originalSalesList: Transaction[] = [
     transactionType: TransactionType.CASH,
     value: "100000",
     creator: "NGUYEN VAN A",
-    createdDate: new Date().toLocaleString(),
+    createdDate: new Date(),
     status: Status.PAID,
     note: "",
   },
@@ -51,7 +46,7 @@ const originalSalesList: Transaction[] = [
     transactionType: TransactionType.TRANSFER,
     value: "200000",
     creator: "NGUYEN VAN B",
-    createdDate: new Date().toLocaleString(),
+    createdDate: new Date(),
     status: Status.CANCELLED,
     note: "",
   },
@@ -64,7 +59,7 @@ const originalSalesList: Transaction[] = [
     transactionType: TransactionType.TRANSFER,
     value: "20000000",
     creator: "NGUYEN VAN C",
-    createdDate: new Date().toLocaleString(),
+    createdDate: new Date(),
     status: Status.PAID,
     note: "",
   },
@@ -73,13 +68,22 @@ const originalSalesList: Transaction[] = [
 export default function SalesPage() {
   const [salesList, setSalesList] = useState<Transaction[]>([]);
   const [filteredSaleList, setFilterSaleList] = useState<Transaction[]>([]);
-  const [filter, setFilter] = useState({
+  const [multiFilter, setMultiFilter] = useState({
     transactionType: [] as string[],
     formType: [] as string[],
     status: [] as string[],
     creator: [] as string[],
     targetType: [] as string[],
     targetName: [] as string[],
+  });
+  const [singleFilter, setSingleFilter] = useState({
+    transactionType: "",
+  });
+  const [rangeFilter, setRangeFilter] = useState({
+    createdDate: {
+      startDate: new Date(),
+      endDate: new Date(),
+    },
   });
 
   // hook use effect
@@ -94,35 +98,46 @@ export default function SalesPage() {
   }, []);
 
   useEffect(() => {
-    const newSaleList: Transaction[] = filterTable<Transaction>(
-      filter,
-      salesList
-    );
-    setFilterSaleList([...newSaleList]);
-  }, [filter, salesList]);
+    var filteredList = [...salesList];
+    filteredList = handleMultipleFilter<Transaction>(multiFilter, filteredList);
+    filteredList = handleSingleFilter<Transaction>(singleFilter, filteredList);
+    filteredList = handleRangeFilter<Transaction>(rangeFilter, filteredList);
+
+    setFilterSaleList([...filteredList]);
+  }, [multiFilter, singleFilter, rangeFilter, salesList]);
 
   //function
   function handleFormSubmit(values: Transaction) {
     setSalesList((prev) => [...prev, values]);
   }
 
-  const updateTransactionTypeFilter = (values: string[]) => {
-    setFilter((prev) => ({ ...prev, transactionType: values }));
+  const updateCreatedDateRangeFilter = (range: {
+    startDate: Date;
+    endDate: Date;
+  }) => {
+    setRangeFilter((prev) => ({ ...prev, createdDate: range }));
   };
-  const updateFormTypeFilter = (values: string[]) => {
-    setFilter((prev) => ({ ...prev, formType: values }));
+  const updateTransactionTypeSingleFilter = (value: string) => {
+    setSingleFilter((prev) => ({ ...prev, transactionType: value }));
   };
-  const updateStatusFilter = (values: string[]) => {
-    setFilter((prev) => ({ ...prev, status: values }));
+
+  const updateTransactionTypeMultiFilter = (values: string[]) => {
+    setMultiFilter((prev) => ({ ...prev, transactionType: values }));
   };
-  const updateCreatorFilter = (values: string[]) => {
-    setFilter((prev) => ({ ...prev, creator: values }));
+  const updateFormTypeMultiFilter = (values: string[]) => {
+    setMultiFilter((prev) => ({ ...prev, formType: values }));
   };
-  const updateTargetTypeFilter = (values: string[]) => {
-    setFilter((prev) => ({ ...prev, targetType: values }));
+  const updateStatusMultiFilter = (values: string[]) => {
+    setMultiFilter((prev) => ({ ...prev, status: values }));
   };
-  const updateTargetNameFilter = (values: string[]) => {
-    setFilter((prev) => ({ ...prev, targetName: values }));
+  const updateCreatorMultiFilter = (values: string[]) => {
+    setMultiFilter((prev) => ({ ...prev, creator: values }));
+  };
+  const updateTargetTypeMultiFilter = (values: string[]) => {
+    setMultiFilter((prev) => ({ ...prev, targetType: values }));
+  };
+  const updateTargetNameMultiFilter = (values: string[]) => {
+    setMultiFilter((prev) => ({ ...prev, targetName: values }));
   };
 
   const filters = [
@@ -132,8 +147,8 @@ export default function SalesPage() {
         title="Transaction Type"
         choices={Object.values(TransactionType)}
         isSingleChoice={false}
-        defaultValues={filter.transactionType}
-        onMultiChoicesChanged={updateTransactionTypeFilter}
+        defaultValues={multiFilter.transactionType}
+        onMultiChoicesChanged={updateTransactionTypeMultiFilter}
       />
 
       <ChoicesFilter
@@ -141,8 +156,8 @@ export default function SalesPage() {
         title="Form Type"
         choices={Object.values(FormType)}
         isSingleChoice={false}
-        defaultValues={filter.formType}
-        onMultiChoicesChanged={updateFormTypeFilter}
+        defaultValues={multiFilter.formType}
+        onMultiChoicesChanged={updateFormTypeMultiFilter}
       />
 
       <ChoicesFilter
@@ -150,18 +165,18 @@ export default function SalesPage() {
         title="Status"
         choices={Object.values(Status)}
         isSingleChoice={false}
-        defaultValues={filter.status}
-        onMultiChoicesChanged={updateStatusFilter}
+        defaultValues={multiFilter.status}
+        onMultiChoicesChanged={updateStatusMultiFilter}
       />
 
       <SearchFilter
         key={4}
         choices={Array.from(new Set(salesList.map((row) => row.creator)))}
-        chosenValues={filter.creator}
+        chosenValues={multiFilter.creator}
         title="Creator"
         placeholder="Select creator"
         alwaysOpen
-        onValuesChanged={updateCreatorFilter}
+        onValuesChanged={updateCreatorMultiFilter}
       />
 
       <ChoicesFilter
@@ -169,18 +184,35 @@ export default function SalesPage() {
         title="Receiver/Payer Type"
         choices={Object.values(TargetType)}
         isSingleChoice={false}
-        defaultValues={filter.targetType}
-        onMultiChoicesChanged={updateTargetTypeFilter}
+        defaultValues={multiFilter.targetType}
+        onMultiChoicesChanged={updateTargetTypeMultiFilter}
       />
 
       <SearchFilter
         key={6}
         title="Receiver/Payer"
-        chosenValues={filter.targetName}
+        chosenValues={multiFilter.targetName}
         choices={Array.from(new Set(salesList.map((row) => row.targetName)))}
         placeholder="Select reveiver/payer"
         alwaysOpen
-        onValuesChanged={updateTargetNameFilter}
+        onValuesChanged={updateTargetNameMultiFilter}
+      />
+
+      <ChoicesFilter
+        key={7}
+        title="Single Transaction Type"
+        choices={Object.values(TransactionType)}
+        isSingleChoice={true}
+        defaultValue={singleFilter.transactionType}
+        onSingleChoiceChanged={updateTransactionTypeSingleFilter}
+      />
+
+      <TimeFilter
+        key={8}
+        title="Date Modified"
+        usingSingleTime={false}
+        defaultRangeTime={rangeFilter.createdDate}
+        onRangeTimeFilterChanged={updateCreatedDateRangeFilter}
       />
     </div>,
   ];
