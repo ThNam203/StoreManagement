@@ -5,15 +5,15 @@ export type Customer = {
   customerGroup: string;
   phoneNumber: string;
   address: string;
-  sex: string;
+  sex: Sex;
   email: string;
-  birthday: string;
+  birthday: Date;
   creator: string;
-  createdDate: string;
+  createdDate: Date;
   company: string;
   taxId: string;
   note: string;
-  lastTransaction: string;
+  lastTransaction: Date;
   debt: number;
   sale: number;
   finalSale: number;
@@ -33,4 +33,8 @@ export enum CustomerType {
 export enum Status {
   WORKING = "Working",
   NOT_WORKING = "Not Working",
+}
+export enum Sex {
+  MALE = "Male",
+  FEMALE = "Female",
 }

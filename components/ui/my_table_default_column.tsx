@@ -9,8 +9,9 @@ import {
 } from "./dropdown-menu";
 import { MoreHorizontal } from "lucide-react";
 import { Button } from "./button";
+import { ReactNode } from "react";
 
-export function defaultColumn<T>(
+function defaultColumn<T>(
   accessorKey: string,
   columnHeader: object,
   disableSorting: boolean = false
@@ -23,12 +24,18 @@ export function defaultColumn<T>(
         title={columnHeader[accessorKey as keyof typeof columnHeader]}
       />
     ),
-    cell: ({ row }) => <div>{row.getValue(accessorKey)}</div>,
+    cell: ({ row }) => {
+      const value: ReactNode = row.getValue(accessorKey);
+      const formatedValue: ReactNode =
+        value instanceof Date ? value.toLocaleString() : value;
+
+      return <div>{formatedValue}</div>;
+    },
   };
   return col;
 }
 
-export function getColumns<T>(columnHeader: object): ColumnDef<T>[] {
+function getColumns<T>(columnHeader: object): ColumnDef<T>[] {
   const columns: ColumnDef<T>[] = [
     {
       id: "select",
@@ -89,3 +96,5 @@ export function getColumns<T>(columnHeader: object): ColumnDef<T>[] {
   columns.push(lastCol);
   return columns;
 }
+
+export { defaultColumn, getColumns };

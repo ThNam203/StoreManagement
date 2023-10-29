@@ -33,7 +33,7 @@ interface DataTableProps<TData, TValue> {
   table: ReactTable<TData>;
 }
 
-export function DataTableContent<TData, TValue>({
+function DataTableContent<TData, TValue>({
   columns,
   data,
   table,
@@ -94,3 +94,5 @@ export function DataTableContent<TData, TValue>({
     </div>
   );
 }
+
+export { DataTableContent };

@@ -67,10 +67,7 @@ const ChoicesFilter = ({
       if (removePos != -1) defaultValues.splice(removePos, 1);
     }
 
-    if (onMultiChoicesChanged)
-      onMultiChoicesChanged(
-        defaultValues
-      );
+    if (onMultiChoicesChanged) onMultiChoicesChanged(defaultValues);
   };
 
   return (
@@ -104,8 +101,7 @@ const ChoicesFilter = ({
               className="gap-3 pb-2"
               defaultValue={defaultValue}
               onValueChange={(val) => {
-                if (onSingleChoiceChanged)
-                  onSingleChoiceChanged(val);
+                if (onSingleChoiceChanged) onSingleChoiceChanged(val);
               }}
             >
               {choices.map((choice, index) => (
@@ -176,17 +172,59 @@ enum FilterYear {
   AllTime = "All time",
 }
 
-type FilterTime =
+export type FilterTime =
   | FilterDay
   | FilterWeek
   | FilterMonth
   | FilterQuarter
   | FilterYear;
 
+const TimerFilterRangePicker = ({
+  defaultValue,
+  onValueChange,
+  setIsRangeFilterOpen,
+}: {
+  defaultValue: { startDate: Date; endDate: Date };
+  onValueChange?: (val: { startDate: Date; endDate: Date }) => void;
+  setIsRangeFilterOpen: (val: boolean) => void;
+}) => {
+  const [tempRange, setTempRange] = useState(defaultValue);
+
+  return (
+    <>
+      <DateRangePicker
+        ranges={[{ ...tempRange, key: "selection" }]}
+        onChange={(item) => {
+          if (
+            item.selection.startDate &&
+            item.selection.endDate &&
+            item.selection.key
+          ) {
+            setTempRange({
+              startDate: item.selection.startDate,
+              endDate: item.selection.endDate,
+            });
+          }
+        }}
+      />
+      <Button
+        className="bg-blue-400 hover:bg-blue-500 text-white mt-2"
+        onClick={(e) => {
+          e.stopPropagation();
+          if (onValueChange) onValueChange(tempRange);
+          setIsRangeFilterOpen(false);
+        }}
+      >
+        Done
+      </Button>
+    </>
+  );
+};
+
 const TimeFilter = ({
   title,
   className,
-  alwaysOpen,
+  alwaysOpen = false,
   defaultSingleTime = FilterYear.AllTime,
   defaultRangeTime = { startDate: new Date(), endDate: new Date() },
   usingSingleTime = true,
@@ -205,20 +243,23 @@ const TimeFilter = ({
   title: string;
   className?: string;
   alwaysOpen?: boolean;
-  defaultSingleTime: FilterTime;
-  defaultRangeTime: { startDate: Date; endDate: Date };
+  defaultSingleTime?: FilterTime;
+  defaultRangeTime?: { startDate: Date; endDate: Date };
   usingSingleTime: boolean;
   filterDay?: FilterDay[];
   filterWeek?: FilterWeek[];
   filterMonth?: FilterMonth[];
   filterQuarter?: FilterQuarter[];
   filterYear?: FilterYear[];
-  onSingleTimeFilterChanged: (filterTime: FilterTime) => void;
-  onRangeTimeFilterChanged: (range: { startDate: Date; endDate: Date }) => void;
+  onSingleTimeFilterChanged?: (filterTime: FilterTime) => void;
+  onRangeTimeFilterChanged?: (range: {
+    startDate: Date;
+    endDate: Date;
+  }) => void;
 }) => {
   const [isSingleFilter, setIsSingleFilter] = useState(true);
   const [isRangeFilterOpen, setIsRangeFilterOpen] = useState(false);
-  let tempRange: { startDate: Date; endDate: Date } = defaultRangeTime;
+  let tempRange = defaultRangeTime;
 
   return (
     <Accordion
@@ -245,7 +286,8 @@ const TimeFilter = ({
                 onClick={() => {
                   if (isSingleFilter) return;
                   setIsSingleFilter(true);
-                  onSingleTimeFilterChanged(defaultSingleTime);
+                  if (onSingleTimeFilterChanged)
+                    onSingleTimeFilterChanged(defaultSingleTime);
                 }}
               />
               <Label
@@ -267,7 +309,8 @@ const TimeFilter = ({
                           className="mt-5 cursor-pointer"
                           onClick={() => {
                             setIsSingleFilter(true);
-                            onSingleTimeFilterChanged(val);
+                            if (onSingleTimeFilterChanged)
+                              onSingleTimeFilterChanged(val);
                           }}
                           key={idx}
                         >
@@ -284,7 +327,8 @@ const TimeFilter = ({
                           className="mt-5 cursor-pointer"
                           onClick={() => {
                             setIsSingleFilter(true);
-                            onSingleTimeFilterChanged(val);
+                            if (onSingleTimeFilterChanged)
+                              onSingleTimeFilterChanged(val);
                           }}
                           key={idx}
                         >
@@ -301,7 +345,8 @@ const TimeFilter = ({
                           className="mt-5 cursor-pointer"
                           onClick={() => {
                             setIsSingleFilter(true);
-                            onSingleTimeFilterChanged(val);
+                            if (onSingleTimeFilterChanged)
+                              onSingleTimeFilterChanged(val);
                           }}
                           key={idx}
                         >
@@ -318,7 +363,8 @@ const TimeFilter = ({
                           className="mt-5 cursor-pointer"
                           onClick={() => {
                             setIsSingleFilter(true);
-                            onSingleTimeFilterChanged(val);
+                            if (onSingleTimeFilterChanged)
+                              onSingleTimeFilterChanged(val);
                           }}
                           key={idx}
                         >
@@ -335,7 +381,8 @@ const TimeFilter = ({
                           className="mt-5 cursor-pointer"
                           onClick={() => {
                             setIsSingleFilter(true);
-                            onSingleTimeFilterChanged(val);
+                            if (onSingleTimeFilterChanged)
+                              onSingleTimeFilterChanged(val);
                           }}
                           key={idx}
                         >
@@ -354,7 +401,8 @@ const TimeFilter = ({
                 checked={!isSingleFilter}
                 onClick={() => {
                   setIsSingleFilter(false);
-                  onRangeTimeFilterChanged(defaultRangeTime);
+                  if (onRangeTimeFilterChanged)
+                    onRangeTimeFilterChanged(defaultRangeTime);
                 }}
               />
               <Label
@@ -373,32 +421,11 @@ const TimeFilter = ({
                   <CalendarDays size={16} />
                 </PopoverTrigger>
                 <PopoverContent className="w-auto -translate-x-4 flex flex-col">
-                  <DateRangePicker
-                    ranges={[{ ...tempRange, key: "selection" }]}
-                    onChange={(item) => {
-                      if (
-                        item.selection.startDate &&
-                        item.selection.endDate &&
-                        item.selection.key
-                      ) {
-                        tempRange = {
-                          startDate: item.selection.startDate,
-                          endDate: item.selection.endDate,
-                        };
-                        setIsSingleFilter(false);
-                      }
-                    }}
+                  <TimerFilterRangePicker
+                    defaultValue={defaultRangeTime}
+                    onValueChange={onRangeTimeFilterChanged}
+                    setIsRangeFilterOpen={setIsRangeFilterOpen}
                   />
-                  <Button
-                    className="bg-blue-400 hover:bg-blue-500 text-white mt-2"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onRangeTimeFilterChanged(tempRange);
-                      setIsRangeFilterOpen(false);
-                    }}
-                  >
-                    Done
-                  </Button>
                 </PopoverContent>
               </Popover>
             </div>
@@ -449,7 +476,7 @@ const SearchFilter = ({
             </p>
           </div>
         </AccordionTrigger>
-        <AccordionContent className="overflow-visible">
+        <AccordionContent className="overflow-hidden">
           <div className="flex flex-col mb-4 relative">
             <Input
               className="w-full focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0"
@@ -516,6 +543,83 @@ const SearchFilter = ({
               />
             </div>
           ))}
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
+  );
+};
+
+const RangeFilter = ({
+  title,
+  firstLabel = "From",
+  firstPlaceholder = "Start value",
+  secondLabel = "To",
+  secondPlaceholder = "End value",
+  alwaysOpen,
+  startValue,
+  endValue,
+  className,
+  onValuesChanged,
+}: {
+  title: string;
+  firstPlaceholder?: string;
+  firstLabel?: string;
+  secondPlaceholder?: string;
+  secondLabel?: string;
+  alwaysOpen?: boolean;
+  startValue: number;
+  endValue: number;
+  className?: string;
+  onValuesChanged?: (startValue: number, endValue: number) => void;
+}) => {
+  useEffect(() => {
+    if (onValuesChanged) onValuesChanged(startValue, endValue);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [startValue, endValue]);
+
+  return (
+    <Accordion
+      type="single"
+      collapsible={!alwaysOpen}
+      defaultValue="item-1"
+      className={cn("w-full bg-white rounded-md px-4", className)}
+    >
+      <AccordionItem value="item-1">
+        <AccordionTrigger showArrowFunc={alwaysOpen ? "hidden" : ""}>
+          <div className="flex flex-row items-center w-full">
+            <p className="text-[0.8rem] leading-4 font-bold text-start flex-1">
+              {title}
+            </p>
+          </div>
+        </AccordionTrigger>
+        <AccordionContent className="overflow-hidden">
+          <div className="flex flex-col mb-4 relative space-y-2">
+            <div className="flex flex-row justify-between items-center space-x-2">
+              <Label className="w-[50px]">{firstLabel}</Label>
+              <Input
+                className="w-full focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0"
+                placeholder={firstPlaceholder}
+                onChange={(e) => {
+                  if (onValuesChanged)
+                    onValuesChanged(Number.parseInt(e.target.value), endValue);
+                }}
+              />
+            </div>
+            <div className="flex flex-row justify-between items-center space-x-2">
+              <Label className="w-[50px]">{secondLabel}</Label>
+              <Input
+                className="w-full focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0"
+                placeholder={secondPlaceholder}
+                onChange={(e) => {
+                  if (onValuesChanged)
+                    onValuesChanged(
+                      startValue,
+                      Number.parseInt(e.target.value)
+                    );
+                }}
+              />
+            </div>
+          </div>
         </AccordionContent>
       </AccordionItem>
     </Accordion>
@@ -600,6 +704,7 @@ export {
   ChoicesFilter,
   TimeFilter,
   SearchFilter,
+  RangeFilter,
   PageWithFilters,
   FilterDay,
   FilterMonth,
