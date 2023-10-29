@@ -20,12 +20,11 @@ public class ProductController {
 
     private final ProductRepository productRepository;
     private final ProductService productService;
-    private final FileService fileService ;
-
+    private final FileService fileService;
 
 
     @Autowired
-    public ProductController(ProductService productService, FileService fileService, ProductRepository productRepository ) {
+    public ProductController(ProductService productService, FileService fileService, ProductRepository productRepository) {
         this.productService = productService;
         this.fileService = fileService;
         this.productRepository = productRepository;
@@ -44,7 +43,7 @@ public class ProductController {
     }
 
     @PostMapping
-    public ResponseEntity<ProductDTO> createProduct(@RequestPart(value = "file",required = false) MultipartFile file,
+    public ResponseEntity<ProductDTO> createProduct(@RequestPart(value = "file", required = false) MultipartFile file,
                                                     @RequestPart("data") ProductDTO productDTO) {
         ProductDTO createdProduct = productService.createProduct(file, productDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdProduct);
@@ -64,7 +63,7 @@ public class ProductController {
 
 
     @PostMapping("/{productId}/uploadFile")
-    public ResponseEntity<String> uploadFile(@RequestParam(value="file") MultipartFile file, @PathVariable int productId) {
+    public ResponseEntity<String> uploadFile(@RequestParam(value = "file") MultipartFile file, @PathVariable int productId) {
         String url = fileService.uploadFile(file);
         Media media = Media.builder().url(url).build();
         Product product = productRepository.findById(productId).orElse(null);

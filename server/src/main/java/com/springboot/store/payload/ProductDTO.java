@@ -1,5 +1,6 @@
 package com.springboot.store.payload;
 
+import com.springboot.store.entity.SalesUnits;
 import lombok.*;
 
 import java.util.Set;
@@ -14,14 +15,17 @@ public class ProductDTO {
     private int id;
     private String name;
     private String barcode;
+    private String property;
     private String location;
     private int originalPrice;
-    private int sellingPrice;
     private int quantity;
     private String status;
     private String description;
     private String note;
-    private int minQuantity;
-    private int maxQuantity;
+    private int minStock;
+    private int maxStock;
+
+    private Set<SalesUnits> salesUnits;
     private Set<String> images;
+
 }
