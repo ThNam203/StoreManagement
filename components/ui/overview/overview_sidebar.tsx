@@ -150,13 +150,19 @@ const LucideIcons = (iconName: IconNames, isCollapsed: boolean | null) => {
   }
 };
 
-const SideBarButton = (
-  iconName: IconNames,
-  title: string,
-  className: string = "",
-  isCollapsed: boolean | null,
-  href: string
-) => {
+const SideBarButton = ({
+  iconName,
+  title,
+  className,
+  isCollapsed,
+  href,
+}: {
+  iconName: IconNames;
+  title: string;
+  className: string;
+  isCollapsed: boolean | null;
+  href: string;
+}) => {
   const icon = LucideIcons(iconName, isCollapsed);
 
   return (
@@ -193,12 +199,17 @@ const SideBarButton = (
   );
 };
 
-const SideBarAccordion = (
-  iconName: IconNames,
-  title: string,
-  buttons: JSX.Element[],
-  isCollapsed: boolean | null
-) => {
+const SideBarAccordion = ({
+  iconName,
+  title,
+  buttons,
+  isCollapsed,
+}: {
+  iconName: IconNames;
+  title: string;
+  buttons: JSX.Element[];
+  isCollapsed: boolean | null;
+}) => {
   return (
     <Accordion
       type="single"
@@ -346,173 +357,197 @@ const SideBar = ({
               </div>
             </AccordionTrigger>
             <AccordionContent>
-              {SideBarButton(
-                IconNames.UserCog,
-                "Edit Profile",
-                "w-full",
-                isCollapsed,
-                "/profile"
-              )}
-              {SideBarButton(
-                IconNames.LogOut,
-                "Logout",
-                "w-full",
-                isCollapsed,
-                "/logout"
-              )}
+              <SideBarButton
+                iconName={IconNames.UserCog}
+                title="Edit Profile"
+                className="!w-full"
+                isCollapsed={isCollapsed}
+                href="/profile"
+              />
+              <SideBarButton
+                iconName={IconNames.LogOut}
+                title="Logout"
+                className="!w-full"
+                isCollapsed={isCollapsed}
+                href="/logout"
+              />
             </AccordionContent>
           </AccordionItem>
         </Accordion>
 
-        {SideBarButton(IconNames.Eye, "Overview", "", isCollapsed, "/overview")}
+        <SideBarButton
+          iconName={IconNames.Eye}
+          title="Overview"
+          className=""
+          isCollapsed={isCollapsed}
+          href="/overview"
+        />
 
-        {SideBarAccordion(
-          IconNames.Box,
-          "Products",
-          [
-            SideBarButton(
-              IconNames.Group,
-              "Catalog",
-              "!w-full",
-              isCollapsed,
-              "/catalog"
-            ),
-            SideBarButton(
-              IconNames.Wrench,
-              "Price Setting",
-              "!w-full",
-              isCollapsed,
-              "/product-price"
-            ),
-            SideBarButton(
-              IconNames.PenSquare,
-              "Stock Check",
-              "!w-full",
-              isCollapsed,
-              "/stock-check"
-            ),
-          ],
-          isCollapsed
-        )}
+        <SideBarAccordion
+          iconName={IconNames.Box}
+          title="Products"
+          buttons={[
+            <SideBarButton
+              key={1}
+              iconName={IconNames.Group}
+              title="Catalog"
+              className="!w-full"
+              isCollapsed={isCollapsed}
+              href="/catalog"
+            />,
+            <SideBarButton
+              key={2}
+              iconName={IconNames.Wrench}
+              title="Price Setting"
+              className="!w-full"
+              isCollapsed={isCollapsed}
+              href="/product-price"
+            />,
+            <SideBarButton
+              key={3}
+              iconName={IconNames.PenSquare}
+              title="Stock Check"
+              className="!w-full"
+              isCollapsed={isCollapsed}
+              href="/stock-check"
+            />,
+          ]}
+          isCollapsed={isCollapsed}
+        />
 
-        {SideBarAccordion(
-          IconNames.Receipt,
-          "Transaction",
-          [
-            SideBarButton(
-              IconNames.Receipt,
-              "Invoices",
-              "!w-full",
-              isCollapsed,
-              "/invoices"
-            ),
-            SideBarButton(
-              IconNames.Undo,
-              "Return",
-              "!w-full",
-              isCollapsed,
-              "/returns"
-            ),
-            SideBarButton(
-              IconNames.BaggageClaim,
-              "Purchase Orders",
-              "!w-full",
-              isCollapsed,
-              "/purchase-orders"
-            ),
-            SideBarButton(
-              IconNames.ArrowUpSquare,
-              "Purchase Returns",
-              "!w-full",
-              isCollapsed,
-              "/purchase-returns"
-            ),
-            SideBarButton(
-              IconNames.PackageX,
-              "Damaged items",
-              "!w-full",
-              isCollapsed,
-              "/damaged-products"
-            ),
-          ],
-          isCollapsed
-        )}
+        <SideBarAccordion
+          iconName={IconNames.Receipt}
+          title="Transaction"
+          buttons={[
+            <SideBarButton
+              key={1}
+              iconName={IconNames.Receipt}
+              title="Invoices"
+              className="!w-full"
+              isCollapsed={isCollapsed}
+              href="/invoices"
+            />,
+            <SideBarButton
+              key={2}
+              iconName={IconNames.Undo}
+              title="Return"
+              className="!w-full"
+              isCollapsed={isCollapsed}
+              href="/returns"
+            />,
+            <SideBarButton
+              key={3}
+              iconName={IconNames.BaggageClaim}
+              title="Purchase Orders"
+              className="!w-full"
+              isCollapsed={isCollapsed}
+              href="/purchase-orders"
+            />,
+            <SideBarButton
+              key={4}
+              iconName={IconNames.ArrowUpSquare}
+              title="Purchase Returns"
+              className="!w-full"
+              isCollapsed={isCollapsed}
+              href="/purchase-returns"
+            />,
+            <SideBarButton
+              key={5}
+              iconName={IconNames.PackageX}
+              title="Damaged items"
+              className="!w-full"
+              isCollapsed={isCollapsed}
+              href="/damaged-products"
+            />,
+          ]}
+          isCollapsed={isCollapsed}
+        />
 
-        {SideBarAccordion(
-          IconNames.Users,
-          "Partners",
-          [
-            // SideBarButton("User2", "Customer group", "!w-full", isCollapsed, "/partner/customer_group"),
-            SideBarButton(
-              IconNames.User,
-              "Customers",
-              "!w-full",
-              isCollapsed,
-              "/partner/customer"
-            ),
-            SideBarButton(
-              IconNames.Truck,
-              "Supplier",
-              "!w-full",
-              isCollapsed,
-              "/partner/supplier"
-            ),
-          ],
-          isCollapsed
-        )}
+        <SideBarAccordion
+          iconName={IconNames.Users}
+          title="Partners"
+          buttons={[
+            // SideBarButton("User2", "Customer group", "!w-full", isCollapsed={isCollapsed}, "/partner/customer_group"),
+            <SideBarButton
+              key={1}
+              iconName={IconNames.User}
+              title="Customers"
+              className="!w-full"
+              isCollapsed={isCollapsed}
+              href="/partner/customer"
+            />,
+            <SideBarButton
+              key={2}
+              iconName={IconNames.Truck}
+              title="Supplier"
+              className="!w-full"
+              isCollapsed={isCollapsed}
+              href="/partner/supplier"
+            />,
+          ]}
+          isCollapsed={isCollapsed}
+        />
 
-        {/* {SideBarButton("Package", "Warehouse", "", isCollapsed, "")} */}
-        {SideBarButton(
-          IconNames.BarChart3,
-          "Reports",
-          "",
-          isCollapsed,
-          "/reports"
-        )}
+        {/* {SideBarButton("Package", "Warehouse", "", isCollapsed={isCollapsed}, "")} */}
+        {
+          <SideBarButton
+            key={1}
+            iconName={IconNames.BarChart3}
+            title="Reports"
+            className=""
+            isCollapsed={isCollapsed}
+            href="/reports"
+          />
+        }
 
-        {SideBarAccordion(
-          IconNames.Contact,
-          "Staff",
-          [
-            SideBarButton(
-              IconNames.UserCog,
-              "Staff Group",
-              "!w-full",
-              isCollapsed,
-              "/staff/staff-group"
-            ),
-            SideBarButton(
-              IconNames.MenuSquare,
-              "Staff Account",
-              "!w-full",
-              isCollapsed,
-              "/staff/staff-account"
-            ),
-            SideBarButton(
-              IconNames.Wrench,
-              "Role Setting",
-              "!w-full",
-              isCollapsed,
-              "/staff/staff-role"
-            ),
-            SideBarButton(
-              IconNames.CalendarRange,
-              "Work Manage",
-              "!w-full",
-              isCollapsed,
-              "/"
-            ),
-          ],
-          isCollapsed
-        )}
+        <SideBarAccordion
+          iconName={IconNames.Contact}
+          title="Staff"
+          buttons={[
+            <SideBarButton
+              key={1}
+              iconName={IconNames.UserCog}
+              title="Staff Group"
+              className="!w-full"
+              isCollapsed={isCollapsed}
+              href="/staff/staff-group"
+            />,
+            <SideBarButton
+              key={2}
+              iconName={IconNames.MenuSquare}
+              title="Staff Account"
+              className="!w-full"
+              isCollapsed={isCollapsed}
+              href="/staff/staff-account"
+            />,
+            <SideBarButton
+              key={3}
+              iconName={IconNames.Wrench}
+              title="Role Setting"
+              className="!w-full"
+              isCollapsed={isCollapsed}
+              href="/staff/staff-role"
+            />,
+            <SideBarButton
+              key={4}
+              iconName={IconNames.CalendarRange}
+              title="Work Manage"
+              className="!w-full"
+              isCollapsed={isCollapsed}
+              href="/"
+            />,
+          ]}
+          isCollapsed={isCollapsed}
+        />
 
-        {SideBarButton(
-          IconNames.Settings,
-          "Settings",
-          "",
-          isCollapsed,
-          "/settings"
-        )}
+        <SideBarButton
+          key={1}
+          iconName={IconNames.Settings}
+          title="Settings"
+          className=""
+          isCollapsed={isCollapsed}
+          href="/settings"
+        />
       </div>
     </div>
   );

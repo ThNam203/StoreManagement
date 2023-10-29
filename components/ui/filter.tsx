@@ -225,9 +225,8 @@ const TimeFilter = ({
   title,
   className,
   alwaysOpen = false,
-  defaultSingleTime = FilterYear.AllTime,
-  defaultRangeTime = { startDate: new Date(), endDate: new Date() },
-  usingSingleTime = true,
+  singleTimeValue = FilterYear.AllTime,
+  rangeTimeValue = { startDate: new Date(), endDate: new Date() },
   filterDay = [FilterDay.Today, FilterDay.LastDay],
   filterWeek = [FilterWeek.ThisWeek, FilterWeek.LastWeek, FilterWeek.Last7Days],
   filterMonth = [
@@ -243,9 +242,8 @@ const TimeFilter = ({
   title: string;
   className?: string;
   alwaysOpen?: boolean;
-  defaultSingleTime?: FilterTime;
-  defaultRangeTime?: { startDate: Date; endDate: Date };
-  usingSingleTime: boolean;
+  singleTimeValue?: FilterTime;
+  rangeTimeValue?: { startDate: Date; endDate: Date };
   filterDay?: FilterDay[];
   filterWeek?: FilterWeek[];
   filterMonth?: FilterMonth[];
@@ -259,7 +257,6 @@ const TimeFilter = ({
 }) => {
   const [isSingleFilter, setIsSingleFilter] = useState(true);
   const [isRangeFilterOpen, setIsRangeFilterOpen] = useState(false);
-  let tempRange = defaultRangeTime;
 
   return (
     <Accordion
@@ -287,14 +284,14 @@ const TimeFilter = ({
                   if (isSingleFilter) return;
                   setIsSingleFilter(true);
                   if (onSingleTimeFilterChanged)
-                    onSingleTimeFilterChanged(defaultSingleTime);
+                    onSingleTimeFilterChanged(singleTimeValue);
                 }}
               />
               <Label
                 htmlFor={title + "1"}
                 className="text-[0.8rem] flex-1 hover:cursor-pointer font-normal"
               >
-                {defaultSingleTime}
+                {singleTimeValue}
               </Label>
               <Popover>
                 <PopoverTrigger>
@@ -402,16 +399,16 @@ const TimeFilter = ({
                 onClick={() => {
                   setIsSingleFilter(false);
                   if (onRangeTimeFilterChanged)
-                    onRangeTimeFilterChanged(defaultRangeTime);
+                    onRangeTimeFilterChanged(rangeTimeValue);
                 }}
               />
               <Label
                 htmlFor={title + "2"}
                 className="text-[0.8rem] flex-1 hover:cursor-pointer font-normal"
               >
-                {format(defaultRangeTime.startDate, "dd/MM/yyyy") +
+                {format(rangeTimeValue.startDate, "dd/MM/yyyy") +
                   " - " +
-                  format(defaultRangeTime.endDate, "dd/MM/yyyy")}
+                  format(rangeTimeValue.endDate, "dd/MM/yyyy")}
               </Label>
               <Popover
                 open={isRangeFilterOpen}
@@ -422,7 +419,7 @@ const TimeFilter = ({
                 </PopoverTrigger>
                 <PopoverContent className="w-auto -translate-x-4 flex flex-col">
                   <TimerFilterRangePicker
-                    defaultValue={defaultRangeTime}
+                    defaultValue={rangeTimeValue}
                     onValueChange={onRangeTimeFilterChanged}
                     setIsRangeFilterOpen={setIsRangeFilterOpen}
                   />

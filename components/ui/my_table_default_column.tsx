@@ -35,35 +35,35 @@ function defaultColumn<T>(
   return col;
 }
 
-function getColumns<T>(columnHeader: object): ColumnDef<T>[] {
-  const columns: ColumnDef<T>[] = [
-    {
-      id: "select",
-      header: ({ table }) => (
-        <Checkbox
-          checked={table.getIsAllPageRowsSelected()}
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-    },
-    {
-      header: "#",
-      cell: ({ row }) => <div>{row.index + 1}</div>,
-    },
-  ];
-  for (let key in columnHeader) {
-    const col: ColumnDef<T> = defaultColumn<T>(key, columnHeader);
-    columns.push(col);
-  }
-  const lastCol: ColumnDef<T> = {
+function defaultSelectColumn<T>(): ColumnDef<T> {
+  return {
+    id: "select",
+    header: ({ table }) => (
+      <Checkbox
+        checked={table.getIsAllPageRowsSelected()}
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false,
+  };
+}
+
+function defaultIndexColumn<T>(): ColumnDef<T> {
+  return {
+    header: "#",
+    cell: ({ row }) => <div>{row.index + 1}</div>,
+  };
+}
+
+function defaultConfigColumn<T>(): ColumnDef<T> {
+  return {
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
@@ -93,8 +93,23 @@ function getColumns<T>(columnHeader: object): ColumnDef<T>[] {
       );
     },
   };
+}
+
+function getColumns<T>(columnHeader: object): ColumnDef<T>[] {
+  const columns: ColumnDef<T>[] = [defaultSelectColumn(), defaultIndexColumn()];
+  for (let key in columnHeader) {
+    const col: ColumnDef<T> = defaultColumn<T>(key, columnHeader);
+    columns.push(col);
+  }
+  const lastCol: ColumnDef<T> = defaultConfigColumn();
   columns.push(lastCol);
   return columns;
 }
 
-export { defaultColumn, getColumns };
+export {
+  defaultColumn,
+  defaultSelectColumn,
+  defaultIndexColumn,
+  defaultConfigColumn,
+  getColumns,
+};
