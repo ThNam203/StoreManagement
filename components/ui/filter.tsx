@@ -226,6 +226,7 @@ const TimeFilter = ({
   className,
   alwaysOpen = false,
   singleTimeValue = FilterYear.AllTime,
+  singleTimeString,
   rangeTimeValue = { startDate: new Date(), endDate: new Date() },
   filterDay = [FilterDay.Today, FilterDay.LastDay],
   filterWeek = [FilterWeek.ThisWeek, FilterWeek.LastWeek, FilterWeek.Last7Days],
@@ -243,6 +244,7 @@ const TimeFilter = ({
   className?: string;
   alwaysOpen?: boolean;
   singleTimeValue?: FilterTime;
+  singleTimeString?: string,
   rangeTimeValue?: { startDate: Date; endDate: Date };
   filterDay?: FilterDay[];
   filterWeek?: FilterWeek[];
@@ -257,6 +259,7 @@ const TimeFilter = ({
 }) => {
   const [isSingleFilter, setIsSingleFilter] = useState(true);
   const [isRangeFilterOpen, setIsRangeFilterOpen] = useState(false);
+  console.log(singleTimeValue)
 
   return (
     <Accordion
@@ -291,7 +294,7 @@ const TimeFilter = ({
                 htmlFor={title + "1"}
                 className="text-[0.8rem] flex-1 hover:cursor-pointer font-normal"
               >
-                {singleTimeValue}
+                {singleTimeString ? singleTimeString : singleTimeValue}
               </Label>
               <Popover>
                 <PopoverTrigger>
