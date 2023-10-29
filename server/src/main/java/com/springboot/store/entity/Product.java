@@ -26,14 +26,14 @@ public class Product {
     @Column(name = "barcode", nullable = false, unique = true)
     private String barcode;
 
+    @Column(name = "property")
+    private String property;
+
     @Column(name = "location")
     private String location;
 
     @Column(name = "original_price")
     private int originalPrice;
-
-    @Column(name = "selling_price")
-    private int sellingPrice;
 
     @Column(name = "quantity")
     private int quantity;
@@ -47,11 +47,14 @@ public class Product {
     @Column(name = "note")
     private String note;
 
-    @Column(name = "min_quantity")
-    private int minQuantity;
+    @Column(name = "min_stock")
+    private int minStock;
 
-    @Column(name = "max_quantity")
-    private int maxQuantity;
+    @Column(name = "max_stock")
+    private int maxStock;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<SalesUnits> salesUnits;
 
     @ManyToOne()
     @JoinColumn(name = "product_group_id")
