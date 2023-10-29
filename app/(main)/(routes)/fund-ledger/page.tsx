@@ -126,7 +126,7 @@ export default function SalesPage() {
   };
 
   const updateCreatedDateStaticRangeFilter = (value: FilterTime) => {
-    setSingleFilter((prev) => ({ ...prev, value }));
+    setSingleFilter((prev) => ({ ...prev, createdDate: value }));
     const rangeTime: { minDate: Date; maxDate: Date } = getMinMaxOfListTime(
       salesList.map((row) => row.createdDate)
     );
@@ -164,9 +164,8 @@ export default function SalesPage() {
       <TimeFilter
         key={1}
         title="Date Modified"
-        usingSingleTime={false}
-        defaultRangeTime={rangeFilter.createdDate}
-        defaultSingleTime={singleFilter.createdDate}
+        rangeTimeValue={rangeFilter.createdDate}
+        singleTimeValue={singleFilter.createdDate}
         onRangeTimeFilterChanged={updateCreatedDateRangeFilter}
         onSingleTimeFilterChanged={updateCreatedDateStaticRangeFilter}
       />
