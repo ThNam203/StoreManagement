@@ -54,7 +54,7 @@ public class Product {
     private int maxStock;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<SalesUnits> salesUnits;
+    private Set<ProductPrice> productPrices;
 
     @ManyToOne()
     @JoinColumn(name = "product_group_id")
