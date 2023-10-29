@@ -172,7 +172,7 @@ enum FilterYear {
   AllTime = "All time",
 }
 
-type FilterTime =
+export type FilterTime =
   | FilterDay
   | FilterWeek
   | FilterMonth

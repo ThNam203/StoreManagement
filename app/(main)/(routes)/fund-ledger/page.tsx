@@ -7,6 +7,12 @@ import { DataTable } from "./datatable";
 import { Button } from "@/components/ui/button";
 import {
   ChoicesFilter,
+  FilterDay,
+  FilterMonth,
+  FilterQuarter,
+  FilterTime,
+  FilterWeek,
+  FilterYear,
   PageWithFilters,
   SearchFilter,
   TimeFilter,
@@ -19,6 +25,8 @@ import {
   TransactionType,
 } from "@/entities/Transaction";
 import {
+  getMinMaxOfListTime,
+  getStaticRangeFilterTime,
   handleMultipleFilter,
   handleRangeFilter,
   handleSingleFilter,
@@ -76,6 +84,9 @@ export default function SalesPage() {
     targetType: [] as string[],
     targetName: [] as string[],
   });
+  const [singleFilter, setSingleFilter] = useState({
+    createdDate: FilterYear.AllTime as FilterTime,
+  });
   const [rangeFilter, setRangeFilter] = useState({
     createdDate: {
       startDate: new Date(),
@@ -95,7 +106,7 @@ export default function SalesPage() {
   }, []);
 
   useEffect(() => {
-    var filteredList = [...salesList];
+    let filteredList = [...salesList];
     filteredList = handleMultipleFilter<Transaction>(multiFilter, filteredList);
     filteredList = handleRangeFilter<Transaction>(rangeFilter, filteredList);
 
@@ -114,6 +125,21 @@ export default function SalesPage() {
     setRangeFilter((prev) => ({ ...prev, createdDate: range }));
   };
 
+  const updateCreatedDateStaticRangeFilter = (value: FilterTime) => {
+    setSingleFilter((prev) => ({ ...prev, value }));
+    const rangeTime: { minDate: Date; maxDate: Date } = getMinMaxOfListTime(
+      salesList.map((row) => row.createdDate)
+    );
+    const range: { startDate: Date; endDate: Date } = getStaticRangeFilterTime(
+      value,
+      rangeTime.minDate,
+      rangeTime.maxDate
+    );
+    setRangeFilter((prev) => ({
+      ...prev,
+      createdDate: { startDate: range.startDate, endDate: range.endDate },
+    }));
+  };
   const updateTransactionTypeMultiFilter = (values: string[]) => {
     setMultiFilter((prev) => ({ ...prev, transactionType: values }));
   };
@@ -140,7 +166,9 @@ export default function SalesPage() {
         title="Date Modified"
         usingSingleTime={false}
         defaultRangeTime={rangeFilter.createdDate}
+        defaultSingleTime={singleFilter.createdDate}
         onRangeTimeFilterChanged={updateCreatedDateRangeFilter}
+        onSingleTimeFilterChanged={updateCreatedDateStaticRangeFilter}
       />
       <ChoicesFilter
         key={2}

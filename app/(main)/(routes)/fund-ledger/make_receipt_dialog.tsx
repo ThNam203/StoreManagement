@@ -71,8 +71,8 @@ export function MakeReceiptDialog({ data, submit }: Props) {
     const receipt: Transaction = {
       id: nanoid(9),
       createdDate: values.createdDate
-        ? new Date(values.createdDate).toLocaleString()
-        : new Date().toLocaleString(),
+        ? new Date(values.createdDate)
+        : new Date(),
       formType: FormType.RECEIPT,
       description: "Receive from" + values.targetType,
       value: values.value,
