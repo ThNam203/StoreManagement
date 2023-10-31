@@ -29,6 +29,7 @@ import React, { StrictMode, useEffect, useState } from "react";
 import { Input } from "./input";
 import { ScrollArea } from "./scroll-area";
 import format from "date-fns/format";
+import { removeCharNotANum } from "@/utils";
 
 const ChoicesFilter = ({
   title,
@@ -244,7 +245,7 @@ const TimeFilter = ({
   className?: string;
   alwaysOpen?: boolean;
   singleTimeValue?: FilterTime;
-  singleTimeString?: string,
+  singleTimeString?: string;
   rangeTimeValue?: { startDate: Date; endDate: Date };
   filterDay?: FilterDay[];
   filterWeek?: FilterWeek[];
@@ -259,7 +260,7 @@ const TimeFilter = ({
 }) => {
   const [isSingleFilter, setIsSingleFilter] = useState(true);
   const [isRangeFilterOpen, setIsRangeFilterOpen] = useState(false);
-  console.log(singleTimeValue)
+  console.log(singleTimeValue);
 
   return (
     <Accordion
@@ -476,7 +477,7 @@ const SearchFilter = ({
             </p>
           </div>
         </AccordionTrigger>
-        <AccordionContent className="overflow-hidden">
+        <AccordionContent className="overflow-visible">
           <div className="flex flex-col mb-4 relative">
             <Input
               className="w-full focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0"
@@ -486,6 +487,7 @@ const SearchFilter = ({
               onFocus={() => setShowSearchvalue(true)}
               onBlur={() => setShowSearchvalue(false)}
             />
+
             {showSearchValue ? (
               <div
                 className={cn(
@@ -552,12 +554,11 @@ const SearchFilter = ({
 const RangeFilter = ({
   title,
   firstLabel = "From",
-  firstPlaceholder = "Start value",
+  firstPlaceholder = "Value",
   secondLabel = "To",
-  secondPlaceholder = "End value",
+  secondPlaceholder = "Value",
   alwaysOpen,
-  startValue,
-  endValue,
+  range = { startValue: 0, endValue: 0 },
   className,
   onValuesChanged,
 }: {
@@ -567,16 +568,10 @@ const RangeFilter = ({
   secondPlaceholder?: string;
   secondLabel?: string;
   alwaysOpen?: boolean;
-  startValue: number;
-  endValue: number;
+  range: { startValue: number; endValue: number };
   className?: string;
-  onValuesChanged?: (startValue: number, endValue: number) => void;
+  onValuesChanged?: (range: { startValue: number; endValue: number }) => void;
 }) => {
-  useEffect(() => {
-    if (onValuesChanged) onValuesChanged(startValue, endValue);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [startValue, endValue]);
-
   return (
     <Accordion
       type="single"
@@ -600,8 +595,12 @@ const RangeFilter = ({
                 className="w-full focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0"
                 placeholder={firstPlaceholder}
                 onChange={(e) => {
+                  removeCharNotANum(e);
                   if (onValuesChanged)
-                    onValuesChanged(Number.parseInt(e.target.value), endValue);
+                    onValuesChanged({
+                      startValue: Number.parseInt(e.target.value),
+                      endValue: range.endValue,
+                    });
                 }}
               />
             </div>
@@ -611,11 +610,12 @@ const RangeFilter = ({
                 className="w-full focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0"
                 placeholder={secondPlaceholder}
                 onChange={(e) => {
+                  removeCharNotANum(e);
                   if (onValuesChanged)
-                    onValuesChanged(
-                      startValue,
-                      Number.parseInt(e.target.value)
-                    );
+                    onValuesChanged({
+                      startValue: range.startValue,
+                      endValue: Number.parseInt(e.target.value),
+                    });
                 }}
               />
             </div>

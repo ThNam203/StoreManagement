@@ -20,7 +20,8 @@ const exportExcel = (data: any[], nameSheet: string, nameFile: string) => {
 
 type MultiFilter = Record<string, any>;
 type SingleFilter = Record<string, any>;
-type RangeFilter = Record<string, { startDate: Date; endDate: Date }>;
+type RangeTimeFilter = Record<string, { startDate: Date; endDate: Date }>;
+type RangeNumFilter = Record<string, { startValue: number; endValue: number }>;
 
 function handleMultipleFilter<T>(
   filter: MultiFilter,
@@ -60,8 +61,8 @@ function handleSingleFilter<T>(
   return filterList;
 }
 
-function handleRangeFilter<T>(
-  filter: RangeFilter,
+function handleRangeTimeFilter<T>(
+  filter: RangeTimeFilter,
   listToFilter: Array<T>
 ): Array<T> {
   const filterList = listToFilter.filter((row) => {
@@ -84,7 +85,35 @@ function handleRangeFilter<T>(
         } else {
           if (date < startDate || date > endDate) return false;
         }
-      } else return true; //if the data of createdDate is not a Date -> show it
+      } else return false; //if the data of createdDate is not a Date -> show it
+    }
+    return true;
+  });
+  return filterList;
+}
+
+function handleRangeNumFilter<T>(
+  filter: RangeNumFilter,
+  listToFilter: Array<T>
+): Array<T> {
+  const filterList = listToFilter.filter((row) => {
+    const filterKeys = Object.keys(filter);
+    for (let key of filterKeys) {
+      let value = row[key as keyof typeof row];
+      if (typeof value === "number") {
+        const ivalue = value as number;
+        const startValue = filter[key as keyof typeof filter]
+          .startValue as number;
+        const endValue = filter[key as keyof typeof filter].endValue as number;
+
+        if (startValue > endValue) {
+          return false;
+        } else if (startValue === endValue) {
+          if (startValue !== ivalue) return false;
+        } else {
+          if (ivalue < startValue || ivalue > endValue) return false;
+        }
+      } else return false; //if the data of createdDate is not a Date -> show it
     }
     return true;
   });
@@ -110,6 +139,7 @@ const getStaticRangeFilterTime = (
   } else if (value === FilterWeek.ThisWeek) {
     let today = new Date();
     let firstDay = today.getDate() - today.getDay();
+    if (today.getDay() === 0) firstDay -= 7;
     firstDay += 1;
     let lastDay = firstDay + 6;
     let firstDate = new Date(today.setDate(firstDay));
@@ -119,6 +149,7 @@ const getStaticRangeFilterTime = (
   } else if (value === FilterWeek.LastWeek) {
     let today = new Date();
     let firstDay = today.getDate() - today.getDay() - 7;
+    if (today.getDay() === 0) firstDay -= 7;
     firstDay += 1;
     let lastDay = firstDay + 6;
     let firstDate = new Date(today.setDate(firstDay));
@@ -199,11 +230,18 @@ const getMinMaxOfListTime = (
   return range;
 };
 
+const removeCharNotANum = (e: any) => {
+  // e.target.value = e.target.value.replace(/\D/g, "");
+  e.target.value = e.target.value.replace(/[^0-9]/g, "");
+};
+
 export {
   exportExcel,
   handleSingleFilter,
   handleMultipleFilter,
-  handleRangeFilter,
+  handleRangeTimeFilter,
+  handleRangeNumFilter,
   getStaticRangeFilterTime,
   getMinMaxOfListTime,
+  removeCharNotANum,
 };

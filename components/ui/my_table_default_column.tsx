@@ -1,6 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTableColumnHeader } from "./my_table_column_header";
-import { Checkbox } from "@radix-ui/react-checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,6 +9,7 @@ import {
 import { MoreHorizontal } from "lucide-react";
 import { Button } from "./button";
 import { ReactNode } from "react";
+import { Checkbox } from "./checkbox";
 
 function defaultColumn<T>(
   accessorKey: string,
@@ -96,7 +96,10 @@ function defaultConfigColumn<T>(): ColumnDef<T> {
 }
 
 function getColumns<T>(columnHeader: object): ColumnDef<T>[] {
-  const columns: ColumnDef<T>[] = [defaultSelectColumn(), defaultIndexColumn()];
+  const columns: ColumnDef<T>[] = [
+    defaultSelectColumn<T>(),
+    defaultIndexColumn<T>(),
+  ];
   for (let key in columnHeader) {
     const col: ColumnDef<T> = defaultColumn<T>(key, columnHeader);
     columns.push(col);

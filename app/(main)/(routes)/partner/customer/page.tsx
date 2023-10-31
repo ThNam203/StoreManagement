@@ -12,17 +12,27 @@ import { Combobox } from "@/components/ui/combobox";
 import { useEffect, useState } from "react";
 import { DataTable } from "./datatable";
 import { AddCustomerDialog } from "./add_customer_dialog";
-import { Customer, CustomerType, Sex, Status } from "@/entities/Customer";
+import {
+  Customer,
+  CustomerType,
+  Sex,
+  Status,
+  getFinalSale,
+} from "@/entities/Customer";
 import {
   ChoicesFilter,
+  FilterTime,
+  FilterYear,
   PageWithFilters,
   RangeFilter,
   SearchFilter,
   TimeFilter,
 } from "@/components/ui/filter";
 import {
+  getMinMaxOfListTime,
+  getStaticRangeFilterTime,
   handleMultipleFilter,
-  handleRangeFilter,
+  handleRangeTimeFilter,
   handleSingleFilter,
 } from "@/utils";
 
@@ -47,6 +57,7 @@ const originalCustomerList: Customer[] = [
     sale: 2000000,
     finalSale: 1900000,
     status: Status.WORKING,
+    image: "",
   },
   {
     id: nanoid(9).toUpperCase(),
@@ -64,10 +75,11 @@ const originalCustomerList: Customer[] = [
     taxId: nanoid(9),
     note: "",
     lastTransaction: new Date(),
-    debt: 100000,
-    sale: 2000000,
-    finalSale: 1900000,
-    status: Status.WORKING,
+    debt: 0,
+    sale: 0,
+    finalSale: 0,
+    status: Status.NOT_WORKING,
+    image: "",
   },
   {
     id: nanoid(9).toUpperCase(),
@@ -89,10 +101,11 @@ const originalCustomerList: Customer[] = [
     sale: 2000000,
     finalSale: 1900000,
     status: Status.WORKING,
+    image: "",
   },
 ];
 
-export default function StaffInfoPage() {
+export default function CustomerPage() {
   const [customerList, setCustomerList] = useState<Customer[]>([]);
   const [filteredCustomerList, setFilteredCustomerList] = useState<Customer[]>(
     []
@@ -105,7 +118,12 @@ export default function StaffInfoPage() {
     sex: [] as string[],
     status: [] as string[],
   });
-  const [rangeFilter, setRangeFilter] = useState({
+  const [singleFilter, setSingleFilter] = useState({
+    createdDate: FilterYear.AllTime as FilterTime,
+    birthday: FilterYear.AllTime as FilterTime,
+    lastTransaction: FilterYear.AllTime as FilterTime,
+  });
+  const [rangeTimeFilter, setRangeTimeFilter] = useState({
     createdDate: {
       startDate: new Date(),
       endDate: new Date(),
@@ -127,10 +145,10 @@ export default function StaffInfoPage() {
   useEffect(() => {
     var filteredList = [...customerList];
     filteredList = handleMultipleFilter(multiFilter, filteredList);
-    filteredList = handleRangeFilter(rangeFilter, filteredList);
+    filteredList = handleRangeTimeFilter(rangeTimeFilter, filteredList);
 
     setFilteredCustomerList([...filteredList]);
-  }, [multiFilter, rangeFilter, customerList]);
+  }, [multiFilter, rangeTimeFilter, customerList]);
 
   function handleFormSubmit(values: Customer) {
     setCustomerList((prev) => [...prev, values]);
@@ -139,23 +157,81 @@ export default function StaffInfoPage() {
   const updateCustomerGroupMultiFilter = (values: string[]) => {
     setMultiFilter((prev) => ({ ...prev, customerGroup: values }));
   };
-  const updateCreatedDateRangeFilter = (range: {
-    startDate: Date;
-    endDate: Date;
-  }) => {
-    setRangeFilter((prev) => ({ ...prev, createdDate: range }));
+
+  const updateCreatedDateStaticRangeFilter = (value: FilterTime) => {
+    setSingleFilter((prev) => ({ ...prev, createdDate: value }));
+
+    //the purpose of this area is just to get min date and max date to cover case FilterTime.Alltime
+    const rangeTime: { minDate: Date; maxDate: Date } = getMinMaxOfListTime(
+      customerList.map((row) => row.createdDate)
+    );
+    //--------------------------------------------------------------------------------------------
+    const range: { startDate: Date; endDate: Date } = getStaticRangeFilterTime(
+      value,
+      rangeTime.minDate,
+      rangeTime.maxDate
+    );
+
+    setRangeTimeFilter((prev) => ({
+      ...prev,
+      createdDate: range,
+    }));
   };
-  const updateBirthdayRangeFilter = (range: {
+  const updateCreatedDateRangeTimeFilter = (range: {
     startDate: Date;
     endDate: Date;
   }) => {
-    setRangeFilter((prev) => ({ ...prev, birthday: range }));
+    setRangeTimeFilter((prev) => ({ ...prev, createdDate: range }));
   };
-  const updateLastTransactionRangeFilter = (range: {
+  const updateBirthdayRangeTimeFilter = (range: {
     startDate: Date;
     endDate: Date;
   }) => {
-    setRangeFilter((prev) => ({ ...prev, lastTransaction: range }));
+    setRangeTimeFilter((prev) => ({ ...prev, birthday: range }));
+  };
+  const updateBirthdayStaticRangeFilter = (value: FilterTime) => {
+    setSingleFilter((prev) => ({ ...prev, birthday: value }));
+
+    //the purpose of this area is just to get min date and max date to cover case FilterTime.Alltime
+    const rangeTime: { minDate: Date; maxDate: Date } = getMinMaxOfListTime(
+      customerList.map((row) => row.birthday)
+    );
+    //--------------------------------------------------------------------------------------------
+    const range: { startDate: Date; endDate: Date } = getStaticRangeFilterTime(
+      value,
+      rangeTime.minDate,
+      rangeTime.maxDate
+    );
+
+    setRangeTimeFilter((prev) => ({
+      ...prev,
+      birthday: range,
+    }));
+  };
+  const updateLastTransactionRangeTimeFilter = (range: {
+    startDate: Date;
+    endDate: Date;
+  }) => {
+    setRangeTimeFilter((prev) => ({ ...prev, lastTransaction: range }));
+  };
+  const updateLastTransactionStaticRangeFilter = (value: FilterTime) => {
+    setSingleFilter((prev) => ({ ...prev, lastTransaction: value }));
+
+    //the purpose of this area is just to get min date and max date to cover case FilterTime.Alltime
+    const rangeTime: { minDate: Date; maxDate: Date } = getMinMaxOfListTime(
+      customerList.map((row) => row.lastTransaction)
+    );
+    //--------------------------------------------------------------------------------------------
+    const range: { startDate: Date; endDate: Date } = getStaticRangeFilterTime(
+      value,
+      rangeTime.minDate,
+      rangeTime.maxDate
+    );
+
+    setRangeTimeFilter((prev) => ({
+      ...prev,
+      lastTransaction: range,
+    }));
   };
   const updateSaleFilter = (values: string[]) => {
     const ivalues: number[] = values.map((value) => Number.parseInt(value));
@@ -171,7 +247,7 @@ export default function StaffInfoPage() {
   const updateSexMultiFilter = (values: string[]) => {
     setMultiFilter((prev) => ({ ...prev, sex: values }));
   };
-  const updateStatusFilter = (values: string[]) => {
+  const updateStatusMultiFilter = (values: string[]) => {
     setMultiFilter((prev) => ({ ...prev, status: values }));
   };
 
@@ -190,23 +266,26 @@ export default function StaffInfoPage() {
       <TimeFilter
         key={2}
         title="Date Modified"
-        usingSingleTime={false}
-        defaultRangeTime={rangeFilter.createdDate}
-        onRangeTimeFilterChanged={updateCreatedDateRangeFilter}
+        singleTimeValue={singleFilter.createdDate}
+        rangeTimeValue={rangeTimeFilter.createdDate}
+        onRangeTimeFilterChanged={updateCreatedDateRangeTimeFilter}
+        onSingleTimeFilterChanged={updateCreatedDateStaticRangeFilter}
       />
       <TimeFilter
         key={3}
         title="Birthday"
-        usingSingleTime={false}
-        defaultRangeTime={rangeFilter.birthday}
-        onRangeTimeFilterChanged={updateBirthdayRangeFilter}
+        singleTimeValue={singleFilter.birthday}
+        rangeTimeValue={rangeTimeFilter.birthday}
+        onRangeTimeFilterChanged={updateBirthdayRangeTimeFilter}
+        onSingleTimeFilterChanged={updateBirthdayStaticRangeFilter}
       />
       <TimeFilter
         key={4}
         title="Last Transaction"
-        usingSingleTime={false}
-        defaultRangeTime={rangeFilter.lastTransaction}
-        onRangeTimeFilterChanged={updateLastTransactionRangeFilter}
+        singleTimeValue={singleFilter.lastTransaction}
+        rangeTimeValue={rangeTimeFilter.lastTransaction}
+        onRangeTimeFilterChanged={updateLastTransactionRangeTimeFilter}
+        onSingleTimeFilterChanged={updateLastTransactionStaticRangeFilter}
       />
       <ChoicesFilter
         key={5}
@@ -223,6 +302,14 @@ export default function StaffInfoPage() {
         isSingleChoice={false}
         defaultValues={multiFilter.sex}
         onMultiChoicesChanged={updateSexMultiFilter}
+      />
+      <ChoicesFilter
+        key={7}
+        title="Status"
+        choices={Object.values(Status)}
+        isSingleChoice={false}
+        defaultValues={multiFilter.status}
+        onMultiChoicesChanged={updateStatusMultiFilter}
       />
     </div>,
   ];

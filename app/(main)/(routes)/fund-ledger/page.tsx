@@ -127,17 +127,21 @@ export default function SalesPage() {
 
   const updateCreatedDateStaticRangeFilter = (value: FilterTime) => {
     setSingleFilter((prev) => ({ ...prev, createdDate: value }));
+
+    //the purpose of this area is just to get min date and max date to cover case FilterTime.Alltime
     const rangeTime: { minDate: Date; maxDate: Date } = getMinMaxOfListTime(
       salesList.map((row) => row.createdDate)
     );
+    //--------------------------------------------------------------------------------------------
     const range: { startDate: Date; endDate: Date } = getStaticRangeFilterTime(
       value,
       rangeTime.minDate,
       rangeTime.maxDate
     );
+
     setRangeFilter((prev) => ({
       ...prev,
-      createdDate: { startDate: range.startDate, endDate: range.endDate },
+      createdDate: range,
     }));
   };
   const updateTransactionTypeMultiFilter = (values: string[]) => {
@@ -202,7 +206,6 @@ export default function SalesPage() {
         chosenValues={multiFilter.creator}
         title="Creator"
         placeholder="Select creator"
-        alwaysOpen
         onValuesChanged={updateCreatorMultiFilter}
       />
 

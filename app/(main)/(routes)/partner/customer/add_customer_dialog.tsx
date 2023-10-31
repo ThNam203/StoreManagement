@@ -33,18 +33,22 @@ import {
   SelectValue,
 } from "../../../../../components/ui/select";
 import { nanoid } from "nanoid";
-import { Customer } from "@/entities/Customer";
+import { Customer, CustomerType, Sex, Status } from "@/entities/Customer";
+import { removeCharNotANum } from "@/utils";
 
 const formSchema = z.object({
+  image: z.string().optional(),
   id: z.any(),
   name: z.string().min(1, { message: "Name must be at least one character" }),
-  customerGroup: z.string(),
   phoneNumber: z.string(),
-  address: z.string(),
-  sex: z.string(),
-  email: z.string().email().optional(),
   birthday: z.string().optional(),
-  image: z.string().optional(),
+  sex: z.nativeEnum(Sex),
+  address: z.string(),
+  customerType: z.nativeEnum(CustomerType),
+  company: z.string().optional(),
+  taxId: z.string().optional(),
+  email: z.string().email().optional(),
+  customerGroup: z.string(),
   note: z.string().optional(),
 });
 
@@ -57,7 +61,8 @@ export function AddCustomerDialog({ data, submit }: Props) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      sex: "male",
+      sex: Sex.MALE,
+      customerType: CustomerType.SINGLE,
     },
   });
 
@@ -65,16 +70,24 @@ export function AddCustomerDialog({ data, submit }: Props) {
     const newGroup: Customer = {
       id: nanoid(9),
       name: values.name,
+      customerType: values.customerType,
       customerGroup: values.customerGroup,
       phoneNumber: values.phoneNumber,
       address: values.address,
       sex: values.sex,
       email: values.email ? values.email : "",
-      birthday: values.birthday ? values.birthday : "",
+      birthday: values.birthday ? new Date(values.birthday) : new Date(),
       image: values.image ? values.image : "",
       creator: "",
-      createdDate: new Date().toLocaleString(),
+      createdDate: new Date(),
+      company: values.company ? values.company : "",
       note: values.note ? values.note : "",
+      taxId: values.taxId ? values.taxId : "",
+      debt: 0,
+      sale: 0,
+      finalSale: 0,
+      lastTransaction: new Date(),
+      status: Status.WORKING,
     };
     if (submit) {
       submit(newGroup);
@@ -134,9 +147,7 @@ export function AddCustomerDialog({ data, submit }: Props) {
                     render={({ field }) => (
                       <FormItem className="mt-2">
                         <div className="flex flex-row items-center">
-                          <FormLabel className="w-1/3">
-                            Customer Name (*)
-                          </FormLabel>
+                          <FormLabel className="w-1/3">Customer Name</FormLabel>
 
                           <FormControl className="w-2/3">
                             <Input {...field} />
@@ -161,11 +172,7 @@ export function AddCustomerDialog({ data, submit }: Props) {
                               minLength={10}
                               className="w-2/3"
                               onKeyUp={(e: any) => {
-                                e.target.value = e.target.value.replace(
-                                  /\D/g,
-                                  ""
-                                );
-                                // Pass the event to the field prop
+                                removeCharNotANum(e);
                                 field.onChange(e);
                               }}
                             />
