@@ -25,15 +25,16 @@ import {
   TransactionType,
 } from "@/entities/Transaction";
 import {
+  formatID,
   getMinMaxOfListTime,
   getStaticRangeFilterTime,
   handleMultipleFilter,
-  handleRangeFilter,
+  handleRangeTimeFilter,
   handleSingleFilter,
 } from "@/utils";
 const originalSalesList: Transaction[] = [
   {
-    id: nanoid(9).toUpperCase(),
+    id: 1,
     targetType: TargetType.CUSTOMER,
     targetName: "David",
     formType: FormType.RECEIPT,
@@ -46,7 +47,7 @@ const originalSalesList: Transaction[] = [
     note: "",
   },
   {
-    id: nanoid(9).toUpperCase(),
+    id: 2,
     targetType: TargetType.CUSTOMER,
     targetName: "Henry",
     formType: FormType.RECEIPT,
@@ -59,7 +60,7 @@ const originalSalesList: Transaction[] = [
     note: "",
   },
   {
-    id: nanoid(9).toUpperCase(),
+    id: 3,
     targetType: TargetType.SUPPLIER,
     targetName: "Mary",
     formType: FormType.EXPENSE,
@@ -87,7 +88,7 @@ export default function SalesPage() {
   const [singleFilter, setSingleFilter] = useState({
     createdDate: FilterYear.AllTime as FilterTime,
   });
-  const [rangeFilter, setRangeFilter] = useState({
+  const [rangeTimeFilter, setRangeTimeFilter] = useState({
     createdDate: {
       startDate: new Date(),
       endDate: new Date(),
@@ -97,10 +98,16 @@ export default function SalesPage() {
   // hook use effect
   useEffect(() => {
     const fetchData = async () => {
-      setTimeout(() => {
-        const res = originalSalesList;
-        setSalesList(res);
-      }, 1000);
+      const res = originalSalesList;
+      const formatedData: Transaction[] = res.map((row) => {
+        const newRow = { ...row };
+        newRow.id = formatID(
+          newRow.id,
+          newRow.formType === FormType.EXPENSE ? "PC" : "PT"
+        );
+        return newRow;
+      });
+      setSalesList(formatedData);
     };
     fetchData();
   }, []);
@@ -108,24 +115,27 @@ export default function SalesPage() {
   useEffect(() => {
     let filteredList = [...salesList];
     filteredList = handleMultipleFilter<Transaction>(multiFilter, filteredList);
-    filteredList = handleRangeFilter<Transaction>(rangeFilter, filteredList);
+    filteredList = handleRangeTimeFilter<Transaction>(
+      rangeTimeFilter,
+      filteredList
+    );
 
     setFilterSaleList([...filteredList]);
-  }, [multiFilter, rangeFilter, salesList]);
+  }, [multiFilter, rangeTimeFilter, salesList]);
 
   //function
   function handleFormSubmit(values: Transaction) {
     setSalesList((prev) => [...prev, values]);
   }
 
-  const updateCreatedDateRangeFilter = (range: {
+  const updateCreatedDateRangeTimeFilter = (range: {
     startDate: Date;
     endDate: Date;
   }) => {
-    setRangeFilter((prev) => ({ ...prev, createdDate: range }));
+    setRangeTimeFilter((prev) => ({ ...prev, createdDate: range }));
   };
 
-  const updateCreatedDateStaticRangeFilter = (value: FilterTime) => {
+  const updateCreatedDateStaticRangeTimeFilter = (value: FilterTime) => {
     setSingleFilter((prev) => ({ ...prev, createdDate: value }));
 
     //the purpose of this area is just to get min date and max date to cover case FilterTime.Alltime
@@ -139,7 +149,7 @@ export default function SalesPage() {
       rangeTime.maxDate
     );
 
-    setRangeFilter((prev) => ({
+    setRangeTimeFilter((prev) => ({
       ...prev,
       createdDate: range,
     }));
@@ -168,10 +178,10 @@ export default function SalesPage() {
       <TimeFilter
         key={1}
         title="Date Modified"
-        rangeTimeValue={rangeFilter.createdDate}
+        rangeTimeValue={rangeTimeFilter.createdDate}
         singleTimeValue={singleFilter.createdDate}
-        onRangeTimeFilterChanged={updateCreatedDateRangeFilter}
-        onSingleTimeFilterChanged={updateCreatedDateStaticRangeFilter}
+        onRangeTimeFilterChanged={updateCreatedDateRangeTimeFilter}
+        onSingleTimeFilterChanged={updateCreatedDateStaticRangeTimeFilter}
       />
       <ChoicesFilter
         key={2}

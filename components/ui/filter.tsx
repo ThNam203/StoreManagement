@@ -260,7 +260,6 @@ const TimeFilter = ({
 }) => {
   const [isSingleFilter, setIsSingleFilter] = useState(true);
   const [isRangeFilterOpen, setIsRangeFilterOpen] = useState(false);
-  console.log(singleTimeValue);
 
   return (
     <Accordion

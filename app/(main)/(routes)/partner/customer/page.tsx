@@ -29,16 +29,18 @@ import {
   TimeFilter,
 } from "@/components/ui/filter";
 import {
+  formatID,
   getMinMaxOfListTime,
   getStaticRangeFilterTime,
   handleMultipleFilter,
+  handleRangeNumFilter,
   handleRangeTimeFilter,
   handleSingleFilter,
 } from "@/utils";
 
 const originalCustomerList: Customer[] = [
   {
-    id: nanoid(9).toUpperCase(),
+    id: 1,
     name: "David Silva",
     customerType: CustomerType.SINGLE,
     customerGroup: "",
@@ -60,7 +62,7 @@ const originalCustomerList: Customer[] = [
     image: "",
   },
   {
-    id: nanoid(9).toUpperCase(),
+    id: 2,
     name: "Harry",
     customerType: CustomerType.SINGLE,
     customerGroup: "",
@@ -82,7 +84,7 @@ const originalCustomerList: Customer[] = [
     image: "",
   },
   {
-    id: nanoid(9).toUpperCase(),
+    id: 3,
     name: "John",
     customerType: CustomerType.SINGLE,
     customerGroup: "",
@@ -137,18 +139,29 @@ export default function CustomerPage() {
       endDate: new Date(),
     },
   });
+  const [rangeNumFilter, setRangeNumFilter] = useState({
+    sale: { startValue: NaN, endValue: NaN },
+    debt: { startValue: NaN, endValue: NaN },
+  });
 
   useEffect(() => {
-    setCustomerList(originalCustomerList);
+    const res = originalCustomerList;
+    const formatedData: Customer[] = res.map((row) => {
+      const newRow = { ...row };
+      newRow.id = formatID(newRow.id, "KH");
+      return newRow;
+    });
+    setCustomerList(formatedData);
   }, []);
 
   useEffect(() => {
     var filteredList = [...customerList];
     filteredList = handleMultipleFilter(multiFilter, filteredList);
     filteredList = handleRangeTimeFilter(rangeTimeFilter, filteredList);
+    filteredList = handleRangeNumFilter(rangeNumFilter, filteredList);
 
     setFilteredCustomerList([...filteredList]);
-  }, [multiFilter, rangeTimeFilter, customerList]);
+  }, [multiFilter, rangeTimeFilter, rangeNumFilter, customerList]);
 
   function handleFormSubmit(values: Customer) {
     setCustomerList((prev) => [...prev, values]);
@@ -233,13 +246,17 @@ export default function CustomerPage() {
       lastTransaction: range,
     }));
   };
-  const updateSaleFilter = (values: string[]) => {
-    const ivalues: number[] = values.map((value) => Number.parseInt(value));
-    setMultiFilter((prev) => ({ ...prev, sale: ivalues }));
+  const updateSaleRangeNumFilter = (range: {
+    startValue: number;
+    endValue: number;
+  }) => {
+    setRangeNumFilter((prev) => ({ ...prev, sale: range }));
   };
-  const updateDebtFilter = (values: string[]) => {
-    const ivalues: number[] = values.map((value) => Number.parseInt(value));
-    setMultiFilter((prev) => ({ ...prev, debt: ivalues }));
+  const updateDebtRangeNumFilter = (range: {
+    startValue: number;
+    endValue: number;
+  }) => {
+    setRangeNumFilter((prev) => ({ ...prev, debt: range }));
   };
   const updateCustomerTypeMultiFilter = (values: string[]) => {
     setMultiFilter((prev) => ({ ...prev, customerType: values }));
@@ -287,8 +304,20 @@ export default function CustomerPage() {
         onRangeTimeFilterChanged={updateLastTransactionRangeTimeFilter}
         onSingleTimeFilterChanged={updateLastTransactionStaticRangeFilter}
       />
-      <ChoicesFilter
+      <RangeFilter
         key={5}
+        title="Sale"
+        range={rangeNumFilter.sale}
+        onValuesChanged={updateSaleRangeNumFilter}
+      />
+      <RangeFilter
+        key={6}
+        title="Debt"
+        range={rangeNumFilter.debt}
+        onValuesChanged={updateDebtRangeNumFilter}
+      />
+      <ChoicesFilter
+        key={7}
         title="Customer Type"
         choices={Object.values(CustomerType)}
         isSingleChoice={false}
@@ -296,7 +325,7 @@ export default function CustomerPage() {
         onMultiChoicesChanged={updateCustomerTypeMultiFilter}
       />
       <ChoicesFilter
-        key={6}
+        key={8}
         title="Sex"
         choices={Object.values(Sex)}
         isSingleChoice={false}
@@ -304,7 +333,7 @@ export default function CustomerPage() {
         onMultiChoicesChanged={updateSexMultiFilter}
       />
       <ChoicesFilter
-        key={7}
+        key={9}
         title="Status"
         choices={Object.values(Status)}
         isSingleChoice={false}

@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/filter";
 import { Button } from "@/components/ui/button";
 import {
+  formatID,
   getMinMaxOfListTime,
   getStaticRangeFilterTime,
   handleMultipleFilter,
@@ -35,7 +36,7 @@ import {
 
 const originalSupplierList: Supplier[] = [
   {
-    id: nanoid(9).toUpperCase(),
+    id: 1,
     name: "Nha cung cap banh gao",
     phoneNumber: "0123456789",
     supplierGroup: "",
@@ -52,7 +53,7 @@ const originalSupplierList: Supplier[] = [
     status: Status.NOT_WORKING,
   },
   {
-    id: nanoid(9).toUpperCase(),
+    id: 2,
     name: "Nha cung cap banh gai",
     phoneNumber: "0123456789",
     supplierGroup: "",
@@ -69,7 +70,7 @@ const originalSupplierList: Supplier[] = [
     status: Status.WORKING,
   },
   {
-    id: nanoid(9).toUpperCase(),
+    id: 3,
     name: "Nha cung cap nuoc ngot",
     phoneNumber: "0123456789",
     supplierGroup: "",
@@ -108,7 +109,13 @@ export default function SupplierPage() {
   });
 
   useEffect(() => {
-    setSupplierList(originalSupplierList);
+    const res = originalSupplierList;
+    const formatedData: Supplier[] = res.map((row) => {
+      const newRow = { ...row };
+      newRow.id = formatID(newRow.id, "NCC");
+      return newRow;
+    });
+    setSupplierList(formatedData);
   }, []);
   useEffect(() => {
     var filteredList = [...supplierList];

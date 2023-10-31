@@ -24,16 +24,17 @@ export const columnHeader = {
   avatar: "Avatar",
   id: "Staff ID",
   name: "Staff Name",
+  phoneNumber: "Phone Number",
+  CCCD: "CCCD",
+  salaryDebt: "Salary Debt",
+  note: "Note",
+  birthday: "Birthday",
+  sex: "Sex",
   email: "Email",
   address: "Address",
-  phoneNumber: "Phone Number",
-  note: "Note",
-  sex: "Sex",
-  CCCD: "CCCD",
-  birthday: "Birthday",
-  createAt: "Date Modified",
   branch: "Branch",
   position: "Position",
+  createAt: "Date Created",
 };
 
 export const columns: ColumnDef<Staff>[] = getColumns<Staff>(columnHeader);

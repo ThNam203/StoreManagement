@@ -235,6 +235,10 @@ const removeCharNotANum = (e: any) => {
   e.target.value = e.target.value.replace(/[^0-9]/g, "");
 };
 
+const formatID = (id: number, prefix: string) => {
+  return `${prefix}${id.toString().padStart(4, "0")}`;
+};
+
 export {
   exportExcel,
   handleSingleFilter,
@@ -244,4 +248,5 @@ export {
   getStaticRangeFilterTime,
   getMinMaxOfListTime,
   removeCharNotANum,
+  formatID,
 };
