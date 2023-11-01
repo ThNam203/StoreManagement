@@ -6,7 +6,6 @@ import {
   FilterWeek,
   FilterYear,
 } from "@/components/ui/filter";
-import * as XLSX from "xlsx";
 
 const exportExcel = (data: any[], nameSheet: string, nameFile: string) => {
   return new Promise((resolve, reject) => {
@@ -239,6 +238,11 @@ const formatID = (id: number, prefix: string) => {
   return `${prefix}${id.toString().padStart(4, "0")}`;
 };
 
+const formatPrice = (price: number) => {
+  const formattedPrice = new Intl.NumberFormat("vi-VN").format(price);
+  return formattedPrice;
+};
+
 export {
   exportExcel,
   handleSingleFilter,
@@ -249,4 +253,5 @@ export {
   getMinMaxOfListTime,
   removeCharNotANum,
   formatID,
+  formatPrice,
 };

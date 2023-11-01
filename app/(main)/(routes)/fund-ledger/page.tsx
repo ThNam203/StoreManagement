@@ -1,5 +1,4 @@
 "use client";
-import { nanoid } from "nanoid";
 
 import { useEffect, useState } from "react";
 import { DataTable } from "./datatable";
@@ -7,11 +6,7 @@ import { DataTable } from "./datatable";
 import { Button } from "@/components/ui/button";
 import {
   ChoicesFilter,
-  FilterDay,
-  FilterMonth,
-  FilterQuarter,
   FilterTime,
-  FilterWeek,
   FilterYear,
   PageWithFilters,
   SearchFilter,
@@ -30,7 +25,6 @@ import {
   getStaticRangeFilterTime,
   handleMultipleFilter,
   handleRangeTimeFilter,
-  handleSingleFilter,
 } from "@/utils";
 const originalSalesList: Transaction[] = [
   {

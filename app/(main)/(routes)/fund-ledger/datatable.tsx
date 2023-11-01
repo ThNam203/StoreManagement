@@ -20,8 +20,7 @@ import * as React from "react";
 import { columnHeader, columns } from "./columns";
 import { MakeExpenseDialog } from "./make_expense_dialog";
 import { MakeReceiptDialog } from "./make_receipt_dialog";
-import { formatPrice } from "./utils";
-import { exportExcel } from "@/utils";
+import { exportExcel, formatPrice } from "@/utils";
 
 type Props = {
   data: Transaction[];
