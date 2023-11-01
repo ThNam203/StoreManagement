@@ -33,6 +33,17 @@ const originalDailyReportList: DataTableDailyReport[] = [
   },
 ];
 
+for (let i = 0; i < 200; i++) {
+  originalDailyReportList.push({
+    transactionId: 3,
+    time: new Date(),
+    quantity: 20,
+    revenue: 200000,
+    otherFees: 10000,
+    totalSale: 200000 - 10000,
+  });
+}
+
 export default function ReportDayLayout() {
   const [datatable, setDatatable] = useState<DataTableDailyReport[]>([]);
   const [dailyReport, setDailyReport] = useState<DailyReport>({
