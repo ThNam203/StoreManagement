@@ -64,8 +64,7 @@ public class Product {
     @JoinColumn(name = "product_brand_id")
     private ProductBrand productBrand;
 
-    @ManyToOne()
-    @JoinColumn(name = "product_property_id")
+    @OneToMany(cascade = CascadeType.ALL)
     private ProductProperty productProperty;
 
     @OneToMany(cascade = CascadeType.ALL)

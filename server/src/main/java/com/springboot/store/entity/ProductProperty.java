@@ -25,6 +25,7 @@ public class ProductProperty {
     @Column(name = "value")
     private String value;
 
-    @OneToMany(mappedBy = "productProperty", fetch = FetchType.LAZY)
-    private Set<Product> products;
+    @ManyToOne()
+    @JoinColumn(name = "product_id")
+    private Product product;
 }
