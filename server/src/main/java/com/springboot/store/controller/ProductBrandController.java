@@ -2,6 +2,7 @@ package com.springboot.store.controller;
 
 import com.springboot.store.payload.ProductBrandDTO;
 import com.springboot.store.service.ProductBrandService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,13 +12,9 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/product-brands")
+@RequiredArgsConstructor
 public class ProductBrandController {
     private final ProductBrandService productBrandService;
-
-    @Autowired
-    public ProductBrandController(ProductBrandService productBrandService) {
-        this.productBrandService = productBrandService;
-    }
 
     @GetMapping("/{productBrandId}")
     public ResponseEntity<ProductBrandDTO> getProductBrandById(@PathVariable int productBrandId) {
@@ -31,7 +28,7 @@ public class ProductBrandController {
         return ResponseEntity.ok(productBrands);
     }
 
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<ProductBrandDTO> createProductBrand(@RequestBody ProductBrandDTO productBrandDTO) {
         ProductBrandDTO createdProductBrand = productBrandService.createProductBrand(productBrandDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdProductBrand);

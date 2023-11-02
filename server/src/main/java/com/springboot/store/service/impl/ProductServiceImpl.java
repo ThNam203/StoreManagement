@@ -1,5 +1,6 @@
 package com.springboot.store.service.impl;
 
+import com.springboot.store.entity.Location;
 import com.springboot.store.entity.Media;
 import com.springboot.store.entity.Product;
 import com.springboot.store.payload.ProductDTO;
@@ -86,6 +87,7 @@ public class ProductServiceImpl implements ProductService {
             existingProduct.setImages(mediaEntities);
         }
 
+
         existingProduct = productRepository.save(existingProduct);
         return modelMapper.map(existingProduct, ProductDTO.class);
 
@@ -94,5 +96,10 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void deleteProduct(int id) {
         productRepository.deleteById(id);
+    }
+
+    @Override
+    public void deleteAllProducts() {
+        productRepository.deleteAll();
     }
 }

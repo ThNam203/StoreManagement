@@ -6,6 +6,7 @@ import com.springboot.store.payload.ProductDTO;
 import com.springboot.store.repository.ProductRepository;
 import com.springboot.store.service.FileService;
 import com.springboot.store.service.ProductService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,19 +17,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
+@RequiredArgsConstructor
 public class ProductController {
 
     private final ProductRepository productRepository;
     private final ProductService productService;
     private final FileService fileService;
 
-
-    @Autowired
-    public ProductController(ProductService productService, FileService fileService, ProductRepository productRepository) {
-        this.productService = productService;
-        this.fileService = fileService;
-        this.productRepository = productRepository;
-    }
 
     @GetMapping("/{productId}")
     public ResponseEntity<ProductDTO> getProductById(@PathVariable int productId) {
@@ -73,4 +68,9 @@ public class ProductController {
         return new ResponseEntity<>(url, HttpStatus.OK);
     }
 
+    @DeleteMapping
+    public ResponseEntity<Void> deleteAllProducts() {
+        productService.deleteAllProducts();
+        return ResponseEntity.noContent().build();
+    }
 }

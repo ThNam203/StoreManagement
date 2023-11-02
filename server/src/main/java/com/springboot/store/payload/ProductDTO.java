@@ -1,5 +1,6 @@
 package com.springboot.store.payload;
 
+import com.springboot.store.entity.Location;
 import com.springboot.store.entity.SalesUnits;
 import lombok.*;
 
@@ -16,7 +17,7 @@ public class ProductDTO {
     private String name;
     private String barcode;
     private String property;
-    private String location;
+    private Location location;
     private int originalPrice;
     private int quantity;
     private String status;
@@ -27,6 +28,6 @@ public class ProductDTO {
 
     private Set<String> images;
     private Set<ProductPriceDTO> productPrices;
+    private Set<ProductPropertyDTO> productProperties;
     private ProductGroupDTO productGroup;
-    private SalesUnitsDTO salesUnits;
 }

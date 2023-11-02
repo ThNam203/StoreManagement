@@ -1,7 +1,9 @@
 package com.springboot.store.entity;
 
+import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.*;
 
 @Getter
@@ -9,6 +11,9 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+
+@Entity
+@Table(name = "locations")
 public class Location {
     @Id
     @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)

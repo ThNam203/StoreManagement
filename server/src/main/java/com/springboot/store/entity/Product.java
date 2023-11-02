@@ -62,7 +62,7 @@ public class Product {
     private ProductBrand productBrand;
 
     @OneToMany(cascade = CascadeType.ALL)
-    private ProductProperty productProperty;
+    private Set<ProductProperty> properties;
 
     @OneToMany(cascade = CascadeType.ALL)
     private Set<Media> images;
