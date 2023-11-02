@@ -25,7 +25,8 @@ public class ProductDTO {
     private int minStock;
     private int maxStock;
 
-    private Set<SalesUnits> salesUnits;
     private Set<String> images;
-
+    private Set<ProductPriceDTO> productPrices;
+    private ProductGroupDTO productGroup;
+    private SalesUnitsDTO salesUnits;
 }
