@@ -29,9 +29,6 @@ public class Product {
     @Column(name = "property")
     private String property;
 
-    @Column(name = "location")
-    private String location;
-
     @Column(name = "original_price")
     private int originalPrice;
 
@@ -69,5 +66,9 @@ public class Product {
 
     @OneToMany(cascade = CascadeType.ALL)
     private Set<Media> images;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "location_id")
+    private Location location;
 
 }
