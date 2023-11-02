@@ -19,11 +19,12 @@ public class ProductProperty {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "name")
-    private String name;
+    @OneToOne()
+    @JoinColumn(name = "property_name_id")
+    private ProductPropertyName propertyName;
 
-    @Column(name = "value")
-    private String value;
+    @OneToMany(mappedBy = "property", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ProductPropertyValue> propertyValues;
 
     @ManyToOne()
     @JoinColumn(name = "product_id")
