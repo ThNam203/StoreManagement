@@ -1,7 +1,10 @@
 package com.springboot.store.service.impl;
 
+import com.springboot.store.entity.Product;
 import com.springboot.store.entity.ProductProperty;
+import com.springboot.store.entity.ProductPropertyName;
 import com.springboot.store.payload.ProductPropertyDTO;
+import com.springboot.store.repository.ProductPropertyNameRepository;
 import com.springboot.store.repository.ProductPropertyRepository;
 import com.springboot.store.service.ProductPropertyService;
 import jakarta.persistence.EntityNotFoundException;
@@ -16,6 +19,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ProductPropertyServiceImpl implements ProductPropertyService {
     private final ProductPropertyRepository productPropertyRepository;
+    private final ProductPropertyNameRepository productPropertyNameRepository;
     private final ModelMapper modelMapper;
 
     @Override
@@ -34,7 +38,12 @@ public class ProductPropertyServiceImpl implements ProductPropertyService {
 
     @Override
     public ProductPropertyDTO createProductProperty(ProductPropertyDTO productPropertyDTO) {
-        ProductProperty productProperty = modelMapper.map(productPropertyDTO, ProductProperty.class);
+        int productPropertyNameId = productPropertyDTO.getProductPropertyNameId();
+        ProductPropertyName productPropertyName = productPropertyNameRepository.findById(productPropertyNameId).orElseThrow(() -> new EntityNotFoundException("ProductPropertyName not found with id: " + productPropertyNameId));
+        ProductProperty productProperty = ProductProperty.builder().build();
+        productProperty.setPropertyValue(productPropertyDTO.getPropertyValue());
+        productProperty.setPropertyName(productPropertyName);
+
         productProperty = productPropertyRepository.save(productProperty);
         return modelMapper.map(productProperty, ProductPropertyDTO.class);
     }
@@ -42,8 +51,7 @@ public class ProductPropertyServiceImpl implements ProductPropertyService {
     @Override
     public ProductPropertyDTO updateProductProperty(int id, ProductPropertyDTO productPropertyDTO) {
         ProductProperty existingProductProperty = productPropertyRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("ProductProperty not found with id: " + id));
-//        existingProductProperty.setName(productPropertyDTO.getName());
-//        existingProductProperty.setValue(productPropertyDTO.getValue());
+        existingProductProperty.setPropertyValue(productPropertyDTO.getPropertyValue());
         existingProductProperty = productPropertyRepository.save(existingProductProperty);
         return modelMapper.map(existingProductProperty, ProductPropertyDTO.class);
     }

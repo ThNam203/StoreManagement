@@ -23,7 +23,7 @@ public class ProductProperty {
     @JoinColumn(name = "property_name_id")
     private ProductPropertyName propertyName;
 
-    private String propertyValues;
+    private String propertyValue;
 
     @ManyToOne()
     @JoinColumn(name = "product_id")

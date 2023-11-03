@@ -2,6 +2,8 @@ package com.springboot.store.payload;
 
 import lombok.*;
 
+import java.util.Set;
+
 @Getter
 @Setter
 @Builder
@@ -9,8 +11,10 @@ import lombok.*;
 @NoArgsConstructor
 public class ProductPropertyDTO {
     private int id;
-    private String name;
-    private String value;
-
+    private ProductPropertyNameDTO propertyName;
+    private String propertyValue;
     private ProductDTO product;
+
+    private int productId;
+    private int productPropertyNameId;
 }
