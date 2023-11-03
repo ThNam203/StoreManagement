@@ -4,11 +4,6 @@ const nextConfig = {
   images: {
     domains: ["i.pravatar.cc"],
   },
-  webpack: (config) => {
-    config.resolve.alias.canvas = false;
-
-    return config;
-  },
 };
 
 module.exports = nextConfig;

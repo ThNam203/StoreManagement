@@ -1,41 +1,26 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { PageWithFilters } from "@/components/ui/filter";
-import DailyReportPDF from "@/components/ui/pdf";
-import { DailyReport, DataTableDailyReport } from "@/entities/Report";
+import { ChoicesFilter, PageWithFilters } from "@/components/ui/filter";
+import { DailyReport, FundReport, SaleReport } from "@/entities/Report";
+import { FormType } from "@/entities/Transaction";
 import { formatID } from "@/utils";
 import { useEffect, useState } from "react";
+import {
+  fundReportColumnHeaders,
+  saleReportColumnHeaders,
+} from "./pdf_columns";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import {
+  DailyReportPDFDownloader,
+  DailyReportPDFViewer,
+} from "@/components/ui/pdf";
 
-const originalDailyReportList: DataTableDailyReport[] = [
-  {
+const originalSaleReportList: SaleReport[] = [];
+const originalFundReportList: FundReport[] = [];
+//create copied data
+for (let i = 0; i < 50; i++) {
+  originalSaleReportList.push({
     transactionId: 1,
-    time: new Date(),
-    quantity: 100,
-    revenue: 10000000,
-    otherFees: 10000,
-    totalSale: 10000000 - 10000,
-  },
-  {
-    transactionId: 2,
-    time: new Date(),
-    quantity: 150,
-    revenue: 15000000,
-    otherFees: 20000,
-    totalSale: 15000000 - 20000,
-  },
-  {
-    transactionId: 3,
-    time: new Date(),
-    quantity: 20,
-    revenue: 200000,
-    otherFees: 10000,
-    totalSale: 200000 - 10000,
-  },
-];
-
-for (let i = 0; i < 200; i++) {
-  originalDailyReportList.push({
-    transactionId: 3,
     time: new Date(),
     quantity: 20,
     revenue: 200000,
@@ -44,44 +29,97 @@ for (let i = 0; i < 200; i++) {
   });
 }
 
+for (let i = 0; i < 50; i++) {
+  originalFundReportList.push({
+    formId: 1,
+    formType: FormType.EXPENSE,
+    targetName: "Nguyen Van A",
+    time: new Date(),
+  });
+  originalFundReportList.push({
+    formId: 2,
+    formType: FormType.RECEIPT,
+    targetName: "Nguyen Van B",
+    time: new Date(),
+  });
+}
+
 export default function ReportDayLayout() {
-  const [datatable, setDatatable] = useState<DataTableDailyReport[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [singleFilter, setSingleFilter] = useState({
+    concern: "Sale Report",
+  });
   const [dailyReport, setDailyReport] = useState<DailyReport>({
     headerData: {
+      title: "Daily Report",
       createdDate: new Date(),
       branch: "Center",
       saleDate: new Date(),
     },
-    contentData: datatable,
+    columnHeaders: {},
+    contentData: [],
   });
-  const contentDataColumnHeaders = {
-    transactionId: "Transaction ID",
-    time: "Time",
-    quantity: "Quantity",
-    revenue: "Revenue",
-    otherFees: "Other Fees",
-    totalSale: "Total Sale",
-  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      const res = originalDailyReportList;
-      const formatedData: DataTableDailyReport[] = res.map((row) => {
+    const fetchSaleReportData = async () => {
+      const res = originalSaleReportList;
+      const formatedData: SaleReport[] = res.map((row) => {
         const newRow = { ...row };
         newRow.transactionId = formatID(newRow.transactionId, "MDD");
         return newRow;
       });
-      setDatatable(formatedData);
+      setDailyReport((prev) => ({
+        headerData: {
+          ...prev.headerData,
+          title: "Daily report about sale",
+          createdDate: new Date(),
+          saleDate: new Date(),
+        },
+        columnHeaders: saleReportColumnHeaders,
+        contentData: formatedData,
+      }));
     };
-    fetchData();
-  }, []);
-  useEffect(() => {
-    setDailyReport((prev) => ({
-      ...prev,
-      contentData: datatable,
-    }));
-  }, [datatable]);
+    const fetchFundReportData = async () => {
+      const res = originalFundReportList;
+      const formatedData: FundReport[] = res.map((row) => {
+        const newRow = { ...row };
+        newRow.formId = formatID(newRow.formId, "MP");
+        return newRow;
+      });
+      setDailyReport((prev) => ({
+        headerData: {
+          ...prev.headerData,
+          title: "Daily report about fund",
+          createdDate: new Date(),
+          saleDate: new Date(),
+        },
+        columnHeaders: fundReportColumnHeaders,
+        contentData: formatedData,
+      }));
+    };
+    setLoading(true);
+    if (singleFilter.concern === "Sale Report") fetchSaleReportData();
+    else if (singleFilter.concern === "Fund Report") fetchFundReportData();
+    setLoading(false);
+  }, [singleFilter]);
 
-  const filters = [<div key={1} className="flex flex-col space-y-2"></div>];
+  const updateConcernSingleFilter = (value: string) => {
+    setSingleFilter((prev) => ({ ...prev, concern: value }));
+  };
+
+  const choices = ["Sale Report", "Fund Report"];
+  const filters = [
+    <div key={1} className="flex flex-col space-y-2">
+      <ChoicesFilter
+        title="Concern"
+        key={1}
+        isSingleChoice={true}
+        choices={choices}
+        defaultValue={singleFilter.concern}
+        onSingleChoiceChanged={updateConcernSingleFilter}
+      />
+    </div>,
+  ];
 
   const headerButtons = [<Button key={0}>More+</Button>];
   return (
@@ -90,11 +128,17 @@ export default function ReportDayLayout() {
       title="Daily Report"
       headerButtons={headerButtons}
     >
-      <DailyReportPDF
-        data={dailyReport}
-        columnHeaders={contentDataColumnHeaders}
-        classname="w-full h-[1000px]"
-      />
+      <DailyReportPDFDownloader data={dailyReport} />
+      {loading ? (
+        <div className="w-full h-[1000px] animate-pulse bg-[#e6e6e6] text-center pt-4">
+          Loading...
+        </div>
+      ) : (
+        <DailyReportPDFViewer
+          data={dailyReport}
+          classname="w-full h-[1000px]"
+        />
+      )}
     </PageWithFilters>
   );
 }
