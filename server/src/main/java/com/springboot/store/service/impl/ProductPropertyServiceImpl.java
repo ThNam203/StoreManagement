@@ -42,8 +42,8 @@ public class ProductPropertyServiceImpl implements ProductPropertyService {
     @Override
     public ProductPropertyDTO updateProductProperty(int id, ProductPropertyDTO productPropertyDTO) {
         ProductProperty existingProductProperty = productPropertyRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("ProductProperty not found with id: " + id));
-        existingProductProperty.setName(productPropertyDTO.getName());
-        existingProductProperty.setValue(productPropertyDTO.getValue());
+//        existingProductProperty.setName(productPropertyDTO.getName());
+//        existingProductProperty.setValue(productPropertyDTO.getValue());
         existingProductProperty = productPropertyRepository.save(existingProductProperty);
         return modelMapper.map(existingProductProperty, ProductPropertyDTO.class);
     }

@@ -23,8 +23,7 @@ public class ProductProperty {
     @JoinColumn(name = "property_name_id")
     private ProductPropertyName propertyName;
 
-    @OneToMany(mappedBy = "property", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<ProductPropertyValue> propertyValues;
+    private String propertyValues;
 
     @ManyToOne()
     @JoinColumn(name = "product_id")
