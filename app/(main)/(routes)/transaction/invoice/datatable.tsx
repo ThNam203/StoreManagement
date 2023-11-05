@@ -15,11 +15,11 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import * as React from "react";
-import { AddStaffDialog } from "./add_staff_dialog";
 import { columnHeader, columns } from "./columns";
+import { Invoice } from "@/entities/Invoice";
 type Props = {
-  data: Staff[];
-  onSubmit: (values: Staff) => void;
+  data: Invoice[];
+  onSubmit?: (values: Invoice) => void;
 };
 
 export function DataTable({ data, onSubmit }: Props) {
@@ -29,20 +29,16 @@ export function DataTable({ data, onSubmit }: Props) {
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({
-      avatar: false,
       id: true,
-      name: true,
-      phoneNumber: true,
-      CCCD: false,
-      salaryDebt: true,
-      note: false,
-      birthday: false,
-      sex: false,
-      email: true,
-      address: false,
-      branch: false,
-      position: true,
-      createAt: false,
+      customerId: false,
+      discount: true,
+      total: true,
+      moneyGiven: false,
+      change: false,
+      transactionType: true,
+      createdDate: true,
+      creator: false,
+      VAT: false,
     });
   const [rowSelection, setRowSelection] = React.useState({});
   const [filterInput, setFilterInput] = React.useState("");
@@ -67,7 +63,7 @@ export function DataTable({ data, onSubmit }: Props) {
       globalFilter: filterInput,
     },
   });
-  const handleSubmit = (values: Staff) => {
+  const handleSubmit = (values: Invoice) => {
     if (onSubmit) onSubmit(values);
   };
 
@@ -81,7 +77,6 @@ export function DataTable({ data, onSubmit }: Props) {
           className="max-w-sm"
         />
         <div className="flex flex-row space-x-2">
-          <AddStaffDialog submit={handleSubmit} />
           <DataTableViewOptions
             table={table}
             title="Columns"

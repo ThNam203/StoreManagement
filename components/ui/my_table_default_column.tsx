@@ -10,6 +10,7 @@ import { MoreHorizontal } from "lucide-react";
 import { Button } from "./button";
 import { ReactNode } from "react";
 import { Checkbox } from "./checkbox";
+import format from "date-fns/format";
 
 function defaultColumn<T>(
   accessorKey: string,
@@ -27,7 +28,9 @@ function defaultColumn<T>(
     cell: ({ row }) => {
       const value: ReactNode = row.getValue(accessorKey);
       const formatedValue: ReactNode =
-        value instanceof Date ? value.toLocaleString() : value;
+        value instanceof Date
+          ? format(value, "dd/MM/yyyy hh:mm a").toString()
+          : value;
 
       return <div>{formatedValue}</div>;
     },

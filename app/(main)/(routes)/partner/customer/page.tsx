@@ -29,6 +29,7 @@ import {
   TimeFilter,
 } from "@/components/ui/filter";
 import {
+  TimeFilterType,
   formatID,
   getMinMaxOfListTime,
   getStaticRangeFilterTime,
@@ -36,6 +37,7 @@ import {
   handleRangeNumFilter,
   handleRangeTimeFilter,
   handleSingleFilter,
+  handleTimeFilter,
 } from "@/utils";
 
 const originalCustomerList: Customer[] = [
@@ -120,7 +122,7 @@ export default function CustomerPage() {
     sex: [] as string[],
     status: [] as string[],
   });
-  const [singleFilter, setSingleFilter] = useState({
+  const [staticRangeFilter, setStaticRangeFilter] = useState({
     createdDate: FilterYear.AllTime as FilterTime,
     birthday: FilterYear.AllTime as FilterTime,
     lastTransaction: FilterYear.AllTime as FilterTime,
@@ -139,6 +141,12 @@ export default function CustomerPage() {
       endDate: new Date(),
     },
   });
+  const [timeFilterControl, setTimeFilterControl] = useState({
+    createdDate: TimeFilterType.StaticRange as TimeFilterType,
+    birthday: TimeFilterType.StaticRange as TimeFilterType,
+    lastTransaction: TimeFilterType.StaticRange as TimeFilterType,
+  });
+
   const [rangeNumFilter, setRangeNumFilter] = useState({
     sale: { startValue: NaN, endValue: NaN },
     debt: { startValue: NaN, endValue: NaN },
@@ -157,11 +165,23 @@ export default function CustomerPage() {
   useEffect(() => {
     var filteredList = [...customerList];
     filteredList = handleMultipleFilter(multiFilter, filteredList);
-    filteredList = handleRangeTimeFilter(rangeTimeFilter, filteredList);
+    filteredList = handleTimeFilter(
+      staticRangeFilter,
+      rangeTimeFilter,
+      timeFilterControl,
+      filteredList
+    );
     filteredList = handleRangeNumFilter(rangeNumFilter, filteredList);
 
     setFilteredCustomerList([...filteredList]);
-  }, [multiFilter, rangeTimeFilter, rangeNumFilter, customerList]);
+  }, [
+    multiFilter,
+    staticRangeFilter,
+    rangeTimeFilter,
+    timeFilterControl,
+    rangeNumFilter,
+    customerList,
+  ]);
 
   function handleFormSubmit(values: Customer) {
     setCustomerList((prev) => [...prev, values]);
@@ -172,29 +192,16 @@ export default function CustomerPage() {
   };
 
   const updateCreatedDateStaticRangeFilter = (value: FilterTime) => {
-    setSingleFilter((prev) => ({ ...prev, createdDate: value }));
-
-    //the purpose of this area is just to get min date and max date to cover case FilterTime.Alltime
-    const rangeTime: { minDate: Date; maxDate: Date } = getMinMaxOfListTime(
-      customerList.map((row) => row.createdDate)
-    );
-    //--------------------------------------------------------------------------------------------
-    const range: { startDate: Date; endDate: Date } = getStaticRangeFilterTime(
-      value,
-      rangeTime.minDate,
-      rangeTime.maxDate
-    );
-
-    setRangeTimeFilter((prev) => ({
-      ...prev,
-      createdDate: range,
-    }));
+    setStaticRangeFilter((prev) => ({ ...prev, createdDate: value }));
   };
   const updateCreatedDateRangeTimeFilter = (range: {
     startDate: Date;
     endDate: Date;
   }) => {
     setRangeTimeFilter((prev) => ({ ...prev, createdDate: range }));
+  };
+  const updateCreatedDateFilterControl = (value: TimeFilterType) => {
+    setTimeFilterControl((prev) => ({ ...prev, createdDate: value }));
   };
   const updateBirthdayRangeTimeFilter = (range: {
     startDate: Date;
@@ -203,23 +210,10 @@ export default function CustomerPage() {
     setRangeTimeFilter((prev) => ({ ...prev, birthday: range }));
   };
   const updateBirthdayStaticRangeFilter = (value: FilterTime) => {
-    setSingleFilter((prev) => ({ ...prev, birthday: value }));
-
-    //the purpose of this area is just to get min date and max date to cover case FilterTime.Alltime
-    const rangeTime: { minDate: Date; maxDate: Date } = getMinMaxOfListTime(
-      customerList.map((row) => row.birthday)
-    );
-    //--------------------------------------------------------------------------------------------
-    const range: { startDate: Date; endDate: Date } = getStaticRangeFilterTime(
-      value,
-      rangeTime.minDate,
-      rangeTime.maxDate
-    );
-
-    setRangeTimeFilter((prev) => ({
-      ...prev,
-      birthday: range,
-    }));
+    setStaticRangeFilter((prev) => ({ ...prev, birthday: value }));
+  };
+  const updateBirthdayFilterControl = (value: TimeFilterType) => {
+    setTimeFilterControl((prev) => ({ ...prev, birthday: value }));
   };
   const updateLastTransactionRangeTimeFilter = (range: {
     startDate: Date;
@@ -228,23 +222,10 @@ export default function CustomerPage() {
     setRangeTimeFilter((prev) => ({ ...prev, lastTransaction: range }));
   };
   const updateLastTransactionStaticRangeFilter = (value: FilterTime) => {
-    setSingleFilter((prev) => ({ ...prev, lastTransaction: value }));
-
-    //the purpose of this area is just to get min date and max date to cover case FilterTime.Alltime
-    const rangeTime: { minDate: Date; maxDate: Date } = getMinMaxOfListTime(
-      customerList.map((row) => row.lastTransaction)
-    );
-    //--------------------------------------------------------------------------------------------
-    const range: { startDate: Date; endDate: Date } = getStaticRangeFilterTime(
-      value,
-      rangeTime.minDate,
-      rangeTime.maxDate
-    );
-
-    setRangeTimeFilter((prev) => ({
-      ...prev,
-      lastTransaction: range,
-    }));
+    setStaticRangeFilter((prev) => ({ ...prev, lastTransaction: value }));
+  };
+  const updateLastTransactionFilterControl = (value: TimeFilterType) => {
+    setTimeFilterControl((prev) => ({ ...prev, lastTransaction: value }));
   };
   const updateSaleRangeNumFilter = (range: {
     startValue: number;
@@ -283,24 +264,30 @@ export default function CustomerPage() {
       <TimeFilter
         key={2}
         title="Date Modified"
-        singleTimeValue={singleFilter.createdDate}
+        timeFilterControl={timeFilterControl.createdDate}
+        singleTimeValue={staticRangeFilter.createdDate}
         rangeTimeValue={rangeTimeFilter.createdDate}
+        onTimeFilterControlChanged={updateCreatedDateFilterControl}
         onRangeTimeFilterChanged={updateCreatedDateRangeTimeFilter}
         onSingleTimeFilterChanged={updateCreatedDateStaticRangeFilter}
       />
       <TimeFilter
         key={3}
         title="Birthday"
-        singleTimeValue={singleFilter.birthday}
+        timeFilterControl={timeFilterControl.birthday}
+        singleTimeValue={staticRangeFilter.birthday}
         rangeTimeValue={rangeTimeFilter.birthday}
+        onTimeFilterControlChanged={updateBirthdayFilterControl}
         onRangeTimeFilterChanged={updateBirthdayRangeTimeFilter}
         onSingleTimeFilterChanged={updateBirthdayStaticRangeFilter}
       />
       <TimeFilter
         key={4}
         title="Last Transaction"
-        singleTimeValue={singleFilter.lastTransaction}
+        timeFilterControl={timeFilterControl.lastTransaction}
+        singleTimeValue={staticRangeFilter.lastTransaction}
         rangeTimeValue={rangeTimeFilter.lastTransaction}
+        onTimeFilterControlChanged={updateLastTransactionFilterControl}
         onRangeTimeFilterChanged={updateLastTransactionRangeTimeFilter}
         onSingleTimeFilterChanged={updateLastTransactionStaticRangeFilter}
       />

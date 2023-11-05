@@ -25,11 +25,11 @@ import {
 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 import { Button } from "./button";
-import React, { StrictMode, useEffect, useState } from "react";
+import React, { StrictMode, useCallback, useEffect, useState } from "react";
 import { Input } from "./input";
 import { ScrollArea } from "./scroll-area";
 import format from "date-fns/format";
-import { removeCharNotANum } from "@/utils";
+import { TimeFilterType, removeCharNotANum } from "@/utils";
 
 const ChoicesFilter = ({
   title,
@@ -226,6 +226,7 @@ const TimeFilter = ({
   title,
   className,
   alwaysOpen = false,
+  timeFilterControl = TimeFilterType.StaticRange,
   singleTimeValue = FilterYear.AllTime,
   singleTimeString,
   rangeTimeValue = { startDate: new Date(), endDate: new Date() },
@@ -238,12 +239,14 @@ const TimeFilter = ({
   ],
   filterQuarter = [FilterQuarter.ThisQuarter, FilterQuarter.LastQuarter],
   filterYear = [FilterYear.ThisYear, FilterYear.LastYear, FilterYear.AllTime],
+  onTimeFilterControlChanged,
   onSingleTimeFilterChanged,
   onRangeTimeFilterChanged,
 }: {
   title: string;
   className?: string;
   alwaysOpen?: boolean;
+  timeFilterControl: TimeFilterType;
   singleTimeValue?: FilterTime;
   singleTimeString?: string;
   rangeTimeValue?: { startDate: Date; endDate: Date };
@@ -252,14 +255,24 @@ const TimeFilter = ({
   filterMonth?: FilterMonth[];
   filterQuarter?: FilterQuarter[];
   filterYear?: FilterYear[];
+  onTimeFilterControlChanged: (timeFilterControl: TimeFilterType) => void;
   onSingleTimeFilterChanged?: (filterTime: FilterTime) => void;
   onRangeTimeFilterChanged?: (range: {
     startDate: Date;
     endDate: Date;
   }) => void;
 }) => {
-  const [isSingleFilter, setIsSingleFilter] = useState(true);
+  const [isSingleFilter, setIsSingleFilter] = useState(
+    timeFilterControl === TimeFilterType.StaticRange
+  );
   const [isRangeFilterOpen, setIsRangeFilterOpen] = useState(false);
+
+  useEffect(() => {
+    console.log("isSingleFilter", isSingleFilter);
+    onTimeFilterControlChanged(
+      isSingleFilter ? TimeFilterType.StaticRange : TimeFilterType.RangeTime
+    );
+  }, [isSingleFilter]);
 
   return (
     <Accordion

@@ -20,31 +20,25 @@ const originalFundReportList: FundReport[] = [];
 //create copied data
 for (let i = 0; i < 50; i++) {
   originalSaleReportList.push({
-    transactionId: 1,
+    transactionId: i,
     time: new Date(),
-    quantity: 20,
-    revenue: 200000,
+    quantity: 20 * i,
+    revenue: 200000 * i,
     otherFees: 10000,
-    totalSale: 200000 - 10000,
+    totalSale: 200000 * i - 10000,
   });
 }
 
 for (let i = 0; i < 50; i++) {
   originalFundReportList.push({
-    formId: 1,
+    formId: i,
     formType: FormType.EXPENSE,
     targetName: "Nguyen Van A",
     time: new Date(),
   });
-  originalFundReportList.push({
-    formId: 2,
-    formType: FormType.RECEIPT,
-    targetName: "Nguyen Van B",
-    time: new Date(),
-  });
 }
 
-export default function ReportDayLayout() {
+export default function DailyReportLayout() {
   const [loading, setLoading] = useState(true);
   const [singleFilter, setSingleFilter] = useState({
     concern: "Sale Report",
@@ -107,7 +101,7 @@ export default function ReportDayLayout() {
     setSingleFilter((prev) => ({ ...prev, concern: value }));
   };
 
-  const choices = ["Sale Report", "Fund Report"];
+  const choices = ["Sale", "Fund"];
   const filters = [
     <div key={1} className="flex flex-col space-y-2">
       <ChoicesFilter
@@ -128,17 +122,13 @@ export default function ReportDayLayout() {
       title="Daily Report"
       headerButtons={headerButtons}
     >
-      <DailyReportPDFDownloader data={dailyReport} />
-      {loading ? (
-        <div className="w-full h-[1000px] animate-pulse bg-[#e6e6e6] text-center pt-4">
-          Loading...
-        </div>
-      ) : (
+      <div className="flex flex-col space-y-4">
+        <DailyReportPDFDownloader data={dailyReport} classname="self-end" />
         <DailyReportPDFViewer
           data={dailyReport}
           classname="w-full h-[1000px]"
         />
-      )}
+      </div>
     </PageWithFilters>
   );
 }
