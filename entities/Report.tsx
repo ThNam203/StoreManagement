@@ -11,7 +11,7 @@ type DailyReport = {
   contentData: Array<ReportDataType>;
 };
 
-type ReportDataType = SaleReport | FundReport | InventoryReport;
+type ReportDataType = SaleReport | FundReport | GoodsReport;
 
 type SaleReport = {
   transactionId: any;
@@ -29,12 +29,20 @@ type FundReport = {
   time: Date;
 };
 
-type InventoryReport = {};
+type GoodsReport = {
+  goodsId: any;
+  goodsName: string;
+  sellQuantity: number;
+  revenue: number;
+  returnQuantity: number;
+  returnValue: number;
+  netRevenue: number;
+};
 
 export type {
   DailyReport,
   ReportDataType,
   SaleReport,
   FundReport,
-  InventoryReport,
+  GoodsReport,
 };

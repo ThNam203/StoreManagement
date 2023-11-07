@@ -1,12 +1,18 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { ChoicesFilter, PageWithFilters } from "@/components/ui/filter";
-import { DailyReport, FundReport, SaleReport } from "@/entities/Report";
+import {
+  DailyReport,
+  FundReport,
+  GoodsReport,
+  SaleReport,
+} from "@/entities/Report";
 import { FormType } from "@/entities/Transaction";
 import { formatID } from "@/utils";
 import { useEffect, useState } from "react";
 import {
   fundReportColumnHeaders,
+  goodsReportColumnHeaders,
   saleReportColumnHeaders,
 } from "./pdf_columns";
 import { PDFDownloadLink } from "@react-pdf/renderer";
@@ -17,6 +23,7 @@ import {
 
 const originalSaleReportList: SaleReport[] = [];
 const originalFundReportList: FundReport[] = [];
+const originalGoodsReportList: GoodsReport[] = [];
 //create copied data
 for (let i = 0; i < 50; i++) {
   originalSaleReportList.push({
@@ -37,11 +44,28 @@ for (let i = 0; i < 50; i++) {
     time: new Date(),
   });
 }
+for (let i = 0; i < 50; i++) {
+  originalGoodsReportList.push({
+    goodsId: i,
+    goodsName: "Banh gao AOne",
+    sellQuantity: i * 20,
+    revenue: i * 20 * 15000,
+    returnQuantity: i * 2,
+    returnValue: i * 2 * 15000,
+    netRevenue: i * 18 * 15000,
+  });
+}
+
+enum Concern {
+  SALE = "Sale",
+  FUND = "Fund",
+  GOODS = "Goods",
+}
 
 export default function DailyReportLayout() {
   const [loading, setLoading] = useState(true);
   const [singleFilter, setSingleFilter] = useState({
-    concern: "Sale Report",
+    concern: Concern.SALE as string,
   });
   const [dailyReport, setDailyReport] = useState<DailyReport>({
     headerData: {
@@ -91,9 +115,28 @@ export default function DailyReportLayout() {
         contentData: formatedData,
       }));
     };
+    const fetchGoodsReportData = async () => {
+      const res = originalGoodsReportList;
+      const formatedData: GoodsReport[] = res.map((row) => {
+        const newRow = { ...row };
+        newRow.goodsId = formatID(newRow.goodsId, "MHH");
+        return newRow;
+      });
+      setDailyReport((prev) => ({
+        headerData: {
+          ...prev.headerData,
+          title: "Daily report about goods",
+          createdDate: new Date(),
+          saleDate: new Date(),
+        },
+        columnHeaders: goodsReportColumnHeaders,
+        contentData: formatedData,
+      }));
+    };
     setLoading(true);
-    if (singleFilter.concern === "Sale Report") fetchSaleReportData();
-    else if (singleFilter.concern === "Fund Report") fetchFundReportData();
+    if (singleFilter.concern === Concern.SALE) fetchSaleReportData();
+    else if (singleFilter.concern === Concern.FUND) fetchFundReportData();
+    else if (singleFilter.concern === Concern.GOODS) fetchGoodsReportData();
     setLoading(false);
   }, [singleFilter]);
 
@@ -101,14 +144,13 @@ export default function DailyReportLayout() {
     setSingleFilter((prev) => ({ ...prev, concern: value }));
   };
 
-  const concerns = ["Sale", "Fund"];
   const filters = [
     <div key={1} className="flex flex-col space-y-2">
       <ChoicesFilter
         title="Concern"
         key={1}
         isSingleChoice={true}
-        choices={concerns}
+        choices={Object.values(Concern)}
         defaultValue={singleFilter.concern}
         onSingleChoiceChanged={updateConcernSingleFilter}
       />
