@@ -288,10 +288,14 @@ export default function Sale() {
   const changePriceTable = (newPriceTable: string) => {
     setPriceTable(newPriceTable);
   };
+  const [scrollWhell, setScrollWheel] = useState(0);
+  useEffect(() => {
+    console.log("wheel", scrollWhell);
+  }, [scrollWhell]);
 
   return (
     <div className="flex flex-col h-screen w-screen bg-slate-600">
-      <div className="flex flex-row items-center h-[calc(35px+1rem)]">
+      <div className="flex flex-row items-center h-[calc(35px+1rem)] px-2">
         <div className="flex flex-row bg-white items-center rounded-sm pl-2 min-w-[250px] max-w-[400px] w-[400px] mx-2 my-auto">
           <Search size={20} color="rgb(156 163 175)" />
           <Input
@@ -316,7 +320,7 @@ export default function Sale() {
             <div
               key={idx}
               className={cn(
-                "flex flex-row items-center min-w-[100px] w-[100px] hover:cursor-pointer px-1 mt-2 pb-4 rounded-t-sm h-full",
+                "flex flex-row items-center min-w-[100px] w-[100px] hover:cursor-pointer px-2 mt-2 pb-4 rounded-t-sm h-full ease-linear duration-200",
                 chosenInvoicePosition === idx
                   ? "bg-slate-200 text-black font-semibold"
                   : "hover:bg-slate-700 text-white"
@@ -327,7 +331,7 @@ export default function Sale() {
               <X
                 size={16}
                 className={cn(
-                  "rounded-full p-[1px]",
+                  "rounded-full p-[1px] ease-linear duration-100",
                   chosenInvoicePosition === idx
                     ? "hover:bg-slate-600 hover:text-white"
                     : "hover:bg-opacity-50 hover:bg-slate-50"

@@ -101,14 +101,14 @@ export default function DailyReportLayout() {
     setSingleFilter((prev) => ({ ...prev, concern: value }));
   };
 
-  const choices = ["Sale", "Fund"];
+  const concerns = ["Sale", "Fund"];
   const filters = [
     <div key={1} className="flex flex-col space-y-2">
       <ChoicesFilter
         title="Concern"
         key={1}
         isSingleChoice={true}
-        choices={choices}
+        choices={concerns}
         defaultValue={singleFilter.concern}
         onSingleChoiceChanged={updateConcernSingleFilter}
       />

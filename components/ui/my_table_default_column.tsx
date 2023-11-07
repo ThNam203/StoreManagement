@@ -28,9 +28,7 @@ function defaultColumn<T>(
     cell: ({ row }) => {
       const value: ReactNode = row.getValue(accessorKey);
       const formatedValue: ReactNode =
-        value instanceof Date
-          ? format(value, "dd/MM/yyyy hh:mm a").toString()
-          : value;
+        value instanceof Date ? format(value, "dd/MM/yyyy hh:mm a") : value;
 
       return <div>{formatedValue}</div>;
     },
