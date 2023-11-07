@@ -5,20 +5,21 @@ import Product from "@/entities/Product";
 import { ColumnDef } from "@tanstack/react-table";
 
 export const columnTitles = {
-  image: 'Image',
-  productId: 'ID',
+  id: 'Product ID',
+  name: 'Product Name',
   barcode: 'Barcode',
-  productName: 'Name',
-  productGroup: 'Product group',
-  productType: 'Product type',
-  costOfGoods: 'Cost of goods',
-  sellingPrice: 'Selling price',
-  brand: 'Brand',
-  inventoryQuantity: 'Inventory quantity',
-  position: 'Position',
-  minimumInventoryThreshold: 'Minimum inventory threshold',
-  maximumInventoryThreshold: 'Maximum inventory threshold',
+  location: 'Location',
+  costOfGoods: 'Original Price', // originalPrice
+  sellingPrice: 'Sell Price',
+  quantity: 'Quantity',
   status: 'Status',
+  description: 'Description',
+  note: 'Note',
+  minInventoryThreshold: 'Min Threshold', // minQuantity
+  maxInventoryThreshold: 'Max Threshold', // maxQuantity
+  productGroup: 'Product Group',
+  productBrand: 'Product Brand',
+  productProperty: 'Product Property',
 };
 
 export const productTableColumns = (): ColumnDef<Product>[] => {

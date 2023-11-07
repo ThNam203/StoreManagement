@@ -2,9 +2,11 @@
 
 import { Button } from "@/components/ui/button";
 import {
+  ChoicesFilter,
   FilterTime,
   FilterYear,
   PageWithFilters,
+  SearchFilter,
   TimeFilter,
 } from "@/components/ui/filter";
 import { DiscountType, Invoice } from "@/entities/Invoice";
@@ -87,27 +89,116 @@ export default function InvoicePage() {
     setTimeFilterControl((prev) => ({ ...prev, createdDate: value }));
   };
 
+  const [filterChoices, setFilterChocies] = useState<{
+    status: string[];
+    creator: string[];
+    seller: string[];
+    paymentMethod: string[];
+    priceTable: string[];
+  }>({
+    status: ["Pending", "Done"],
+    creator: [],
+    seller: [],
+    paymentMethod: [],
+    priceTable: [],
+  });
+
+  const updateStatusFilterChoices = (choices: string[]) => {
+    setFilterChocies((prev) => ({
+      ...prev,
+      status: choices,
+    }));
+  };
+
+  const updateCreatorFilterChoices = (choices: string[]) => {
+    setFilterChocies((prev) => ({
+      ...prev,
+      creator: choices,
+    }));
+  };
+
+  const updateSellerFilterChoices = (choices: string[]) => {
+    setFilterChocies((prev) => ({
+      ...prev,
+      seller: choices,
+    }));
+  };
+
+  const updatePaymentMethodFilterChoices = (choices: string[]) => {
+    setFilterChocies((prev) => ({
+      ...prev,
+      paymentMethod: choices,
+    }));
+  };
+
+  const updatePriceTableFilterChoices = (choices: string[]) => {
+    setFilterChocies((prev) => ({
+      ...prev,
+      priceTable: choices,
+    }));
+  };
+
   const filters = [
-    <div key={1} className="flex flex-col space-y-2">
-      <TimeFilter
-        key={1}
-        title="Date Modified"
-        timeFilterControl={timeFilterControl.createdDate}
-        singleTimeValue={staticRangeFilter.createdDate}
-        rangeTimeValue={rangeTimeFilter.createdDate}
-        onTimeFilterControlChanged={updateCreatedDateFilterControl}
-        onRangeTimeFilterChanged={updateCreatedDateRangeTimeFilter}
-        onSingleTimeFilterChanged={updateCreatedDateStaticRangeTimeFilter}
-      />
-    </div>,
+    <TimeFilter
+      key={1}
+      title="Created Date"
+      timeFilterControl={timeFilterControl.createdDate}
+      singleTimeValue={staticRangeFilter.createdDate}
+      rangeTimeValue={rangeTimeFilter.createdDate}
+      onTimeFilterControlChanged={updateCreatedDateFilterControl}
+      onRangeTimeFilterChanged={updateCreatedDateRangeTimeFilter}
+      onSingleTimeFilterChanged={updateCreatedDateStaticRangeTimeFilter}
+      className="mb-4"
+    />,
+    <ChoicesFilter
+      key={2}
+      title="Status"
+      isSingleChoice={false}
+      choices={["Pending", "Done", "Cancelled"]}
+      defaultValues={filterChoices.status}
+      onMultiChoicesChanged={updateStatusFilterChoices}
+      className="my-4"
+    />,
+    <SearchFilter
+      key={3}
+      title="Creator"
+      placeholder="Find creator..."
+      choices={["Nam", "Khoi", "Son", "Dat"]}
+      chosenValues={filterChoices.creator}
+      onValuesChanged={updateCreatorFilterChoices}
+      className="my-4"
+    />,
+    <SearchFilter
+      key={4}
+      title="Seller"
+      placeholder="Find seller..."
+      choices={["Nam", "Khoi", "Son", "Dat"]}
+      chosenValues={filterChoices.seller}
+      onValuesChanged={updateSellerFilterChoices}
+      className="my-4"
+    />,
+    <ChoicesFilter
+      key={5}
+      title="Payment method"
+      isSingleChoice={false}
+      choices={["By Cash", "VISA Card", "Bank transfer"]}
+      defaultValues={filterChoices.paymentMethod}
+      onMultiChoicesChanged={updatePaymentMethodFilterChoices}
+      className="my-4"
+    />,
+    <SearchFilter
+      key={6}
+      title="Price table"
+      placeholder="Find price table..."
+      choices={["General table", "Black Friday", "X", "D"]}
+      chosenValues={filterChoices.priceTable}
+      onValuesChanged={updatePriceTableFilterChoices}
+      className="my-4"
+    />,
   ];
-  const headerButtons = [<Button key={1}>More+</Button>];
+
   return (
-    <PageWithFilters
-      title="Invoice"
-      filters={filters}
-      headerButtons={headerButtons}
-    >
+    <PageWithFilters title="Invoice" filters={filters}>
       <DataTable data={filteredInvoiceList}></DataTable>
     </PageWithFilters>
   );

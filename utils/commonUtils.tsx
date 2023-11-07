@@ -137,7 +137,6 @@ function handleTimeFilter<T>(
         filterControl[key as keyof typeof filterControl] ===
         TimeFilterType.RangeTime
       ) {
-        console.log("range time in func");
         let value = row[key as keyof typeof row];
         let range = rangeTimeFilter[key as keyof typeof rangeTimeFilter];
         if (value instanceof Date && range !== undefined && range !== null) {
@@ -149,7 +148,6 @@ function handleTimeFilter<T>(
           key as keyof typeof staticRangeFilter
         ] as FilterTime;
         let range = getStaticRangeFilterTime(staticRange);
-        console.log("static time in func", range);
         if (staticRange === FilterYear.AllTime) continue;
         if (value instanceof Date && range !== undefined && range !== null) {
           if (!isInRangeTime(value, range)) return false;

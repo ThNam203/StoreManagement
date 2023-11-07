@@ -14,41 +14,76 @@ import {
 import * as React from "react";
 import { DataTableContent } from "@/components/ui/my_table_content";
 import Product from "@/entities/Product";
-import { columnTitles, productTableColumns } from "./table_columns";
+import { DamagedItem, columnTitles, tableColumns } from "./columns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DataTableViewOptions } from "@/components/ui/my_table_column_visibility_toggle";
 
-type Props = {
-  data: Product[];
-  onSubmit?: (values: Product) => void;
-};
+export function ProductPriceTablesDatatable() {
+  const [data, setData] = React.useState<DamagedItem[]>([
+    {
+      id: 1,
+      value: "Product A",
+      createdDate: new Date(),
+      branch: "Main Store",
+      creator: "John Smith",
+      note: "Damaged during shipment",
+      status: "In Progress",
+    },
+    {
+      id: 2,
+      value: "Product B",
+      createdDate: new Date(),
+      branch: "Downtown Store",
+      creator: "Sarah Brown",
+      note: "Customer return due to damage",
+      status: "Completed",
+    },
+    {
+      id: 3,
+      value: "Product C",
+      createdDate: new Date(),
+      branch: "Suburb Store",
+      creator: "Chris Anderson",
+      note: "Received with manufacturing defect",
+      status: "In Progress",
+    },
+    {
+      id: 4,
+      value: "Product D",
+      createdDate: new Date(),
+      branch: "Mall Store",
+      creator: "Alex Davis",
+      note: "Damaged in-store handling",
+      status: "Canceled",
+    },
+    {
+      id: 5,
+      value: "Product E",
+      createdDate: new Date(),
+      branch: "Outlet Store",
+      creator: "Ella Wright",
+      note: "Defective product from supplier",
+      status: "In Progress",
+    },
+  ]);
 
-export function CatalogDatatable({ data, onSubmit }: Props) {
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({
+    id: true,
+    value: true,
+    createdDate: true,
+    branch: true,
+    creator: true,
+    note: true,
+    status: true,
+  })
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({
-      image: true,
-      productId: true,
-      barcode: false,
-      productName: true,
-      productGroup: true,
-      productType: false,
-      costOfGoods: false,
-      sellingPrice: false,
-      brand: true,
-      inventoryQuantity: false,
-      position: false,
-      minInventoryThreshold: false,
-      maxInventoryThreshold: false,
-      status: false,
-    });
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
   const [filterInput, setFilterInput] = React.useState("");
-  const columns = productTableColumns();
+  const columns = tableColumns();
 
   const table = useReactTable({
     data,
@@ -59,14 +94,14 @@ export function CatalogDatatable({ data, onSubmit }: Props) {
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    onColumnVisibilityChange: setColumnVisibility,
     onGlobalFilterChange: setFilterInput,
     state: {
       sorting,
       columnFilters,
-      columnVisibility,
       rowSelection,
+      columnVisibility,
       globalFilter: filterInput,
     },
   });
@@ -81,18 +116,15 @@ export function CatalogDatatable({ data, onSubmit }: Props) {
           className="max-w-sm"
         />
         <div className="flex flex-row">
-          <div className="mr-2">
-            <Button variant={"default"} onClick={() => {}}>
-              Export Excel
-            </Button>
-          </div>
-
+          <Button variant={"default"} onClick={() => {}}>
+            Export Excel
+          </Button>
           <DataTableViewOptions
-            title="Columns"
             table={table}
+            title="Columns"
             columnHeaders={columnTitles}
-            cols={2}
-            rowPerCols={9}
+            cols={3}
+            rowPerCols={7}
           />
         </div>
       </div>

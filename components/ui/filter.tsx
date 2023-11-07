@@ -268,7 +268,6 @@ const TimeFilter = ({
   const [isRangeFilterOpen, setIsRangeFilterOpen] = useState(false);
 
   useEffect(() => {
-    console.log("isSingleFilter", isSingleFilter);
     onTimeFilterControlChanged(
       isSingleFilter ? TimeFilterType.StaticRange : TimeFilterType.RangeTime
     );
@@ -489,7 +488,7 @@ const SearchFilter = ({
             </p>
           </div>
         </AccordionTrigger>
-        <AccordionContent className="overflow-visible">
+        <AccordionContent className="overflow-hidden data-[state=open]:overflow-visible">
           <div className="flex flex-col mb-4 relative">
             <Input
               className="w-full focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0"
@@ -503,7 +502,7 @@ const SearchFilter = ({
             {showSearchValue ? (
               <div
                 className={cn(
-                  "absolute top-[100%] overflow-y-auto left-0 max-h-[200px] w-full shadow-sm shadow-gray-600 z-[90000]",
+                  "absolute top-[100%] overflow-y-auto left-0 max-h-[200px] w-full shadow-sm shadow-gray-600 z-[9]",
                   scrollbar_style.scrollbar
                 )}
               >
@@ -646,7 +645,7 @@ const PageWithFilters = ({
 }: {
   title: string;
   filters: React.JSX.Element[];
-  headerButtons: React.JSX.Element[];
+  headerButtons?: React.JSX.Element[];
   children: React.ReactNode;
 }) => {
   const [openFilter, setOpenFilter] = useState(false);
@@ -672,7 +671,7 @@ const PageWithFilters = ({
             {title}
           </h2>
           <div className="flex-1 min-w-[8px]" />
-          {...headerButtons}
+          {headerButtons}
           <Filter
             size={20}
             className="ml-2 md:hidden hover:cursor-pointer"

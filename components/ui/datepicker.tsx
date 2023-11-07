@@ -19,9 +19,6 @@ type Props = {
 
 export function DatePicker({ value }: Props) {
   const [date, setDate] = React.useState<Date>();
-  React.useEffect(() => {
-    console.log(date);
-  }, [date]);
 
   return (
     <Popover>
