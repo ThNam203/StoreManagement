@@ -11,10 +11,6 @@ import java.util.Set;
 @NoArgsConstructor
 public class ProductPropertyDTO {
     private int id;
-    private ProductPropertyNameDTO propertyName;
+    private String propertyName;
     private String propertyValue;
-    private ProductDTO product;
-
-    private int productId;
-    private int productPropertyNameId;
 }

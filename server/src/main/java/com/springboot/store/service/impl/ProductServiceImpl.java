@@ -1,8 +1,6 @@
 package com.springboot.store.service.impl;
 
-import com.springboot.store.entity.Location;
-import com.springboot.store.entity.Media;
-import com.springboot.store.entity.Product;
+import com.springboot.store.entity.*;
 import com.springboot.store.payload.ProductDTO;
 import com.springboot.store.repository.MediaRepository;
 import com.springboot.store.repository.ProductRepository;
@@ -15,9 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -52,7 +48,7 @@ public class ProductServiceImpl implements ProductService {
         if (file != null) {
             String url = fileService.uploadFile(file);
             Media media = Media.builder().url(url).build();
-            Set<Media> media1 = new HashSet<>();
+            List<Media> media1 = new ArrayList<>();
             product.setImages(media1);
             media1.add(media);
             productRepository.save(product);
@@ -69,7 +65,6 @@ public class ProductServiceImpl implements ProductService {
         existingProduct.setBarcode(productDTO.getBarcode());
         existingProduct.setProperty(productDTO.getProperty());
         existingProduct.setLocation(productDTO.getLocation());
-        existingProduct.setOriginalPrice(productDTO.getOriginalPrice());
         existingProduct.setQuantity(productDTO.getQuantity());
         existingProduct.setStatus(productDTO.getStatus());
         existingProduct.setDescription(productDTO.getDescription());
@@ -77,15 +72,35 @@ public class ProductServiceImpl implements ProductService {
         existingProduct.setMinStock(productDTO.getMinStock());
         existingProduct.setMaxStock(productDTO.getMaxStock());
 
-
-        Set<String> mediaDTOs = productDTO.getImages();
-        if (mediaDTOs != null && !mediaDTOs.isEmpty()) {
-            Set<Media> mediaEntities = mediaDTOs.stream()
-                    .map(mediaDTO -> mediaRepository.findByUrl(mediaDTO)
-                            .orElseThrow(() -> new EntityNotFoundException("Media not found with url: " + mediaDTO)))
-                    .collect(Collectors.toSet());
-            existingProduct.setImages(mediaEntities);
+        if (productDTO.getOriginalPrice() != existingProduct.getOriginalPrices().get(existingProduct.getOriginalPrices().size() - 1).getValue()) {
+            existingProduct.getOriginalPrices().add(OriginalPrice.builder()
+                            .value(productDTO.getOriginalPrice())
+                            .createdAt(new Date())
+                            .build());
         }
+
+        if (productDTO.getProductPrice() != existingProduct.getProductPrices().get(existingProduct.getProductPrices().size() - 1).getValue()) {
+            existingProduct.getProductPrices().add(ProductPrice.builder()
+                            .value(productDTO.getProductPrice())
+                            .createdAt(new Date())
+                            .build());
+        }
+
+        if (productDTO.getSalesUnits() != null) {
+            existingProduct.getSalesUnits().setName(productDTO.getSalesUnits().getName());
+            existingProduct.getSalesUnits().setBasicUnit(productDTO.getSalesUnits().getBasicUnit());
+            existingProduct.getSalesUnits().setExchangeValue(productDTO.getSalesUnits().getExchangeValue());
+        }
+
+        
+//        List<String> mediaDTOs = productDTO.getImages();
+//        if (mediaDTOs != null && !mediaDTOs.isEmpty()) {
+//            List<Media> mediaEntities = mediaDTOs.stream()
+//                    .map(mediaDTO -> mediaRepository.findByUrl(mediaDTO)
+//                            .orElseThrow(() -> new EntityNotFoundException("Media not found with url: " + mediaDTO)))
+//                    .collect(Collectors.toSet());
+//            existingProduct.setImages(mediaEntities);
+//        }
 
 
         existingProduct = productRepository.save(existingProduct);

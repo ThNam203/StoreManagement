@@ -3,6 +3,7 @@ package com.springboot.store.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -48,10 +49,10 @@ public class Product {
     private int maxStock;
 
     @OneToMany(cascade = CascadeType.ALL)
-    private Set<OriginalPrice> originalPrices;
+    private List<OriginalPrice> originalPrices;
 
     @OneToMany(cascade = CascadeType.ALL)
-    private Set<ProductPrice> productPrices;
+    private List<ProductPrice> productPrices;
 
     @OneToOne(cascade = CascadeType.ALL)
     private SalesUnits salesUnits;
@@ -65,10 +66,10 @@ public class Product {
     private ProductBrand productBrand;
 
     @OneToMany(cascade = CascadeType.ALL)
-    private Set<ProductProperty> properties;
+    private List<ProductProperty> properties;
 
     @OneToMany(cascade = CascadeType.ALL)
-    private Set<Media> images;
+    private List<Media> images;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "location_id")
