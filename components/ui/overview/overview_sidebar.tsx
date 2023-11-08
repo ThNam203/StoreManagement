@@ -31,6 +31,8 @@ import {
   ShoppingBasket,
   ArrowUpSquare,
   PackageX,
+  PieChart,
+  FileBarChart2,
 } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
@@ -76,6 +78,8 @@ enum IconNames {
   ShoppingBasket,
   ArrowUpSquare,
   PackageX,
+  PieChart,
+  FileBarChart2
 }
 
 const LucideIcons = (iconName: IconNames, isCollapsed: boolean | null) => {
@@ -147,6 +151,10 @@ const LucideIcons = (iconName: IconNames, isCollapsed: boolean | null) => {
       return <ShoppingBasket size={iconSize} className={iconClasses} />;
     case IconNames.Undo:
       return <Undo size={iconSize} className={iconClasses} />;
+    case IconNames.PieChart:
+      return <PieChart size={iconSize} className={iconClasses} />;
+      case IconNames.FileBarChart2:
+        return <FileBarChart2 size={iconSize} className={iconClasses} />;
   }
 };
 
@@ -488,12 +496,36 @@ const SideBar = ({
           isCollapsed={isCollapsed}
         />
 
-        <SideBarButton
+        <SideBarAccordion
           iconName={IconNames.BarChart3}
           title="Reports"
-          className=""
+          buttons={[
+            <SideBarButton
+              key={1}
+              iconName={IconNames.PieChart}
+              title="Daily"
+              className="!w-full"
+              isCollapsed={isCollapsed}
+              href="/report/daily"
+            />,
+            <SideBarButton
+              key={2}
+              iconName={IconNames.GanttChartSquare}
+              title="Goods"
+              className="!w-full"
+              isCollapsed={isCollapsed}
+              href="/report/goods"
+            />,
+            <SideBarButton
+              key={3}
+              iconName={IconNames.FileBarChart2}
+              title="Sales"
+              className="!w-full"
+              isCollapsed={isCollapsed}
+              href="/report/sale"
+            />,
+          ]}
           isCollapsed={isCollapsed}
-          href="/reports"
         />
 
         <SideBarAccordion
