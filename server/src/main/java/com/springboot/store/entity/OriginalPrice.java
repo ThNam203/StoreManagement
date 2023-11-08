@@ -5,15 +5,15 @@ import lombok.*;
 
 import java.util.Date;
 
+@Builder
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 
 @Entity
-@Table(name = "product_prices")
-public class ProductPrice {
+@Table(name = "original_prices")
+public class OriginalPrice {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;

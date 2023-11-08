@@ -29,9 +29,6 @@ public class Product {
     @Column(name = "property")
     private String property;
 
-    @Column(name = "original_price")
-    private int originalPrice;
-
     @Column(name = "quantity")
     private int quantity;
 
@@ -50,8 +47,14 @@ public class Product {
     @Column(name = "max_stock")
     private int maxStock;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL)
+    private Set<OriginalPrice> originalPrices;
+
+    @OneToMany(cascade = CascadeType.ALL)
     private Set<ProductPrice> productPrices;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    private SalesUnits salesUnits;
 
     @ManyToOne()
     @JoinColumn(name = "product_group_id")
