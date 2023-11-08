@@ -1,4 +1,4 @@
-import { DailyReport } from "@/entities/Report";
+import { Report } from "@/entities/Report";
 import {
   Document,
   PDFDownloadLink,
@@ -29,7 +29,7 @@ export const ReportContentPDF = ({
   data,
   onNumOfPagesChange,
 }: {
-  data: DailyReport;
+  data: Report;
   onNumOfPagesChange?: (numOfPages: number) => void;
 }) => {
   const columnHeaders = data.columnHeaders;
@@ -44,9 +44,17 @@ export const ReportContentPDF = ({
             {data.headerData.createdDate.toLocaleString()}
           </Text>
           <Text style={styles.headerTitle}>{data.headerData.title}</Text>
-          <Text style={styles.headerContent}>
-            Sale date: {data.headerData.saleDate.toLocaleDateString()}
-          </Text>
+          {data.headerData.saleDate && (
+            <Text style={styles.headerContent}>
+              Sale date: {data.headerData.saleDate.toLocaleDateString()}
+            </Text>
+          )}
+          {data.headerData.rangeDate && (
+            <Text style={styles.headerContent}>
+              {`From date ${data.headerData.rangeDate.startDate.toLocaleDateString()} to date ${data.headerData.rangeDate.endDate.toLocaleDateString()}`}
+            </Text>
+          )}
+
           <Text style={styles.headerContent}>
             Branch: {data.headerData.branch}
           </Text>
@@ -100,11 +108,11 @@ export const ReportContentPDF = ({
 };
 
 // Create Document Component
-const ReportPDFViewer = ({
+const ReportPdfViewer = ({
   data,
   classname = "w-full h-[800px]",
 }: {
-  data: DailyReport;
+  data: Report;
   classname?: string;
 }) => {
   const [currentPage, setCurrentPage] = useState("1");
@@ -175,11 +183,11 @@ const ReportPDFViewer = ({
   );
 };
 
-const ReportPDFDownloader = ({
+const ReportPdfDownloader = ({
   data,
   classname,
 }: {
-  data: DailyReport;
+  data: Report;
   classname?: string;
 }) => {
   return (
@@ -199,14 +207,14 @@ const ReportPDFDownloader = ({
   );
 };
 
-const DailyReportPDFViewer = dynamic(() => Promise.resolve(ReportPDFViewer), {
+const ReportPDFViewer = dynamic(() => Promise.resolve(ReportPdfViewer), {
   ssr: false,
 });
-const DailyReportPDFDownloader = dynamic(
-  () => Promise.resolve(ReportPDFDownloader),
+const ReportPDFDownloader = dynamic(
+  () => Promise.resolve(ReportPdfDownloader),
   {
     ssr: false,
   }
 );
 
-export { DailyReportPDFViewer, DailyReportPDFDownloader };
+export { ReportPDFViewer, ReportPDFDownloader };
