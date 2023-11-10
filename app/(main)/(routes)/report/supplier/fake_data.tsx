@@ -25,7 +25,7 @@ export const originalDebtChartData = [
   },
 ];
 
-export const originalDebtBySupplierList = [
+export const originalDebtReportData = [
   {
     id: 1,
     name: "Nha cung cap banh gao AOne",
@@ -48,7 +48,7 @@ export const originalDebtBySupplierList = [
     endingDebt: 15000000,
   },
 ];
-export const originalImportGoodsBySupplierList = [
+export const originalImportGoodsReportData = [
   {
     id: 1,
     name: "Nha cung cap banh gao AOne",

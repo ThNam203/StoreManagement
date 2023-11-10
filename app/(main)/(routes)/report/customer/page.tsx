@@ -22,11 +22,11 @@ import {
 import { ReportPDFViewer } from "@/components/ui/pdf";
 import { saleReportColumnHeaders } from "../daily/pdf_columns";
 import {
-  originalDebtByCustomerList,
-  originalDebtCustomerChartData,
-  originalProfitByCustomerList,
-  originalPurchasedProductCustomerChartData,
-  originalSaleByCustomerList,
+  originalDebtChartData,
+  originalDebtReportData,
+  originalProfitReportData,
+  originalSaleChartData,
+  originalSaleReportData,
 } from "./fake_data";
 
 enum Concern {
@@ -78,10 +78,10 @@ export default function CustomerReportLayout() {
   useEffect(() => {
     if (singleFilter.concerns === Concern.SALE) {
       if (singleFilter.displayType === DisplayType.CHART) {
-        const res = originalPurchasedProductCustomerChartData;
+        const res = originalSaleChartData;
         setChartData(res);
       } else if (singleFilter.displayType === DisplayType.REPORT) {
-        const res = originalSaleByCustomerList;
+        const res = originalSaleReportData;
 
         setReportData({
           headerData: {
@@ -104,10 +104,10 @@ export default function CustomerReportLayout() {
       }
     } else if (singleFilter.concerns === Concern.DEBT) {
       if (singleFilter.displayType === DisplayType.CHART) {
-        const res = originalDebtCustomerChartData;
+        const res = originalDebtChartData;
         setChartData(res);
       } else if (singleFilter.displayType === DisplayType.REPORT) {
-        const res = originalDebtByCustomerList;
+        const res = originalDebtReportData;
         setReportData({
           headerData: {
             title: "Report on debts by customer",
@@ -128,7 +128,7 @@ export default function CustomerReportLayout() {
         setCustomerList(customerList);
       }
     } else if (singleFilter.concerns === Concern.PROFIT) {
-      const res = originalProfitByCustomerList;
+      const res = originalProfitReportData;
       setReportData({
         headerData: {
           title: "Report on profit by customer",
@@ -208,8 +208,7 @@ export default function CustomerReportLayout() {
           )}
         >
           <div className="text-center font-medium text-lg">
-            Top 10<sup>th</sup> customers with the highest number of products
-            purchased
+            Top 10 customers with the highest number of products purchased
           </div>
           <SingleColumnChart
             data={chartData}
@@ -228,7 +227,7 @@ export default function CustomerReportLayout() {
           )}
         >
           <div className="text-center font-medium text-lg">
-            Top 10<sup>th</sup> customers with the highest debt purchased
+            Top 10 customers with the highest debt purchased
           </div>
           <SingleColumnChart
             data={chartData}

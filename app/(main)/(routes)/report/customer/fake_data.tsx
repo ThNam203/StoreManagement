@@ -1,4 +1,4 @@
-const originalPurchasedProductCustomerChartData = [
+export const originalSaleChartData = [
   {
     label: "John",
     value: 15,
@@ -24,7 +24,7 @@ const originalPurchasedProductCustomerChartData = [
     value: 20,
   },
 ];
-const originalDebtCustomerChartData = [
+export const originalDebtChartData = [
   {
     label: "Alice",
     value: 100000,
@@ -51,7 +51,7 @@ const originalDebtCustomerChartData = [
   },
 ];
 
-const originalProfitByCustomerList = [
+export const originalProfitReportData = [
   {
     customer: "John",
     totalRevenue: 10000000,
@@ -63,7 +63,7 @@ const originalProfitByCustomerList = [
     profit: 8000000,
   },
 ];
-const originalDebtByCustomerList = [
+export const originalDebtReportData = [
   {
     id: 1,
     customerName: "Mary",
@@ -72,7 +72,7 @@ const originalDebtByCustomerList = [
     endingDebt: 100000,
   },
 ];
-const originalSaleByCustomerList = [
+export const originalSaleReportData = [
   {
     id: 1,
     customerName: "David",
@@ -81,11 +81,3 @@ const originalSaleByCustomerList = [
     netRevenue: 1000000,
   },
 ];
-
-export {
-  originalDebtByCustomerList,
-  originalProfitByCustomerList,
-  originalSaleByCustomerList,
-  originalPurchasedProductCustomerChartData,
-  originalDebtCustomerChartData,
-};

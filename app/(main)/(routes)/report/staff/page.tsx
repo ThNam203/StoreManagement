@@ -1,10 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-  MultiColumnChart,
-  SingleColumnChart,
-} from "@/components/ui/column_chart";
+import { SingleColumnChart } from "@/components/ui/column_chart";
 import {
   ChoicesFilter,
   FilterTime,
@@ -13,43 +10,33 @@ import {
   SearchFilter,
   TimeFilter,
 } from "@/components/ui/filter";
-import { ReportPDFViewer } from "@/components/ui/pdf";
 import { DisplayType, Report } from "@/entities/Report";
 import { cn } from "@/lib/utils";
 import { TimeFilterType, getStaticRangeFilterTime } from "@/utils";
 import { useEffect, useState } from "react";
 
+import { ReportPDFViewer } from "@/components/ui/pdf";
+import { saleReportColumnHeaders } from "../daily/pdf_columns";
+import { profitColumnHeaders, saleColumnHeaders } from "./pdf_columns";
 import {
-  supplierDebtColumnHeaders,
-  supplierImportGoodsColumnHeaders,
-} from "./pdf_columns";
-import {
-  originalDebtChartData,
-  originalDebtReportData,
-  originalImportGoodsChartData,
-  originalImportGoodsReportData,
+  originalProfitReportData,
+  originalSaleChartData,
+  originalSaleReportData,
 } from "./fake_data";
 
 enum Concern {
-  IMPORT = "Import",
-  DEBT = "Debt",
+  SALE = "Sale",
+  PROFIT = "Profit",
 }
 
-export default function SupplierReportLayout() {
-  const [singleColChartData, setChartData] = useState<
+export default function CustomerReportLayout() {
+  const [chartData, setChartData] = useState<
     { label: string; value: number }[]
   >([]);
-  const [multiColChartData, setMultiColChartData] = useState<{
-    labels: string[];
-    value: number[][];
-  }>({
-    labels: [],
-    value: [],
-  });
 
   const [reportData, setReportData] = useState<Report>({
     headerData: {
-      title: "Report imported goods by supplier",
+      title: "Report on sale by staff",
       createdDate: new Date(),
       branch: "Center",
       rangeDate: {
@@ -57,17 +44,19 @@ export default function SupplierReportLayout() {
         endDate: new Date(),
       },
     },
-    columnHeaders: supplierImportGoodsColumnHeaders,
+    columnHeaders: saleColumnHeaders,
     contentData: [],
   });
-  const [supplierList, setSupplierList] = useState<string[]>([]);
+  const [staffList, setStaffList] = useState<string[]>([]);
+  const [goodsList, setGoodsList] = useState<string[]>([]);
 
   const [singleFilter, setSingleFilter] = useState({
     displayType: DisplayType.CHART as string,
-    concerns: Concern.IMPORT as string,
+    concerns: Concern.SALE as string,
   });
   const [multiFilter, setMuliFilter] = useState({
-    supplier: [] as string[],
+    staff: [] as string[],
+    goods: [] as string[],
   });
   const [rangeTimeFilter, setRangeTimeFilter] = useState({
     rangeDate: {
@@ -83,16 +72,16 @@ export default function SupplierReportLayout() {
   });
 
   useEffect(() => {
-    if (singleFilter.concerns === Concern.IMPORT) {
+    if (singleFilter.concerns === Concern.SALE) {
       if (singleFilter.displayType === DisplayType.CHART) {
-        const res = originalImportGoodsChartData;
-        setMultiColChartData(res);
+        const res = originalSaleChartData;
+        setChartData(res);
       } else if (singleFilter.displayType === DisplayType.REPORT) {
-        const res = originalImportGoodsReportData;
+        const res = originalSaleReportData;
 
         setReportData({
           headerData: {
-            title: "Report imported goods by supplier",
+            title: "Report on sales by staff",
             createdDate: new Date(),
             branch: "Center",
             rangeDate: {
@@ -101,35 +90,27 @@ export default function SupplierReportLayout() {
               endDate: new Date(),
             },
           },
-          columnHeaders: supplierImportGoodsColumnHeaders,
+          columnHeaders: saleColumnHeaders,
           contentData: res,
         });
-        const supplierList = Array.from(new Set(res.map((row) => row.name)));
-        setSupplierList(supplierList);
+        const staffList = Array.from(new Set(res.map((row) => row.staff)));
+        setStaffList(staffList);
       }
-    } else if (singleFilter.concerns === Concern.DEBT) {
-      if (singleFilter.displayType === DisplayType.CHART) {
-        const res = originalDebtChartData;
-        setChartData(res);
-      } else if (singleFilter.displayType === DisplayType.REPORT) {
-        const res = originalDebtReportData;
-        setReportData({
-          headerData: {
-            title: "Report on debts by supplier",
-            createdDate: new Date(),
-            branch: "Center",
-            rangeDate: {
-              startDate: getStaticRangeFilterTime(FilterWeek.ThisWeek)
-                .startDate,
-              endDate: new Date(),
-            },
+    } else if (singleFilter.concerns === Concern.PROFIT) {
+      const res = originalProfitReportData;
+      setReportData({
+        headerData: {
+          title: "Report on profit by staff",
+          createdDate: new Date(),
+          branch: "Center",
+          rangeDate: {
+            startDate: getStaticRangeFilterTime(FilterWeek.ThisWeek).startDate,
+            endDate: new Date(),
           },
-          columnHeaders: supplierDebtColumnHeaders,
-          contentData: res,
-        });
-        const supplierList = Array.from(new Set(res.map((row) => row.name)));
-        setSupplierList(supplierList);
-      }
+        },
+        columnHeaders: profitColumnHeaders,
+        contentData: res,
+      });
     }
   }, [singleFilter]);
 
@@ -169,11 +150,17 @@ export default function SupplierReportLayout() {
         onTimeFilterControlChanged={updateRangeDateTimeFilterControl}
       />
       <SearchFilter
-        className={cn(supplierList.length > 0 ? "visible" : "hidden")}
-        choices={supplierList}
-        chosenValues={multiFilter.supplier}
-        title="Supplier"
-        placeholder="Search supplier..."
+        className={cn(staffList.length > 0 ? "visible" : "hidden")}
+        choices={staffList}
+        chosenValues={multiFilter.staff}
+        title="Staff"
+        placeholder="Search customer..."
+      />
+      <SearchFilter
+        choices={goodsList}
+        chosenValues={multiFilter.goods}
+        title="Goods"
+        placeholder="Search goods..."
       />
     </div>,
   ];
@@ -183,63 +170,39 @@ export default function SupplierReportLayout() {
   return (
     <PageWithFilters
       filters={filters}
-      title="Supplier Report"
+      title="Staff Report"
       headerButtons={headerButtons}
     >
       <div>
         <div
           className={cn(
-            singleFilter.concerns === Concern.IMPORT &&
+            singleFilter.concerns === Concern.SALE &&
               singleFilter.displayType === DisplayType.CHART
               ? "visible"
               : "hidden"
           )}
         >
           <div className="text-center font-medium text-lg">
-            Top 10 suppliers with the most provided products
-          </div>
-          <MultiColumnChart
-            dataLabel={multiColChartData.labels}
-            dataValue={multiColChartData.value}
-            label={["Import value", "Return value", "Net value"]}
-            sortOption="value_desc"
-            direction="y"
-            limitNumOfLabels={10}
-          />
-        </div>
-        <div
-          className={cn(
-            singleFilter.concerns === Concern.DEBT &&
-              singleFilter.displayType === DisplayType.CHART
-              ? "visible"
-              : "hidden"
-          )}
-        >
-          <div className="text-center font-medium text-lg">
-            Top 10 suppliers with the most debt
+            Top 10 customers with the highest number of products purchased
           </div>
           <SingleColumnChart
-            data={singleColChartData}
-            label="Debt"
+            data={chartData}
+            label="Purchased Product"
             sortOption="value_desc"
             direction="y"
             limitNumOfLabels={10}
           />
         </div>
-
         <div
           className={cn(
-            singleFilter.concerns === Concern.DEBT &&
-              singleFilter.displayType === DisplayType.REPORT
-              ? "visible"
-              : "hidden"
+            singleFilter.concerns === Concern.PROFIT ? "visible" : "hidden"
           )}
         >
           <ReportPDFViewer data={reportData} />
         </div>
         <div
           className={cn(
-            singleFilter.concerns === Concern.IMPORT &&
+            singleFilter.concerns === Concern.SALE &&
               singleFilter.displayType === DisplayType.REPORT
               ? "visible"
               : "hidden"

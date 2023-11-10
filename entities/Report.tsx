@@ -11,6 +11,17 @@ type Report = {
   columnHeaders: Record<string, string>;
   contentData: Array<any>;
 };
+type BusinessReport = {
+  headerData: {
+    title: string;
+    createdDate: Date;
+    saleDate?: Date;
+    rangeDate?: { startDate: Date; endDate: Date };
+    branch: string;
+  };
+  rowHeaders: Record<string, string>;
+  contentData: Array<any>;
+};
 
 // type ReportDataType = SaleReport | FundReport | GoodsReport;
 
@@ -51,4 +62,4 @@ export enum Concern {
   DEBT = "Debt",
 }
 
-export type { Report };
+export type { Report, BusinessReport };
