@@ -13,6 +13,4 @@ import java.util.Set;
 public class ProductBrandDTO {
     private int id;
     private String name;
-
-    private Set<ProductDTO> products;
 }

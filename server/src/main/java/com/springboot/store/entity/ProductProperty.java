@@ -19,13 +19,9 @@ public class ProductProperty {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @OneToOne()
+    @ManyToOne()
     @JoinColumn(name = "property_name_id")
     private ProductPropertyName propertyName;
 
     private String propertyValue;
-
-    @ManyToOne()
-    @JoinColumn(name = "product_id")
-    private Product product;
 }

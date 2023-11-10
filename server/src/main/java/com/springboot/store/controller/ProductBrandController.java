@@ -1,6 +1,7 @@
 package com.springboot.store.controller;
 
 import com.springboot.store.payload.ProductBrandDTO;
+import com.springboot.store.payload.ProductDTO;
 import com.springboot.store.service.ProductBrandService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,5 +48,12 @@ public class ProductBrandController {
     public ResponseEntity<Void> deleteProductBrand(@PathVariable int productBrandId) {
         productBrandService.deleteProductBrand(productBrandId);
         return ResponseEntity.noContent().build();
+    }
+
+    // get all products by brand id
+    @GetMapping("/{productBrandId}/products")
+    public ResponseEntity<List<ProductDTO>> getAllProductsByProductBrandId(@PathVariable int productBrandId) {
+        List<ProductDTO> products = productBrandService.getAllProductsByProductBrandId(productBrandId);
+        return ResponseEntity.ok(products);
     }
 }

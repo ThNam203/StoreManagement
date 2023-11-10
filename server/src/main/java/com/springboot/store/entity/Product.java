@@ -27,11 +27,8 @@ public class Product {
     @Column(name = "barcode", nullable = false, unique = true)
     private String barcode;
 
-    @Column(name = "property")
-    private String property;
-
-    @Column(name = "quantity")
-    private int quantity;
+    @Column(name = "stock")
+    private int stock;
 
     @Column(name = "status")
     private String status;
@@ -68,11 +65,10 @@ public class Product {
     @OneToMany(cascade = CascadeType.ALL)
     private List<ProductProperty> properties;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Media> images;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "location_id")
     private Location location;
-
 }

@@ -17,20 +17,20 @@ public class ProductDTO {
     private int id;
     private String name;
     private String barcode;
-    private String property;
-    private Location location;
-    private int originalPrice;
-    private int productPrice;
-    private int quantity;
     private String status;
     private String description;
     private String note;
+    private int stock;
     private int minStock;
     private int maxStock;
-    private String locationName;
+
+    private String location;
+    private String productGroup;
+    private String productBrand;
+    private int originalPrice;
+    private int productPrice;
 
     private List<String> images;
     private List<ProductPropertyDTO> productProperties;
     private SalesUnitsDTO salesUnits;
-    private ProductGroupDTO productGroup;
 }

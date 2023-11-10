@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -36,6 +37,6 @@ public class ProductGroup {
     private Staff creator;
 
     @OneToMany(mappedBy = "productGroup", fetch = FetchType.LAZY)
-    private Set<Product> products;
+    private List<Product> products;
 
 }

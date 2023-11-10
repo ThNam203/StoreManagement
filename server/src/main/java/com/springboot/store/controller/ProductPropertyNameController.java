@@ -14,15 +14,15 @@ import java.util.List;
 public class ProductPropertyNameController {
     private final ProductPropertyNameService productPropertyNameService;
 
+    @GetMapping
+    public ResponseEntity<List<ProductPropertyNameDTO>> getAllProductPropertyNames() {
+        List<ProductPropertyNameDTO> productPropertyNameDTOList = productPropertyNameService.getAllProductPropertyNames();
+        return ResponseEntity.ok(productPropertyNameDTOList);
+    }
+
     @GetMapping("/{productPropertyNameId}")
     public ResponseEntity<ProductPropertyNameDTO> getProductPropertyNameById(@PathVariable int productPropertyNameId) {
         ProductPropertyNameDTO productPropertyNameDTO = productPropertyNameService.getProductPropertyNameById(productPropertyNameId);
-        return ResponseEntity.ok(productPropertyNameDTO);
-    }
-
-    @GetMapping
-    public ResponseEntity<List<ProductPropertyNameDTO>> getAllProductPropertyNames() {
-        List<ProductPropertyNameDTO> productPropertyNameDTO = productPropertyNameService.getAllProductPropertyNames();
         return ResponseEntity.ok(productPropertyNameDTO);
     }
 

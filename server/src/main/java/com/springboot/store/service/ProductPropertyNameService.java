@@ -5,13 +5,9 @@ import com.springboot.store.payload.ProductPropertyNameDTO;
 import java.util.List;
 
 public interface ProductPropertyNameService {
-    ProductPropertyNameDTO getProductPropertyNameById(int id);
-
     List<ProductPropertyNameDTO> getAllProductPropertyNames();
-
+    ProductPropertyNameDTO getProductPropertyNameById(int id);
     ProductPropertyNameDTO createProductPropertyName(ProductPropertyNameDTO productPropertyNameDTO);
-
     ProductPropertyNameDTO updateProductPropertyName(int id, ProductPropertyNameDTO productPropertyNameDTO);
-
     void deleteProductPropertyName(int id);
 }

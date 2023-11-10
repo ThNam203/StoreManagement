@@ -19,17 +19,15 @@ public class ProductPropertyNameServiceImpl implements ProductPropertyNameServic
     private final ModelMapper modelMapper;
 
     @Override
-    public ProductPropertyNameDTO getProductPropertyNameById(int id) {
-        ProductPropertyName productPropertyName = productPropertyNameRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("ProductPropertyName not found with id: " + id));
-        return modelMapper.map(productPropertyName, ProductPropertyNameDTO.class);
+    public List<ProductPropertyNameDTO> getAllProductPropertyNames() {
+        List<ProductPropertyName> productPropertyNameList = productPropertyNameRepository.findAll();
+        return productPropertyNameList.stream().map(productPropertyName -> modelMapper.map(productPropertyName, ProductPropertyNameDTO.class)).collect(Collectors.toList());
     }
 
     @Override
-    public List<ProductPropertyNameDTO> getAllProductPropertyNames() {
-        List<ProductPropertyName> productPropertyNames = productPropertyNameRepository.findAll();
-        return productPropertyNames.stream()
-                .map(productPropertyName -> modelMapper.map(productPropertyName, ProductPropertyNameDTO.class))
-                .collect(Collectors.toList());
+    public ProductPropertyNameDTO getProductPropertyNameById(int id) {
+        ProductPropertyName productPropertyName = productPropertyNameRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("ProductPropertyName not found with id: " + id));
+        return modelMapper.map(productPropertyName, ProductPropertyNameDTO.class);
     }
 
     @Override
