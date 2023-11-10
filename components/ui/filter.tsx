@@ -448,6 +448,157 @@ const TimeFilter = ({
   );
 };
 
+export enum FilterGroup {
+  ByYear = "By year",
+  ByQuarter = "By quarter",
+  ByMonth = "By month",
+}
+const SecondaryTimeFilter = ({
+  title,
+  className,
+  alwaysOpen = false,
+  timeFilterControl = TimeFilterType.StaticRange,
+  singleTimeValue = FilterGroup.ByMonth,
+  singleTimeString,
+  rangeTimeValue = { startDate: new Date(), endDate: new Date() },
+  filterGroup = [
+    FilterGroup.ByYear,
+    FilterGroup.ByQuarter,
+    FilterGroup.ByMonth,
+  ],
+  onTimeFilterControlChanged,
+  onSingleTimeFilterChanged,
+  onRangeTimeFilterChanged,
+}: {
+  title: string;
+  className?: string;
+  alwaysOpen?: boolean;
+  timeFilterControl: TimeFilterType;
+  singleTimeValue?: FilterGroup;
+  singleTimeString?: string;
+  rangeTimeValue?: { startDate: Date; endDate: Date };
+  filterGroup?: FilterGroup[];
+  onTimeFilterControlChanged: (timeFilterControl: TimeFilterType) => void;
+  onSingleTimeFilterChanged?: (filterGroup: FilterGroup) => void;
+  onRangeTimeFilterChanged?: (range: {
+    startDate: Date;
+    endDate: Date;
+  }) => void;
+}) => {
+  const [isSingleFilter, setIsSingleFilter] = useState(
+    timeFilterControl === TimeFilterType.StaticRange
+  );
+  const [isRangeFilterOpen, setIsRangeFilterOpen] = useState(false);
+
+  useEffect(() => {
+    onTimeFilterControlChanged(
+      isSingleFilter ? TimeFilterType.StaticRange : TimeFilterType.RangeTime
+    );
+  }, [isSingleFilter]);
+
+  return (
+    <Accordion
+      type="single"
+      collapsible={!alwaysOpen}
+      defaultValue="item-1"
+      className={cn("w-full bg-white rounded-md px-4", className)}
+    >
+      <AccordionItem value="item-1">
+        <AccordionTrigger showArrowFunc={alwaysOpen ? "hidden" : ""}>
+          <div className="flex flex-row items-center w-full">
+            <p className="text-[0.8rem] leading-4 font-bold text-start flex-1">
+              {title}
+            </p>
+          </div>
+        </AccordionTrigger>
+        <AccordionContent>
+          <RadioGroup className="gap-3 pb-2">
+            <div className="flex flex-row items-center space-x-3 border border-gray-300 p-2 rounded-sm relative">
+              <RadioGroupItem
+                value="1"
+                id={title + "1"}
+                checked={isSingleFilter}
+                onClick={() => {
+                  if (isSingleFilter) return;
+                  setIsSingleFilter(true);
+                  if (onSingleTimeFilterChanged)
+                    onSingleTimeFilterChanged(singleTimeValue);
+                }}
+              />
+              <Label
+                htmlFor={title + "1"}
+                className="text-[0.8rem] flex-1 hover:cursor-pointer font-normal"
+              >
+                {singleTimeString ? singleTimeString : singleTimeValue}
+              </Label>
+              <Popover>
+                <PopoverTrigger>
+                  <Maximize2 size={16} />
+                </PopoverTrigger>
+                <PopoverContent className="flex flex-row gap-6 w-auto -translate-x-4">
+                  <div>
+                    <p className="text-xs font-semibold">By day</p>
+                    <ul className="list-none text-blue-500 text-xs">
+                      {filterGroup.map((val, idx) => (
+                        <li
+                          className="mt-5 cursor-pointer"
+                          onClick={() => {
+                            setIsSingleFilter(true);
+                            if (onSingleTimeFilterChanged)
+                              onSingleTimeFilterChanged(val);
+                          }}
+                          key={idx}
+                        >
+                          {val}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
+            <div className="flex flex-row items-center space-x-3 border border-gray-300 p-2 rounded-sm">
+              <RadioGroupItem
+                value="2"
+                id={title + "2"}
+                checked={!isSingleFilter}
+                onClick={() => {
+                  setIsSingleFilter(false);
+                  if (onRangeTimeFilterChanged)
+                    onRangeTimeFilterChanged(rangeTimeValue);
+                }}
+              />
+              <Label
+                htmlFor={title + "2"}
+                className="text-[0.8rem] flex-1 hover:cursor-pointer font-normal"
+              >
+                {format(rangeTimeValue.startDate, "dd/MM/yyyy") +
+                  " - " +
+                  format(rangeTimeValue.endDate, "dd/MM/yyyy")}
+              </Label>
+              <Popover
+                open={isRangeFilterOpen}
+                onOpenChange={setIsRangeFilterOpen}
+              >
+                <PopoverTrigger>
+                  <CalendarDays size={16} />
+                </PopoverTrigger>
+                <PopoverContent className="w-auto -translate-x-4 flex flex-col">
+                  <TimerFilterRangePicker
+                    defaultValue={rangeTimeValue}
+                    onValueChange={onRangeTimeFilterChanged}
+                    setIsRangeFilterOpen={setIsRangeFilterOpen}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+          </RadioGroup>
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
+  );
+};
+
 const SearchFilter = ({
   title,
   placeholder,
@@ -714,6 +865,7 @@ const PageWithFilters = ({
 export {
   ChoicesFilter,
   TimeFilter,
+  SecondaryTimeFilter,
   SearchFilter,
   RangeFilter,
   PageWithFilters,

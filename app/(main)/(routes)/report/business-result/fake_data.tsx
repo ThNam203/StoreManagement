@@ -1,4 +1,4 @@
-export const originalbusinessReportData = [
+export const originalBusinessReportData = [
   {
     header: "11/2023",
     saleRevenue: 1300000,
@@ -286,5 +286,18 @@ export const originalbusinessReportData = [
     otherIncome: 0,
     returnFee: 0,
     netProfit: 900000,
+  },
+];
+
+export const originalQuarterChartData = [
+  {
+    label: "Q4",
+    value: 900000,
+  },
+];
+export const originalMonthChartData = [
+  {
+    label: "11/2023",
+    value: 900000,
   },
 ];

@@ -24,6 +24,7 @@ import {
 import { useState } from "react";
 import { formatPrice, removeCharNotANum } from "@/utils";
 import { getBusinessStylePDF, getDefaultStylePDF } from "./pdf_style";
+import { format } from "date-fns";
 
 export const DefaultReportContentPDF = ({
   data,
@@ -51,7 +52,13 @@ export const DefaultReportContentPDF = ({
           )}
           {data.headerData.rangeDate && (
             <Text style={styles.headerContent}>
-              {`From date ${data.headerData.rangeDate.startDate.toLocaleDateString()} to date ${data.headerData.rangeDate.endDate.toLocaleDateString()}`}
+              {`From date ${format(
+                data.headerData.rangeDate.startDate,
+                "dd/MM/yyyy"
+              )} to date ${format(
+                data.headerData.rangeDate.endDate,
+                "dd/MM/yyyy"
+              )}`}
             </Text>
           )}
 
@@ -147,7 +154,13 @@ export const BusinessReportContentPDF = ({
           )}
           {data.headerData.rangeDate && (
             <Text style={styles.headerContent}>
-              {`From date ${data.headerData.rangeDate.startDate.toLocaleDateString()} to date ${data.headerData.rangeDate.endDate.toLocaleDateString()}`}
+              {`From date ${format(
+                data.headerData.rangeDate.startDate,
+                "dd/MM/yyyy"
+              )} to date ${format(
+                data.headerData.rangeDate.endDate,
+                "dd/MM/yyyy"
+              )}`}
             </Text>
           )}
 
