@@ -29,14 +29,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NotNull HttpServletResponse response,
             @NotNull FilterChain filterChain
     ) throws ServletException, IOException {
-        final String authHeader = request.getHeader("Authorization");
         String jwt;
         final String userEmail;
+//        final String authHeader = request.getHeader("Authorization");
 //        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
 //            filterChain.doFilter(request, response);
 //            return;
 //        }
-//        jwt = authHeader.substring(7)
+//        jwt = authHeader.substring(7);
 
         // get the token from cookie
         jwt = jwtService.getJwtAccessFromCookie(request);

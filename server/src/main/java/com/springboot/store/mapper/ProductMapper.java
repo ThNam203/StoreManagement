@@ -21,6 +21,7 @@ public class ProductMapper {
                 .status(product.getStatus())
                 .description(product.getDescription())
                 .note(product.getNote())
+                .weight(product.getWeight())
                 .minStock(product.getMinStock())
                 .maxStock(product.getMaxStock())
                 .images(product.getImages() != null ?

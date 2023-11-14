@@ -39,6 +39,9 @@ public class Product {
     @Column(name = "note")
     private String note;
 
+    @Column(name = "weight")
+    private String weight;
+
     @Column(name = "min_stock")
     private int minStock;
 

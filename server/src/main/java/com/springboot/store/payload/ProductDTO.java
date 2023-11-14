@@ -20,6 +20,7 @@ public class ProductDTO {
     private String status;
     private String description;
     private String note;
+    private String weight;
     private int stock;
     private int minStock;
     private int maxStock;
