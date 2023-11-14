@@ -290,7 +290,6 @@ export default function Sale() {
   };
   const [scrollWhell, setScrollWheel] = useState(0);
   useEffect(() => {
-    console.log("wheel", scrollWhell);
   }, [scrollWhell]);
 
   return (

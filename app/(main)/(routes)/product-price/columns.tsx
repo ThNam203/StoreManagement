@@ -24,7 +24,7 @@ const editableCell = (cellCtx: any) => {
           meta.updateData(cellCtx.row.index, cellCtx.column.id, e.target.value)
         }
       }}
-      className="border-b border-blue-300 p-1 text-end bg-transparent w-[100px]"
+      className="border-b border-blue-300 p-1 text-end bg-transparent w-[100px] text-[0.8px]"
     />
   );
 }

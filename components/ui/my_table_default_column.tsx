@@ -30,7 +30,7 @@ function defaultColumn<T>(
       const formatedValue: ReactNode =
         value instanceof Date ? format(value, "dd/MM/yyyy hh:mm a") : value;
 
-      return <div>{formatedValue}</div>;
+      return <p className="text-[0.8rem]">{formatedValue}</p>;
     },
   };
   return col;
@@ -49,6 +49,7 @@ function defaultSelectColumn<T>(): ColumnDef<T> {
       <Checkbox
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
+        onClick={(e) => e.stopPropagation()}
       />
     ),
     enableSorting: false,
@@ -59,7 +60,7 @@ function defaultSelectColumn<T>(): ColumnDef<T> {
 function defaultIndexColumn<T>(): ColumnDef<T> {
   return {
     header: "#",
-    cell: ({ row }) => <div>{row.index + 1}</div>,
+    cell: ({ row }) => <p className="text-[0.8rem]">{row.index + 1}</p>,
   };
 }
 

@@ -665,7 +665,11 @@ const PageWithFilters = ({
 
   return (
     <>
-      <div className="flex flex-col flex-1 px-4 py-2 rounded-sm min-w-0 bg-white lg:mr-[260px] md:mr-[200px]">
+      <div
+        className={cn(
+          "flex flex-col flex-1 px-4 py-2 rounded-sm min-w-0 bg-white lg:mr-[260px] md:mr-[200px]"
+        )}
+      >
         <div className="flex flex-row items-center">
           <h2 className="flex-1 text-start font-semibold text-2xl my-4">
             {title}
@@ -678,18 +682,18 @@ const PageWithFilters = ({
             onClick={(e) => setOpenFilter((prev) => !prev)}
           />
         </div>
-        {children}
+        {openFilter ? null : children}
       </div>
       <div
         className={cn(
-          "h-[96vh] fixed top-2",
+          "h-full fixed top-2 overflow-hidden",
           openFilter
-            ? "h-screen w-screen p-3 top-0 left-0 z-50 bg-slate-400"
+            ? "w-full p-3 top-0 left-0 z-[50] bg-slate-400"
             : "lg:w-[260px] md:right-2 md:w-[200px] max-md:hidden"
         )}
       >
         <div className="flex flex-col">
-          <ScrollArea className={openFilter ? "pr-[1px]" : ""}>
+          <ScrollArea className={cn("rounded-md", openFilter ? "pr-[1px]" : "")}>
             <div className={openFilter ? "h-[calc(96vh-40px)]" : "h-[96vh]"}>
               {...filters}
             </div>

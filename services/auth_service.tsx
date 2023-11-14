@@ -4,7 +4,7 @@ import { registerFormSchema } from "@/app/(auth)/(routes)/register/page";
 import z from "zod";
 
 const Register = (values: z.infer<typeof registerFormSchema>) => {
-  return AxiosService.post("/auth/register", {
+  return AxiosService.post("/api/auth/register", {
     name: values.firstName + " " + values.lastName,
     email: values.email,
     password: values.password,
@@ -12,7 +12,7 @@ const Register = (values: z.infer<typeof registerFormSchema>) => {
 };
 
 const Login = (values: z.infer<typeof loginFormSchema>) => {
-  return AxiosService.post("/auth/authenticate", {
+  return AxiosService.post("/api/auth/authenticate", {
     email: values.email,
     password: values.password,
   })

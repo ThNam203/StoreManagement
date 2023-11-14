@@ -66,7 +66,6 @@ const groupByDate = (invoiceList: Invoice[]) => {
   const thisWeek = getStaticRangeFilterTime(FilterWeek.ThisWeek);
   thisWeek.startDate.setHours(0, 0, 0, 0);
   thisWeek.endDate.setHours(0, 0, 0, 0);
-  console.log("range", thisWeek);
   invoiceList
     .filter(
       (invoice) =>
