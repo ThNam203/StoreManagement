@@ -105,7 +105,7 @@ export default function GoodsReportLayout() {
       <div className="flex flex-col space-y-16">
         <div>
           <div className="text-center font-medium text-lg">
-            Top 10<sup>th</sup> products with the highest revenue
+            Top 10 products with the highest revenue
           </div>
           <SingleColumnChart
             data={revenueChartData}
@@ -117,7 +117,7 @@ export default function GoodsReportLayout() {
         </div>
         <div>
           <div className="text-center font-medium text-lg">
-            Top 10<sup>th</sup> products with the highest quantity
+            Top 10 products with the highest quantity
           </div>
           <SingleColumnChart
             data={saleQuantityChartData}

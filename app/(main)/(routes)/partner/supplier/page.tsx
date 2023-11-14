@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/filter";
 import { Button } from "@/components/ui/button";
 import {
+  TimeFilterType,
   formatID,
   getMinMaxOfListTime,
   getStaticRangeFilterTime,
@@ -32,6 +33,7 @@ import {
   handleRangeNumFilter,
   handleRangeTimeFilter,
   handleSingleFilter,
+  handleTimeFilter,
 } from "@/utils";
 
 const originalSupplierList: Supplier[] = [
@@ -100,8 +102,11 @@ export default function SupplierPage() {
   const [rangeTimeFilter, setRangeTimeFilter] = useState({
     createdDate: { startDate: new Date(), endDate: new Date() },
   });
-  const [singleFilter, setSingleFitler] = useState({
-    createdDate: FilterYear.AllTime,
+  const [staticRangeFilter, setStaticRangeFilter] = useState({
+    createdDate: FilterYear.AllTime as FilterTime,
+  });
+  const [timeFilterControl, setTimeFilterControl] = useState({
+    createdDate: TimeFilterType.StaticRange as TimeFilterType,
   });
   const [rangeNumFilter, setRangeNumFilter] = useState({
     sale: { startValue: NaN, endValue: NaN },
@@ -121,10 +126,22 @@ export default function SupplierPage() {
     var filteredList = [...supplierList];
     filteredList = handleMultipleFilter(multiFilter, filteredList);
     filteredList = handleRangeNumFilter(rangeNumFilter, filteredList);
-    filteredList = handleRangeTimeFilter(rangeTimeFilter, filteredList);
+    filteredList = handleTimeFilter(
+      staticRangeFilter,
+      rangeTimeFilter,
+      timeFilterControl,
+      filteredList
+    );
 
     setFilteredSupplierList([...filteredList]);
-  }, [multiFilter, rangeNumFilter, rangeTimeFilter, supplierList]);
+  }, [
+    multiFilter,
+    staticRangeFilter,
+    rangeNumFilter,
+    timeFilterControl,
+    rangeTimeFilter,
+    supplierList,
+  ]);
 
   function handleFormSubmit(values: Supplier) {
     setSupplierList((prev) => [...prev, values]);
@@ -140,16 +157,12 @@ export default function SupplierPage() {
     setRangeTimeFilter((prev) => ({ ...prev, createdDate: range }));
   };
   const updateCreatedDateStaticRangeFilter = (value: FilterTime) => {
-    const range = getMinMaxOfListTime(
-      supplierList.map((row) => row.createdDate)
-    );
-    const rangeTime = getStaticRangeFilterTime(
-      value,
-      range.minDate,
-      range.maxDate
-    );
-    setRangeTimeFilter((prev) => ({ ...prev, createdDate: rangeTime }));
+    setStaticRangeFilter((prev) => ({ ...prev, createdDate: value }));
   };
+  const updateCreatedDateTimeFilterControl = (value: TimeFilterType) => {
+    setTimeFilterControl((prev) => ({ ...prev, createdDate: value }));
+  };
+
   const updateStatusMultiFilter = (values: string[]) => {
     setMultiFilter((prev) => ({ ...prev, status: values }));
   };
@@ -181,8 +194,10 @@ export default function SupplierPage() {
       <TimeFilter
         key={2}
         title="Date Modified"
-        singleTimeValue={singleFilter.createdDate}
+        timeFilterControl={timeFilterControl.createdDate}
+        singleTimeValue={staticRangeFilter.createdDate}
         rangeTimeValue={rangeTimeFilter.createdDate}
+        onTimeFilterControlChanged={updateCreatedDateTimeFilterControl}
         onRangeTimeFilterChanged={updateCreatedDateRangeTimeFilter}
         onSingleTimeFilterChanged={updateCreatedDateStaticRangeFilter}
       />

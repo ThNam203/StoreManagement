@@ -1,12 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { ChoicesFilter, PageWithFilters } from "@/components/ui/filter";
-import {
-  DailyReport,
-  FundReport,
-  GoodsReport,
-  SaleReport,
-} from "@/entities/Report";
+import { Report } from "@/entities/Report";
 import { FormType } from "@/entities/Transaction";
 import { formatID } from "@/utils";
 import { useEffect, useState } from "react";
@@ -16,14 +11,11 @@ import {
   saleReportColumnHeaders,
 } from "./pdf_columns";
 import { PDFDownloadLink } from "@react-pdf/renderer";
-import {
-  DailyReportPDFDownloader,
-  DailyReportPDFViewer,
-} from "@/components/ui/pdf";
+import { ReportPDFDownloader, ReportPDFViewer } from "@/components/ui/pdf";
 
-const originalSaleReportList: SaleReport[] = [];
-const originalFundReportList: FundReport[] = [];
-const originalGoodsReportList: GoodsReport[] = [];
+const originalSaleReportList: any[] = [];
+const originalFundReportList: any[] = [];
+const originalGoodsReportList: any[] = [];
 //create copied data
 for (let i = 0; i < 50; i++) {
   originalSaleReportList.push({
@@ -67,7 +59,7 @@ export default function DailyReportLayout() {
   const [singleFilter, setSingleFilter] = useState({
     concern: Concern.SALE as string,
   });
-  const [dailyReport, setDailyReport] = useState<DailyReport>({
+  const [dailyReport, setDailyReport] = useState<Report>({
     headerData: {
       title: "Daily Report",
       createdDate: new Date(),
@@ -81,7 +73,7 @@ export default function DailyReportLayout() {
   useEffect(() => {
     const fetchSaleReportData = async () => {
       const res = originalSaleReportList;
-      const formatedData: SaleReport[] = res.map((row) => {
+      const formatedData = res.map((row) => {
         const newRow = { ...row };
         newRow.transactionId = formatID(newRow.transactionId, "MDD");
         return newRow;
@@ -99,7 +91,7 @@ export default function DailyReportLayout() {
     };
     const fetchFundReportData = async () => {
       const res = originalFundReportList;
-      const formatedData: FundReport[] = res.map((row) => {
+      const formatedData = res.map((row) => {
         const newRow = { ...row };
         newRow.formId = formatID(newRow.formId, "MP");
         return newRow;
@@ -117,7 +109,7 @@ export default function DailyReportLayout() {
     };
     const fetchGoodsReportData = async () => {
       const res = originalGoodsReportList;
-      const formatedData: GoodsReport[] = res.map((row) => {
+      const formatedData = res.map((row) => {
         const newRow = { ...row };
         newRow.goodsId = formatID(newRow.goodsId, "MHH");
         return newRow;
@@ -165,10 +157,10 @@ export default function DailyReportLayout() {
       headerButtons={headerButtons}
     >
       <div className="flex flex-col space-y-4">
-        <DailyReportPDFDownloader data={dailyReport} classname="self-end" />
-        <DailyReportPDFViewer
+        <ReportPDFDownloader data={dailyReport} classname="self-end" />
+        <ReportPDFViewer
           data={dailyReport}
-          classname="w-full h-[1000px]"
+          classname="w-full h-[1000px] bg-black"
         />
       </div>
     </PageWithFilters>
