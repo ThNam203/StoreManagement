@@ -140,8 +140,7 @@ public class AuthenticationService {
                 response.setHeader(HttpHeaders.SET_COOKIE, cookie.toString());
                 response.getWriter().write(new ObjectMapper().writeValueAsString("Refreshed token successfully"));
             } else {
-                // status error 401
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 response.getWriter().write(new ObjectMapper().writeValueAsString("Refresh token is invalid"));
             }
         }
