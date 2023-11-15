@@ -44,7 +44,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         jwt = jwtService.getJwtAccessFromCookie(request);
         if (jwt == null || jwt.isEmpty()) {
             filterChain.doFilter(request, response);
-            throw new CustomException("JWT token is missing", HttpStatus.UNAUTHORIZED);
+            return;
         }
 
         userEmail =  jwtService.extractUsername(jwt);
@@ -62,9 +62,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         new WebAuthenticationDetailsSource().buildDetails(request)
                 );
                 SecurityContextHolder.getContext().setAuthentication(authToken);
-            } else {
-                filterChain.doFilter(request, response);
-                throw new CustomException("JWT token is invalid", HttpStatus.UNAUTHORIZED);
             }
         }
         filterChain.doFilter(request, response);
