@@ -3,7 +3,7 @@ package com.springboot.store.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.Set;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -12,16 +12,11 @@ import java.util.Set;
 @Builder
 
 @Entity
-@Table(name = "product_property")
-public class ProductProperty {
-
+@Table(name = "product_prices")
+public class ProductPrice {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-
-    @ManyToOne()
-    @JoinColumn(name = "property_name_id")
-    private ProductPropertyName propertyName;
-
-    private String propertyValue;
+    private int value;
+    private Date createdAt;
 }

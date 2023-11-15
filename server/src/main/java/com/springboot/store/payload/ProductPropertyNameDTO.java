@@ -2,15 +2,12 @@ package com.springboot.store.payload;
 
 import lombok.*;
 
-import java.util.Set;
-
-@Data
-@Setter
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
+@Setter
 @Builder
-public class ProductBrandDTO {
+@AllArgsConstructor
+@NoArgsConstructor
+public class ProductPropertyNameDTO {
     private int id;
     private String name;
 }

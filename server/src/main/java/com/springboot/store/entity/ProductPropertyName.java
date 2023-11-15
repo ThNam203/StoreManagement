@@ -3,9 +3,6 @@ package com.springboot.store.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.List;
-import java.util.Set;
-
 @Getter
 @Setter
 @AllArgsConstructor
@@ -13,17 +10,10 @@ import java.util.Set;
 @Builder
 
 @Entity
-@Table(name = "product_brand")
-public class ProductBrand {
-
+@Table(name = "product_property_name")
+public class ProductPropertyName {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-
-    @Column(name = "name")
     private String name;
-
-    @OneToMany(mappedBy = "productBrand", fetch = FetchType.LAZY)
-    private List<Product> products;
-
 }

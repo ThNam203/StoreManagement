@@ -3,6 +3,7 @@ package com.springboot.store.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -26,17 +27,8 @@ public class Product {
     @Column(name = "barcode", nullable = false, unique = true)
     private String barcode;
 
-    @Column(name = "location")
-    private String location;
-
-    @Column(name = "original_price")
-    private int originalPrice;
-
-    @Column(name = "selling_price")
-    private int sellingPrice;
-
-    @Column(name = "quantity")
-    private int quantity;
+    @Column(name = "stock")
+    private int stock;
 
     @Column(name = "status")
     private String status;
@@ -47,11 +39,23 @@ public class Product {
     @Column(name = "note")
     private String note;
 
-    @Column(name = "min_quantity")
-    private int minQuantity;
+    @Column(name = "weight")
+    private Double weight;
 
-    @Column(name = "max_quantity")
-    private int maxQuantity;
+    @Column(name = "min_stock")
+    private int minStock;
+
+    @Column(name = "max_stock")
+    private int maxStock;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<OriginalPrice> originalPrices;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<ProductPrice> productPrices;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    private SalesUnits salesUnits;
 
     @ManyToOne()
     @JoinColumn(name = "product_group_id")
@@ -61,11 +65,13 @@ public class Product {
     @JoinColumn(name = "product_brand_id")
     private ProductBrand productBrand;
 
-    @ManyToOne()
-    @JoinColumn(name = "product_property_id")
-    private ProductProperty productProperty;
-
     @OneToMany(cascade = CascadeType.ALL)
-    private Set<Media> images;
+    private List<ProductProperty> properties;
 
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Media> images;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "location_id")
+    private Location location;
 }

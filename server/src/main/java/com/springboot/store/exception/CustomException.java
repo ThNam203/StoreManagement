@@ -3,8 +3,8 @@ package com.springboot.store.exception;
 import org.springframework.http.HttpStatus;
 
 public class CustomException extends RuntimeException{
-    private String message;
-    private HttpStatus httpStatus;
+    private final String message;
+    private final HttpStatus httpStatus;
 
     public CustomException(String message, HttpStatus httpStatus){
         super(message);
