@@ -317,8 +317,6 @@ const getStaticRangeFilterTime = (
     let quarterIndex = Math.floor((month - 1) / 3); // start with 0
     let firstMonth = quarterIndex * 3 - 2; // 1-indexed
     let lastMonth = firstMonth + 2;
-    console.log("firstmonth", firstMonth);
-    console.log("lastmonth", lastMonth);
 
     let firstDate = new Date(today.getFullYear(), firstMonth - 1, 1); // 0-indexed
     let lastDate = new Date(today.getFullYear(), lastMonth, 0); // 0-indexed

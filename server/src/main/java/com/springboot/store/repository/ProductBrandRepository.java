@@ -4,7 +4,8 @@ import com.springboot.store.entity.ProductBrand;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-@Repository
-public interface ProductBrandRepository extends JpaRepository<ProductBrand, Integer> {
+import java.util.Optional;
 
+public interface ProductBrandRepository extends JpaRepository<ProductBrand, Integer> {
+    Optional<ProductBrand> findByName(String name);
 }

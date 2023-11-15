@@ -137,10 +137,8 @@ export function DataTable({ data, onSubmit }: Props) {
             [headerContent]: dataRow[header as keyof typeof dataRow],
           };
         } else {
-          console.log("header of undefined", header);
         }
       });
-      console.log("Temp: ", row);
       return row;
     });
 

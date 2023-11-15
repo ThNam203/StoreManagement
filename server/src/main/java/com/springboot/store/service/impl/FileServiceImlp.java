@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -32,6 +33,8 @@ public class FileServiceImlp implements FileService {
         fileObj.delete();
         return "https://"+bucketName+".s3.amazonaws.com/"+fileName;
     }
+
+
     @Override
     public byte[] downloadFile(String fileName){
         S3Object s3Object = s3.getObject(bucketName,fileName);

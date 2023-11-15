@@ -83,7 +83,6 @@ const SingleColumnChart = ({
         if (timeA < timeB) return -1;
         else return 1;
       } catch (e) {
-        console.log("Error: ", e);
         return 0;
       }
     });
@@ -96,7 +95,6 @@ const SingleColumnChart = ({
         if (timeA > timeB) return -1;
         else return 1;
       } catch (e) {
-        console.log("Error: ", e);
         return 0;
       }
     });
@@ -120,7 +118,6 @@ const SingleColumnChart = ({
           value: row.value,
         };
       } catch (e) {
-        console.log("error", e);
         return row;
       }
     });
@@ -223,7 +220,6 @@ const MultiColumnChart = ({
         if (timeA < timeB) return -1;
         else return 1;
       } catch (e) {
-        console.log("Error: ", e);
         return 0;
       }
     });
@@ -236,7 +232,6 @@ const MultiColumnChart = ({
         if (timeA > timeB) return -1;
         else return 1;
       } catch (e) {
-        console.log("Error: ", e);
         return 0;
       }
     });
@@ -257,7 +252,6 @@ const MultiColumnChart = ({
         }
         return formated;
       } catch (e) {
-        console.log("error", e);
         return row;
       }
     });

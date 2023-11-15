@@ -31,7 +31,7 @@ public class JwtServiceImpl implements JwtService {
     private long jwtExpiration;
     @Value("${application.security.jwt.refresh-token.expiration}")
     private long refreshExpiration;
-    @Value("${application.security.jwt..access-token}")
+    @Value("${application.security.jwt.access-token}")
     private String jwtAccess;
     @Value("${application.security.jwt.refresh-token}")
     private String jwtRefresh;
@@ -90,12 +90,12 @@ public class JwtServiceImpl implements JwtService {
 
     @Override
     public ResponseCookie generateCookie(String token) {
-        return generateCookie(jwtAccess, token, "/api", (int) (jwtExpiration/1000) - 1);
+        return generateCookie(jwtAccess, token, (int) (jwtExpiration/1000) - 1);
     }
 
     @Override
     public ResponseCookie generateRefreshCookie(String token) {
-        return generateCookie(jwtRefresh, token, "/api/auth", (int) (refreshExpiration/1000) - 1);
+        return generateCookie(jwtRefresh, token, (int) (refreshExpiration/1000) - 1);
     }
 
     @Override
@@ -137,8 +137,8 @@ public class JwtServiceImpl implements JwtService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    private ResponseCookie generateCookie(String name, String value, String path, int maxAgeSeconds) {
-        return ResponseCookie.from(name, value).path(path).maxAge(maxAgeSeconds).httpOnly(true).build();
+    private ResponseCookie generateCookie(String name, String value, int maxAgeSeconds) {
+        return ResponseCookie.from(name, value).secure(true).sameSite("None").path("/").maxAge(maxAgeSeconds).httpOnly(true).build();
     }
 
     private String getCookieValueByName(HttpServletRequest request, String name) {
