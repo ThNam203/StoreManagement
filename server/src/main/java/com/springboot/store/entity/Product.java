@@ -40,7 +40,7 @@ public class Product {
     private String note;
 
     @Column(name = "weight")
-    private String weight;
+    private Double weight;
 
     @Column(name = "min_stock")
     private int minStock;
