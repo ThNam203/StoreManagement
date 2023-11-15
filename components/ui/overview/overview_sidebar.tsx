@@ -31,6 +31,8 @@ import {
   ShoppingBasket,
   ArrowUpSquare,
   PackageX,
+  PieChart,
+  FileBarChart2,
 } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
@@ -76,6 +78,8 @@ enum IconNames {
   ShoppingBasket,
   ArrowUpSquare,
   PackageX,
+  PieChart,
+  FileBarChart2
 }
 
 const LucideIcons = (iconName: IconNames, isCollapsed: boolean | null) => {
@@ -147,6 +151,10 @@ const LucideIcons = (iconName: IconNames, isCollapsed: boolean | null) => {
       return <ShoppingBasket size={iconSize} className={iconClasses} />;
     case IconNames.Undo:
       return <Undo size={iconSize} className={iconClasses} />;
+    case IconNames.PieChart:
+      return <PieChart size={iconSize} className={iconClasses} />;
+      case IconNames.FileBarChart2:
+        return <FileBarChart2 size={iconSize} className={iconClasses} />;
   }
 };
 
@@ -274,7 +282,7 @@ const SideBar = ({
         fill="rgb(96 165 250)"
         onClick={() => changeSideBarCollapsibility()}
         className={cn(
-          "fixed rounded-full translate-x-[-50%] z-20 top-8 ease-linear duration-150 hover:cursor-pointer",
+          "fixed rounded-full translate-x-[-50%] z-[10] top-8 ease-linear duration-150 hover:cursor-pointer",
           isCollapsed == null
             ? "max-lg:rotate-180 left-[64px] lg:left-[232px]"
             : "",
@@ -425,7 +433,7 @@ const SideBar = ({
               title="Invoices"
               className="!w-full"
               isCollapsed={isCollapsed}
-              href="/invoices"
+              href="/transaction/invoice"
             />,
             <SideBarButton
               key={2}
@@ -433,7 +441,7 @@ const SideBar = ({
               title="Return"
               className="!w-full"
               isCollapsed={isCollapsed}
-              href="/returns"
+              href="/product-return"
             />,
             <SideBarButton
               key={3}
@@ -441,7 +449,7 @@ const SideBar = ({
               title="Purchase Orders"
               className="!w-full"
               isCollapsed={isCollapsed}
-              href="/purchase-orders"
+              href="/transaction/import-form"
             />,
             <SideBarButton
               key={4}
@@ -454,7 +462,7 @@ const SideBar = ({
             <SideBarButton
               key={5}
               iconName={IconNames.PackageX}
-              title="Damaged items"
+              title="Damaged Items"
               className="!w-full"
               isCollapsed={isCollapsed}
               href="/damaged-products"
@@ -488,17 +496,37 @@ const SideBar = ({
           isCollapsed={isCollapsed}
         />
 
-        {/* {SideBarButton("Package", "Warehouse", "", isCollapsed={isCollapsed}, "")} */}
-        {
-          <SideBarButton
-            key={1}
-            iconName={IconNames.BarChart3}
-            title="Reports"
-            className=""
-            isCollapsed={isCollapsed}
-            href="/reports"
-          />
-        }
+        <SideBarAccordion
+          iconName={IconNames.BarChart3}
+          title="Reports"
+          buttons={[
+            <SideBarButton
+              key={1}
+              iconName={IconNames.PieChart}
+              title="Daily"
+              className="!w-full"
+              isCollapsed={isCollapsed}
+              href="/report/daily"
+            />,
+            <SideBarButton
+              key={2}
+              iconName={IconNames.GanttChartSquare}
+              title="Goods"
+              className="!w-full"
+              isCollapsed={isCollapsed}
+              href="/report/goods"
+            />,
+            <SideBarButton
+              key={3}
+              iconName={IconNames.FileBarChart2}
+              title="Sales"
+              className="!w-full"
+              isCollapsed={isCollapsed}
+              href="/report/sale"
+            />,
+          ]}
+          isCollapsed={isCollapsed}
+        />
 
         <SideBarAccordion
           iconName={IconNames.Contact}
@@ -541,7 +569,6 @@ const SideBar = ({
         />
 
         <SideBarButton
-          key={1}
           iconName={IconNames.Settings}
           title="Settings"
           className=""

@@ -19,12 +19,9 @@ public class ProductProperty {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "name")
-    private String name;
+    @ManyToOne()
+    @JoinColumn(name = "property_name_id")
+    private ProductPropertyName propertyName;
 
-    @Column(name = "value")
-    private String value;
-
-    @OneToMany(mappedBy = "productProperty", fetch = FetchType.LAZY)
-    private Set<Product> products;
+    private String propertyValue;
 }

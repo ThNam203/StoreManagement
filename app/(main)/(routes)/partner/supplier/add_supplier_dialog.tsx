@@ -33,7 +33,7 @@ import {
   SelectValue,
 } from "../../../../../components/ui/select";
 import { nanoid } from "nanoid";
-import { Supplier } from "@/entities/Supplier";
+import { Status, Supplier } from "@/entities/Supplier";
 
 const formSchema = z.object({
   id: z.any(),
@@ -41,9 +41,12 @@ const formSchema = z.object({
   phoneNumber: z.string(),
   address: z.string(),
   email: z.string().email(),
-  supplierGroup: z.string(),
-  companyName: z.string(),
+  supplierGroup: z.string().optional(),
+  company: z.string().optional(),
   note: z.string().optional(),
+  taxId: z.string().optional(),
+  creator: z.string(),
+  createdDate: z.string(),
 });
 
 type Props = {
@@ -61,16 +64,18 @@ export function AddSupplierDialog({ data, submit }: Props) {
       id: nanoid(9),
       name: values.name,
       phoneNumber: values.phoneNumber,
-      address: values.address,
+      supplierGroup: values.supplierGroup ? values.supplierGroup : "",
       email: values.email,
-      supplierGroup: values.supplierGroup,
-      image: "",
-      description: "",
-      companyName: values.companyName,
-      creator: "",
-      createdDate: new Date().toLocaleDateString("en-GB"),
-      status: "",
+      address: values.address,
+      company: values.company ? values.company : "",
       note: values.note ? values.note : "",
+      taxId: values.taxId ? values.taxId : "",
+      creator: values.creator,
+      createdDate: new Date(),
+      debt: 0,
+      sale: 0,
+      totalSale: 0,
+      status: Status.WORKING,
     };
     if (submit) {
       submit(newGroup);
@@ -195,7 +200,7 @@ export function AddSupplierDialog({ data, submit }: Props) {
 
                   <FormField
                     control={form.control}
-                    name="companyName"
+                    name="company"
                     render={({ field }) => (
                       <FormItem className="mt-2">
                         <div className="flex flex-row items-center">

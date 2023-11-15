@@ -11,6 +11,8 @@
   "dependencies": {
     "@hookform/resolvers": "^3.3.1",
     "@radix-ui/react-accordion": "^1.1.2",
+    "@radix-ui/react-alert-dialog": "^1.0.5",
+    "@radix-ui/react-aspect-ratio": "^1.0.3",
     "@radix-ui/react-avatar": "^1.0.3",
     "@radix-ui/react-checkbox": "^1.0.4",
     "@radix-ui/react-collapsible": "^1.0.3",
@@ -27,6 +29,7 @@
     "@radix-ui/react-tabs": "^1.0.4",
     "@radix-ui/react-toast": "^1.1.5",
     "@radix-ui/react-tooltip": "^1.0.7",
+    "@react-pdf/renderer": "^3.1.14",
     "@tanstack/react-table": "^8.10.7",
     "@types/node": "20.6.0",
     "@types/react": "18.2.21",
@@ -38,6 +41,7 @@
     "clsx": "^2.0.0",
     "cmdk": "^0.2.0",
     "date-fns": "^2.30.0",
+    "encoding": "^0.1.13",
     "eslint": "8.49.0",
     "eslint-config-next": "13.4.19",
     "lucide-react": "^0.276.0",
@@ -60,7 +64,6 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^8.0.2",
-    "@types/react-date-range": "^1.4.7",
-    "@types/xlsx": "^0.0.36"
+    "@types/react-date-range": "^1.4.7"
   }
 }

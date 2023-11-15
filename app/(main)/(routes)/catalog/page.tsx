@@ -1,16 +1,16 @@
 "use client";
-import { Button } from "@/components/ui/button";
 import {
   ChoicesFilter,
   PageWithFilters,
   SearchFilter,
-  TimeFilter,
 } from "@/components/ui/filter";
-import { cn } from "@/lib/utils";
-import { useState } from "react";
+import React, { useState } from "react";
 import { CatalogDatatable } from "./datatable";
-import Media from "@/entities/Media";
-import Product from "@/entities/Product";
+import { sampleProducts } from "@/entities/Product";
+import { Toaster } from "@/components/ui/toaster";
+import { NewProductView } from "@/components/ui/catalog/new_product_form";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 
 const productTypeFilterChoices = ["Goods", "Services", "Combo - Package"];
 const productGroupFilterChoices = [
@@ -48,33 +48,7 @@ const productPositionFilterChoices = [
 ];
 const productStatusFilterChoices = ["Selling", "Not selling", "All"];
 
-const anotherProduct: Product = {
-  id: 2,
-  name: "Another Sample Product",
-  barcode: "XYZ789",
-  location: "Aisle 2, Shelf 3",
-  costOfGoods: 15.0,
-  sellingPrice: 25.0,
-  quantity: 50,
-  status: "In Stock",
-  description: "Another sample product description.",
-  note: "Additional notes for the second product.",
-  minInventoryThreshold: 5,
-  maxInventoryThreshold: 100,
-  productGroup: "Clothing",
-  productBrand: "Another Brand",
-  productProperty: "Medium",
-  images: new Set<Media>([
-    {
-      id: 2,
-      url: "https://example.com/another-product-image.jpg",
-    },
-    {
-      id: 3,
-      url: "https://example.com/another-product-image2.jpg",
-    },
-  ]),
-};
+const products = sampleProducts;
 
 export default function Catalog() {
   const [filtersChoice, setFiltersChoice] = useState<{
@@ -125,7 +99,7 @@ export default function Catalog() {
       className="my-4"
     />,
     <ChoicesFilter
-      key={4}
+      key={3}
       title="Inventory"
       isSingleChoice
       defaultValue={filtersChoice.inventoryThreshold}
@@ -134,7 +108,7 @@ export default function Catalog() {
       className="my-4"
     />,
     <SearchFilter
-      key={5}
+      key={4}
       title="Supplier"
       placeholder="Find supplier..."
       chosenValues={filtersChoice.supplier}
@@ -152,7 +126,7 @@ export default function Catalog() {
       className="my-4"
     />,
     <ChoicesFilter
-      key={4}
+      key={6}
       title="Product status"
       isSingleChoice
       defaultValue={filtersChoice.status}
@@ -162,64 +136,28 @@ export default function Catalog() {
     />,
   ];
 
-  const NewProductFirstTab = () => {
-    return <div className="flex flex-row">
-      <div className="flex flex-row ">
-        
-      </div>
-    </div>;
-  };
-
-  const NewProductView = () => {
-    const [tabPosition, setTabPosition] = useState(0);
-
+  const NewProductButton = () => {
     return (
-      <div className="fixed top-0 left-0 w-screen h-screen flex items-center justify-center bg-black bg-opacity-30 z-[9999999999]">
-        <div className="rounded-md max-h-[95%] w-[95%] max-w-[960px] flex flex-col p-4 bg-white">
-          <h3 className="font-semibold text-base mb-4">Add new product</h3>
-          <div className="flex flex-row">
-            <p
-              className={cn(
-                "text-sm lg:text-base w-[180px] text-center hover:cursor-pointer",
-                tabPosition === 0 ? "border-b border-blue-400" : ""
-              )}
-              onClick={() => setTabPosition(0)}
-            >
-              Information
-            </p>
-            <p
-              className={cn(
-                "text-sm lg:text-base w-[180px] text-center hover:cursor-pointer",
-                tabPosition === 1 ? "border-b border-blue-400" : ""
-              )}
-              onClick={() => setTabPosition(1)}
-            >
-              Detail description
-            </p>
-            <p
-              className={cn(
-                "text-sm lg:text-base w-[180px] text-center hover:cursor-pointer",
-                tabPosition === 2 ? "border-b border-blue-400" : ""
-              )}
-              onClick={() => setTabPosition(2)}
-            >
-              Components
-            </p>
-          </div>
-          <div>{tabPosition === 0 ? <NewProductFirstTab /> : null}</div>
-        </div>
-      </div>
+      <Button variant={"green"} onClick={() => setShowNewProductView(true)}>
+        <Plus size={16} className="mr-2"/>
+        New product
+      </Button>
     );
   };
+
+  const [showNewProductView, setShowNewProductView] = useState(false);
 
   return (
     <PageWithFilters
       title="Products"
       filters={filters}
-      headerButtons={[]}
+      headerButtons={[<NewProductButton key={1} />]}
     >
-      <CatalogDatatable data={[anotherProduct]} />
-      {/* <NewProductView /> */}
+      <CatalogDatatable data={products} />
+      {showNewProductView ? (
+        <NewProductView onChangeVisibility={setShowNewProductView} />
+      ) : null}
+      <Toaster />
     </PageWithFilters>
   );
 }

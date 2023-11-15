@@ -19,5 +19,7 @@ public class SalesUnits {
     @Id
     @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
     private int id;
+    private String basicUnit;
     private String name;
+    private double exchangeValue;
 }

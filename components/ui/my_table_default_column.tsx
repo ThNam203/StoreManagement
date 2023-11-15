@@ -1,6 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTableColumnHeader } from "./my_table_column_header";
-import { Checkbox } from "@radix-ui/react-checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,6 +9,8 @@ import {
 import { MoreHorizontal } from "lucide-react";
 import { Button } from "./button";
 import { ReactNode } from "react";
+import { Checkbox } from "./checkbox";
+import format from "date-fns/format";
 
 function defaultColumn<T>(
   accessorKey: string,
@@ -27,9 +28,9 @@ function defaultColumn<T>(
     cell: ({ row }) => {
       const value: ReactNode = row.getValue(accessorKey);
       const formatedValue: ReactNode =
-        value instanceof Date ? value.toLocaleString() : value;
+        value instanceof Date ? format(value, "dd/MM/yyyy hh:mm a") : value;
 
-      return <div>{formatedValue}</div>;
+      return <p className="text-[0.8rem]">{formatedValue}</p>;
     },
   };
   return col;
@@ -48,6 +49,7 @@ function defaultSelectColumn<T>(): ColumnDef<T> {
       <Checkbox
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
+        onClick={(e) => e.stopPropagation()}
       />
     ),
     enableSorting: false,
@@ -58,7 +60,7 @@ function defaultSelectColumn<T>(): ColumnDef<T> {
 function defaultIndexColumn<T>(): ColumnDef<T> {
   return {
     header: "#",
-    cell: ({ row }) => <div>{row.index + 1}</div>,
+    cell: ({ row }) => <p className="text-[0.8rem]">{row.index + 1}</p>,
   };
 }
 
@@ -96,7 +98,10 @@ function defaultConfigColumn<T>(): ColumnDef<T> {
 }
 
 function getColumns<T>(columnHeader: object): ColumnDef<T>[] {
-  const columns: ColumnDef<T>[] = [defaultSelectColumn(), defaultIndexColumn()];
+  const columns: ColumnDef<T>[] = [
+    defaultSelectColumn<T>(),
+    defaultIndexColumn<T>(),
+  ];
   for (let key in columnHeader) {
     const col: ColumnDef<T> = defaultColumn<T>(key, columnHeader);
     columns.push(col);

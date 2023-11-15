@@ -13,11 +13,16 @@ export type Customer = {
   company: string;
   taxId: string;
   note: string;
-  lastTransaction: Date;
+  lastTransaction: Date; // Ex: "Empty" for no transaction or some Date
   debt: number;
   sale: number;
   finalSale: number;
   status: Status;
+  image: string;
+};
+
+export const getFinalSale = (customer: Customer): number => {
+  return customer.sale - customer.debt;
 };
 
 export type CustomerGroup = {

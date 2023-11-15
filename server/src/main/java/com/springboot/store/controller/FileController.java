@@ -11,6 +11,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -20,8 +23,12 @@ public class FileController {
     @Autowired
     private FileService fileService;
     @PostMapping("/uploadFile")
-    public ResponseEntity<String> uploadFile(@RequestParam(value="file") MultipartFile file) {
-        return new ResponseEntity<>(fileService.uploadFile(file), HttpStatus.OK);
+    public ResponseEntity<List<String>> uploadFile(@RequestParam(value="file") MultipartFile[] file) {
+        List <String> fileNames = new ArrayList<>();
+        Arrays.asList(file).forEach(f -> {
+            fileNames.add(fileService.uploadFile(f));
+        });
+        return new ResponseEntity<>(fileNames, HttpStatus.OK);
     }
     @GetMapping("/downloadFile/{fileName}")
     public ResponseEntity<ByteArrayResource> downloadFile(@PathVariable String fileName){

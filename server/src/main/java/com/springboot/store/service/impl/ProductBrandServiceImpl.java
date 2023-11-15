@@ -2,6 +2,7 @@ package com.springboot.store.service.impl;
 
 import com.springboot.store.entity.ProductBrand;
 import com.springboot.store.payload.ProductBrandDTO;
+import com.springboot.store.payload.ProductDTO;
 import com.springboot.store.repository.ProductBrandRepository;
 import com.springboot.store.service.ProductBrandService;
 import jakarta.persistence.EntityNotFoundException;
@@ -35,6 +36,15 @@ public class ProductBrandServiceImpl implements ProductBrandService {
         List<ProductBrand> productBrands = productBrandRepository.findAll();
         return productBrands.stream()
                 .map(productBrand -> modelMapper.map(productBrand, ProductBrandDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ProductDTO> getAllProductsByProductBrandId(int id) {
+        ProductBrand productBrand = productBrandRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("ProductBrand not found with id: " + id));
+        return productBrand.getProducts().stream()
+                .map(product -> modelMapper.map(product, ProductDTO.class))
                 .collect(Collectors.toList());
     }
 

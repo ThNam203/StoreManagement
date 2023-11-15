@@ -71,8 +71,8 @@ export function MakeExpenseDialog({ data, submit }: Props) {
     const expense: Transaction = {
       id: nanoid(9),
       createdDate: values.createdDate
-        ? new Date(values.createdDate).toLocaleString()
-        : new Date().toLocaleString(),
+        ? new Date(values.createdDate)
+        : new Date(),
       formType: FormType.EXPENSE,
       description: "Pay for" + values.targetType,
       value: values.value,

@@ -3,6 +3,7 @@ package com.springboot.store.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -15,8 +16,6 @@ import java.util.Set;
 @Table(name = "product_brand")
 public class ProductBrand {
 
-
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -25,29 +24,6 @@ public class ProductBrand {
     private String name;
 
     @OneToMany(mappedBy = "productBrand", fetch = FetchType.LAZY)
-    private Set<Product> products;
+    private List<Product> products;
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Set<Product> getProducts() {
-        return products;
-    }
-
-    public void setProducts(Set<Product> products) {
-        this.products = products;
-    }
 }
