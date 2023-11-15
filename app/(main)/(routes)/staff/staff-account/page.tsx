@@ -8,7 +8,6 @@ import {
 import { ChevronDown } from "lucide-react";
 import { nanoid } from "nanoid";
 
-import { Combobox } from "@/components/ui/combobox";
 import { Sex, Staff } from "@/entities/Staff";
 import { useEffect, useState } from "react";
 import { DataTable } from "./datatable";
@@ -33,7 +32,7 @@ const originalStaffList: Staff[] = [
     CCCD: "012301923012",
     birthday: new Date("2003-8-4"),
     createAt: new Date(),
-    branch: "Center",
+    workingBranch: "Center",
     position: "Safe guard",
     salaryDebt: 0,
   },
@@ -49,7 +48,7 @@ const originalStaffList: Staff[] = [
     CCCD: "012301923011",
     birthday: new Date("2003-4-4"),
     createAt: new Date(),
-    branch: "Branch 1",
+    workingBranch: "Branch 1",
     position: "Cashier",
     salaryDebt: 0,
   },
@@ -65,7 +64,7 @@ const originalStaffList: Staff[] = [
     CCCD: "012301943012",
     birthday: new Date("2003-8-8"),
     createAt: new Date(),
-    branch: "Branch 2",
+    workingBranch: "Branch 2",
     position: "Store Manager",
     salaryDebt: 0,
   },
@@ -73,6 +72,7 @@ const originalStaffList: Staff[] = [
 
 export default function StaffInfoPage() {
   const [staffList, setStaffList] = useState<Staff[]>([]);
+  const [workingBranchList, setWorkingBranchList] = useState<string[]>([]);
   const [filterdStaffList, setFilteredStaffList] = useState<Staff[]>([]);
   const [multiFilter, setMultiFilter] = useState({
     branch: [] as string[],
@@ -86,7 +86,11 @@ export default function StaffInfoPage() {
       return newRow;
     });
     setStaffList(formatedData);
+    setWorkingBranchList(
+      Array.from(new Set(formatedData.map((staff) => staff.workingBranch)))
+    );
   }, []);
+
   useEffect(() => {
     var filteredList = [...staffList];
     filteredList = handleMultipleFilter(multiFilter, filteredList);
@@ -120,7 +124,7 @@ export default function StaffInfoPage() {
         title="Branch"
         placeholder="Search branch"
         chosenValues={multiFilter.branch}
-        choices={Array.from(new Set(staffList.map((staff) => staff.branch)))}
+        choices={workingBranchList}
         onValuesChanged={updateBranchMultiFilter}
       />
     </div>,

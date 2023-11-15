@@ -28,7 +28,11 @@ function defaultColumn<T>(
     cell: ({ row }) => {
       const value: ReactNode = row.getValue(accessorKey);
       const formatedValue: ReactNode =
-        value instanceof Date ? format(value, "dd/MM/yyyy hh:mm a") : value;
+        value instanceof Date
+          ? accessorKey.toLowerCase().includes("birth")
+            ? format(value, "dd/MM/yyyy")
+            : format(value, "dd/MM/yyyy hh:mm a")
+          : value;
 
       return <p className="text-[0.8rem]">{formatedValue}</p>;
     },

@@ -48,8 +48,6 @@ const productPositionFilterChoices = [
 ];
 const productStatusFilterChoices = ["Selling", "Not selling", "All"];
 
-const products = sampleProducts;
-
 export default function Catalog() {
   const [filtersChoice, setFiltersChoice] = useState<{
     type: string[];
