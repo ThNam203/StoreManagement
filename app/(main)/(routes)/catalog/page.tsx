@@ -78,7 +78,7 @@ const productPositionFilterChoices = [
 ];
 const productStatusFilterChoices = ["Selling", "Not selling", "All"];
 
-const products = sampleProducts
+const products = sampleProducts;
 
 const newProductFormSchema = z.object({
   barcode: z

@@ -20,7 +20,28 @@ import * as React from "react";
 import { columnHeader, columns } from "./columns";
 import { MakeExpenseDialog } from "./make_expense_dialog";
 import { MakeReceiptDialog } from "./make_receipt_dialog";
-import { exportExcel, formatPrice } from "@/utils";
+import { exportExcel, formatPrice, importExcel } from "@/utils";
+import { MyLabelButton } from "@/components/ui/my_label";
+import { useToast } from "@/components/ui/use-toast";
+import { ChevronDown, CopyIcon, FileDown, FileUp } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { DialogClose } from "@radix-ui/react-dialog";
+import { ImportDailog } from "../../../../components/ui/my_import_dialog";
+import { join } from "path";
 
 type Props = {
   data: Transaction[];
@@ -137,7 +158,7 @@ export function DataTable({ data, onSubmit }: Props) {
           placeholder="Search anything..."
           value={filterInput}
           onChange={(event) => setFilterInput(event.target.value)}
-          className="max-w-sm"
+          className="max-w-sm mr-2"
         />
         <div className="flex flex-row">
           <div className="mr-2">
@@ -147,8 +168,17 @@ export function DataTable({ data, onSubmit }: Props) {
             <MakeExpenseDialog submit={handleSubmit} />
           </div>
           <div className="mr-2">
-            <Button variant={"default"} onClick={handleExportExcel}>
-              Export Excel
+            <ImportDailog />
+          </div>
+
+          <div className="mr-2">
+            <Button
+              variant={"default"}
+              className="bg-lime-500 hover:bg-lime-600"
+              onClick={handleExportExcel}
+            >
+              <FileDown className="mr-2 h-4 w-4" />
+              Export
             </Button>
           </div>
 

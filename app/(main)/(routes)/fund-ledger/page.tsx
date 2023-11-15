@@ -29,6 +29,7 @@ import {
   handleRangeTimeFilter,
   handleTimeFilter,
 } from "@/utils";
+import { Toaster } from "@/components/ui/toaster";
 const originalSalesList: Transaction[] = [
   {
     id: 1,
@@ -251,6 +252,7 @@ export default function SalesPage() {
       headerButtons={headerButtons}
     >
       <DataTable data={filteredSaleList} onSubmit={handleFormSubmit} />
+      <Toaster />
     </PageWithFilters>
   );
 }
