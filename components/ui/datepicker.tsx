@@ -15,10 +15,15 @@ import {
 
 type Props = {
   value?: Date;
+  onChange?: (date: Date) => void;
 };
 
-export function DatePicker({ value }: Props) {
+export function DatePicker({ value, onChange }: Props) {
   const [date, setDate] = React.useState<Date>();
+
+  React.useEffect(() => {
+    if (onChange && date) onChange(date);
+  }, [date]);
 
   return (
     <Popover>

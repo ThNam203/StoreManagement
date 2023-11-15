@@ -8,7 +8,7 @@ import {
 import { ChevronDown } from "lucide-react";
 import { nanoid } from "nanoid";
 
-import { Combobox } from "@/components/ui/combobox";
+import { Combobox } from "@/components/ui/my_combobox";
 import { useEffect, useState } from "react";
 import { DataTable } from "./datatable";
 import { AddCustomerDialog } from "./add_customer_dialog";

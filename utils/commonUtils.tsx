@@ -6,8 +6,8 @@ import {
   FilterWeek,
   FilterYear,
 } from "@/components/ui/filter";
+
 import * as XLSX from "xlsx";
-import { EnumValues } from "zod";
 
 const exportExcel = (data: any[], nameSheet: string, nameFile: string) => {
   return new Promise((resolve, reject) => {
@@ -17,6 +17,33 @@ const exportExcel = (data: any[], nameSheet: string, nameFile: string) => {
     XLSX.writeFile(wb, `${nameFile}.xlsx`);
     resolve("oke");
   });
+};
+const exportTemplateExcelFile = (
+  filePath: string,
+  nameSheet: string,
+  nameFile: string
+) => {
+  return new Promise((resolve, reject) => {
+    const wb = XLSX.readFile(filePath);
+    XLSX.writeFile(wb, `${nameFile}.xlsx`);
+    resolve("oke");
+  });
+};
+const importExcel = async (file: any) => {
+  const validMIMEType = [
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "application/vnd.ms-excel",
+  ];
+  if (!validMIMEType.includes(file.type)) return;
+
+  const data = await file.arrayBuffer();
+
+  const workbook = XLSX.readFile(data);
+  let worksheet: any = {};
+  for (let sheetName of workbook.SheetNames) {
+    worksheet[sheetName] = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+  }
+  return worksheet;
 };
 
 type MultiFilter = Record<string, any>;
@@ -330,15 +357,17 @@ const formatPrice = (price: number) => {
 
 export {
   exportExcel,
-  handleSingleFilter,
-  handleMultipleFilter,
-  handleRangeTimeFilter,
-  handleStaticRangeFilter,
-  handleTimeFilter,
-  handleRangeNumFilter,
-  getStaticRangeFilterTime,
-  getMinMaxOfListTime,
-  removeCharNotANum,
+  exportTemplateExcelFile,
   formatID,
   formatPrice,
+  getMinMaxOfListTime,
+  getStaticRangeFilterTime,
+  handleMultipleFilter,
+  handleRangeNumFilter,
+  handleRangeTimeFilter,
+  handleSingleFilter,
+  handleStaticRangeFilter,
+  handleTimeFilter,
+  importExcel,
+  removeCharNotANum,
 };

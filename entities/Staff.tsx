@@ -1,3 +1,5 @@
+import { SalarySetting } from "./SalarySetting";
+
 export type Staff = {
   avatar: string;
   id: any;
@@ -10,18 +12,13 @@ export type Staff = {
   sex: Sex;
   email: string;
   address: string;
-  branch: string;
+  workingBranch: string;
   position: string;
   createAt: Date;
+  salarySetting?: SalarySetting;
 };
 
 export enum Sex {
   MALE = "Male",
   FEMALE = "Female",
 }
-
-export type StaffGroup = {
-  id: any;
-  groupName: string;
-  note: string;
-};

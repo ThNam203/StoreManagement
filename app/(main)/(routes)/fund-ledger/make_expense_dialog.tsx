@@ -102,7 +102,9 @@ export function MakeExpenseDialog({ data, submit }: Props) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="default">Make Expense Form</Button>
+        <Button variant="default" className="whitespace-nowrap">
+          Make Expense
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
