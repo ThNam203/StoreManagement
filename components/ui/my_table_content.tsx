@@ -31,12 +31,16 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   table: ReactTable<TData>;
+  onRowClick?: (data: TData, index: number) => void;
+  rowClassname?: string,
 }
 
 function DataTableContent<TData, TValue>({
   columns,
   data,
   table,
+  onRowClick,
+  rowClassname
 }: DataTableProps<TData, TValue>) {
   return (
     <div className="space-y-4">
@@ -62,10 +66,12 @@ function DataTableContent<TData, TValue>({
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
+              table.getRowModel().rows.map((row, idx) => (
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  onClick={(e) => onRowClick ? onRowClick(row.original, idx) : null}
+                  className={rowClassname}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id} className="whitespace-nowrap">

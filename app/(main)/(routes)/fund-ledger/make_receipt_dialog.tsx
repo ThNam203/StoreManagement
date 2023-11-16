@@ -102,7 +102,9 @@ export function MakeReceiptDialog({ data, submit }: Props) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="default">Make Receipt Form</Button>
+        <Button variant="default" className="whitespace-nowrap">
+          Make Receipt
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

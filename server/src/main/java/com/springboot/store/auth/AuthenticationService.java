@@ -100,7 +100,7 @@ public class AuthenticationService {
             token.setExpired(true);
             token.setRevoked(true);
         });
-        tokenRepository.saveAll(validUserTokens);
+        tokenRepository.deleteAll(validUserTokens);
     }
 
     public void refreshToken(
@@ -125,10 +125,11 @@ public class AuthenticationService {
         if (userEmail != null) {
             var user = this.staffRepository.findByEmail(userEmail)
                     .orElseThrow();
-            if (jwtService.isTokenValid(refreshToken, user) && !jwtService.isRefreshTokenRevoked(refreshToken)) {
+            if (jwtService.isTokenValid(refreshToken, user)
+                    && !jwtService.isRefreshTokenRevoked(refreshToken)) {
                 var accessToken = jwtService.generateToken(user);
                 revokeAllUserTokens(user);
-                saveUserToken(user, accessToken);
+                saveUserToken(user, refreshToken);
                 var authResponse = AuthenticationResponse.builder()
                         .accessToken(accessToken)
                         .refreshToken(refreshToken)
@@ -140,8 +141,7 @@ public class AuthenticationService {
                 response.setHeader(HttpHeaders.SET_COOKIE, cookie.toString());
                 response.getWriter().write(new ObjectMapper().writeValueAsString("Refreshed token successfully"));
             } else {
-                // status error 401
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 response.getWriter().write(new ObjectMapper().writeValueAsString("Refresh token is invalid"));
             }
         }

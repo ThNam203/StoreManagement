@@ -25,10 +25,11 @@ import {
 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 import { Button } from "./button";
-import React, { StrictMode, useEffect, useState } from "react";
+import React, { StrictMode, useCallback, useEffect, useState } from "react";
 import { Input } from "./input";
 import { ScrollArea } from "./scroll-area";
 import format from "date-fns/format";
+import { TimeFilterType, removeCharNotANum } from "@/utils";
 
 const ChoicesFilter = ({
   title,
@@ -225,9 +226,10 @@ const TimeFilter = ({
   title,
   className,
   alwaysOpen = false,
-  defaultSingleTime = FilterYear.AllTime,
-  defaultRangeTime = { startDate: new Date(), endDate: new Date() },
-  usingSingleTime = true,
+  timeFilterControl = TimeFilterType.StaticRange,
+  singleTimeValue = FilterYear.AllTime,
+  singleTimeString,
+  rangeTimeValue = { startDate: new Date(), endDate: new Date() },
   filterDay = [FilterDay.Today, FilterDay.LastDay],
   filterWeek = [FilterWeek.ThisWeek, FilterWeek.LastWeek, FilterWeek.Last7Days],
   filterMonth = [
@@ -237,29 +239,39 @@ const TimeFilter = ({
   ],
   filterQuarter = [FilterQuarter.ThisQuarter, FilterQuarter.LastQuarter],
   filterYear = [FilterYear.ThisYear, FilterYear.LastYear, FilterYear.AllTime],
+  onTimeFilterControlChanged,
   onSingleTimeFilterChanged,
   onRangeTimeFilterChanged,
 }: {
   title: string;
   className?: string;
   alwaysOpen?: boolean;
-  defaultSingleTime?: FilterTime;
-  defaultRangeTime?: { startDate: Date; endDate: Date };
-  usingSingleTime: boolean;
+  timeFilterControl: TimeFilterType;
+  singleTimeValue?: FilterTime;
+  singleTimeString?: string;
+  rangeTimeValue?: { startDate: Date; endDate: Date };
   filterDay?: FilterDay[];
   filterWeek?: FilterWeek[];
   filterMonth?: FilterMonth[];
   filterQuarter?: FilterQuarter[];
   filterYear?: FilterYear[];
+  onTimeFilterControlChanged: (timeFilterControl: TimeFilterType) => void;
   onSingleTimeFilterChanged?: (filterTime: FilterTime) => void;
   onRangeTimeFilterChanged?: (range: {
     startDate: Date;
     endDate: Date;
   }) => void;
 }) => {
-  const [isSingleFilter, setIsSingleFilter] = useState(true);
+  const [isSingleFilter, setIsSingleFilter] = useState(
+    timeFilterControl === TimeFilterType.StaticRange
+  );
   const [isRangeFilterOpen, setIsRangeFilterOpen] = useState(false);
-  let tempRange = defaultRangeTime;
+
+  useEffect(() => {
+    onTimeFilterControlChanged(
+      isSingleFilter ? TimeFilterType.StaticRange : TimeFilterType.RangeTime
+    );
+  }, [isSingleFilter]);
 
   return (
     <Accordion
@@ -287,14 +299,14 @@ const TimeFilter = ({
                   if (isSingleFilter) return;
                   setIsSingleFilter(true);
                   if (onSingleTimeFilterChanged)
-                    onSingleTimeFilterChanged(defaultSingleTime);
+                    onSingleTimeFilterChanged(singleTimeValue);
                 }}
               />
               <Label
                 htmlFor={title + "1"}
                 className="text-[0.8rem] flex-1 hover:cursor-pointer font-normal"
               >
-                {defaultSingleTime}
+                {singleTimeString ? singleTimeString : singleTimeValue}
               </Label>
               <Popover>
                 <PopoverTrigger>
@@ -402,16 +414,16 @@ const TimeFilter = ({
                 onClick={() => {
                   setIsSingleFilter(false);
                   if (onRangeTimeFilterChanged)
-                    onRangeTimeFilterChanged(defaultRangeTime);
+                    onRangeTimeFilterChanged(rangeTimeValue);
                 }}
               />
               <Label
                 htmlFor={title + "2"}
                 className="text-[0.8rem] flex-1 hover:cursor-pointer font-normal"
               >
-                {format(defaultRangeTime.startDate, "dd/MM/yyyy") +
+                {format(rangeTimeValue.startDate, "dd/MM/yyyy") +
                   " - " +
-                  format(defaultRangeTime.endDate, "dd/MM/yyyy")}
+                  format(rangeTimeValue.endDate, "dd/MM/yyyy")}
               </Label>
               <Popover
                 open={isRangeFilterOpen}
@@ -422,7 +434,158 @@ const TimeFilter = ({
                 </PopoverTrigger>
                 <PopoverContent className="w-auto -translate-x-4 flex flex-col">
                   <TimerFilterRangePicker
-                    defaultValue={defaultRangeTime}
+                    defaultValue={rangeTimeValue}
+                    onValueChange={onRangeTimeFilterChanged}
+                    setIsRangeFilterOpen={setIsRangeFilterOpen}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+          </RadioGroup>
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
+  );
+};
+
+export enum FilterGroup {
+  ByYear = "By year",
+  ByQuarter = "By quarter",
+  ByMonth = "By month",
+}
+const SecondaryTimeFilter = ({
+  title,
+  className,
+  alwaysOpen = false,
+  timeFilterControl = TimeFilterType.StaticRange,
+  singleTimeValue = FilterGroup.ByMonth,
+  singleTimeString,
+  rangeTimeValue = { startDate: new Date(), endDate: new Date() },
+  filterGroup = [
+    FilterGroup.ByYear,
+    FilterGroup.ByQuarter,
+    FilterGroup.ByMonth,
+  ],
+  onTimeFilterControlChanged,
+  onSingleTimeFilterChanged,
+  onRangeTimeFilterChanged,
+}: {
+  title: string;
+  className?: string;
+  alwaysOpen?: boolean;
+  timeFilterControl: TimeFilterType;
+  singleTimeValue?: FilterGroup;
+  singleTimeString?: string;
+  rangeTimeValue?: { startDate: Date; endDate: Date };
+  filterGroup?: FilterGroup[];
+  onTimeFilterControlChanged: (timeFilterControl: TimeFilterType) => void;
+  onSingleTimeFilterChanged?: (filterGroup: FilterGroup) => void;
+  onRangeTimeFilterChanged?: (range: {
+    startDate: Date;
+    endDate: Date;
+  }) => void;
+}) => {
+  const [isSingleFilter, setIsSingleFilter] = useState(
+    timeFilterControl === TimeFilterType.StaticRange
+  );
+  const [isRangeFilterOpen, setIsRangeFilterOpen] = useState(false);
+
+  useEffect(() => {
+    onTimeFilterControlChanged(
+      isSingleFilter ? TimeFilterType.StaticRange : TimeFilterType.RangeTime
+    );
+  }, [isSingleFilter]);
+
+  return (
+    <Accordion
+      type="single"
+      collapsible={!alwaysOpen}
+      defaultValue="item-1"
+      className={cn("w-full bg-white rounded-md px-4", className)}
+    >
+      <AccordionItem value="item-1">
+        <AccordionTrigger showArrowFunc={alwaysOpen ? "hidden" : ""}>
+          <div className="flex flex-row items-center w-full">
+            <p className="text-[0.8rem] leading-4 font-bold text-start flex-1">
+              {title}
+            </p>
+          </div>
+        </AccordionTrigger>
+        <AccordionContent>
+          <RadioGroup className="gap-3 pb-2">
+            <div className="flex flex-row items-center space-x-3 border border-gray-300 p-2 rounded-sm relative">
+              <RadioGroupItem
+                value="1"
+                id={title + "1"}
+                checked={isSingleFilter}
+                onClick={() => {
+                  if (isSingleFilter) return;
+                  setIsSingleFilter(true);
+                  if (onSingleTimeFilterChanged)
+                    onSingleTimeFilterChanged(singleTimeValue);
+                }}
+              />
+              <Label
+                htmlFor={title + "1"}
+                className="text-[0.8rem] flex-1 hover:cursor-pointer font-normal"
+              >
+                {singleTimeString ? singleTimeString : singleTimeValue}
+              </Label>
+              <Popover>
+                <PopoverTrigger>
+                  <Maximize2 size={16} />
+                </PopoverTrigger>
+                <PopoverContent className="flex flex-row gap-6 w-auto -translate-x-4">
+                  <div>
+                    <p className="text-xs font-semibold">By day</p>
+                    <ul className="list-none text-blue-500 text-xs">
+                      {filterGroup.map((val, idx) => (
+                        <li
+                          className="mt-5 cursor-pointer"
+                          onClick={() => {
+                            setIsSingleFilter(true);
+                            if (onSingleTimeFilterChanged)
+                              onSingleTimeFilterChanged(val);
+                          }}
+                          key={idx}
+                        >
+                          {val}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
+            <div className="flex flex-row items-center space-x-3 border border-gray-300 p-2 rounded-sm">
+              <RadioGroupItem
+                value="2"
+                id={title + "2"}
+                checked={!isSingleFilter}
+                onClick={() => {
+                  setIsSingleFilter(false);
+                  if (onRangeTimeFilterChanged)
+                    onRangeTimeFilterChanged(rangeTimeValue);
+                }}
+              />
+              <Label
+                htmlFor={title + "2"}
+                className="text-[0.8rem] flex-1 hover:cursor-pointer font-normal"
+              >
+                {format(rangeTimeValue.startDate, "dd/MM/yyyy") +
+                  " - " +
+                  format(rangeTimeValue.endDate, "dd/MM/yyyy")}
+              </Label>
+              <Popover
+                open={isRangeFilterOpen}
+                onOpenChange={setIsRangeFilterOpen}
+              >
+                <PopoverTrigger>
+                  <CalendarDays size={16} />
+                </PopoverTrigger>
+                <PopoverContent className="w-auto -translate-x-4 flex flex-col">
+                  <TimerFilterRangePicker
+                    defaultValue={rangeTimeValue}
                     onValueChange={onRangeTimeFilterChanged}
                     setIsRangeFilterOpen={setIsRangeFilterOpen}
                   />
@@ -476,7 +639,7 @@ const SearchFilter = ({
             </p>
           </div>
         </AccordionTrigger>
-        <AccordionContent className="overflow-hidden">
+        <AccordionContent className="overflow-hidden data-[state=open]:overflow-visible">
           <div className="flex flex-col mb-4 relative">
             <Input
               className="w-full focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0"
@@ -486,10 +649,11 @@ const SearchFilter = ({
               onFocus={() => setShowSearchvalue(true)}
               onBlur={() => setShowSearchvalue(false)}
             />
+
             {showSearchValue ? (
               <div
                 className={cn(
-                  "absolute top-[100%] overflow-y-auto left-0 max-h-[200px] w-full shadow-sm shadow-gray-600 z-[90000]",
+                  "absolute top-[100%] overflow-y-auto left-0 max-h-[200px] w-full shadow-sm shadow-gray-600 z-[9]",
                   scrollbar_style.scrollbar
                 )}
               >
@@ -552,12 +716,11 @@ const SearchFilter = ({
 const RangeFilter = ({
   title,
   firstLabel = "From",
-  firstPlaceholder = "Start value",
+  firstPlaceholder = "Value",
   secondLabel = "To",
-  secondPlaceholder = "End value",
+  secondPlaceholder = "Value",
   alwaysOpen,
-  startValue,
-  endValue,
+  range = { startValue: 0, endValue: 0 },
   className,
   onValuesChanged,
 }: {
@@ -567,16 +730,10 @@ const RangeFilter = ({
   secondPlaceholder?: string;
   secondLabel?: string;
   alwaysOpen?: boolean;
-  startValue: number;
-  endValue: number;
+  range: { startValue: number; endValue: number };
   className?: string;
-  onValuesChanged?: (startValue: number, endValue: number) => void;
+  onValuesChanged?: (range: { startValue: number; endValue: number }) => void;
 }) => {
-  useEffect(() => {
-    if (onValuesChanged) onValuesChanged(startValue, endValue);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [startValue, endValue]);
-
   return (
     <Accordion
       type="single"
@@ -600,8 +757,12 @@ const RangeFilter = ({
                 className="w-full focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0"
                 placeholder={firstPlaceholder}
                 onChange={(e) => {
+                  removeCharNotANum(e);
                   if (onValuesChanged)
-                    onValuesChanged(Number.parseInt(e.target.value), endValue);
+                    onValuesChanged({
+                      startValue: Number.parseInt(e.target.value),
+                      endValue: range.endValue,
+                    });
                 }}
               />
             </div>
@@ -611,11 +772,12 @@ const RangeFilter = ({
                 className="w-full focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0"
                 placeholder={secondPlaceholder}
                 onChange={(e) => {
+                  removeCharNotANum(e);
                   if (onValuesChanged)
-                    onValuesChanged(
-                      startValue,
-                      Number.parseInt(e.target.value)
-                    );
+                    onValuesChanged({
+                      startValue: range.startValue,
+                      endValue: Number.parseInt(e.target.value),
+                    });
                 }}
               />
             </div>
@@ -634,7 +796,7 @@ const PageWithFilters = ({
 }: {
   title: string;
   filters: React.JSX.Element[];
-  headerButtons: React.JSX.Element[];
+  headerButtons?: React.JSX.Element[];
   children: React.ReactNode;
 }) => {
   const [openFilter, setOpenFilter] = useState(false);
@@ -654,31 +816,35 @@ const PageWithFilters = ({
 
   return (
     <>
-      <div className="flex flex-col flex-1 px-4 py-2 rounded-sm min-w-0 bg-white lg:mr-[260px] md:mr-[200px]">
+      <div
+        className={cn(
+          "flex flex-col flex-1 px-4 py-2 rounded-sm min-w-0 bg-white lg:mr-[260px] md:mr-[200px]"
+        )}
+      >
         <div className="flex flex-row items-center">
           <h2 className="flex-1 text-start font-semibold text-2xl my-4">
             {title}
           </h2>
           <div className="flex-1 min-w-[8px]" />
-          {...headerButtons}
+          {headerButtons}
           <Filter
             size={20}
             className="ml-2 md:hidden hover:cursor-pointer"
             onClick={(e) => setOpenFilter((prev) => !prev)}
           />
         </div>
-        {children}
+        {openFilter ? null : children}
       </div>
       <div
         className={cn(
-          "h-[96vh] fixed top-2",
+          "h-full fixed top-2 overflow-hidden",
           openFilter
-            ? "h-screen w-screen p-3 top-0 left-0 z-50 bg-slate-400"
+            ? "w-full p-3 top-0 left-0 z-[50] bg-slate-400"
             : "lg:w-[260px] md:right-2 md:w-[200px] max-md:hidden"
         )}
       >
         <div className="flex flex-col">
-          <ScrollArea className={openFilter ? "pr-[1px]" : ""}>
+          <ScrollArea className={cn("rounded-md", openFilter ? "pr-[1px]" : "")}>
             <div className={openFilter ? "h-[calc(96vh-40px)]" : "h-[96vh]"}>
               {...filters}
             </div>
@@ -703,6 +869,7 @@ const PageWithFilters = ({
 export {
   ChoicesFilter,
   TimeFilter,
+  SecondaryTimeFilter,
   SearchFilter,
   RangeFilter,
   PageWithFilters,

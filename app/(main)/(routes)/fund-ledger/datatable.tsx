@@ -1,52 +1,47 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { DataTableViewOptions } from "@/components/ui/my_table_column_visibility_toggle";
+import { DataTableContent } from "@/components/ui/my_table_content";
+import { FormType, Transaction } from "@/entities/Transaction";
 import {
   ColumnFiltersState,
   RowSelectionState,
   SortingState,
   VisibilityState,
-  flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ChevronDown } from "lucide-react";
 import * as React from "react";
 import { columnHeader, columns } from "./columns";
-import {
-  FormType,
-  Status,
-  TargetType,
-  Transaction,
-  TransactionType,
-} from "@/entities/Transaction";
-import { formatPrice } from "./utils";
 import { MakeExpenseDialog } from "./make_expense_dialog";
 import { MakeReceiptDialog } from "./make_receipt_dialog";
-import { exportExcel } from "@/utils/commonUtils";
-import { Checkbox } from "@/components/ui/checkbox";
+import { exportExcel, formatPrice, importExcel } from "@/utils";
+import { MyLabelButton } from "@/components/ui/my_label";
+import { useToast } from "@/components/ui/use-toast";
+import { ChevronDown, CopyIcon, FileDown, FileUp } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { DataTableViewOptions } from "@/components/ui/my_table_column_visibility_toggle";
-import { DataTablePagination } from "@/components/ui/my_table_pagination";
-import { DataTableContent } from "@/components/ui/my_table_content";
+import { DialogClose } from "@radix-ui/react-dialog";
+import { ImportDailog } from "../../../../components/ui/my_import_dialog";
+import { join } from "path";
 
 type Props = {
   data: Transaction[];
@@ -142,10 +137,8 @@ export function DataTable({ data, onSubmit }: Props) {
             [headerContent]: dataRow[header as keyof typeof dataRow],
           };
         } else {
-          console.log("header of undefined", header);
         }
       });
-      console.log("Temp: ", row);
       return row;
     });
 
@@ -163,7 +156,7 @@ export function DataTable({ data, onSubmit }: Props) {
           placeholder="Search anything..."
           value={filterInput}
           onChange={(event) => setFilterInput(event.target.value)}
-          className="max-w-sm"
+          className="max-w-sm mr-2"
         />
         <div className="flex flex-row">
           <div className="mr-2">
@@ -173,8 +166,17 @@ export function DataTable({ data, onSubmit }: Props) {
             <MakeExpenseDialog submit={handleSubmit} />
           </div>
           <div className="mr-2">
-            <Button variant={"default"} onClick={handleExportExcel}>
-              Export Excel
+            <ImportDailog />
+          </div>
+
+          <div className="mr-2">
+            <Button
+              variant={"default"}
+              className="bg-lime-500 hover:bg-lime-600"
+              onClick={handleExportExcel}
+            >
+              <FileDown className="mr-2 h-4 w-4" />
+              Export
             </Button>
           </div>
 

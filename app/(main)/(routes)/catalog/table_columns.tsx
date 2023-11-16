@@ -1,196 +1,121 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { ColumnDef } from "@tanstack/react-table";
-import {
-  ArrowDown,
-  ArrowDown01,
-  ArrowDown10,
-  ArrowDownAZ,
-  ArrowDownZA,
-  ArrowUp,
-  MoreHorizontal,
-} from "lucide-react";
-import {
-  FormType,
-  Status,
-  TargetType,
-  Transaction,
-  TransactionType,
-} from "@/entities/Transaction";
 import { DataTableColumnHeader } from "@/components/ui/my_table_column_header";
+import {
+  defaultColumn,
+  defaultSelectColumn,
+  defaultIndexColumn,
+} from "@/components/ui/my_table_default_column";
+import Product from "@/entities/Product";
+import { ColumnDef } from "@tanstack/react-table";
+import Image from "next/image";
 
 export const columnTitles = {
-  image: '',
-  product_id: 'ID',
-  barcode: 'Barcode',
-  product_name: 'Name',
-  product_group: 'Product group',
-  
+  id: "Product ID",
+  name: "Product Name",
+  images: "Image",
+  barcode: "Barcode",
+  location: "Location",
+  originalPrice: "Original Price", // originalPrice
+  productPrice: "Sell Price",
+  stock: "Stock",
+  status: "Status",
+  weight: "Weight",
+  description: "Description",
+  note: "Note",
+  minStock: "Min Stock", // minQuantity
+  maxStock: "Max Stock", // maxQuantity
+  productGroup: "Product Group",
+  productBrand: "Product Brand",
+  productProperties: "Product Property",
+  salesUnits: "Unit",
 };
 
-export const columns: ColumnDef<Transaction>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllPageRowsSelected()}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-      />
+export const productTableColumns = (): ColumnDef<Product>[] => {
+  const columns: ColumnDef<Product>[] = [
+    defaultSelectColumn<Product>(),
+    defaultIndexColumn<Product>(),
+  ];
+
+  for (let key in columnTitles) {
+    let col: ColumnDef<Product>;
+    if (key === "images") col = imageColumn(key, columnTitles[key])
+    else if (key === "productProperties") col = propertiesColumn(key, columnTitles[key])
+    else if (key === 'salesUnits') col = unitColumn(key, columnTitles[key])
+    else col = defaultColumn<Product>(key, columnTitles);
+    columns.push(col);
+  }
+
+  return columns;
+};
+
+function imageColumn(accessorKey: string, title: string): ColumnDef<Product> {
+  const col: ColumnDef<Product> = {
+    accessorKey: accessorKey,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={title} />
     ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-      />
-    ),
+    cell: ({ row }) => {
+      const value: string[] = row.getValue(accessorKey);
+      return (
+        <Image
+          alt="product image"
+          width={30}
+          height={30}
+          // src={value && value[0] ? value[0] : "/default-product-img.jpg"}
+          src={"/default-product-img.jpg"}
+          className="object-contain mx-auto"
+        />
+      );
+    },
     enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    header: "#",
-    cell: ({ row }) => <div>{row.index + 1}</div>,
-  },
-  {
-    accessorKey: "id",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title={columnHeader["id"]} />
-    ),
-    cell: ({ row }) => <div>{row.getValue("id")}</div>,
-  },
-  {
-    accessorKey: "createdDate",
-    header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title={columnHeader["createdDate"]}
-      />
-    ),
-    cell: ({ row }) => <div>{row.getValue("createdDate")}</div>,
-  },
-  {
-    accessorKey: "creator",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title={columnHeader["creator"]} />
-    ),
-    cell: ({ row }) => <div>{row.getValue("creator")}</div>,
-  },
-  {
-    accessorKey: "description",
-    header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title={columnHeader["description"]}
-      />
-    ),
-    cell: ({ row }) => {
-      return <div>{row.getValue("description")}</div>;
-    },
-  },
-  {
-    accessorKey: "formType",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title={columnHeader["formType"]} />
-    ),
-    cell: ({ row }) => {
-      return <div>{row.getValue("formType")}</div>;
-    },
-  },
-  {
-    accessorKey: "transactionType",
-    header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title={columnHeader["transactionType"]}
-      />
-    ),
-    cell: ({ row }) => <div>{row.getValue("transactionType")}</div>,
-  },
-  {
-    accessorKey: "targetType",
-    header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title={columnHeader["targetType"]}
-      />
-    ),
-    cell: ({ row }) => <div>{row.getValue("targetType")}</div>,
-  },
-  {
-    accessorKey: "targetName",
-    header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title={columnHeader["targetName"]}
-      />
-    ),
-    cell: ({ row }) => <div>{row.getValue("targetName")}</div>,
-  },
-  {
-    accessorKey: "value",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title={columnHeader["value"]} />
-    ),
-    cell: ({ row }) => {
-      const isExpense = row.getValue("formType") === FormType.EXPENSE;
-      const className = isExpense ? "text-[#be1c26]" : "text-[green]";
-      return (
-        <div className={`font-bold + ${className}`}>
-          {isExpense ? <span>-</span> : <span>+</span>}
-          {formatPrice(row.getValue("value"))}
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "status",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title={columnHeader["status"]} />
-    ),
-    cell: ({ row }) => <div>{row.getValue("status")}</div>,
-  },
-  {
-    accessorKey: "note",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title={columnHeader["note"]} />
-    ),
-    cell: ({ row }) => <div>{row.getValue("note")}</div>,
-  },
-  {
-    id: "actions",
-    enableHiding: false,
-    cell: ({ row }) => {
-      const rowData = row.original;
+  };
+  return col;
+}
 
-      const handleDeleteRow = (id: any) => {
-        // Gửi request đến API để xóa row
-      };
+function propertiesColumn(accessorKey: string, title: string): ColumnDef<Product> {
+  const col: ColumnDef<Product> = {
+    accessorKey: accessorKey,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={title} />
+    ),
+    cell: ({ row }) => {
+      const value: {
+        id: number,
+        propertyName: string,
+        propertyValue: string,
+      }[] = row.getValue(accessorKey);
+
+      const propertyString = value.map((property) => {
+        return property.propertyName + " - " + property.propertyValue
+      }).join(", ")
 
       return (
-        <div className="text-right">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem>Edit</DropdownMenuItem>
-              <DropdownMenuItem className="text-red-500">
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        <p className="text-[0.8rem]">{propertyString}</p>
       );
     },
-  },
-];
+  };
+  return col;
+}
+
+function unitColumn(accessorKey: string, title: string): ColumnDef<Product> {
+  const col: ColumnDef<Product> = {
+    accessorKey: accessorKey,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={title} />
+    ),
+    cell: ({ row }) => {
+      const value: {
+        id: number;
+        basicUnit: string;
+        name: string;
+        exchangeValue: number;
+    } = row.getValue(accessorKey);
+
+      return (
+        <p className="text-[0.8rem]">{value.name}</p>
+      );
+    },
+  };
+  return col;
+}

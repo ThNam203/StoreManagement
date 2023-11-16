@@ -1,40 +1,22 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { DataTableViewOptions } from "@/components/ui/my_table_column_visibility_toggle";
+import { DataTableContent } from "@/components/ui/my_table_content";
+import { Staff } from "@/entities/Staff";
 import {
   ColumnFiltersState,
   SortingState,
   VisibilityState,
-  flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ChevronDown } from "lucide-react";
 import * as React from "react";
-import { columnHeader, columns } from "./columns";
 import { AddStaffDialog } from "./add_staff_dialog";
-import { Staff } from "@/entities/Staff";
-import { DataTableViewOptions } from "@/components/ui/my_table_column_visibility_toggle";
-import { DataTablePagination } from "@/components/ui/my_table_pagination";
-import { DataTableContent } from "@/components/ui/my_table_content";
+import { columnHeader, columns } from "./columns";
 type Props = {
   data: Staff[];
   onSubmit: (values: Staff) => void;
@@ -50,16 +32,17 @@ export function DataTable({ data, onSubmit }: Props) {
       avatar: false,
       id: true,
       name: true,
+      phoneNumber: true,
+      CCCD: false,
+      salaryDebt: true,
+      note: false,
+      birthday: false,
+      sex: false,
       email: true,
       address: false,
-      phoneNumber: true,
-      note: false,
-      sex: false,
-      CCCD: false,
-      birthday: false,
-      createAt: false,
-      branch: true,
+      branch: false,
       position: true,
+      createAt: false,
     });
   const [rowSelection, setRowSelection] = React.useState({});
   const [filterInput, setFilterInput] = React.useState("");

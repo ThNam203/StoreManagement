@@ -29,10 +29,15 @@ function DataTableViewOptions<TData>({
   title,
   table,
   columnHeaders,
-  cols = 1,
-  rowPerCols = 10,
+  cols = 2,
+  rowPerCols,
 }: DataTableViewOptionsProps<TData>) {
   const arrColIndex = Array.from(Array(cols).keys()); // this col start from 0
+  if (rowPerCols === undefined)
+    rowPerCols = table
+      .getAllColumns()
+      .filter((column) => column.getCanHide()).length / cols;
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -57,7 +62,7 @@ function DataTableViewOptions<TData>({
                       : column.id;
 
                   if (headerContent !== undefined) {
-                    const colIndex = Math.floor(index / rowPerCols);
+                    const colIndex = Math.floor(index / rowPerCols!);
 
                     if (colIndex === col) {
                       return (

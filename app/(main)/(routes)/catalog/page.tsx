@@ -1,21 +1,52 @@
 "use client";
-import { Button } from "@/components/ui/button";
 import {
   ChoicesFilter,
   PageWithFilters,
   SearchFilter,
-  TimeFilter,
 } from "@/components/ui/filter";
-import { useState } from "react";
+import React, { useState } from "react";
+import { CatalogDatatable } from "./datatable";
+import { sampleProducts } from "@/entities/Product";
+import { Toaster } from "@/components/ui/toaster";
+import { NewProductView } from "@/components/ui/catalog/new_product_form";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 
-const productTypeFilterChoices = ['Goods', 'Services', 'Combo - Package']
-const productGroupFilterChoices = ['Cigarette', 'Milk', 'Soft drink', 'Cosmetics', 'Pastry', 'Alcoholic drinks', 'Fast food']
-const productInventoryThresholdFilterChoices = ['All', 'Below threshold', 'Exceeding threshold', 'Available in inventory', 'Out of stock']
-const productSupplierFilterChoices = ['Company A', 'Company B', 'Company C', 'Company D', 'Company E', 'Company F']
-const productPositionFilterChoices = ['Location A', 'Location B', 'Location C', 'Location D', 'Location E', 'Location F', 'Location G']
-const productStatusFilterChoices = ['Selling', 'Not selling', 'All']
-
-const headerButtons = [<Button key={1}>More+</Button>];
+const productTypeFilterChoices = ["Goods", "Services", "Combo - Package"];
+const productGroupFilterChoices = [
+  "Cigarette",
+  "Milk",
+  "Soft drink",
+  "Cosmetics",
+  "Pastry",
+  "Alcoholic drinks",
+  "Fast food",
+];
+const productInventoryThresholdFilterChoices = [
+  "All",
+  "Below threshold",
+  "Exceeding threshold",
+  "Available in inventory",
+  "Out of stock",
+];
+const productSupplierFilterChoices = [
+  "Company A",
+  "Company B",
+  "Company C",
+  "Company D",
+  "Company E",
+  "Company F",
+];
+const productPositionFilterChoices = [
+  "Location A",
+  "Location B",
+  "Location C",
+  "Location D",
+  "Location E",
+  "Location F",
+  "Location G",
+];
+const productStatusFilterChoices = ["Selling", "Not selling", "All"];
 
 export default function Catalog() {
   const [filtersChoice, setFiltersChoice] = useState<{
@@ -26,20 +57,26 @@ export default function Catalog() {
     position: string[];
     status: string;
   }>({
-    type: ['Goods'],
+    type: ["Goods"],
     group: [],
-    inventoryThreshold: 'All',
+    inventoryThreshold: "All",
     supplier: [],
     position: [],
-    status: 'All',
+    status: "All",
   });
 
-  const updateTypeFilter = (choices: string[]) => setFiltersChoice((prev) => ({...prev, type: choices}))
-  const updateGroupFilter = (choices: string[]) => setFiltersChoice((prev) => ({...prev, group: choices}))
-  const updateInventoryThresholdFilter = (choice: string) => setFiltersChoice((prev) => ({...prev, inventoryThreshold: choice}))
-  const updateSupplierFilter = (choices: string[]) => setFiltersChoice((prev) => ({...prev, supplier: choices}))
-  const updatePositionFilter = (choices: string[]) => setFiltersChoice((prev) => ({...prev, position: choices}))
-  const updateStatusFilter = (choice: string) => setFiltersChoice((prev) => ({...prev, status: choice}))
+  const updateTypeFilter = (choices: string[]) =>
+    setFiltersChoice((prev) => ({ ...prev, type: choices }));
+  const updateGroupFilter = (choices: string[]) =>
+    setFiltersChoice((prev) => ({ ...prev, group: choices }));
+  const updateInventoryThresholdFilter = (choice: string) =>
+    setFiltersChoice((prev) => ({ ...prev, inventoryThreshold: choice }));
+  const updateSupplierFilter = (choices: string[]) =>
+    setFiltersChoice((prev) => ({ ...prev, supplier: choices }));
+  const updatePositionFilter = (choices: string[]) =>
+    setFiltersChoice((prev) => ({ ...prev, position: choices }));
+  const updateStatusFilter = (choice: string) =>
+    setFiltersChoice((prev) => ({ ...prev, status: choice }));
 
   const filters = [
     <ChoicesFilter
@@ -60,7 +97,7 @@ export default function Catalog() {
       className="my-4"
     />,
     <ChoicesFilter
-      key={4}
+      key={3}
       title="Inventory"
       isSingleChoice
       defaultValue={filtersChoice.inventoryThreshold}
@@ -69,7 +106,7 @@ export default function Catalog() {
       className="my-4"
     />,
     <SearchFilter
-      key={5}
+      key={4}
       title="Supplier"
       placeholder="Find supplier..."
       chosenValues={filtersChoice.supplier}
@@ -87,7 +124,7 @@ export default function Catalog() {
       className="my-4"
     />,
     <ChoicesFilter
-      key={4}
+      key={6}
       title="Product status"
       isSingleChoice
       defaultValue={filtersChoice.status}
@@ -97,13 +134,28 @@ export default function Catalog() {
     />,
   ];
 
+  const NewProductButton = () => {
+    return (
+      <Button variant={"green"} onClick={() => setShowNewProductView(true)}>
+        <Plus size={16} className="mr-2"/>
+        New product
+      </Button>
+    );
+  };
+
+  const [showNewProductView, setShowNewProductView] = useState(false);
+
   return (
     <PageWithFilters
       title="Products"
       filters={filters}
-      headerButtons={headerButtons}
+      headerButtons={[<NewProductButton key={1} />]}
     >
-      <p>HEHEHEHEHHEHEHEHEHHEHE</p>
+      <CatalogDatatable data={products} />
+      {showNewProductView ? (
+        <NewProductView onChangeVisibility={setShowNewProductView} />
+      ) : null}
+      <Toaster />
     </PageWithFilters>
   );
 }

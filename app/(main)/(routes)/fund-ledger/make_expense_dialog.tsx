@@ -71,8 +71,8 @@ export function MakeExpenseDialog({ data, submit }: Props) {
     const expense: Transaction = {
       id: nanoid(9),
       createdDate: values.createdDate
-        ? new Date(values.createdDate).toLocaleString()
-        : new Date().toLocaleString(),
+        ? new Date(values.createdDate)
+        : new Date(),
       formType: FormType.EXPENSE,
       description: "Pay for" + values.targetType,
       value: values.value,
@@ -102,7 +102,9 @@ export function MakeExpenseDialog({ data, submit }: Props) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="default">Make Expense Form</Button>
+        <Button variant="default" className="whitespace-nowrap">
+          Make Expense
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

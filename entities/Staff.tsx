@@ -1,21 +1,24 @@
+import { SalarySetting } from "./SalarySetting";
+
 export type Staff = {
   avatar: string;
-  id: string;
+  id: any;
   name: string;
+  phoneNumber: string;
+  CCCD: string;
+  salaryDebt: number;
+  note: string;
+  birthday: Date;
+  sex: Sex;
   email: string;
   address: string;
-  phoneNumber: string;
-  note: string;
-  sex: string;
-  CCCD: string;
-  birthday: string;
-  createAt: string;
-  branch: string;
+  workingBranch: string;
   position: string;
+  createAt: Date;
+  salarySetting?: SalarySetting;
 };
 
-export type StaffGroup = {
-  id: any;
-  groupName: string;
-  note: string;
-};
+export enum Sex {
+  MALE = "Male",
+  FEMALE = "Female",
+}

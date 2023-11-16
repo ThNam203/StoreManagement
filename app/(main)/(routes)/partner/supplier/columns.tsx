@@ -20,20 +20,22 @@ import {
   MoreHorizontal,
 } from "lucide-react";
 
-const columnHeader = {
+export const columnHeader = {
   id: "Supplier ID",
   name: "Supplier Name",
   phoneNumber: "Phone Number",
-  address: "Address",
-  email: "Email",
   supplierGroup: "Supplier Group",
-  image: "Image",
-  description: "Description",
-  companyName: "Company Name",
+  email: "Email",
+  address: "Address",
+  company: "Company",
+  note: "Note",
+  taxId: "Tax ID",
   creator: "Creator",
   createdDate: "Date Modified",
+  debt: "Debt",
+  sale: "Sale",
+  totalSale: "Total Sale",
   status: "Status",
-  note: "Note",
 };
 
 export const columns: ColumnDef<Supplier>[] =
