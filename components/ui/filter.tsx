@@ -30,6 +30,7 @@ import { Input } from "./input";
 import { ScrollArea } from "./scroll-area";
 import format from "date-fns/format";
 import { TimeFilterType, removeCharNotANum } from "@/utils";
+import Preloader from "./preloader";
 
 const ChoicesFilter = ({
   title,

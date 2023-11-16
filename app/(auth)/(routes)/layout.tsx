@@ -15,13 +15,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={font.className}>
+      <>
         <div className="h-screen flex justify-center items-center">
           {children}
         </div>
         <Toaster/>
-      </body>
-    </html>
+      </>
   );
 }

@@ -1,13 +1,14 @@
+import {Product, ProductBrand, ProductGroup, ProductLocation, ProductProperty} from "@/entities/Product";
 import AxiosService from "./axios_service";
 
-const createNewGroup = (value: string) => {
-  return AxiosService.post("/api/groups", {
+const createNewGroup = (value: ProductGroup) => {
+  return AxiosService.post("/api/product-groups", {
     name: value,
   });
 };
 
-const getAllGroup = () => {
-  return AxiosService.get<string[]>("/api/groups");
+const getAllGroups = () => {
+  return AxiosService.get<ProductGroup[]>("/api/product-groups",);
 };
 
 const createNewLocation = (value: string) => {
@@ -17,7 +18,7 @@ const createNewLocation = (value: string) => {
 };
 
 const getAllLocations = () => {
-  return AxiosService.get<string[]>("/api/locations");
+  return AxiosService.get<ProductLocation[]>("/api/locations");
 };
 
 const createNewBrand = (value: string) => {
@@ -26,29 +27,39 @@ const createNewBrand = (value: string) => {
   });
 };
 
-const getAllBrand = () => {
-  return AxiosService.get<string[]>("/api/product-brands");
+const getAllBrands = () => {
+  return AxiosService.get<ProductBrand[]>("/api/product-brands");
 };
 
 const createNewProperty = (value: string) => {
-  return AxiosService.post("/api/product-properties", {
+  return AxiosService.post("/api/product-property-names", {
     name: value,
   });
 };
 
-const getAllProperty = () => {
-  return AxiosService.get<string[]>("/api/product-properties");
+const getAllProperties = () => {
+  return AxiosService.get<ProductProperty[]>("/api/product-property-names");
+};
+
+const getAllProducts = () => {
+  return AxiosService.get<Product[]>("/api/products");
+};
+
+const createNewProduct = (data: any) => {
+  return AxiosService.post<Product>("/api/products", data);
 };
 
 const CatalogService = {
   createNewLocation,
   getAllLocations,
   createNewBrand,
-  getAllBrand,
+  getAllBrands,
   createNewProperty,
-  getAllProperty,
+  getAllProperties,
   createNewGroup,
-  getAllGroup
+  getAllGroups,
+  createNewProduct,
+  getAllProducts
 };
 
 export default CatalogService;

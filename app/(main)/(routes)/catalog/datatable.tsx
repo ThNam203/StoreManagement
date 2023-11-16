@@ -38,16 +38,23 @@ import {
 import Image from "next/image";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { cn } from "@/lib/utils";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Lock, PenLine, Trash } from "lucide-react";
+import { UpdateProductView } from "@/components/ui/catalog/update_product_form";
 // import { DataTableContent } from "@/components/ui/my_table_content";
 
 type Props = {
   data: Product[];
-  onSubmit?: (values: Product) => void;
+  onRowClicked: (rowIndex: number) => any;
+  onProductUpdateButtonClicked: () => any;
 };
 
-export function CatalogDatatable({ data }: Props) {
+export function CatalogDatatable({
+  data,
+  onRowClicked,
+  onProductUpdateButtonClicked,
+}: Props) {
   const tableContainerRef = useRef<HTMLDivElement>(null);
+  const [showUpdateForm, setShowUpdateForm] = useState(false);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -126,6 +133,8 @@ export function CatalogDatatable({ data }: Props) {
         data={data}
         table={table}
         tableContainerRef={tableContainerRef}
+        onRowClicked={onRowClicked}
+        onProductUpdateButtonClicked={onProductUpdateButtonClicked}
       />
     </div>
   );
@@ -136,6 +145,8 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
   table: ReactTable<TData>;
   tableContainerRef: RefObject<HTMLDivElement>;
+  onRowClicked: (rowIndex: number) => any;
+  onProductUpdateButtonClicked: () => any;
 }
 
 function DataTableContent<TData, TValue>({
@@ -143,6 +154,8 @@ function DataTableContent<TData, TValue>({
   data,
   table,
   tableContainerRef,
+  onRowClicked,
+  onProductUpdateButtonClicked,
 }: DataTableProps<TData, TValue>) {
   return (
     <div className="space-y-4">
@@ -175,6 +188,8 @@ function DataTableContent<TData, TValue>({
                     key={row.id}
                     row={row}
                     containerRef={tableContainerRef}
+                    onRowClicked={onRowClicked}
+                    onProductUpdateButtonClicked={onProductUpdateButtonClicked}
                   />
                 ))
             ) : (
@@ -198,9 +213,13 @@ function DataTableContent<TData, TValue>({
 const CustomRow = ({
   row,
   containerRef,
+  onRowClicked,
+  onProductUpdateButtonClicked,
 }: {
   row: any;
   containerRef: RefObject<HTMLDivElement>;
+  onRowClicked: (rowIndex: number) => any;
+  onProductUpdateButtonClicked: () => any;
 }) => {
   const [showInfoRow, setShowInfoRow] = React.useState(false);
   const product: Product = row.original;
@@ -208,17 +227,31 @@ const CustomRow = ({
     null
   );
 
+  const borderWidth =
+    containerRef && containerRef.current
+      ? Math.floor(containerRef.current?.getBoundingClientRect().width) -
+        1 +
+        "px"
+      : "100%";
+
   return (
     <React.Fragment>
       <TableRow
         data-state={row.getIsSelected() && "selected"}
         onClick={(e) => {
           setShowInfoRow((prev) => !prev);
+          onRowClicked(row.index);
         }}
         className={cn("hover:cursor-pointer relative")}
       >
         {row.getVisibleCells().map((cell: any) => (
-          <TableCell key={cell.id} className="whitespace-nowrap">
+          <TableCell
+            key={cell.id}
+            className={cn(
+              "whitespace-nowrap",
+              showInfoRow ? "font-semibold" : ""
+            )}
+          >
             {flexRender(cell.column.columnDef.cell, cell.getContext())}
           </TableCell>
         ))}
@@ -228,15 +261,14 @@ const CustomRow = ({
             showInfoRow ? "border-2 border-b-0 border-green-400" : "hidden"
           )}
           style={{
-            width: containerRef!.current
-              ? Math.floor(containerRef.current?.getBoundingClientRect().width) - 0.125 * parseFloat(getComputedStyle(document.documentElement).fontSize) + "px"
-              : "100%",
+            width: borderWidth,
           }}
         ></td>
       </TableRow>
       {showInfoRow ? (
         <>
-          <tr className="hidden" /> {/* maintain odd - even row */}
+          <tr className="hidden" />
+          {/* maintain odd - even row */}
           <tr>
             <td colSpan={row.getVisibleCells().length} className="p-0">
               <div
@@ -244,9 +276,7 @@ const CustomRow = ({
                   "table-fixed p-2 flex flex-col gap-4 border-2 border-t-0 border-green-400"
                 )}
                 style={{
-                  width: containerRef!.current
-                    ? Math.floor(containerRef.current?.getBoundingClientRect().width) - 0.125 * parseFloat(getComputedStyle(document.documentElement).fontSize) + "px"
-                    : "100%",
+                  width: borderWidth,
                 }}
               >
                 <h4 className="text-lg font-bold text-blue-800">
@@ -290,73 +320,57 @@ const CustomRow = ({
                   </div>
                   <div className="flex flex-row grow-[5] shrink-[5] text-[0.8rem]">
                     <div className="flex-1 flex flex-col pr-4">
-                      <p className="font-medium border-b mb-2">
-                        <span className="w-[100px] inline-block font-normal">
-                          Product id:
-                        </span>
-                        {product.id}
-                      </p>
-                      <p className="font-medium border-b mb-2">
-                        <span className="w-[100px] inline-block font-normal">
-                          Product group:
-                        </span>
-                        {product.productGroup}
-                      </p>
-                      <p className="font-medium border-b mb-2">
-                        <span className="w-[100px] inline-block font-normal">
-                          Brand:
-                        </span>
-                        {product.productBrand}
-                      </p>
-                      <p className="font-medium border-b mb-2">
-                        <span className="w-[100px] inline-block font-normal">
-                          Stock:
-                        </span>
-                        {product.stock}
-                      </p>
-                      <p className="font-medium border-b mb-2">
-                        <span className="w-[100px] inline-block font-normal">
-                          Stock quota:
-                        </span>
-                        {product.minStock}
-                        <ChevronRight
-                          size={16}
-                          className="inline-block font-normal"
-                        />
-                        {product.maxStock}
-                      </p>
-                      <p className="font-medium border-b mb-2">
-                        <span className="w-[100px] inline-block font-normal">
-                          Product price:
-                        </span>
-                        {product.productPrice}
-                      </p>
-                      <p className="font-medium border-b mb-2">
-                        <span className="w-[100px] inline-block font-normal">
-                          Original price:
-                        </span>
-                        {product.originalPrice}
-                      </p>
-                      <p className="font-medium border-b mb-2">
-                        <span className="w-[100px] inline-block font-normal">
-                          Weight:
-                        </span>
-                        {product.weight}
-                      </p>
-                      <p className="font-medium border-b mb-2">
-                        <span className="w-[100px] inline-block font-normal">
-                          Location:
-                        </span>
-                        {product.location}
-                      </p>
+                      <div className="flex flex-row font-medium border-b mb-2">
+                        <p className="w-[100px] font-normal">Product id:</p>
+                        <p>{product.id}</p>
+                      </div>
+                      <div className="flex flex-row font-medium border-b mb-2">
+                        <p className="w-[100px] font-normal">Product group:</p>
+                        <p>{product.productGroup}</p>
+                      </div>
+                      <div className="flex flex-row font-medium border-b mb-2">
+                        <p className="w-[100px] font-normal">Brand:</p>
+                        <p>{product.productBrand}</p>
+                      </div>
+                      <div className="flex flex-row font-medium border-b mb-2">
+                        <p className="w-[100px] font-normal">Stock:</p>
+                        <p>{product.stock}</p>
+                      </div>
+                      <div className="flex flex-row font-medium border-b mb-2">
+                        <p className="w-[100px] font-normal">Stock:</p>
+                        <p>{product.stock}</p>
+                      </div>
+                      <div className="flex flex-row font-medium border-b mb-2">
+                        <p className="w-[100px] font-normal">Stock quota:</p>
+                        <div className="flex flex-row items-center">
+                          <p>{product.minStock}</p>
+                          <ChevronRight size={14} className="mx-1 p-0" />
+                          <p>{product.maxStock}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-row font-medium border-b mb-2">
+                        <p className="w-[100px] font-normal">Product price:</p>
+                        <p>{product.productPrice}</p>
+                      </div>
+                      <div className="flex flex-row font-medium border-b mb-2">
+                        <p className="w-[100px] font-normal">Original price:</p>
+                        <p>{product.originalPrice}</p>
+                      </div>
+                      <div className="flex flex-row font-medium border-b mb-2">
+                        <p className="w-[100px] font-normal">Weight:</p>
+                        <p>{product.weight}</p>
+                      </div>
+                      <div className="flex flex-row font-medium border-b mb-2">
+                        <p className="w-[100px] font-normal">Location:</p>
+                        <p>{product.location}</p>
+                      </div>
                     </div>
                     <div className="flex-1 flex flex-col pr-4">
-                      <p className="font-medium border-b mb-2">
-                        <span className="w-[100px] inline-block font-normal">
-                          Status:
-                        </span>
-                        {product.status}
-                      </p>
+                      <div className="flex flex-row font-medium border-b mb-2">
+                        <p className="w-[100px] font-normal">Status:</p>
+                        <p>{product.status}</p>
+                      </div>
                       <div>
                         <p className="mb-2">Description</p>
                         <textarea
@@ -382,8 +396,25 @@ const CustomRow = ({
                     </div>
                   </div>
                 </div>
-                <div>
-                  <Button variant={"green"}>Update</Button>
+                <div className="flex flex-row items-center gap-2">
+                  <div className="flex-1" />
+                  <Button variant={"green"}
+                      onClick={(e) => onProductUpdateButtonClicked()}>
+                    <PenLine
+                      size={16}
+                      fill="white"
+                      className="mr-2"
+                    />{" "}
+                    Update
+                  </Button>
+                  <Button variant={"red"}>
+                    <Lock size={16} className="mr-2" />
+                    Disable product
+                  </Button>
+                  <Button variant={"red"}>
+                    <Trash size={16} className="mr-2" />
+                    Remove
+                  </Button>
                 </div>
               </div>
             </td>

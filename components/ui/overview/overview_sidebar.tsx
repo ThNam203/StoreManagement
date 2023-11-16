@@ -404,14 +404,6 @@ const SideBar = ({
               href="/catalog"
             />,
             <SideBarButton
-              key={2}
-              iconName={IconNames.Wrench}
-              title="Price Setting"
-              className="!w-full"
-              isCollapsed={isCollapsed}
-              href="/product-price"
-            />,
-            <SideBarButton
               key={3}
               iconName={IconNames.PenSquare}
               title="Stock Check"

@@ -4,51 +4,74 @@ import {
   PageWithFilters,
   SearchFilter,
 } from "@/components/ui/filter";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { CatalogDatatable } from "./datatable";
-import { sampleProducts } from "@/entities/Product";
+import {Product, ProductBrand, ProductGroup, ProductLocation, ProductProperty} from "@/entities/Product";
 import { Toaster } from "@/components/ui/toaster";
 import { NewProductView } from "@/components/ui/catalog/new_product_form";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import CatalogService from "@/services/catalog_service";
+import { useToast } from "@/components/ui/use-toast";
+import { UpdateProductView } from "@/components/ui/catalog/update_product_form";
+import AxiosService from "@/services/axios_service";
+import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { useAppDispatch } from "@/hooks";
+import { showPreloader, disablePreloader } from "@/reducers/preloaderReducer";
 
-const productTypeFilterChoices = ["Goods", "Services", "Combo - Package"];
-const productGroupFilterChoices = [
-  "Cigarette",
-  "Milk",
-  "Soft drink",
-  "Cosmetics",
-  "Pastry",
-  "Alcoholic drinks",
-  "Fast food",
-];
-const productInventoryThresholdFilterChoices = [
+const productInventoryThresholds = [
   "All",
   "Below threshold",
   "Exceeding threshold",
   "Available in inventory",
   "Out of stock",
 ];
-const productSupplierFilterChoices = [
-  "Company A",
-  "Company B",
-  "Company C",
-  "Company D",
-  "Company E",
-  "Company F",
-];
-const productPositionFilterChoices = [
-  "Location A",
-  "Location B",
-  "Location C",
-  "Location D",
-  "Location E",
-  "Location F",
-  "Location G",
-];
-const productStatusFilterChoices = ["Selling", "Not selling", "All"];
+const productStatuses = ["Active", "Disabled", "All"];
 
 export default function Catalog() {
+  const { toast } = useToast();
+  const [products, setProducts] = useState<Product[]>([])
+  const [productGroups, setProductGroups] = useState<ProductGroup[]>([]);
+  const productSuppliers = [
+    "Company A",
+    "Company B",
+    "Company C",
+    "Company D",
+    "Company E",
+    "Company F",
+  ];
+  const [productLocations, setProductLocations] = useState<ProductLocation[]>([]);
+  const [productBrands, setProductBrands] = useState<ProductBrand[]>([]);
+  const [productProperties, setProductProperties] = useState<ProductProperty[]>([]);
+  const dispatch = useAppDispatch()
+
+  useEffect(() => {
+    const fetchData = async () => {
+      dispatch(showPreloader())
+      try {
+        const products = await CatalogService.getAllProducts();
+        setProducts(products.data);
+
+        const brandsResult = await CatalogService.getAllBrands();
+        setProductBrands(brandsResult.data);
+
+        const locationsResult = await CatalogService.getAllLocations();
+        setProductLocations(locationsResult.data);
+
+        const propertiesResult = await CatalogService.getAllProperties();
+        setProductProperties(propertiesResult.data);
+
+        const groupsResult = await CatalogService.getAllGroups();
+        setProductGroups(groupsResult.data);
+        dispatch(disablePreloader())
+      } catch (error) {
+        dispatch(disablePreloader())
+        axiosUIErrorHandler(error, toast);
+      }
+    };
+    fetchData();
+  }, []);
+
   const [filtersChoice, setFiltersChoice] = useState<{
     type: string[];
     group: string[];
@@ -79,29 +102,21 @@ export default function Catalog() {
     setFiltersChoice((prev) => ({ ...prev, status: choice }));
 
   const filters = [
-    <ChoicesFilter
-      key={1}
-      title="Product type"
-      defaultValues={filtersChoice.type}
-      isSingleChoice={false}
-      choices={productTypeFilterChoices}
-      onMultiChoicesChanged={updateTypeFilter}
-    />,
     <SearchFilter
       key={2}
       placeholder="Find group..."
       title="Product group"
       chosenValues={filtersChoice.group}
-      choices={productGroupFilterChoices}
+      choices={productGroups.map((group => group.name))}
       onValuesChanged={updateGroupFilter}
-      className="my-4"
+      className="mb-4"
     />,
     <ChoicesFilter
       key={3}
       title="Inventory"
       isSingleChoice
       defaultValue={filtersChoice.inventoryThreshold}
-      choices={productInventoryThresholdFilterChoices}
+      choices={productInventoryThresholds}
       onSingleChoiceChanged={updateInventoryThresholdFilter}
       className="my-4"
     />,
@@ -111,7 +126,7 @@ export default function Catalog() {
       placeholder="Find supplier..."
       chosenValues={filtersChoice.supplier}
       onValuesChanged={updateSupplierFilter}
-      choices={productSupplierFilterChoices}
+      choices={productSuppliers}
       className="my-4"
     />,
     <SearchFilter
@@ -120,7 +135,7 @@ export default function Catalog() {
       placeholder="Find position..."
       chosenValues={filtersChoice.position}
       onValuesChanged={updatePositionFilter}
-      choices={productPositionFilterChoices}
+      choices={productLocations.map(v => v.name)}
       className="my-4"
     />,
     <ChoicesFilter
@@ -128,7 +143,7 @@ export default function Catalog() {
       title="Product status"
       isSingleChoice
       defaultValue={filtersChoice.status}
-      choices={productStatusFilterChoices}
+      choices={productStatuses}
       onSingleChoiceChanged={updateStatusFilter}
       className="my-4"
     />,
@@ -137,13 +152,25 @@ export default function Catalog() {
   const NewProductButton = () => {
     return (
       <Button variant={"green"} onClick={() => setShowNewProductView(true)}>
-        <Plus size={16} className="mr-2"/>
+        <Plus size={16} className="mr-2" />
         New product
       </Button>
     );
   };
 
   const [showNewProductView, setShowNewProductView] = useState(false);
+  const [showUpdateProductView, setShowUpdateProductView] = useState(false);
+  const [chosenProductIndex, setChosenProductIndex] = useState<number | null>(
+    null
+  );
+
+  const onRowClicked = (rowIndex: number) => {
+    setChosenProductIndex(rowIndex);
+  };
+
+  const onProductUpdateButtonClicked = () => {
+    setShowUpdateProductView(true);
+  };
 
   return (
     <PageWithFilters
@@ -151,9 +178,29 @@ export default function Catalog() {
       filters={filters}
       headerButtons={[<NewProductButton key={1} />]}
     >
-      <CatalogDatatable data={products} />
+      <CatalogDatatable data={products} onRowClicked={onRowClicked} onProductUpdateButtonClicked={onProductUpdateButtonClicked} />
       {showNewProductView ? (
-        <NewProductView onChangeVisibility={setShowNewProductView} />
+        <NewProductView
+          productBrands={productBrands.map(v => v.name)}
+          productGroups={productGroups.map(v => v.name)}
+          productLocations={productLocations.map(v => v.name)}
+          productProperties={productProperties.map(v => v.name)}
+          onChangeVisibility={setShowNewProductView}
+          onNewProductAdded={(newProduct => setProducts(prev => [...prev, newProduct]))}
+        />
+      ) : null}
+      {showUpdateProductView &&
+      chosenProductIndex != null &&
+      chosenProductIndex > -1 &&
+      chosenProductIndex < products.length ? (
+        <UpdateProductView
+          onChangeVisibility={(val) => {setShowUpdateProductView(val)}}
+          productBrands={productBrands.map(v => v.name)}
+          productGroups={productGroups.map(v => v.name)}
+          productLocations={productLocations.map(v => v.name)}
+          productProperties={productProperties.map(v => v.name)}
+          product={products[chosenProductIndex]}
+        />
       ) : null}
       <Toaster />
     </PageWithFilters>
