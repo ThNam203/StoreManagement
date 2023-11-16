@@ -10,8 +10,8 @@ import lombok.*;
 @Builder
 
 @Entity
-@Table(name = "staff_base_salary_bonus")
-public class StaffBaseSalaryBonus {
+@Table(name = "staff_overtime_salary_bonus")
+public class StaffOvertimeSalaryBonus {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;

@@ -10,8 +10,8 @@ import lombok.*;
 @Builder
 
 @Entity
-@Table(name = "staff_saturday_bonus")
-public class StaffSaturdayBonus {
+@Table(name = "staff_holiday_bonus")
+public class StaffHolidayBonus {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
