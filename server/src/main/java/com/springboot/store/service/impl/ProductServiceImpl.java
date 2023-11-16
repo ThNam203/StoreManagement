@@ -78,10 +78,12 @@ public class ProductServiceImpl implements ProductService {
             List<Media> urls = new ArrayList<>();
             for (MultipartFile file : files) {
                 String url = fileService.uploadFile(file);
+                if (url == null) continue;
                 Media media = Media.builder().url(url).build();
                 urls.add(media);
             }
-            product.setImages(urls);
+            if (!urls.isEmpty())
+                product.setImages(urls);
         }
 
         if (productDTO.getProductProperties() != null) {
