@@ -47,8 +47,7 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="en">
-      <body className={font.className + "  bg-slate-100"}>
+      <div className={font.className + "  bg-slate-100 min-h-screen"}>
         <SideBar
           isSideBarCollapsed={isSideBarCollapsed}
           changeSideBarCollapsibility={changeSideBarCollapsibilityOnClick}
@@ -65,7 +64,6 @@ export default function RootLayout({
         >
           {children}
         </div>
-      </body>
-    </html>
+      </div>
   );
 }

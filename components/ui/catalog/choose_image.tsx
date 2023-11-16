@@ -28,7 +28,7 @@ export const ChooseImageButton = ({
         alt="image"
         className="w-full h-full border rounded-sm"
       />
-      {file === null ? (
+      {file === null || file.length === 0 ? (
         <>
           <Label
             htmlFor={id}
