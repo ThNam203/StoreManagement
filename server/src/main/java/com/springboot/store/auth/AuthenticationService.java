@@ -100,7 +100,7 @@ public class AuthenticationService {
             token.setExpired(true);
             token.setRevoked(true);
         });
-        tokenRepository.saveAll(validUserTokens);
+        tokenRepository.deleteAll(validUserTokens);
     }
 
     public void refreshToken(
@@ -125,10 +125,11 @@ public class AuthenticationService {
         if (userEmail != null) {
             var user = this.staffRepository.findByEmail(userEmail)
                     .orElseThrow();
-            if (jwtService.isTokenValid(refreshToken, user) && !jwtService.isRefreshTokenRevoked(refreshToken)) {
+            if (jwtService.isTokenValid(refreshToken, user)
+                    && !jwtService.isRefreshTokenRevoked(refreshToken)) {
                 var accessToken = jwtService.generateToken(user);
                 revokeAllUserTokens(user);
-                saveUserToken(user, accessToken);
+                saveUserToken(user, refreshToken);
                 var authResponse = AuthenticationResponse.builder()
                         .accessToken(accessToken)
                         .refreshToken(refreshToken)
