@@ -6,7 +6,13 @@ import {
 } from "@/components/ui/filter";
 import React, { useEffect, useState } from "react";
 import { CatalogDatatable } from "./datatable";
-import {Product, ProductBrand, ProductGroup, ProductLocation, ProductProperty} from "@/entities/Product";
+import {
+  Product,
+  ProductBrand,
+  ProductGroup,
+  ProductLocation,
+  ProductProperty,
+} from "@/entities/Product";
 import { Toaster } from "@/components/ui/toaster";
 import { NewProductView } from "@/components/ui/catalog/new_product_form";
 import { Button } from "@/components/ui/button";
@@ -30,7 +36,7 @@ const productStatuses = ["Active", "Disabled", "All"];
 
 export default function Catalog() {
   const { toast } = useToast();
-  const [products, setProducts] = useState<Product[]>([])
+  const [products, setProducts] = useState<Product[]>([]);
   const [productGroups, setProductGroups] = useState<ProductGroup[]>([]);
   const productSuppliers = [
     "Company A",
@@ -40,14 +46,54 @@ export default function Catalog() {
     "Company E",
     "Company F",
   ];
-  const [productLocations, setProductLocations] = useState<ProductLocation[]>([]);
+  const [productLocations, setProductLocations] = useState<ProductLocation[]>(
+    []
+  );
   const [productBrands, setProductBrands] = useState<ProductBrand[]>([]);
-  const [productProperties, setProductProperties] = useState<ProductProperty[]>([]);
-  const dispatch = useAppDispatch()
+  const [productProperties, setProductProperties] = useState<ProductProperty[]>(
+    []
+  );
+  const dispatch = useAppDispatch();
+
+  const addNewGroup = async (group: string) => {
+    try {
+      const data = await CatalogService.createNewGroup(group);
+      setProductGroups((prev) => [...prev, data.data]);
+      console.log('outside')
+    } catch (e) {
+      return axiosUIErrorHandler(e, toast);
+    }
+  };
+
+  const addNewBrand = async (brandName: string) => {
+    try {
+      const data = await CatalogService.createNewBrand(brandName);
+      setProductBrands((prev) => [...prev, data.data]);
+    } catch (e) {
+      return axiosUIErrorHandler(e, toast);
+    }
+  };
+
+  const addNewLocation = async (location: string) => {
+    try {
+      const data = await CatalogService.createNewLocation(location);
+      setProductLocations((prev) => [...prev, data.data]);
+    } catch (e) {
+      return axiosUIErrorHandler(e, toast);
+    }
+  };
+
+  const addNewProperty = (property: string) => {
+    CatalogService.createNewProperty(property)
+      .then((data) => {
+        setProductProperties((prev) => [...prev, data.data]);
+      })
+      .catch((e) => axiosUIErrorHandler(e, toast));
+  };
 
   useEffect(() => {
     const fetchData = async () => {
-      dispatch(showPreloader())
+      dispatch(showPreloader());
       try {
         const products = await CatalogService.getAllProducts();
         setProducts(products.data);
@@ -63,9 +109,9 @@ export default function Catalog() {
 
         const groupsResult = await CatalogService.getAllGroups();
         setProductGroups(groupsResult.data);
-        dispatch(disablePreloader())
+        dispatch(disablePreloader());
       } catch (error) {
-        dispatch(disablePreloader())
+        dispatch(disablePreloader());
         axiosUIErrorHandler(error, toast);
       }
     };
@@ -107,7 +153,7 @@ export default function Catalog() {
       placeholder="Find group..."
       title="Product group"
       chosenValues={filtersChoice.group}
-      choices={productGroups.map((group => group.name))}
+      choices={productGroups.map((group) => group.name)}
       onValuesChanged={updateGroupFilter}
       className="mb-4"
     />,
@@ -135,7 +181,7 @@ export default function Catalog() {
       placeholder="Find position..."
       chosenValues={filtersChoice.position}
       onValuesChanged={updatePositionFilter}
-      choices={productLocations.map(v => v.name)}
+      choices={productLocations.map((v) => v.name)}
       className="my-4"
     />,
     <ChoicesFilter
@@ -178,15 +224,25 @@ export default function Catalog() {
       filters={filters}
       headerButtons={[<NewProductButton key={1} />]}
     >
-      <CatalogDatatable data={products} onRowClicked={onRowClicked} onProductUpdateButtonClicked={onProductUpdateButtonClicked} />
+      <CatalogDatatable
+        data={products}
+        onRowClicked={onRowClicked}
+        onProductUpdateButtonClicked={onProductUpdateButtonClicked}
+      />
       {showNewProductView ? (
         <NewProductView
-          productBrands={productBrands.map(v => v.name)}
-          productGroups={productGroups.map(v => v.name)}
-          productLocations={productLocations.map(v => v.name)}
-          productProperties={productProperties.map(v => v.name)}
+          productBrands={productBrands.map((v) => v.name)}
+          productGroups={productGroups.map((v) => v.name)}
+          productLocations={productLocations.map((v) => v.name)}
+          productProperties={productProperties.map((v) => v.name)}
           onChangeVisibility={setShowNewProductView}
-          onNewProductAdded={(newProduct => setProducts(prev => [...prev, newProduct]))}
+          onNewProductsAdded={(newProducts) =>
+            setProducts((prev) => [...prev, ...newProducts])
+          }
+          addNewBrand={addNewBrand}
+          addNewGroup={addNewGroup}
+          addNewLocation={addNewLocation}
+          addNewProperties={addNewProperty}
         />
       ) : null}
       {showUpdateProductView &&
@@ -194,12 +250,25 @@ export default function Catalog() {
       chosenProductIndex > -1 &&
       chosenProductIndex < products.length ? (
         <UpdateProductView
-          onChangeVisibility={(val) => {setShowUpdateProductView(val)}}
-          productBrands={productBrands.map(v => v.name)}
-          productGroups={productGroups.map(v => v.name)}
-          productLocations={productLocations.map(v => v.name)}
-          productProperties={productProperties.map(v => v.name)}
+          onChangeVisibility={(val) => {
+            setShowUpdateProductView(val);
+          }}
+          productBrands={productBrands.map((v) => v.name)}
+          productGroups={productGroups.map((v) => v.name)}
+          productLocations={productLocations.map((v) => v.name)}
+          productProperties={productProperties.map((v) => v.name)}
           product={products[chosenProductIndex]}
+          productIndex={chosenProductIndex}
+          onProductUpdated={(data, index) => {
+            setProducts((prev) => {
+              prev[index] = data;
+              return [...prev];
+            });
+          }}
+          addNewBrand={addNewBrand}
+          addNewGroup={addNewGroup}
+          addNewLocation={addNewLocation}
+          addNewProperties={addNewProperty}
         />
       ) : null}
       <Toaster />

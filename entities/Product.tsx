@@ -2,7 +2,7 @@ type Product = {
   id: number;
   name: string;
   barcode: string;
-  location: ProductLocation;
+  location: string;
   originalPrice: number; // originalPrice
   productPrice: number;
   stock: number;
@@ -12,8 +12,8 @@ type Product = {
   note: string;
   minStock: number; // minstock
   maxStock: number; // maxstock
-  productGroup: ProductGroup;
-  productBrand: ProductBrand;
+  productGroup: string;
+  productBrand: string;
   productProperties: {
     id: number;
     propertyName: string;

@@ -187,7 +187,6 @@ export function AddStaffDialog({ data, submit }: Props) {
       },
     };
 
-    console.log(newStaff);
     if (submit) {
       submit(newStaff);
       form.reset();

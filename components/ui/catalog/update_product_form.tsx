@@ -47,8 +47,10 @@ import { useToast } from "@/components/ui/use-toast";
 import { Textarea } from "../textarea";
 import CatalogService from "@/services/catalog_service";
 import {Product} from "@/entities/Product";
+import LoadingCircle from "../loading_circle";
+import { axiosUIErrorHandler } from "@/services/axios_utils";
 
-const newProductFormSchema = z.object({
+const productFormSchema = z.object({
   barcode: z
     .string({ required_error: "Barcode is missing" })
     .trim()
@@ -120,7 +122,7 @@ const newProductFormSchema = z.object({
       .min(1, "Missing unit name")
       .max(100, "Unit name's must not be longer thanh 100"),
     exchangeValue: z.number().min(0, "Exchange value must be greater than 0"),
-    baseUnit: z.string(),
+    basicUnit: z.string(),
   }),
   description: z.string(),
   note: z.string(),
@@ -133,6 +135,12 @@ export const UpdateProductView = ({
   productBrands,
   productProperties,
   product,
+  productIndex,
+  onProductUpdated,
+  addNewLocation,
+  addNewGroup,
+  addNewBrand,
+  addNewProperties,
 }: {
   onChangeVisibility: (val: boolean) => void;
   productLocations: string[];
@@ -140,25 +148,31 @@ export const UpdateProductView = ({
   productBrands: string[];
   productProperties: string[];
   product: Product;
+  productIndex: number;
+  onProductUpdated: (data: Product, productIndex: number) => any;
+  addNewLocation: (value: string) => any;
+  addNewGroup: (value: string) => any;
+  addNewBrand: (value: string) => any;
+  addNewProperties: (value: string) => any;
 }) => {
   const { toast } = useToast();
-  const [productLocationChoices, setProductLocationChoices] =
-    useState<string[]>(productLocations);
-  const [productGroupChoices, setProductGroupChoices] =
-    useState<string[]>(productGroups);
-  const [productBrandChoices, setProductBrandChoices] =
-    useState<string[]>(productBrands);
-  const [productPropertyChoices, setProductPropertyChoices] =
-    useState<string[]>(productProperties);
+  const productLocationChoices = productLocations;
+  const productGroupChoices = productGroups;
+  const productBrandChoices = productBrands;
+  const productPropertyChoices = productProperties;
+  const [newChosenImages, setNewChosenImages] = useState<((File | string)[])>(product.images ? [...product.images] : [])
+  const [isCreatingNewProduct, setIsCreatingNewProduct] = useState(false);
+  const [openGroup, setOpenGroup] = useState(false)
+  const [openBrand, setOpenBrand] = useState(false)
+  const [openProperty, setOpenProperty] = useState(false)
+  const [openLocation, setOpenLocation] = useState(false)
 
-  while (product.images.length < 5) product.images.push("");
-
-  const form = useForm<z.infer<typeof newProductFormSchema>>({
-    resolver: zodResolver(newProductFormSchema),
+  const form = useForm<z.infer<typeof productFormSchema>>({
+    resolver: zodResolver(productFormSchema),
     defaultValues: {
       ...product,
+      images: [...product.images, ...(new Array(Math.max(0, 5 - product.images.length))).fill(null)],
       unit: product.salesUnits,
-      productGroup: product.productGroup.name,
       properties: product.productProperties.map((property) => ({
         key: property.propertyName,
         value: property.propertyValue,
@@ -168,23 +182,45 @@ export const UpdateProductView = ({
 
   // if newFileUrl == null, it means the user removed image
   const handleImageChosen = (
-    newFileUrl: string | null,
-    index: number,
-    productImages: (string | null)[]
+    newFileUrl: File | null,
+    index: number
   ) => {
     if (newFileUrl === null) {
-      productImages[index] = null;
-      for (let i = index; i < productImages.length - 1; i++) {
-        productImages[i] = productImages[i + 1];
-      }
-      productImages[productImages.length - 1] = null;
-    } else productImages[productImages.indexOf(null)] = newFileUrl;
+      newChosenImages.splice(index, 1)
+    } else newChosenImages.push(newFileUrl)
 
-    form.setValue("images", [...productImages], { shouldValidate: true });
+    const formValue: any[] = newChosenImages.map((file) => {
+      if (typeof file === 'string') return file
+      else return URL.createObjectURL(file)
+    })
+    while (formValue.length < 5) formValue.push(null)
+    form.setValue(
+      "images", formValue,
+      { shouldValidate: true }
+    );
+    setNewChosenImages(newChosenImages);
   };
 
-  function onSubmit(values: z.infer<typeof newProductFormSchema>) {
-    values.images = values.images.filter((image) => image !== null);
+  function onSubmit(values: z.infer<typeof productFormSchema>) {
+    const data: any = values
+    data.images = newChosenImages.filter(file => typeof file === 'string')
+    const dataForm: any = new FormData();
+    dataForm.append("data", new Blob([JSON.stringify(data)], {type: "application/json"}));
+    dataForm.append(
+      "files",
+      newChosenImages.filter((file) => typeof file !== 'string')
+    );
+
+    setIsCreatingNewProduct(true);
+    CatalogService.updateProduct(dataForm, product.id)
+      .then((result) => {
+        onProductUpdated(result.data, productIndex);
+      })
+      .catch((e) => axiosUIErrorHandler(e, toast))
+      .finally(() => {
+        onChangeVisibility(false)
+        setIsCreatingNewProduct(false);
+      });
   }
 
   return (
@@ -281,6 +317,9 @@ export const UpdateProductView = ({
                           <AddNewThing
                             title="Add new group"
                             placeholder="Group's name"
+                            open={openGroup}
+                            onOpenChange={setOpenGroup}
+                            onAddClick={addNewGroup}
                           />
                         </div>
                       </FormControl>
@@ -317,6 +356,9 @@ export const UpdateProductView = ({
                           <AddNewThing
                             title="Add new brand"
                             placeholder="Brand's name"
+                            open={openBrand}
+                            onOpenChange={setOpenBrand}
+                            onAddClick={addNewBrand}
                           />
                         </div>
                       </FormControl>
@@ -353,6 +395,9 @@ export const UpdateProductView = ({
                           <AddNewThing
                             title="Add new location"
                             placeholder="Location's name"
+                            open={openLocation}
+                            onOpenChange={setOpenLocation}
+                            onAddClick={addNewLocation}
                           />
                         </div>
                       </FormControl>
@@ -578,16 +623,7 @@ export const UpdateProductView = ({
                         <Input
                           className="flex-1 !m-0 text-end"
                           min={0}
-                          {...field}
-                          onChange={(e) =>
-                            form.setValue(
-                              "unit.name",
-                              e.currentTarget.value,
-                              {
-                                shouldValidate: true,
-                              }
-                            )
-                          }
+                          {...form.register("unit.name")}
                         />
                       </FormControl>
                     </FormItem>
@@ -609,7 +645,7 @@ export const UpdateProductView = ({
                             key={index}
                             file={imageLink}
                             onImageChanged={(newFileUrl) => {
-                              handleImageChosen(newFileUrl, index, field.value);
+                              handleImageChosen(newFileUrl, index);
                             }}
                           />
                         ))}
@@ -831,6 +867,11 @@ export const UpdateProductView = ({
                 className="px-4 min-w-[150px] uppercase"
               >
                 Save
+                <LoadingCircle
+                  className={
+                    "!w-4 ml-4 " + (isCreatingNewProduct ? "" : "hidden")
+                  }
+                />
               </Button>
               <Button
                 variant={"green"}
@@ -901,7 +942,7 @@ const NewProductUnitInputErrorFormMessage = React.forwardRef<
   let message: string = "";
   let customError: any = error;
   if (customError.message) message = customError.message;
-  else if (customError.baseUnit) message = customError.baseUnit.message;
+  else if (customError.basicUnit) message = customError.basicUnit.message;
   else {
     for (let i = 0; i < customError.otherUnits.length; i++) {
       if (customError.otherUnits[i] === undefined) continue;
@@ -932,20 +973,25 @@ const NewProductUnitInputErrorFormMessage = React.forwardRef<
 });
 NewProductUnitInputErrorFormMessage.displayName = "FormMessage";
 
-const onAddNewLocation = (value: string) => {
-  CatalogService.createNewLocation(value).then();
-};
+
 
 const AddNewThing = ({
   title,
   placeholder,
+  open,
+  onOpenChange,
+  onAddClick,
 }: {
   title: string;
   placeholder: string;
+  open: boolean;
+  onOpenChange: (value: boolean) => any;
+  onAddClick: (value: string) => Promise<any>;
 }) => {
   const [value, setValue] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   return (
-    <AlertDialog>
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogTrigger>
         <PlusCircle size={16} className="mx-2" />
       </AlertDialogTrigger>
@@ -965,11 +1011,27 @@ const AddNewThing = ({
           </div>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel className="bg-red-400 hover:bg-red-500 text-white hover:text-white">
+          <AlertDialogCancel
+            className={
+              "bg-red-400 hover:bg-red-500 text-white hover:text-white"
+            }
+            disabled={isLoading}
+          >
             Cancel
           </AlertDialogCancel>
-          <AlertDialogAction className="bg-green-500 hover:bg-green-600 text-white hover:text-white">
+          <AlertDialogAction
+            className="bg-green-500 hover:bg-green-600 text-white hover:text-white"
+            onClick={async (e) => {
+              setIsLoading(true);
+              await onAddClick(value)
+              console.log('in updated')
+              setIsLoading(false);
+              onOpenChange(false);
+            }}
+            disabled={isLoading}
+          >
             Done
+            {isLoading ? <LoadingCircle /> : null}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -1007,3 +1069,4 @@ function cartesian(
   helper({}, 0);
   return r;
 }
+

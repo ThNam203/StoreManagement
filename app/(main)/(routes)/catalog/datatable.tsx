@@ -224,7 +224,7 @@ const CustomRow = ({
   const [showInfoRow, setShowInfoRow] = React.useState(false);
   const product: Product = row.original;
   const [chosenImagePos, setChosenImagePos] = React.useState<number | null>(
-    null
+    product.images.length > 0 ? 0 : null
   );
 
   const borderWidth =
@@ -284,15 +284,17 @@ const CustomRow = ({
                 </h4>
                 <div className="flex flex-row gap-4">
                   <div className="flex flex-col grow-[2] shrink-[2] gap-2 max-w-[300px]">
+                    <AspectRatio className="w-full flex items-center justify-center  border-2 border-gray-200 rounded-sm" ratio={1/1}>
                     <img
                       alt="product image"
                       src={
-                        chosenImagePos
+                        chosenImagePos !== null
                           ? product.images[chosenImagePos]
                           : "/default-product-img.jpg"
                       }
-                      className="w-full max-h-[300px] max-w-[300px] border-2 border-gray-200 rounded-sm"
+                      className="w-full max-h-[300px] max-w-[300px]"
                     />
+                    </AspectRatio>
                     {product.images.length > 0 ? (
                       <div className="flex flex-row gap-2">
                         {product.images.map((imageLink, idx) => {
@@ -326,15 +328,11 @@ const CustomRow = ({
                       </div>
                       <div className="flex flex-row font-medium border-b mb-2">
                         <p className="w-[100px] font-normal">Product group:</p>
-                        <p>{product.productGroup.name}</p>
+                        {product.productGroup ? <p>{product.productGroup}</p> : null}
                       </div>
                       <div className="flex flex-row font-medium border-b mb-2">
                         <p className="w-[100px] font-normal">Brand:</p>
-                        <p>{product.productBrand.name}</p>
-                      </div>
-                      <div className="flex flex-row font-medium border-b mb-2">
-                        <p className="w-[100px] font-normal">Stock:</p>
-                        <p>{product.stock}</p>
+                        {product.productBrand ? <p>{product.productBrand}</p> : null}
                       </div>
                       <div className="flex flex-row font-medium border-b mb-2">
                         <p className="w-[100px] font-normal">Stock:</p>
@@ -363,7 +361,7 @@ const CustomRow = ({
                       </div>
                       <div className="flex flex-row font-medium border-b mb-2">
                         <p className="w-[100px] font-normal">Location:</p>
-                        <p>{product.location.name}</p>
+                        <p>{product.location}</p>
                       </div>
                     </div>
                     <div className="flex-1 flex flex-col pr-4">

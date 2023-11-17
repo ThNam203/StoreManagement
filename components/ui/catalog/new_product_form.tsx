@@ -184,31 +184,39 @@ const newProductFormSchema = z.object({
 
 export const NewProductView = ({
   onChangeVisibility,
-  onNewProductAdded,
+  onNewProductsAdded,
   productLocations,
   productGroups,
   productBrands,
   productProperties,
+  addNewLocation,
+  addNewGroup,
+  addNewBrand,
+  addNewProperties,
 }: {
   onChangeVisibility: (val: boolean) => any;
-  onNewProductAdded: (product: Product) => any;
+  onNewProductsAdded: (products: Product[]) => any;
   productLocations: string[];
   productGroups: string[];
   productBrands: string[];
   productProperties: string[];
+  addNewLocation: (value: string) => any;
+  addNewGroup: (value: string) => any;
+  addNewBrand: (value: string) => any;
+  addNewProperties: (value: string) => any;
 }) => {
   const { toast } = useToast();
-  const [productLocationChoices, setProductLocationChoices] =
-    useState<string[]>(productLocations);
-  const [productGroupChoices, setProductGroupChoices] =
-    useState<string[]>(productGroups);
-  const [productBrandChoices, setProductBrandChoices] =
-    useState<string[]>(productBrands);
-  const [productPropertyChoices, setProductPropertyChoices] =
-    useState<string[]>(productProperties);
+  const productLocationChoices = productLocations;
+  const productGroupChoices = productGroups;
+  const productBrandChoices = productBrands;
+  const productPropertyChoices = productProperties;
   const [productPropertyInputValues, setProductPropertyInputValues] = useState<
     string[]
   >([]);
+  const [openGroup, setOpenGroup] = useState(false);
+  const [openBrand, setOpenBrand] = useState(false);
+  const [openProperty, setOpenProperty] = useState(false);
+  const [openLocation, setOpenLocation] = useState(false);
   const [chosenImageFiles, setChosenImageFiles] = useState<(File | null)[]>([
     null,
     null,
@@ -355,25 +363,20 @@ export const NewProductView = ({
     form.setValue("sameTypeProducts", sameTypeProducts);
   };
   // if newFileUrl == null, it means the user removed image
-  const handleImageChosen = (
-    newFileUrl: File | null,
-    index: number,
-    productImages: (File | null)[]
-  ) => {
+  const handleImageChosen = (newFileUrl: File | null, index: number) => {
     if (newFileUrl === null) {
-      productImages[index] = null;
-      for (let i = index; i < productImages.length - 1; i++) {
-        productImages[i] = productImages[i + 1];
+      for (let i = index; i < chosenImageFiles.length - 1; i++) {
+        chosenImageFiles[i] = chosenImageFiles[i + 1];
       }
-      productImages[productImages.length - 1] = null;
-    } else productImages[productImages.indexOf(null)] = newFileUrl;
+      chosenImageFiles[chosenImageFiles.length - 1] = null;
+    } else chosenImageFiles[chosenImageFiles.indexOf(null)] = newFileUrl;
 
-    setChosenImageFiles(productImages);
     form.setValue(
       "images",
-      productImages.map((file) => (file ? URL.createObjectURL(file) : null)),
+      chosenImageFiles.map((file) => (file ? URL.createObjectURL(file) : null)),
       { shouldValidate: true }
     );
+    setChosenImageFiles(chosenImageFiles);
   };
 
   function onProductPropertyInputKeyDown(
@@ -456,7 +459,10 @@ export const NewProductView = ({
     }
 
     const dataForm: any = new FormData();
-    dataForm.append("data", new Blob([JSON.stringify(data)], {type: "application/json"}));
+    dataForm.append(
+      "data",
+      new Blob([JSON.stringify(data)], { type: "application/json" })
+    );
     dataForm.append(
       "files",
       chosenImageFiles.filter((file) => file != null)
@@ -465,10 +471,11 @@ export const NewProductView = ({
     setIsCreatingNewProduct(true);
     CatalogService.createNewProduct(dataForm)
       .then((result) => {
-        onNewProductAdded(result.data);
+        onNewProductsAdded(result.data);
       })
       .catch((e) => axiosUIErrorHandler(e, toast))
       .finally(() => {
+        onChangeVisibility(false);
         setIsCreatingNewProduct(false);
       });
   }
@@ -567,6 +574,9 @@ export const NewProductView = ({
                           <AddNewThing
                             title="Add new group"
                             placeholder="Group's name"
+                            open={openGroup}
+                            onOpenChange={setOpenGroup}
+                            onAddClick={addNewGroup}
                           />
                         </div>
                       </FormControl>
@@ -603,6 +613,9 @@ export const NewProductView = ({
                           <AddNewThing
                             title="Add new brand"
                             placeholder="Brand's name"
+                            open={openBrand}
+                            onOpenChange={setOpenBrand}
+                            onAddClick={addNewBrand}
                           />
                         </div>
                       </FormControl>
@@ -639,6 +652,9 @@ export const NewProductView = ({
                           <AddNewThing
                             title="Add new location"
                             placeholder="Location's name"
+                            open={openLocation}
+                            onOpenChange={setOpenLocation}
+                            onAddClick={addNewLocation}
                           />
                         </div>
                       </FormControl>
@@ -902,11 +918,7 @@ export const NewProductView = ({
                                 key={index}
                                 file={imageLink}
                                 onImageChanged={(newFile: File | null) => {
-                                  handleImageChosen(
-                                    newFile,
-                                    index,
-                                    chosenImageFiles
-                                  );
+                                  handleImageChosen(newFile, index);
                                 }}
                               />
                             ))
@@ -1695,13 +1707,20 @@ const onAddNewLocation = (value: string) => {
 const AddNewThing = ({
   title,
   placeholder,
+  open,
+  onOpenChange,
+  onAddClick,
 }: {
   title: string;
   placeholder: string;
+  open: boolean;
+  onOpenChange: (value: boolean) => any;
+  onAddClick: (value: string) => Promise<any>;
 }) => {
   const [value, setValue] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   return (
-    <AlertDialog>
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogTrigger>
         <PlusCircle size={16} className="mx-2" />
       </AlertDialogTrigger>
@@ -1721,11 +1740,27 @@ const AddNewThing = ({
           </div>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel className="bg-red-400 hover:bg-red-500 text-white hover:text-white">
+          <AlertDialogCancel
+            className={
+              "bg-red-400 hover:bg-red-500 text-white hover:text-white"
+            }
+            disabled={isLoading}
+          >
             Cancel
           </AlertDialogCancel>
-          <AlertDialogAction className="bg-green-500 hover:bg-green-600 text-white hover:text-white">
+          <AlertDialogAction
+            className="bg-green-500 hover:bg-green-600 text-white hover:text-white"
+            onClick={(e) => {
+              setIsLoading(true);
+              onAddClick(value).finally(() => {
+                setIsLoading(false);
+                onOpenChange(false);
+              });
+            }}
+            disabled={isLoading}
+          >
             Done
+            {isLoading ? <LoadingCircle /> : null}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

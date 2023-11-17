@@ -44,7 +44,6 @@ export function ImportDailog({
   const handleImportExcel = (event: any) => {
     const file = event.target.files[0];
     const importFile = importExcel(file);
-    console.log("import file", importFile);
     toast({
       title: "File uploaded",
       duration: 3000,
