@@ -1,4 +1,10 @@
-import {Product, ProductBrand, ProductGroup, ProductLocation, ProductProperty} from "@/entities/Product";
+import {
+  Product,
+  ProductBrand,
+  ProductGroup,
+  ProductLocation,
+  ProductProperty,
+} from "@/entities/Product";
 import AxiosService from "./axios_service";
 
 const createNewGroup = (value: ProductGroup) => {
@@ -8,7 +14,7 @@ const createNewGroup = (value: ProductGroup) => {
 };
 
 const getAllGroups = () => {
-  return AxiosService.get<ProductGroup[]>("/api/product-groups",);
+  return AxiosService.get<ProductGroup[]>("/api/product-groups");
 };
 
 const createNewLocation = (value: string) => {
@@ -46,7 +52,7 @@ const getAllProducts = () => {
 };
 
 const createNewProduct = (data: any) => {
-  return AxiosService.post<Product>("/api/products", data);
+  return AxiosService.post<Product>("/api/products", data, {headers: {"Content-Type": "multipart/form-data"}});
 };
 
 const CatalogService = {
@@ -59,7 +65,7 @@ const CatalogService = {
   createNewGroup,
   getAllGroups,
   createNewProduct,
-  getAllProducts
+  getAllProducts,
 };
 
 export default CatalogService;

@@ -15,7 +15,7 @@ import {
   Table as ReactTable,
   flexRender,
 } from "@tanstack/react-table";
-import Product from "@/entities/Product";
+import { Product } from "@/entities/Product";
 import { columnTitles, productTableColumns } from "./table_columns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -309,7 +309,7 @@ const CustomRow = ({
                             >
                               <img
                                 alt="product image preview"
-                                src={"/default-product-img.jpg"}
+                                src={imageLink ?? "/default-product-img.jpg"}
                                 className="object-contain mb-1"
                               />
                             </div>
@@ -326,11 +326,11 @@ const CustomRow = ({
                       </div>
                       <div className="flex flex-row font-medium border-b mb-2">
                         <p className="w-[100px] font-normal">Product group:</p>
-                        <p>{product.productGroup}</p>
+                        <p>{product.productGroup.name}</p>
                       </div>
                       <div className="flex flex-row font-medium border-b mb-2">
                         <p className="w-[100px] font-normal">Brand:</p>
-                        <p>{product.productBrand}</p>
+                        <p>{product.productBrand.name}</p>
                       </div>
                       <div className="flex flex-row font-medium border-b mb-2">
                         <p className="w-[100px] font-normal">Stock:</p>
@@ -363,7 +363,7 @@ const CustomRow = ({
                       </div>
                       <div className="flex flex-row font-medium border-b mb-2">
                         <p className="w-[100px] font-normal">Location:</p>
-                        <p>{product.location}</p>
+                        <p>{product.location.name}</p>
                       </div>
                     </div>
                     <div className="flex-1 flex flex-col pr-4">
@@ -404,7 +404,7 @@ const CustomRow = ({
                       size={16}
                       fill="white"
                       className="mr-2"
-                    />{" "}
+                    />
                     Update
                   </Button>
                   <Button variant={"red"}>

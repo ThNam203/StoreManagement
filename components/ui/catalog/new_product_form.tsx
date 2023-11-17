@@ -49,7 +49,8 @@ import CatalogService from "@/services/catalog_service";
 import { RadioGroup, RadioGroupItem } from "../radio-group";
 import { Label } from "../label";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
-import {Product} from "@/entities/Product";
+import { Product } from "@/entities/Product";
+import LoadingCircle from "../loading_circle";
 
 const newProductFormSchema = z.object({
   barcode: z
@@ -111,7 +112,7 @@ const newProductFormSchema = z.object({
     .max(Number.MAX_VALUE, {
       message: `Value must be less than ${Number.MAX_VALUE}`,
     }),
-  images: z.array(z.string().nullable()).min(1).max(5),
+  images: z.array(z.string().nullable()).min(0).max(5).optional(),
   properties: z
     .array(
       z.object({
@@ -208,6 +209,14 @@ export const NewProductView = ({
   const [productPropertyInputValues, setProductPropertyInputValues] = useState<
     string[]
   >([]);
+  const [chosenImageFiles, setChosenImageFiles] = useState<(File | null)[]>([
+    null,
+    null,
+    null,
+    null,
+    null,
+  ]);
+  const [isCreatingNewProduct, setIsCreatingNewProduct] = useState(false);
 
   const form = useForm<z.infer<typeof newProductFormSchema>>({
     resolver: zodResolver(newProductFormSchema),
@@ -347,9 +356,9 @@ export const NewProductView = ({
   };
   // if newFileUrl == null, it means the user removed image
   const handleImageChosen = (
-    newFileUrl: string | null,
+    newFileUrl: File | null,
     index: number,
-    productImages: (string | null)[]
+    productImages: (File | null)[]
   ) => {
     if (newFileUrl === null) {
       productImages[index] = null;
@@ -359,7 +368,12 @@ export const NewProductView = ({
       productImages[productImages.length - 1] = null;
     } else productImages[productImages.indexOf(null)] = newFileUrl;
 
-    form.setValue("images", [...productImages], { shouldValidate: true });
+    setChosenImageFiles(productImages);
+    form.setValue(
+      "images",
+      productImages.map((file) => (file ? URL.createObjectURL(file) : null)),
+      { shouldValidate: true }
+    );
   };
 
   function onProductPropertyInputKeyDown(
@@ -406,7 +420,7 @@ export const NewProductView = ({
   }
 
   function onSubmit(values: z.infer<typeof newProductFormSchema>) {
-    values.images = values.images.filter((image) => image !== null);
+    delete values.images; // get images from chosenImages
     let data: any[] = [];
 
     if (values.sameTypeProducts.length === 0) {
@@ -441,11 +455,22 @@ export const NewProductView = ({
       });
     }
 
-    CatalogService.createNewProduct(data)
+    const dataForm: any = new FormData();
+    dataForm.append("data", new Blob([JSON.stringify(data)], {type: "application/json"}));
+    dataForm.append(
+      "files",
+      chosenImageFiles.filter((file) => file != null)
+    );
+
+    setIsCreatingNewProduct(true);
+    CatalogService.createNewProduct(dataForm)
       .then((result) => {
         onNewProductAdded(result.data);
       })
-      .catch((e) => axiosUIErrorHandler(e, toast));
+      .catch((e) => axiosUIErrorHandler(e, toast))
+      .finally(() => {
+        setIsCreatingNewProduct(false);
+      });
   }
 
   return (
@@ -871,15 +896,21 @@ export const NewProductView = ({
                     <FormLabel></FormLabel>
                     <FormControl>
                       <div className="flex flex-row gap-2">
-                        {field.value.map((imageLink, index) => (
-                          <ChooseImageButton
-                            key={index}
-                            file={imageLink}
-                            onImageChanged={(newFileUrl) => {
-                              handleImageChosen(newFileUrl, index, field.value);
-                            }}
-                          />
-                        ))}
+                        {field.value
+                          ? field.value.map((imageLink, index) => (
+                              <ChooseImageButton
+                                key={index}
+                                file={imageLink}
+                                onImageChanged={(newFile: File | null) => {
+                                  handleImageChosen(
+                                    newFile,
+                                    index,
+                                    chosenImageFiles
+                                  );
+                                }}
+                              />
+                            ))
+                          : null}
                       </div>
                     </FormControl>
                     <FormDescription />
@@ -1369,6 +1400,11 @@ export const NewProductView = ({
                 className="px-4 min-w-[150px] uppercase"
               >
                 Save
+                <LoadingCircle
+                  className={
+                    "!w-4 ml-4 " + (isCreatingNewProduct ? "" : "hidden")
+                  }
+                />
               </Button>
               <Button
                 variant={"green"}
