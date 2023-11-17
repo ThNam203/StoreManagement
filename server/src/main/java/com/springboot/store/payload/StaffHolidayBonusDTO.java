@@ -7,7 +7,7 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class StaffDayOffBonusDTO {
+public class StaffHolidayBonusDTO {
     private int id;
     private double value;
     private String bonusUnit;
