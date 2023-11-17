@@ -173,16 +173,15 @@ public class ProductServiceImpl implements ProductService {
         }
 
         // images
+        existingProduct.getImages().removeIf(media -> !productDTO.getImages().contains(media.getUrl()));
+
         if (files != null) {
-            List<Media> urls = new ArrayList<>();
             for (MultipartFile file : files) {
                 String url = fileService.uploadFile(file);
                 if (url == null) continue;
                 Media media = Media.builder().url(url).build();
-                urls.add(media);
+                existingProduct.getImages().add(media);
             }
-            if (!urls.isEmpty())
-                existingProduct.setImages(urls);
         }
 
 
