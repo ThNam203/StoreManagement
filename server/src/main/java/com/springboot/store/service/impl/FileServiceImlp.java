@@ -27,11 +27,15 @@ public class FileServiceImlp implements FileService {
 
     @Override
     public String uploadFile(MultipartFile file ){
-        File fileObj = convertMultiPartToFile(file);
-        String fileName = System.currentTimeMillis()+"_"+file.getOriginalFilename();
-        s3.putObject(new PutObjectRequest(bucketName,fileName,fileObj));
-        fileObj.delete();
-        return "https://"+bucketName+".s3.amazonaws.com/"+fileName;
+        try {
+            File fileObj = convertMultiPartToFile(file);
+            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+            s3.putObject(new PutObjectRequest(bucketName, fileName, fileObj));
+            fileObj.delete();
+            return "https://"+bucketName+".s3.amazonaws.com/"+fileName;
+        } catch (Exception e){
+            return null;
+        }
     }
 
 

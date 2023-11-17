@@ -47,9 +47,9 @@ public class ProductServiceImpl implements ProductService {
         Product product = ProductMapper.toProduct(productDTO);
 
         if (productDTO.getLocation() != null) {
-            product.setLocation(Location.builder()
-                    .name(productDTO.getLocation())
-                    .build());
+            Location location = locationRepository.findByName(productDTO.getLocation())
+                    .orElseThrow(() -> new EntityNotFoundException("Location not found with name: " + productDTO.getLocation()));
+            product.setLocation(location);
         }
 
         if (productDTO.getProductGroup() != null) {
@@ -78,10 +78,12 @@ public class ProductServiceImpl implements ProductService {
             List<Media> urls = new ArrayList<>();
             for (MultipartFile file : files) {
                 String url = fileService.uploadFile(file);
+                if (url == null) continue;
                 Media media = Media.builder().url(url).build();
                 urls.add(media);
             }
-            product.setImages(urls);
+            if (!urls.isEmpty())
+                product.setImages(urls);
         }
 
         if (productDTO.getProductProperties() != null) {
@@ -116,6 +118,7 @@ public class ProductServiceImpl implements ProductService {
         existingProduct.setName(productDTO.getName());
         existingProduct.setBarcode(productDTO.getBarcode());
         existingProduct.setStock(productDTO.getStock());
+        existingProduct.setWeight(productDTO.getWeight());
         existingProduct.setStatus(productDTO.getStatus());
         existingProduct.setDescription(productDTO.getDescription());
         existingProduct.setNote(productDTO.getNote());
@@ -171,10 +174,12 @@ public class ProductServiceImpl implements ProductService {
             List<Media> urls = new ArrayList<>();
             for (MultipartFile file : files) {
                 String url = fileService.uploadFile(file);
+                if (url == null) continue;
                 Media media = Media.builder().url(url).build();
                 urls.add(media);
             }
-            existingProduct.setImages(urls);
+            if (!urls.isEmpty())
+                existingProduct.setImages(urls);
         }
 
 
