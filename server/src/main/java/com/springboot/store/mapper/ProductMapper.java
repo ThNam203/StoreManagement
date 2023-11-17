@@ -14,7 +14,6 @@ public class ProductMapper {
                 .id(product.getId())
                 .name(product.getName())
                 .barcode(product.getBarcode())
-                .location(product.getLocation().getName())
                 .originalPrice(product.getOriginalPrices().get(product.getOriginalPrices().size() - 1).getValue())
                 .productPrice(product.getProductPrices().get(product.getProductPrices().size() - 1).getValue())
                 .stock(product.getStock())
@@ -24,6 +23,8 @@ public class ProductMapper {
                 .weight(product.getWeight())
                 .minStock(product.getMinStock())
                 .maxStock(product.getMaxStock())
+                .location(product.getLocation() != null ?
+                        product.getLocation().getName() : null)
                 .images(product.getImages() != null ?
                         product.getImages().stream().map(Media::getUrl).collect(Collectors.toList()) : null)
                 .productProperties(product.getProperties() != null ? product.getProperties().stream().map(productProperty -> ProductPropertyDTO.builder()
@@ -32,10 +33,12 @@ public class ProductMapper {
                         .propertyValue(productProperty.getPropertyValue())
                         .build()).collect(Collectors.toList()) : null)
                 .salesUnits(SalesUnitsDTO.builder()
-                        .id(product.getSalesUnits().getId())
-                        .name(product.getSalesUnits().getName())
-                        .basicUnit(product.getSalesUnits().getBasicUnit())
-                        .exchangeValue(product.getSalesUnits().getExchangeValue())
+                        .name(product.getSalesUnits() != null ?
+                                product.getSalesUnits().getName() : null)
+                        .basicUnit(product.getSalesUnits() != null ?
+                                product.getSalesUnits().getBasicUnit() : null)
+                        .exchangeValue(product.getSalesUnits() != null ?
+                                product.getSalesUnits().getExchangeValue() : 0)
                         .build())
                 .productGroup(product.getProductGroup() != null ?
                         product.getProductGroup().getName() : null)
