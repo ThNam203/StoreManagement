@@ -32,6 +32,9 @@ public class ProductPropertyNameServiceImpl implements ProductPropertyNameServic
 
     @Override
     public ProductPropertyNameDTO createProductPropertyName(ProductPropertyNameDTO productPropertyNameDTO) {
+        if (productPropertyNameRepository.existsByName(productPropertyNameDTO.getName())) {
+            throw new RuntimeException("ProductPropertyName already exists");
+        }
         ProductPropertyName productPropertyName = modelMapper.map(productPropertyNameDTO, ProductPropertyName.class);
         productPropertyName = productPropertyNameRepository.save(productPropertyName);
         return modelMapper.map(productPropertyName, ProductPropertyNameDTO.class);

@@ -7,4 +7,5 @@ import java.util.Optional;
 
 public interface ProductGroupRepository extends JpaRepository<ProductGroup, Integer> {
     Optional<ProductGroup> findByName(String name);
+    boolean existsByName(String name);
 }

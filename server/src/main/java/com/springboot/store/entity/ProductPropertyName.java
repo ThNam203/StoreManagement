@@ -10,7 +10,9 @@ import lombok.*;
 @Builder
 
 @Entity
-@Table(name = "product_property_name")
+@Table(name = "product_property_name", uniqueConstraints =
+        @UniqueConstraint(name = "product_property_name_name_unique", columnNames = {"name"})
+)
 public class ProductPropertyName {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

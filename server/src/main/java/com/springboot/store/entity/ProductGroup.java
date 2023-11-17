@@ -15,7 +15,9 @@ import java.util.Set;
 @Builder
 
 @Entity
-@Table(name = "product_group")
+@Table(name = "product_group", uniqueConstraints =
+    @UniqueConstraint(name = "product_group_name_unique", columnNames = {"name"})
+)
 public class ProductGroup {
 
     @Id

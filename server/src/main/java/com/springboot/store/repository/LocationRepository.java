@@ -8,4 +8,5 @@ import java.util.Optional;
 
 public interface LocationRepository extends JpaRepository<Location, Integer> {
     Optional<Location> findByName(String name);
+    boolean existsByName(String name);
 }

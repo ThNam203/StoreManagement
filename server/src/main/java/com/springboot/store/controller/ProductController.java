@@ -35,9 +35,9 @@ public class ProductController {
     }
 
     @PostMapping
-    public ResponseEntity<ProductDTO> createProduct(@RequestPart(value = "files", required = false) MultipartFile[] files,
-                                                    @RequestPart("data") ProductDTO productDTO) {
-        ProductDTO createdProduct = productService.createProduct(files, productDTO);
+    public ResponseEntity<List<ProductDTO>> createProduct(@RequestPart(value = "files", required = false) MultipartFile[] files,
+                                                    @RequestPart("data") List<ProductDTO> productDTO) {
+        List<ProductDTO> createdProduct = productService.createProduct(files, productDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdProduct);
     }
 
