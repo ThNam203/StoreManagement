@@ -49,7 +49,7 @@ import CatalogService from "@/services/catalog_service";
 import { RadioGroup, RadioGroupItem } from "../radio-group";
 import { Label } from "../label";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
-import { Product } from "@/entities/Product";
+import { Product, ProductBrand, ProductGroup, ProductLocation, ProductProperty } from "@/entities/Product";
 import LoadingCircle from "../loading_circle";
 
 const newProductFormSchema = z.object({
@@ -116,6 +116,7 @@ const newProductFormSchema = z.object({
   properties: z
     .array(
       z.object({
+        id: z.number(),
         key: z.string().min(1, "Missing property name!"),
         values: z.array(z.string()).min(1, "Propety needs at least 1 value"),
       })
@@ -192,18 +193,22 @@ export const NewProductView = ({
   addNewLocation,
   addNewGroup,
   addNewBrand,
-  addNewProperties,
+  addNewProperty,
+  onUpdateProperty,
+  onDeleteProperty
 }: {
   onChangeVisibility: (val: boolean) => any;
   onNewProductsAdded: (products: Product[]) => any;
-  productLocations: string[];
-  productGroups: string[];
-  productBrands: string[];
-  productProperties: string[];
+  productLocations: ProductLocation[];
+  productGroups: ProductGroup[];
+  productBrands: ProductBrand[];
+  productProperties: ProductProperty[];
   addNewLocation: (value: string) => any;
   addNewGroup: (value: string) => any;
   addNewBrand: (value: string) => any;
-  addNewProperties: (value: string) => any;
+  addNewProperty: (value: string) => any;
+  onUpdateProperty: (value: string, index: number) => any;
+  onDeleteProperty: (deletePropertyId: number) => any;
 }) => {
   const { toast } = useToast();
   const productLocationChoices = productLocations;
@@ -383,6 +388,7 @@ export const NewProductView = ({
     e: React.KeyboardEvent<HTMLInputElement>,
     value: string,
     fieldValue: {
+      id: number,
       values: string[];
       key: string;
     }[],
@@ -416,7 +422,7 @@ export const NewProductView = ({
   function onProductPropertyValueDelete(
     index: number,
     deleteIndex: number,
-    fieldValue: { values: string[]; key: string }[]
+    fieldValue: { id: number, values: string[]; key: string }[]
   ) {
     fieldValue[index].values.splice(deleteIndex, 1);
     form.setValue("properties", [...fieldValue]);
@@ -568,7 +574,7 @@ export const NewProductView = ({
                                   { shouldValidate: true }
                                 );
                               }}
-                              choices={productGroupChoices}
+                              choices={productGroupChoices.map(v => v.name)}
                             />
                           </div>
                           <AddNewThing
@@ -607,7 +613,7 @@ export const NewProductView = ({
                                   shouldValidate: true,
                                 });
                               }}
-                              choices={productBrandChoices}
+                              choices={productBrandChoices.map(v => v.name)}
                             />
                           </div>
                           <AddNewThing
@@ -646,7 +652,7 @@ export const NewProductView = ({
                                   shouldValidate: true,
                                 });
                               }}
-                              choices={productLocationChoices}
+                              choices={productLocationChoices.map(v => v.name)}
                             />
                           </div>
                           <AddNewThing
@@ -957,14 +963,46 @@ export const NewProductView = ({
                                       >
                                         <Popover>
                                           <PopoverTrigger>
-                                            <div className="ml-4 h-[35px] border-b flex flex-row justify-between items-center w-[250px]">
-                                              <p className=" p-1 text-start">
-                                                {value.key.length === 0
-                                                  ? "Choose property..."
-                                                  : value.key}
-                                              </p>
-                                              <Pencil size={16} />
-                                            </div>
+                                          {!value.key ||
+                                              value.key.length === 0 ? (
+                                                <>
+                                                  <p className=" p-1 text-start">
+                                                    Choose property...
+                                                  </p>
+                                                </>
+                                              ) : (
+                                                <>
+                                                  <p className=" p-1 text-start">
+                                                    {value.key}
+                                                  </p>
+                                                  <UpdatePropertyView
+                                                    property={value}
+                                                    onDeleteClick={onDeleteProperty}
+                                                    onUpdateClick={
+                                                      onUpdateProperty
+                                                    }
+                                                    onUpdateSuccess={(newVal, valId) => {
+                                                      const newValue = field.value!.map((v) => v.id === valId ? {
+                                                        ...v,
+                                                        key: newVal,
+                                                      } : v)
+
+                                                      form.setValue("properties", newValue)
+                                                    }}
+                                                    onDeleteSuccess={(
+                                                      propertyId
+                                                    ) => {
+                                                      form.setValue(
+                                                        "properties",
+                                                        field.value!.filter(
+                                                          (v) =>
+                                                            v.id !== propertyId
+                                                        )
+                                                      );
+                                                    }}
+                                                  ></UpdatePropertyView>
+                                                </>
+                                              )}
                                           </PopoverTrigger>
                                           <PopoverContent className="p-0">
                                             {productPropertyChoices.map(
@@ -976,7 +1014,7 @@ export const NewProductView = ({
                                                     onClick={() => {
                                                       if (
                                                         field.value![index]
-                                                          .key === choice
+                                                          .key === choice.name
                                                       ) {
                                                         field.value![
                                                           index
@@ -994,7 +1032,7 @@ export const NewProductView = ({
                                                           ) => {
                                                             return (
                                                               fieldVal.key !==
-                                                              choice
+                                                              choice.name
                                                             );
                                                           }
                                                         )
@@ -1009,7 +1047,7 @@ export const NewProductView = ({
                                                       } else {
                                                         field.value![
                                                           index
-                                                        ].key = choice;
+                                                        ].key = choice.name;
 
                                                         form.setValue(
                                                           "properties",
@@ -1021,9 +1059,9 @@ export const NewProductView = ({
                                                     }}
                                                   >
                                                     <p className="text-sm">
-                                                      {choice}
+                                                      {choice.name}
                                                     </p>
-                                                    {value.key === choice ? (
+                                                    {value.key === choice.name ? (
                                                       <Check size={16} />
                                                     ) : null}
                                                   </div>
@@ -1112,34 +1150,46 @@ export const NewProductView = ({
                                   })
                                 : null}
                             </div>
-                            <Button
-                              className="border bg-transparent hover:bg-slate-200 ml-4 mt-2 h-[35px]"
-                              type="button"
-                              onClick={(e) => {
-                                let newVal: {
-                                  key: string;
-                                  values: string[];
-                                }[];
+                            <div className="flex flex-row">
+                              <Button
+                                variant={"green"}
+                                className="border ml-4 mt-2 h-[35px]"
+                                type="button"
+                                onClick={(e) => {
+                                  let newVal: {
+                                    id: number;
+                                    key: string;
+                                    values: string[];
+                                  }[];
 
-                                if (field.value === null)
-                                  newVal = [{ key: "", values: [] }];
-                                else
-                                  newVal = [
-                                    ...field.value,
-                                    { key: "", values: [] },
-                                  ];
-                                form.setValue("properties", newVal, {
-                                  shouldValidate: false,
-                                });
-                                setProductPropertyInputValues((prev) => [
-                                  ...prev,
-                                  "",
-                                ]);
-                              }}
-                            >
-                              <Plus size={16} className="mr-2" />
-                              Add property
-                            </Button>
+                                  if (field.value === null)
+                                    newVal = [{ id: 123123, key: "", values: [] }];
+                                  else
+                                    newVal = [
+                                      ...field.value,
+                                      { id: 123123, key: "", values: [] },
+                                    ];
+                                  form.setValue("properties", newVal, {
+                                    shouldValidate: false,
+                                  });
+                                  setProductPropertyInputValues((prev) => [
+                                    ...prev,
+                                    "",
+                                  ]);
+                                }}
+                              >
+                                <Plus size={16} className="mr-2" />
+                                New property
+                              </Button>
+                              <ButtonAddNewThing
+                                triggerTitle="Add property"
+                                title="Add new property"
+                                placeholder="Property's name"
+                                open={openProperty}
+                                onOpenChange={setOpenProperty}
+                                onAddClick={addNewProperty}
+                              />
+                            </div>
                           </AccordionContent>
                         </AccordionItem>
                       </Accordion>
@@ -1270,8 +1320,9 @@ export const NewProductView = ({
                                 : null}
                             </div>
                             <Button
+                              variant={"green"}
                               type="button"
-                              className="border bg-transparent hover:bg-slate-200 ml-4 mt-2 h-[35px]"
+                              className="border ml-4 mt-2 h-[35px]"
                               onClick={(e) => {
                                 e.preventDefault();
                                 if (
@@ -1700,10 +1751,6 @@ const NewProductUnitInputErrorFormMessage = React.forwardRef<
 });
 NewProductUnitInputErrorFormMessage.displayName = "FormMessage";
 
-const onAddNewLocation = (value: string) => {
-  CatalogService.createNewLocation(value).then();
-};
-
 const AddNewThing = ({
   title,
   placeholder,
@@ -1740,6 +1787,19 @@ const AddNewThing = ({
           </div>
         </AlertDialogHeader>
         <AlertDialogFooter>
+          <Button
+            variant={"green"}
+            onClick={async (e) => {
+              setIsLoading(true);
+              await onAddClick(value)
+              setIsLoading(false);
+              onOpenChange(false);
+            }}
+            disabled={isLoading}
+          >
+            Done
+            {isLoading ? <LoadingCircle /> : null}
+          </Button>
           <AlertDialogCancel
             className={
               "bg-red-400 hover:bg-red-500 text-white hover:text-white"
@@ -1748,22 +1808,183 @@ const AddNewThing = ({
           >
             Cancel
           </AlertDialogCancel>
-          <AlertDialogAction
-            className="bg-green-500 hover:bg-green-600 text-white hover:text-white"
-            onClick={(e) => {
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+};
+
+const ButtonAddNewThing = ({
+  triggerTitle,
+  title,
+  placeholder,
+  open,
+  onOpenChange,
+  onAddClick,
+}: {
+  triggerTitle: string;
+  title: string;
+  placeholder: string;
+  open: boolean;
+  onOpenChange: (value: boolean) => any;
+  onAddClick: (value: string) => Promise<any>;
+}) => {
+  const [value, setValue] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  return (
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogTrigger>
+        <Button
+          variant={"green"}
+          className="border ml-4 mt-2 h-[35px]"
+          type="button">{triggerTitle}
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{title}</AlertDialogTitle>
+          <div className="flex flex-row items-center text-sm gap-3 !my-4">
+            <label htmlFor="alert_input" className="font-semibold w-36">
+              {placeholder}
+            </label>
+            <input
+              id="alert_input"
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              className="flex-1 rounded-sm border p-1"
+            />
+          </div>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <Button
+            variant={"green"}
+            onClick={async (e) => {
               setIsLoading(true);
-              onAddClick(value).finally(() => {
-                setIsLoading(false);
-                onOpenChange(false);
-              });
+              await onAddClick(value)
+              setIsLoading(false);
+              onOpenChange(false);
             }}
             disabled={isLoading}
           >
             Done
             {isLoading ? <LoadingCircle /> : null}
-          </AlertDialogAction>
+          </Button>
+          <AlertDialogCancel
+            className={
+              "bg-red-400 hover:bg-red-500 text-white hover:text-white"
+            }
+            disabled={isLoading}
+          >
+            Cancel
+          </AlertDialogCancel>
         </AlertDialogFooter>
       </AlertDialogContent>
+    </AlertDialog>
+  );
+};
+
+const UpdatePropertyView = ({
+  property,
+  onUpdateClick,
+  onUpdateSuccess,
+  onDeleteClick,
+  onDeleteSuccess,
+}: {
+  property: {
+    id: number;
+    key: string;
+  };
+  onUpdateClick: (value: string, propertyId: number) => Promise<any>;
+  onUpdateSuccess: (value: string, propertyId: number) => any;
+  onDeleteClick: (propertyId: number) => Promise<any>;
+  onDeleteSuccess: (propertyId: number) => any;
+}) => {
+  const Input = ({
+    inputValue,
+    setOpen,
+  }: {
+    inputValue: string;
+    setOpen: any;
+  }) => {
+    const [value, setValue] = useState(inputValue);
+    const [isLoading, setIsLoading] = useState(false);
+
+    return (
+      <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Change property</AlertDialogTitle>
+          <div className="flex flex-row items-center text-sm gap-3 !my-4">
+            <label htmlFor="alert_input" className="font-semibold w-36">
+              Property&apos;s name
+            </label>
+
+            <input
+              id="alert_input"
+              defaultValue={property.key}
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              className="flex-1 rounded-sm border p-1"
+            />
+          </div>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          
+        <Button
+            variant={"green"}
+            onClick={async (e) => {
+              setIsLoading(true);
+              await onUpdateClick(value, property.id)
+                .then(() => {
+                  onUpdateSuccess(value, property.id);
+                })
+                .finally(() => {
+                  setIsLoading(false);
+                  setOpen(false);
+                });
+            }}
+            disabled={isLoading}
+          >
+            Done
+            {isLoading ? <LoadingCircle /> : null}
+          </Button>
+          <Button
+            variant={"red"}
+            onClick={async (e) => {
+              setIsLoading(true);
+              await onDeleteClick(property.id)
+                .then(() => {
+                  onDeleteSuccess(property.id);
+                })
+                .finally(() => {
+                  setIsLoading(false);
+                  setOpen(false);
+                });
+            }}
+            disabled={isLoading}
+          >
+            Delete property
+            {isLoading ? <LoadingCircle /> : null}
+          </Button>
+          <AlertDialogCancel
+            className={
+              "bg-red-400 hover:bg-red-500 text-white hover:text-white !h-[35px]"
+            }
+            disabled={isLoading}
+          >
+            Cancel
+          </AlertDialogCancel>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    );
+  };
+  const [open, setOpen] = useState(false);
+
+  return (
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogTrigger onClick={(e) => e.stopPropagation()}>
+        <Pencil size={16} />
+      </AlertDialogTrigger>
+      <Input inputValue={property.key} setOpen={setOpen} />
     </AlertDialog>
   );
 };

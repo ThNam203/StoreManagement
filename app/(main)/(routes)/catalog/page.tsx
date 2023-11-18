@@ -38,14 +38,6 @@ export default function Catalog() {
   const { toast } = useToast();
   const [products, setProducts] = useState<Product[]>([]);
   const [productGroups, setProductGroups] = useState<ProductGroup[]>([]);
-  const productSuppliers = [
-    "Company A",
-    "Company B",
-    "Company C",
-    "Company D",
-    "Company E",
-    "Company F",
-  ];
   const [productLocations, setProductLocations] = useState<ProductLocation[]>(
     []
   );
@@ -59,9 +51,10 @@ export default function Catalog() {
     try {
       const data = await CatalogService.createNewGroup(group);
       setProductGroups((prev) => [...prev, data.data]);
-      console.log('outside')
+      return Promise.resolve();
     } catch (e) {
-      return axiosUIErrorHandler(e, toast);
+      axiosUIErrorHandler(e, toast);
+      return Promise.reject();
     }
   };
 
@@ -69,8 +62,10 @@ export default function Catalog() {
     try {
       const data = await CatalogService.createNewBrand(brandName);
       setProductBrands((prev) => [...prev, data.data]);
+      return Promise.resolve();
     } catch (e) {
-      return axiosUIErrorHandler(e, toast);
+      axiosUIErrorHandler(e, toast);
+      return Promise.reject();
     }
   };
 
@@ -78,18 +73,45 @@ export default function Catalog() {
     try {
       const data = await CatalogService.createNewLocation(location);
       setProductLocations((prev) => [...prev, data.data]);
+      return Promise.resolve();
     } catch (e) {
-      return axiosUIErrorHandler(e, toast);
+      axiosUIErrorHandler(e, toast);
+      return Promise.reject();
     }
   };
 
-  const addNewProperty = (property: string) => {
-    CatalogService.createNewProperty(property)
-      .then((data) => {
-        setProductProperties((prev) => [...prev, data.data]);
-      })
-      .catch((e) => axiosUIErrorHandler(e, toast));
+  const addNewProperty = async (property: string) => {
+    try {
+      const data = await CatalogService.createNewProperty(property);
+      setProductProperties((prev) => [...prev, data.data]);
+      return Promise.resolve();
+    } catch (e) {
+      axiosUIErrorHandler(e, toast);
+      return Promise.reject();
+    }
   };
+
+  const updateProperty = async (newValue: string, propertyId: number) => {
+    try {
+      const data = await CatalogService.updateProperty(newValue, propertyId);
+      setProductProperties((prev) => prev.map((property) => propertyId === property.id ? data.data : property));
+      return Promise.resolve();
+    } catch (e) {
+      axiosUIErrorHandler(e, toast);
+      return Promise.reject();
+    }
+  };
+
+  const deleteProperty = async (propertyId: number) => {
+    try {
+      await CatalogService.deleteProperty(propertyId)
+      setProductProperties(prev => prev.filter((property) => propertyId !== property.id))
+      return Promise.resolve();
+    } catch (e) {
+      axiosUIErrorHandler(e, toast)
+      return Promise.reject();
+    }
+  }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -106,7 +128,7 @@ export default function Catalog() {
 
         const propertiesResult = await CatalogService.getAllProperties();
         setProductProperties(propertiesResult.data);
-
+        
         const groupsResult = await CatalogService.getAllGroups();
         setProductGroups(groupsResult.data);
         dispatch(disablePreloader());
@@ -167,15 +189,6 @@ export default function Catalog() {
       className="my-4"
     />,
     <SearchFilter
-      key={4}
-      title="Supplier"
-      placeholder="Find supplier..."
-      chosenValues={filtersChoice.supplier}
-      onValuesChanged={updateSupplierFilter}
-      choices={productSuppliers}
-      className="my-4"
-    />,
-    <SearchFilter
       key={5}
       title="Product position"
       placeholder="Find position..."
@@ -231,10 +244,10 @@ export default function Catalog() {
       />
       {showNewProductView ? (
         <NewProductView
-          productBrands={productBrands.map((v) => v.name)}
-          productGroups={productGroups.map((v) => v.name)}
-          productLocations={productLocations.map((v) => v.name)}
-          productProperties={productProperties.map((v) => v.name)}
+          productBrands={productBrands}
+          productGroups={productGroups}
+          productLocations={productLocations}
+          productProperties={productProperties}
           onChangeVisibility={setShowNewProductView}
           onNewProductsAdded={(newProducts) =>
             setProducts((prev) => [...prev, ...newProducts])
@@ -242,7 +255,9 @@ export default function Catalog() {
           addNewBrand={addNewBrand}
           addNewGroup={addNewGroup}
           addNewLocation={addNewLocation}
-          addNewProperties={addNewProperty}
+          addNewProperty={addNewProperty}
+          onUpdateProperty={updateProperty}
+          onDeleteProperty={deleteProperty}
         />
       ) : null}
       {showUpdateProductView &&
@@ -253,10 +268,10 @@ export default function Catalog() {
           onChangeVisibility={(val) => {
             setShowUpdateProductView(val);
           }}
-          productBrands={productBrands.map((v) => v.name)}
-          productGroups={productGroups.map((v) => v.name)}
-          productLocations={productLocations.map((v) => v.name)}
-          productProperties={productProperties.map((v) => v.name)}
+          productBrands={productBrands}
+          productGroups={productGroups}
+          productLocations={productLocations}
+          productProperties={productProperties}
           product={products[chosenProductIndex]}
           productIndex={chosenProductIndex}
           onProductUpdated={(data, index) => {
@@ -269,6 +284,8 @@ export default function Catalog() {
           addNewGroup={addNewGroup}
           addNewLocation={addNewLocation}
           addNewProperties={addNewProperty}
+          onUpdateProperty={updateProperty}
+          onDeleteProperty={deleteProperty}
         />
       ) : null}
       <Toaster />
