@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/staffs")
@@ -26,8 +25,8 @@ public class StaffController {
     // create a new staff
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<StaffResponse> createStaff(@Valid @RequestPart("data") StaffRequest newStaff, @RequestPart(value = "file", required = false) MultipartFile file) {
-        StaffResponse staffResponse = staffService.createStaff(newStaff, file);
+    public ResponseEntity<StaffResponse> createStaff(@Valid @RequestBody StaffRequest newStaff) {
+        StaffResponse staffResponse = staffService.createStaff(newStaff);
         return new ResponseEntity<>(staffResponse, null, HttpStatus.CREATED);
     }
 
@@ -46,9 +45,8 @@ public class StaffController {
     // update staff by id
     @PutMapping("/{id}")
     public ResponseEntity<StaffResponse> updateStaff(@Valid @PathVariable(name = "id") int id,
-                                                     @RequestPart("data") StaffRequest staffRequest,
-                                                     @RequestPart(value = "file", required = false) MultipartFile file) {
-        StaffResponse staffResponse = staffService.updateStaff(id, staffRequest, file);
+                                                     @RequestBody StaffRequest staffRequest) {
+        StaffResponse staffResponse = staffService.updateStaff(id, staffRequest);
         return new ResponseEntity<>(staffResponse, null, HttpStatus.OK);
     }
 

@@ -33,10 +33,8 @@ public class StaffRequest {
     private String note;
     private String sex;
     private String position;
-    private int salaryDebt;
+    private String branch;
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date birthday;
     private Role role;
-
-    private StaffSalaryDTO staffSalary;
 }

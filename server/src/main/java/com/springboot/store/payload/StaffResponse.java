@@ -1,7 +1,6 @@
 package com.springboot.store.payload;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.springboot.store.entity.StaffSalary;
 import com.springboot.store.utils.Role;
 import lombok.Builder;
 import lombok.Data;
@@ -22,13 +21,11 @@ public class StaffResponse {
     private String note;
     private String sex;
     private String position;
-    private int salaryDebt;
+    private String branch;
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date birthday;
     private Role role;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdAt;
     private String creator;
-
-    private StaffSalary staffSalary;
 }

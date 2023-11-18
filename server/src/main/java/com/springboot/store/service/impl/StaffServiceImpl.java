@@ -2,7 +2,6 @@ package com.springboot.store.service.impl;
 
 import com.springboot.store.entity.Media;
 import com.springboot.store.entity.Staff;
-import com.springboot.store.entity.StaffSalary;
 import com.springboot.store.exception.CustomException;
 import com.springboot.store.exception.ResourceNotFoundException;
 import com.springboot.store.payload.StaffRequest;
@@ -11,17 +10,13 @@ import com.springboot.store.repository.MediaRepository;
 import com.springboot.store.repository.StaffRepository;
 import com.springboot.store.repository.StaffRoleRepository;
 import com.springboot.store.service.ActivityLogService;
-import com.springboot.store.service.FileService;
-import com.springboot.store.service.StaffSalaryService;
 import com.springboot.store.service.StaffService;
 import com.springboot.store.utils.Role;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 import java.util.List;
@@ -35,12 +30,9 @@ public class StaffServiceImpl implements StaffService {
     private final StaffRoleRepository staffRoleRepository;
     private final ActivityLogService activityLogService;
     private final MediaRepository mediaRepository;
-    private final StaffSalaryService staffSalaryService;
-    private final FileService fileService;
-    private final ModelMapper modelMapper;
 
     @Override
-    public StaffResponse createStaff(StaffRequest newStaff, MultipartFile file) {
+    public StaffResponse createStaff(StaffRequest newStaff) {
         // check if staff is valid
         isStaffValid(newStaff);
 
@@ -51,35 +43,21 @@ public class StaffServiceImpl implements StaffService {
             throw new CustomException("Only admin can create staff", HttpStatus.UNPROCESSABLE_ENTITY);
         }
 
+
+
         // convert DTO to entity
         Staff staff = mapToEntity(newStaff);
         staff.setPassword(passwordEncoder.encode(newStaff.getPassword()));
         staff.setCreatedAt(new Date());
         staff.setCreator(creator);
 
-        //check if cccd is duplicate and valid
-        if (newStaff.getCccd() != null && newStaff.getCccd().length() == 12 && staffRepository.existsByCccd(newStaff.getCccd())) {
-            throw new CustomException("CCCD already in use", HttpStatus.UNPROCESSABLE_ENTITY);
-        }
-        staff.setCccd(newStaff.getCccd());
-
-        //check if phone number is duplicate and valid
-        if (newStaff.getPhoneNumber() != null && newStaff.getPhoneNumber().length() == 10 && staffRepository.existsByPhoneNumber(newStaff.getPhoneNumber())) {
-            throw new CustomException("Phone number already in use", HttpStatus.UNPROCESSABLE_ENTITY);
-        }
-        staff.setPhoneNumber(newStaff.getPhoneNumber());
-
-        if (file != null) {
-            String avatarUrl = fileService.uploadFile(file);
+        if (newStaff.getAvatar() != null) {
             Media avatar = Media.builder()
-                    .url(avatarUrl)
+                    .url(newStaff.getAvatar())
                     .build();
-            avatar = mediaRepository.save(avatar);
+//            avatar = mediaRepository.save(avatar);
             staff.setAvatar(avatar);
         }
-
-        StaffSalary staffSalary = modelMapper.map(newStaff.getStaffSalary(), StaffSalary.class);
-        staff.setStaffSalary(staffSalary);
 
         // save entity to database
         staff = staffRepository.save(Objects.requireNonNull(staff));
@@ -105,16 +83,11 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
-    public StaffResponse updateStaff(int id, StaffRequest staffRequest, MultipartFile file) {
+    public StaffResponse updateStaff(int id, StaffRequest staffRequest) {
         Staff staff = staffRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Staff", "id", id));
-        // check if role is valid
-        if (staffRequest.getRole() != null && !staffRoleRepository.existsByName(staffRequest.getRole())) {
-            throw new CustomException("Role is invalid", HttpStatus.UNPROCESSABLE_ENTITY);
-        }
-        // check if birthday is valid
-        if (staffRequest.getBirthday() != null && staffRequest.getBirthday().after(new Date())) {
-            throw new CustomException("Birthday is invalid", HttpStatus.UNPROCESSABLE_ENTITY);
-        }
+
+        // check if staff is valid
+        isStaffValid(staffRequest);
 
         Staff creator = getAuthorizedStaff();
 
@@ -124,47 +97,18 @@ public class StaffServiceImpl implements StaffService {
             throw new CustomException("Only admin can change staff role", HttpStatus.UNPROCESSABLE_ENTITY);
         }
 
+        Media avatarUrl = Media.builder()
+                .url(staffRequest.getAvatar())
+                .build();
+
         staff.setName(staffRequest.getName());
         staff.setAddress(staffRequest.getAddress());
+        staff.setPhoneNumber(staffRequest.getPhoneNumber());
         staff.setFacebook(staffRequest.getFacebook());
+        staff.setAvatar(avatarUrl);
         staff.setNote(staffRequest.getNote());
         staff.setSex(staffRequest.getSex());
         staff.setBirthday(staffRequest.getBirthday());
-        staff.setPosition(staffRequest.getPosition());
-        staff.setSalaryDebt(staffRequest.getSalaryDebt());
-        staff.setStaffRole(staffRequest.getRole() != null
-                ? staffRoleRepository.findByName(staffRequest.getRole()).orElseThrow()
-                : null);
-
-        if (staff.getCccd() != null && staff.getCccd().equals(staffRequest.getCccd())) {
-            staff.setCccd(staffRequest.getCccd());
-        } else if (staffRequest.getCccd() != null && staffRequest.getCccd().length() == 12 && staffRepository.existsByCccd(staffRequest.getCccd())) {
-            throw new CustomException("CCCD already in use", HttpStatus.UNPROCESSABLE_ENTITY);
-        }
-        staff.setCccd(staffRequest.getCccd());
-
-        if (staff.getPhoneNumber() != null && staff.getPhoneNumber().equals(staffRequest.getPhoneNumber())) {
-            staff.setPhoneNumber(staffRequest.getPhoneNumber());
-        } else if (staffRequest.getPhoneNumber() != null && staffRequest.getPhoneNumber().length() == 10 && staffRepository.existsByPhoneNumber(staffRequest.getPhoneNumber())) {
-            throw new CustomException("Phone number already in use", HttpStatus.UNPROCESSABLE_ENTITY);
-        }
-        staff.setPhoneNumber(staffRequest.getPhoneNumber());
-
-        if (staff.getStaffSalary() != null)
-            staffSalaryService.updateStaffSalary(staff.getStaffSalary().getId(), staffRequest.getStaffSalary());
-        else {
-            StaffSalary staffSalary = modelMapper.map(staffRequest.getStaffSalary(), StaffSalary.class);
-            staff.setStaffSalary(staffSalary);
-        }
-
-        if (!file.isEmpty()) {
-            String avatarUrl = fileService.uploadFile(file);
-            Media avatar = Media.builder()
-                    .url(avatarUrl)
-                    .build();
-            avatar = mediaRepository.save(avatar);
-            staff.setAvatar(avatar);
-        }
 
         staff = staffRepository.save(staff);
 
@@ -195,11 +139,8 @@ public class StaffServiceImpl implements StaffService {
                 .id(staff.getId())
                 .name(staff.getName())
                 .email(staff.getEmail())
-                .cccd(staff.getCccd())
-                .phoneNumber(staff.getPhoneNumber())
-                .position(staff.getPosition())
-                .salaryDebt(staff.getSalaryDebt())
                 .address(staff.getAddress())
+                .phoneNumber(staff.getPhoneNumber())
                 .facebook(staff.getFacebook())
                 .note(staff.getNote())
                 .birthday(staff.getBirthday())
@@ -209,12 +150,11 @@ public class StaffServiceImpl implements StaffService {
                 .role(staff.getStaffRole() != null ? staff.getStaffRole().getName() : null)
                 // if creator is not null, get name of creator
                 .creator(staff.getCreator() != null ? staff.getCreator().getName() : null)
-                .staffSalary(staff.getStaffSalary() != null ? staff.getStaffSalary() : null)
                 .build();
     }
-
     private Staff mapToEntity(StaffRequest staffRequest) {
         return Staff.builder()
+                .id(staffRequest.getId())
                 .name(staffRequest.getName())
                 .email(staffRequest.getEmail())
                 .password(staffRequest.getPassword())
@@ -227,11 +167,8 @@ public class StaffServiceImpl implements StaffService {
                 .staffRole(staffRequest.getRole() != null
                         ? staffRoleRepository.findByName(staffRequest.getRole()).orElseThrow()
                         : null)
-                .salaryDebt(staffRequest.getSalaryDebt())
-                .position(staffRequest.getPosition())
                 .build();
     }
-
     private void isStaffValid(StaffRequest newStaff) {
         // check if email is already in use
         if (staffRepository.existsByEmail(newStaff.getEmail())) {
@@ -253,11 +190,15 @@ public class StaffServiceImpl implements StaffService {
             throw new CustomException("Birthday is invalid", HttpStatus.UNPROCESSABLE_ENTITY);
         }
 
+        // check if role is valid
+        if (newStaff.getRole() != null && !staffRoleRepository.existsByName(newStaff.getRole())) {
+            throw new CustomException("Role is invalid", HttpStatus.UNPROCESSABLE_ENTITY);
+        }
     }
 
     private Staff getAuthorizedStaff() {
         return staffRepository.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName()).orElseThrow(
-                () -> new CustomException("You not found", HttpStatus.UNPROCESSABLE_ENTITY)
+            () -> new CustomException("You not found", HttpStatus.UNPROCESSABLE_ENTITY)
         );
     }
 }
