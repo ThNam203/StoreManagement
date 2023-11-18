@@ -32,6 +32,5 @@ public class Shift {
     @Column(name = "end_time")
     @JsonFormat(pattern = "HH:mm:ss")
     private Date endTime;
-
-
+    
 }

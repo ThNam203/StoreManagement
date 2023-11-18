@@ -19,9 +19,9 @@ import java.util.List;
 @Entity
 @Table(
         name = "staff", uniqueConstraints = {
-                @UniqueConstraint(name = "staff_email_unique", columnNames = {"email"}),
-                @UniqueConstraint(name = "staff_cccd_unique", columnNames = {"cccd"})
-        }
+        @UniqueConstraint(name = "staff_email_unique", columnNames = {"email"}),
+        @UniqueConstraint(name = "staff_cccd_unique", columnNames = {"cccd"})
+}
 )
 public class Staff implements UserDetails {
     @Id
@@ -49,7 +49,6 @@ public class Staff implements UserDetails {
     @Column(name = "facebook")
     private String facebook;
 
-
     @Column(name = "note")
     private String note;
 
@@ -59,16 +58,20 @@ public class Staff implements UserDetails {
     @Column(name = "position")
     private String position;
 
-    @Column(name = "branch")
-    private String branch;
+    @Column(name = "salary_debt")
+    private int salaryDebt = 0;
 
     @Column(name = "birthday")
-    @JsonFormat(pattern="yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date birthday;
 
     @Column(name = "created_at")
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdAt;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "staff_salary_id")
+    private StaffSalary staffSalary;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "avatar_id")
