@@ -12,7 +12,7 @@ public interface ProductService {
 
     List<ProductDTO> getAllProducts();
 
-    ProductDTO createProduct(MultipartFile[] files, ProductDTO productDTO);
+    List<ProductDTO> createProduct(MultipartFile[] files, List<ProductDTO> productDTO);
 
     ProductDTO updateProduct(int id, MultipartFile[] files, ProductDTO productDTO);
 

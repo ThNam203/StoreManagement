@@ -41,6 +41,9 @@ public class ProductGroupServiceImpl implements ProductGroupService {
 
     @Override
     public ProductGroupDTO createProductGroup(ProductGroupDTO productGroupDTO) {
+        if (productGroupRepository.existsByName(productGroupDTO.getName())) {
+            throw new RuntimeException("Product group already exists");
+        }
         productGroupDTO.setCreatedAt(new Date());
         ProductGroup productGroup = ProductGroupMapper.toProductGroup(productGroupDTO);
         productGroupRepository.save(productGroup);

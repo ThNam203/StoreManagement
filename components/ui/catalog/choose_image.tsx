@@ -10,12 +10,12 @@ export const ChooseImageButton = ({
   onImageChanged,
 }: {
   file: string | null;
-  onImageChanged: (fileUrl: string | null) => void;
+  onImageChanged: (file: File | null) => void;
 }) => {
   const id = nanoid();
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
     if (e.target.files && e.target.files.length > 0)
-      onImageChanged(URL.createObjectURL(e.target.files[0]));
+      onImageChanged(e.target.files[0]);
   }
 
   return (
@@ -28,7 +28,7 @@ export const ChooseImageButton = ({
         alt="image"
         className="w-full h-full border rounded-sm"
       />
-      {file === null ? (
+      {file === null || file.length === 0 ? (
         <>
           <Label
             htmlFor={id}
@@ -41,6 +41,7 @@ export const ChooseImageButton = ({
             type="file"
             onChange={handleChange}
             className="hidden"
+            accept="image/*"
           />
         </>
       ) : (

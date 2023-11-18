@@ -32,10 +32,10 @@ public class AuthenticationController {
         ResponseCookie cookie = jwtService.generateCookie(tokens.getAccessToken());
         ResponseCookie refreshCookie = jwtService.generateRefreshCookie(tokens.getRefreshToken());
 
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
-                .body(response);
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+
+        return ResponseEntity.status(HttpStatus.CREATED).build();
 
     }
     @PostMapping("/authenticate")

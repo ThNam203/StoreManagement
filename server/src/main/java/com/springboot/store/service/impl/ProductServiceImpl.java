@@ -42,70 +42,75 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductDTO createProduct(MultipartFile[] files, ProductDTO productDTO) {
+    public List<ProductDTO> createProduct(MultipartFile[] files, List<ProductDTO> productDTOs) {
+        List<ProductDTO> productResponse = new ArrayList<>();
+        for (ProductDTO productDTO : productDTOs) {
+            Product product = ProductMapper.toProduct(productDTO);
 
-        Product product = ProductMapper.toProduct(productDTO);
-
-        if (productDTO.getLocation() != null) {
-            product.setLocation(Location.builder()
-                    .name(productDTO.getLocation())
-                    .build());
-        }
-
-        if (productDTO.getProductGroup() != null) {
-            ProductGroup productGroup = productGroupRepository.findByName(productDTO.getProductGroup())
-                    .orElseThrow(() -> new EntityNotFoundException("Product group not found with name: " + productDTO.getProductGroup()));
-            product.setProductGroup(productGroup);
-        }
-
-        if (productDTO.getProductBrand() != null) {
-            ProductBrand productBrand = productBrandRepository.findByName(productDTO.getProductBrand())
-                    .orElseThrow(() -> new EntityNotFoundException("Product brand not found with name: " + productDTO.getProductBrand()));
-            product.setProductBrand(productBrand);
-        }
-
-        product.setOriginalPrices(Collections.singletonList(OriginalPrice.builder()
-                .value(productDTO.getOriginalPrice())
-                .createdAt(new Date())
-                .build()));
-
-        product.setProductPrices(Collections.singletonList(ProductPrice.builder()
-                .value(productDTO.getProductPrice())
-                .createdAt(new Date())
-                .build()));
-
-        if (files != null) {
-            List<Media> urls = new ArrayList<>();
-            for (MultipartFile file : files) {
-                String url = fileService.uploadFile(file);
-                Media media = Media.builder().url(url).build();
-                urls.add(media);
+            if (productDTO.getLocation() != null) {
+                Location location = locationRepository.findByName(productDTO.getLocation())
+                        .orElseThrow(() -> new EntityNotFoundException("Location not found with name: " + productDTO.getLocation()));
+                product.setLocation(location);
             }
-            product.setImages(urls);
-        }
 
-        if (productDTO.getProductProperties() != null) {
-            List<ProductProperty> productProperties = productDTO.getProductProperties().stream()
-                    .map(productPropertyDTO -> ProductProperty.builder()
-                            .propertyName(productPropertyNameRepository.findByName(productPropertyDTO.getPropertyName())
-                                    .orElseThrow(() -> new EntityNotFoundException("Product property name not found with name: " + productPropertyDTO.getPropertyName())))
-                            .propertyValue(productPropertyDTO.getPropertyValue())
-                            .build())
-                    .collect(Collectors.toList());
-            product.setProperties(productProperties);
-        }
+            if (productDTO.getProductGroup() != null) {
+                ProductGroup productGroup = productGroupRepository.findByName(productDTO.getProductGroup())
+                        .orElseThrow(() -> new EntityNotFoundException("Product group not found with name: " + productDTO.getProductGroup()));
+                product.setProductGroup(productGroup);
+            }
 
-        if (productDTO.getSalesUnits() != null) {
-            SalesUnits salesUnits = SalesUnits.builder()
-                    .name(productDTO.getSalesUnits().getName())
-                    .basicUnit(productDTO.getSalesUnits().getBasicUnit())
-                    .exchangeValue(productDTO.getSalesUnits().getExchangeValue())
-                    .build();
-            product.setSalesUnits(salesUnits);
-        }
+            if (productDTO.getProductBrand() != null) {
+                ProductBrand productBrand = productBrandRepository.findByName(productDTO.getProductBrand())
+                        .orElseThrow(() -> new EntityNotFoundException("Product brand not found with name: " + productDTO.getProductBrand()));
+                product.setProductBrand(productBrand);
+            }
 
-        productRepository.save(product);
-        return ProductMapper.toProductDTO(product);
+            product.setOriginalPrices(Collections.singletonList(OriginalPrice.builder()
+                    .value(productDTO.getOriginalPrice())
+                    .createdAt(new Date())
+                    .build()));
+
+            product.setProductPrices(Collections.singletonList(ProductPrice.builder()
+                    .value(productDTO.getProductPrice())
+                    .createdAt(new Date())
+                    .build()));
+
+            if (files != null) {
+                List<Media> urls = new ArrayList<>();
+                for (MultipartFile file : files) {
+                    String url = fileService.uploadFile(file);
+                    if (url == null) continue;
+                    Media media = Media.builder().url(url).build();
+                    urls.add(media);
+                }
+                if (!urls.isEmpty())
+                    product.setImages(urls);
+            }
+
+            if (productDTO.getProductProperties() != null) {
+                List<ProductProperty> productProperties = productDTO.getProductProperties().stream()
+                        .map(productPropertyDTO -> ProductProperty.builder()
+                                .propertyName(productPropertyNameRepository.findByName(productPropertyDTO.getPropertyName())
+                                        .orElseThrow(() -> new EntityNotFoundException("Product property name not found with name: " + productPropertyDTO.getPropertyName())))
+                                .propertyValue(productPropertyDTO.getPropertyValue())
+                                .build())
+                        .collect(Collectors.toList());
+                product.setProperties(productProperties);
+            }
+
+            if (productDTO.getSalesUnits() != null) {
+                SalesUnits salesUnits = SalesUnits.builder()
+                        .name(productDTO.getSalesUnits().getName())
+                        .basicUnit(productDTO.getSalesUnits().getBasicUnit())
+                        .exchangeValue(productDTO.getSalesUnits().getExchangeValue())
+                        .build();
+                product.setSalesUnits(salesUnits);
+            }
+
+            productRepository.save(product);
+            productResponse.add(ProductMapper.toProductDTO(product));
+        }
+        return productResponse;
     }
 
     @Override
@@ -116,6 +121,7 @@ public class ProductServiceImpl implements ProductService {
         existingProduct.setName(productDTO.getName());
         existingProduct.setBarcode(productDTO.getBarcode());
         existingProduct.setStock(productDTO.getStock());
+        existingProduct.setWeight(productDTO.getWeight());
         existingProduct.setStatus(productDTO.getStatus());
         existingProduct.setDescription(productDTO.getDescription());
         existingProduct.setNote(productDTO.getNote());
@@ -167,14 +173,15 @@ public class ProductServiceImpl implements ProductService {
         }
 
         // images
+        existingProduct.getImages().removeIf(media -> !productDTO.getImages().contains(media.getUrl()));
+
         if (files != null) {
-            List<Media> urls = new ArrayList<>();
             for (MultipartFile file : files) {
                 String url = fileService.uploadFile(file);
+                if (url == null) continue;
                 Media media = Media.builder().url(url).build();
-                urls.add(media);
+                existingProduct.getImages().add(media);
             }
-            existingProduct.setImages(urls);
         }
 
 

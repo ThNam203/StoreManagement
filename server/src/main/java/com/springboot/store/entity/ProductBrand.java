@@ -13,7 +13,9 @@ import java.util.Set;
 @Builder
 
 @Entity
-@Table(name = "product_brand")
+@Table(name = "product_brand", uniqueConstraints =
+        @UniqueConstraint(name = "product_brand_name_unique", columnNames = {"name"})
+)
 public class ProductBrand {
 
     @Id

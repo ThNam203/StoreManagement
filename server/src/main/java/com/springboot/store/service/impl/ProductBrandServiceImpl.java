@@ -50,6 +50,9 @@ public class ProductBrandServiceImpl implements ProductBrandService {
 
     @Override
     public ProductBrandDTO createProductBrand(ProductBrandDTO productBrandDTO) {
+        if (productBrandRepository.existsByName(productBrandDTO.getName())) {
+            throw new RuntimeException("ProductBrand already exists");
+        }
         ProductBrand productBrand = modelMapper.map(productBrandDTO, ProductBrand.class);
         productBrand = productBrandRepository.save(productBrand);
         return modelMapper.map(productBrand, ProductBrandDTO.class);
