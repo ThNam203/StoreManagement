@@ -2,13 +2,14 @@ package com.springboot.store.payload;
 
 import lombok.*;
 
-@Builder
-@Getter
+@Data
 @Setter
-@AllArgsConstructor
+@Getter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class StaffHolidayBonusDTO {
     private int id;
-    private double value;
+    private Double value;
     private String bonusUnit;
 }

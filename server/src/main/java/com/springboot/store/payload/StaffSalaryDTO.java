@@ -2,14 +2,15 @@ package com.springboot.store.payload;
 
 import lombok.*;
 
-@Builder
-@Getter
+@Data
 @Setter
-@AllArgsConstructor
+@Getter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class StaffSalaryDTO {
     private int id;
-    private StaffBaseSalaryDTO staffBaseSalaryDTO;
-    private StaffBaseSalaryBonusDTO staffBaseSalaryBonusDTO;
-    private StaffOvertimeSalaryBonusDTO staffOvertimeSalaryBonusDTO;
+    private StaffBaseSalaryDTO staffBaseSalary;
+    private StaffBaseSalaryBonusDTO staffBaseSalaryBonus;
+    private StaffOvertimeSalaryBonusDTO staffOvertimeSalaryBonus;
 }

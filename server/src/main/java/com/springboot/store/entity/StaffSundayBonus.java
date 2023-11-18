@@ -17,8 +17,8 @@ public class StaffSundayBonus {
     private int id;
 
     @Column(name = "value", nullable = false)
-    private Double value;
+    private Double value = 0.0;
 
-    @Column(name = "bonusUnit", nullable = false)
+    @Column(name = "bonus_unit", nullable = false)
     private String bonusUnit;
 }

@@ -1,7 +1,7 @@
 package com.springboot.store.repository;
 
-import com.springboot.store.entity.StaffBaseSalary;
+import com.springboot.store.entity.StaffBaseSalaryBonus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface StaffBaseSalaryRepository extends JpaRepository<StaffBaseSalary, Integer> {
+public interface StaffBaseSalaryBonusRepository extends JpaRepository<StaffBaseSalaryBonus, Integer> {
 }

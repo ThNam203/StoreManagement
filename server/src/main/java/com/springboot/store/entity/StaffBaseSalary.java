@@ -17,7 +17,7 @@ public class StaffBaseSalary {
     private int id;
 
     @Column(name = "value", nullable = false)
-    private int value;
+    private int value = 0;
 
     @Column(name = "salary_type", nullable = false)
     private String salaryType;

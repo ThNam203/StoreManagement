@@ -1,4 +1,13 @@
 package com.springboot.store.service;
 
-public interface StaffSaturdayBonusService {
+import com.springboot.store.payload.StaffSundayBonusDTO;
+
+public interface StaffSundayBonusService {
+    StaffSundayBonusDTO getStaffSundayBonus(int id);
+
+    StaffSundayBonusDTO createStaffSundayBonus(StaffSundayBonusDTO staffSundayBonusDTO);
+
+    StaffSundayBonusDTO updateStaffSundayBonus(int id, StaffSundayBonusDTO staffSundayBonusDTO);
+
+    void deleteStaffSundayBonus(int id);
 }

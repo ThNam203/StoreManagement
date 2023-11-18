@@ -70,6 +70,10 @@ public class Staff implements UserDetails {
     private Date createdAt;
 
     @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "staff_salary_id")
+    private StaffSalary staffSalary;
+
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "avatar_id")
     private Media avatar;
 
@@ -83,7 +87,6 @@ public class Staff implements UserDetails {
     @ManyToOne()
     @JoinColumn(name = "staff_role_id")
     private StaffRole staffRole;
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
