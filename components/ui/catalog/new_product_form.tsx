@@ -45,12 +45,13 @@ import {
 } from "@/components/ui/accordion";
 import { useToast } from "@/components/ui/use-toast";
 import { Textarea } from "../textarea";
-import CatalogService from "@/services/catalog_service";
+import CatalogService from "@/services/product_service";
 import { RadioGroup, RadioGroupItem } from "../radio-group";
 import { Label } from "../label";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
 import { Product, ProductBrand, ProductGroup, ProductLocation, ProductProperty } from "@/entities/Product";
 import LoadingCircle from "../loading_circle";
+import { useAppSelector } from "@/hooks";
 
 const newProductFormSchema = z.object({
   barcode: z
@@ -186,10 +187,6 @@ const newProductFormSchema = z.object({
 export const NewProductView = ({
   onChangeVisibility,
   onNewProductsAdded,
-  productLocations,
-  productGroups,
-  productBrands,
-  productProperties,
   addNewLocation,
   addNewGroup,
   addNewBrand,
@@ -199,10 +196,6 @@ export const NewProductView = ({
 }: {
   onChangeVisibility: (val: boolean) => any;
   onNewProductsAdded: (products: Product[]) => any;
-  productLocations: ProductLocation[];
-  productGroups: ProductGroup[];
-  productBrands: ProductBrand[];
-  productProperties: ProductProperty[];
   addNewLocation: (value: string) => any;
   addNewGroup: (value: string) => any;
   addNewBrand: (value: string) => any;
@@ -211,10 +204,10 @@ export const NewProductView = ({
   onDeleteProperty: (deletePropertyId: number) => any;
 }) => {
   const { toast } = useToast();
-  const productLocationChoices = productLocations;
-  const productGroupChoices = productGroups;
-  const productBrandChoices = productBrands;
-  const productPropertyChoices = productProperties;
+  const productLocationChoices = useAppSelector((state) => state.productLocations.value)
+  const productGroupChoices = useAppSelector((state) => state.productGroups.value)
+  const productBrandChoices = useAppSelector((state) => state.productBrands.value)
+  const productPropertyChoices = useAppSelector((state) => state.productProperties.value)
   const [productPropertyInputValues, setProductPropertyInputValues] = useState<
     string[]
   >([]);

@@ -45,16 +45,13 @@ import {
 } from "@/components/ui/accordion";
 import { useToast } from "@/components/ui/use-toast";
 import { Textarea } from "../textarea";
-import CatalogService from "@/services/catalog_service";
+import CatalogService from "@/services/product_service";
 import {
   Product,
-  ProductBrand,
-  ProductGroup,
-  ProductLocation,
-  ProductProperty,
 } from "@/entities/Product";
 import LoadingCircle from "../loading_circle";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { useAppSelector } from "@/hooks";
 
 const productFormSchema = z.object({
   barcode: z
@@ -139,10 +136,6 @@ const productFormSchema = z.object({
 
 export const UpdateProductView = ({
   onChangeVisibility,
-  productLocations,
-  productGroups,
-  productBrands,
-  productProperties,
   product,
   productIndex,
   onProductUpdated,
@@ -154,25 +147,21 @@ export const UpdateProductView = ({
   onDeleteProperty,
 }: {
   onChangeVisibility: (val: boolean) => void;
-  productLocations: ProductLocation[];
-  productGroups: ProductGroup[];
-  productBrands: ProductBrand[];
-  productProperties: ProductProperty[];
   product: Product;
   productIndex: number;
-  onProductUpdated: (data: Product, productIndex: number) => any;
+  onProductUpdated: (data: Product) => any;
   addNewLocation: (value: string) => any;
   addNewGroup: (value: string) => any;
   addNewBrand: (value: string) => any;
   addNewProperties: (value: string) => any;
-  onUpdateProperty: (value: string, index: number) => any;
+  onUpdateProperty: (value: string, propertyId: number) => any;
   onDeleteProperty: (deletePropertyId: number) => any;
 }) => {
   const { toast } = useToast();
-  const productLocationChoices = productLocations;
-  const productGroupChoices = productGroups;
-  const productBrandChoices = productBrands;
-  const productPropertyChoices = productProperties;
+  const productLocationChoices = useAppSelector((state) => state.productLocations.value)
+  const productGroupChoices = useAppSelector((state) => state.productGroups.value)
+  const productBrandChoices = useAppSelector((state) => state.productBrands.value)
+  const productPropertyChoices = useAppSelector((state) => state.productProperties.value)
   const [newChosenImages, setNewChosenImages] = useState<(File | string)[]>(
     product.images ? [...product.images] : []
   );
@@ -193,7 +182,7 @@ export const UpdateProductView = ({
       unit: product.salesUnits,
       properties: product.productProperties.map((property) => {
         return {
-          id: productProperties.find((v) => v.name === property.propertyName)
+          id: productPropertyChoices.find((v) => v.id === property.id)
             ?.id,
           key: property.propertyName,
           value: property.propertyValue,
@@ -233,7 +222,7 @@ export const UpdateProductView = ({
     setIsCreatingNewProduct(true);
     CatalogService.updateProduct(dataForm, product.id)
       .then((result) => {
-        onProductUpdated(result.data, productIndex);
+        onProductUpdated(result.data);
       })
       .catch((e) => axiosUIErrorHandler(e, toast))
       .finally(() => {

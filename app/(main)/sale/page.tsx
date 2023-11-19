@@ -27,16 +27,8 @@ import {
 import { useEffect, useRef, useState } from "react";
 
 import * as React from "react";
-import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
 
 import { Button } from "@/components/ui/button";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-} from "@/components/ui/command";
 import {
   Tooltip,
   TooltipContent,
@@ -44,12 +36,16 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import Image from "next/image";
+import ProductService from "@/services/product_service";
+import { useToast } from "@/components/ui/use-toast";
+import { Product } from "@/entities/Product";
+import { useAppSelector } from "@/hooks";
 
-const ProductView = () => {
+const ProductView = ({product}:{product: Product}) => {
   return (
     <div className="w-1/3 flex flex-row px-3 py-5 border border-transparent  hover:border-blue-300 gap-2 items-center rounded-sm">
       <Image
-        src={"https://i.pravatar.cc/300"}
+        src={product.images && product.images[0] ? product.images[0] : "/default-product-img.jpg"}
         width={30}
         height={50}
         className="w-[30px] h-[50px] object-cover"
@@ -62,61 +58,6 @@ const ProductView = () => {
     </div>
   );
 };
-
-function ChoosePriceTable({
-  choices,
-  defaultValue,
-  onValueChanged,
-}: {
-  choices: string[];
-  defaultValue: string;
-  onValueChanged?: (value: string) => void;
-}) {
-  const [open, setOpen] = React.useState(false);
-
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="w-[200px] justify-between"
-        >
-          {defaultValue}
-          <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0">
-        <Command>
-          <CommandInput placeholder="Search price table..." className="h-9" />
-          <CommandEmpty>Price table found!</CommandEmpty>
-          <CommandGroup>
-            {choices.map((choice, index) => (
-              <CommandItem
-                key={index}
-                value={choice}
-                onSelect={(_) => {
-                  if (choice !== defaultValue && onValueChanged)
-                    onValueChanged(choice);
-                  setOpen(false);
-                }}
-              >
-                {choice}
-                <CheckIcon
-                  className={cn(
-                    "ml-auto h-4 w-4",
-                    defaultValue === choice ? "opacity-100" : "opacity-0"
-                  )}
-                />
-              </CommandItem>
-            ))}
-          </CommandGroup>
-        </Command>
-      </PopoverContent>
-    </Popover>
-  );
-}
 
 type ChosenProduct = {
   index: number;
@@ -197,6 +138,7 @@ const ChosenProductView = ({ product }: { product: ChosenProduct }) => {
               <p className="w-[100px] text-sm">Selling price</p>
               <input
                 type="number"
+                min={0}
                 value={product.sellPrice ? product.sellPrice : 0}
                 className="w-[180px] border-b text-end border-gray-300"
               />
@@ -213,6 +155,8 @@ const ChosenProductView = ({ product }: { product: ChosenProduct }) => {
               <input
                 type="number"
                 disabled
+                defaultValue={0}
+                min={0}
                 value={product.originalPrice}
                 className="w-[180px] border-b text-end border-gray-300 hover:cursor-not-allowed"
               />
@@ -221,6 +165,8 @@ const ChosenProductView = ({ product }: { product: ChosenProduct }) => {
               <p className="w-[120px] text-sm mr-2">Discount</p>
               <input
                 type="number"
+                defaultValue={0}
+                min={0}
                 value={product.discount}
                 className="w-[calc(110px-0.5rem)] border-b text-end border-gray-300"
               />
@@ -284,13 +230,7 @@ export default function Sale() {
     },
   ]);
 
-  const [priceTable, setPriceTable] = useState("General Price");
-  const changePriceTable = (newPriceTable: string) => {
-    setPriceTable(newPriceTable);
-  };
-  const [scrollWhell, setScrollWheel] = useState(0);
-  useEffect(() => {
-  }, [scrollWhell]);
+  const products = useAppSelector((state) => state.products.value)
 
   return (
     <div className="flex flex-col h-screen w-screen bg-slate-600">
@@ -422,11 +362,6 @@ export default function Sale() {
               />
               <Plus size={20} />
             </div>
-            <ChoosePriceTable
-              defaultValue={priceTable}
-              choices={["General Price", "Black Friday"]}
-              onValueChanged={changePriceTable}
-            />
             <div className="flex-1" />
             <TooltipProvider>
               <Tooltip>
@@ -449,11 +384,8 @@ export default function Sale() {
           </div>
           {/* 2.5rem is "Make Payment" button, 35px+1rem is the top bar, -40px-1rem is padding + margin + "find customer" button, 1rem is its own margin, 0.5rem is some random i put in because there was some mistake and i dont know how to find itP */}
           <div className="flex flex-row flex-wrap flex-1 w-full max-h-[calc(100vh-2.5rem-40px-1rem-40px-1rem-1rem-0.5rem)] overflow-y-scroll my-2">
-            {[
-              1, 2, 3, 4, 5, 5, 6, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-              1, 11, 1, 1, 11, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-            ].map((val, idx) => (
-              <ProductView key={idx} />
+            {products.map((product, idx) => (
+              <ProductView key={idx} product={product} />
             ))}
           </div>
           <Button className="uppercase hover:bg-blue-600 bg-blue-500 text-white">

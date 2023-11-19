@@ -6,7 +6,7 @@ import {
   defaultSelectColumn,
   defaultIndexColumn,
 } from "@/components/ui/my_table_default_column";
-import Product from "@/entities/Product";
+import {Product} from "@/entities/Product";
 import { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
 
