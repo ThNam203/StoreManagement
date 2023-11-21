@@ -178,13 +178,10 @@ export default function SupplierReportLayout() {
     </div>,
   ];
 
-  const headerButtons = [<Button key={0}>More+</Button>];
-
   return (
     <PageWithFilters
       filters={filters}
       title="Supplier Report"
-      headerButtons={headerButtons}
     >
       <div>
         <div

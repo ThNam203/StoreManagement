@@ -351,6 +351,7 @@ const ReportPdfDownloader = ({
 const ReportPDFViewer = dynamic(() => Promise.resolve(ReportPdfViewer), {
   ssr: false,
 });
+
 const ReportPDFDownloader = dynamic(
   () => Promise.resolve(ReportPdfDownloader),
   {

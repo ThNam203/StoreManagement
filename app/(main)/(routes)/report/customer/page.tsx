@@ -189,14 +189,10 @@ export default function CustomerReportLayout() {
       />
     </div>,
   ];
-
-  const headerButtons = [<Button key={0}>More+</Button>];
-
   return (
     <PageWithFilters
       filters={filters}
       title="Customer Report"
-      headerButtons={headerButtons}
     >
       <div>
         <div
