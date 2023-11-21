@@ -69,7 +69,7 @@ const updateProduct = (data: any, id: number) => {
   return AxiosService.put<Product>(`/api/products/${id}`, data, {headers: {"Content-Type": "multipart/form-data"}});
 };
 
-const CatalogService = {
+const ProductService = {
   createNewLocation,
   getAllLocations,
   createNewBrand,
@@ -85,4 +85,4 @@ const CatalogService = {
   updateProduct
 };
 
-export default CatalogService;
+export default ProductService;

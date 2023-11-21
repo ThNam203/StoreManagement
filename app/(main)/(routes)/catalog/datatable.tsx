@@ -30,27 +30,18 @@ import {
 } from "@/components/ui/table";
 import React, { Ref, RefObject, useEffect, useRef, useState } from "react";
 import { DataTablePagination } from "@/components/ui/my_table_pagination";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 import Image from "next/image";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { cn } from "@/lib/utils";
 import { ChevronRight, Lock, PenLine, Trash } from "lucide-react";
-import { UpdateProductView } from "@/components/ui/catalog/update_product_form";
-// import { DataTableContent } from "@/components/ui/my_table_content";
 
 type Props = {
   data: Product[];
-  onRowClicked: (rowIndex: number) => any;
-  onProductUpdateButtonClicked: () => any;
+  onProductUpdateButtonClicked: (rowIndex: number) => any;
 };
 
 export function CatalogDatatable({
   data,
-  onRowClicked,
   onProductUpdateButtonClicked,
 }: Props) {
   const tableContainerRef = useRef<HTMLDivElement>(null);
@@ -133,7 +124,6 @@ export function CatalogDatatable({
         data={data}
         table={table}
         tableContainerRef={tableContainerRef}
-        onRowClicked={onRowClicked}
         onProductUpdateButtonClicked={onProductUpdateButtonClicked}
       />
     </div>
@@ -145,8 +135,7 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
   table: ReactTable<TData>;
   tableContainerRef: RefObject<HTMLDivElement>;
-  onRowClicked: (rowIndex: number) => any;
-  onProductUpdateButtonClicked: () => any;
+  onProductUpdateButtonClicked: (rowIndex: number) => any;
 }
 
 function DataTableContent<TData, TValue>({
@@ -154,7 +143,6 @@ function DataTableContent<TData, TValue>({
   data,
   table,
   tableContainerRef,
-  onRowClicked,
   onProductUpdateButtonClicked,
 }: DataTableProps<TData, TValue>) {
   return (
@@ -188,7 +176,6 @@ function DataTableContent<TData, TValue>({
                     key={row.id}
                     row={row}
                     containerRef={tableContainerRef}
-                    onRowClicked={onRowClicked}
                     onProductUpdateButtonClicked={onProductUpdateButtonClicked}
                   />
                 ))
@@ -213,13 +200,11 @@ function DataTableContent<TData, TValue>({
 const CustomRow = ({
   row,
   containerRef,
-  onRowClicked,
   onProductUpdateButtonClicked,
 }: {
   row: any;
   containerRef: RefObject<HTMLDivElement>;
-  onRowClicked: (rowIndex: number) => any;
-  onProductUpdateButtonClicked: () => any;
+  onProductUpdateButtonClicked: (rowIndex: number) => any;
 }) => {
   const [showInfoRow, setShowInfoRow] = React.useState(false);
   const product: Product = row.original;
@@ -240,7 +225,6 @@ const CustomRow = ({
         data-state={row.getIsSelected() && "selected"}
         onClick={(e) => {
           setShowInfoRow((prev) => !prev);
-          onRowClicked(row.index);
         }}
         className={cn("hover:cursor-pointer relative")}
       >
@@ -397,7 +381,7 @@ const CustomRow = ({
                 <div className="flex flex-row items-center gap-2">
                   <div className="flex-1" />
                   <Button variant={"green"}
-                      onClick={(e) => onProductUpdateButtonClicked()}>
+                      onClick={(e) => onProductUpdateButtonClicked(row.index)}>
                     <PenLine
                       size={16}
                       fill="white"

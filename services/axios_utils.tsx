@@ -1,4 +1,5 @@
 const axiosUIErrorHandler = (error: any, toast: any) => { // toast is gotten from useToast()
+  console.log('error', error)
   if (error.message) {
     toast({
       description: error.message,
