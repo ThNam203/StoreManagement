@@ -43,6 +43,16 @@ const createNewProperty = (value: string) => {
   });
 };
 
+const updateProperty = (value: string, id: number) => {
+  return AxiosService.put<ProductProperty>(`/api/product-property-names/${id}`, {
+    name: value,
+  });
+};
+
+const deleteProperty = (id: number) => {
+  return AxiosService.delete(`/api/product-property-names/${id}`);
+};
+
 const getAllProperties = () => {
   return AxiosService.get<ProductProperty[]>("/api/product-property-names");
 };
@@ -59,12 +69,14 @@ const updateProduct = (data: any, id: number) => {
   return AxiosService.put<Product>(`/api/products/${id}`, data, {headers: {"Content-Type": "multipart/form-data"}});
 };
 
-const CatalogService = {
+const ProductService = {
   createNewLocation,
   getAllLocations,
   createNewBrand,
   getAllBrands,
   createNewProperty,
+  updateProperty,
+  deleteProperty,
   getAllProperties,
   createNewGroup,
   getAllGroups,
@@ -73,4 +85,4 @@ const CatalogService = {
   updateProduct
 };
 
-export default CatalogService;
+export default ProductService;

@@ -1,7 +1,8 @@
+import { cn } from "@/lib/utils";
 import style from "./loading_circle_style.module.css";
 
 const LoadingCircle = ({className}: {className?: string}) => (
-    <div className={style["profile-main-loader"] + " " + className}>
+    <div className={cn(style["profile-main-loader"], "!w-4 ml-4", className)}>
       <div className={style["loader"]}>
         <svg className={style["circular-loader"]} viewBox="25 25 50 50">
           <circle

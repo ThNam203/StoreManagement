@@ -28,8 +28,8 @@ public class ProductDTO {
     private String location;
     private String productGroup;
     private String productBrand;
-    private int originalPrice;
-    private int productPrice;
+    private double originalPrice;
+    private double productPrice;
 
     private List<String> images;
     private List<ProductPropertyDTO> productProperties;

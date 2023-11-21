@@ -1,4 +1,3 @@
-import { Toaster } from "@/components/ui/toaster";
 import "../../globals.css";
 
 export const metadata = {
@@ -9,17 +8,18 @@ export const metadata = {
 import { Open_Sans } from "next/font/google";
 const font = Open_Sans({ subsets: ["latin"] });
 
-export default function RootLayout({
+export default function SubRootLayout({
   children,
-}: {
+} : {
   children: React.ReactNode;
 }) {
   return (
-      <>
-        <div className="h-screen flex justify-center items-center">
-          {children}
-        </div>
-        <Toaster/>
-      </>
+      <html lang="en">
+        <body>
+          <div className="h-screen flex justify-center items-center">
+            {children}
+          </div>
+        </body>
+      </html>
   );
 }

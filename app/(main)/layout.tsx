@@ -1,69 +1,70 @@
 "use client";
+
 import "../globals.css";
-import type { Metadata } from "next";
-import SideBar from "@/components/ui/overview/overview_sidebar";
-import no_scrollbar_style from "../../styles/no_scrollbar.module.css";
-import { useCallback, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { Provider } from "react-redux";
 import { Open_Sans } from "next/font/google";
+import { ReactNode, useEffect } from "react";
 const font = Open_Sans({ subsets: ["latin"] });
+import store from "@/store";
+import { useAppDispatch, useAppSelector } from "@/hooks";
+import Preloader from "@/components/ui/preloader";
+import { Toaster } from "@/components/ui/toaster";
+import { setProducts } from "@/reducers/productsReducer";
+import ProductService from "@/services/product_service";
+import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
+import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { useToast } from "@/components/ui/use-toast";
+import { setBrands } from "@/reducers/productBrandsReducer";
+import { setLocations } from "@/reducers/productLocationsReducer";
+import { setProperties } from "@/reducers/productPropertiesReducer";
+import { setGroups } from "@/reducers/productGroupsReducer";
 
-export const metadata: Metadata = {
-  title: "Convenient Store",
-  description: "Convenient Store Management Website",
-};
-
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const [isSideBarCollapsed, setIsSideBarCollapsed] = useState<boolean | null>(
-    null
-  );
-  const [isWindowLarge, setIsWindowLarge] = useState(true);
-
-  useEffect(() => {
-    if (window.innerWidth < 1024) setIsWindowLarge(false);
-    else setIsWindowLarge(true);
-
-    const screenObserver = (e: MediaQueryListEvent) => {
-      setIsWindowLarge(!e.matches);
-    };
-
-    const mql = window.matchMedia("(max-width: 1023px)");
-    mql.addEventListener("change", screenObserver);
-
-    return () => {
-      mql.removeEventListener("change", screenObserver);
-    };
-  }, []);
-
-  const changeSideBarCollapsibilityOnClick = () => {
-    if (isSideBarCollapsed == null) {
-      if (isWindowLarge) setIsSideBarCollapsed(true);
-      else setIsSideBarCollapsed(false);
-    } else setIsSideBarCollapsed((prev) => !prev);
-  };
-
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-      <div className={font.className + "  bg-slate-100 min-h-screen"}>
-        <SideBar
-          isSideBarCollapsed={isSideBarCollapsed}
-          changeSideBarCollapsibility={changeSideBarCollapsibilityOnClick}
-          className={cn(
-            no_scrollbar_style["no-scrollbar"],
-            "z-[9] bg-white shadow-gray-300 shadow-md")
-          }
-        />
-        <div
-          className={cn(
-            "bg-slate-100 ml-[80px] py-2 pr-4 ease-linear duration-150",
-            isSideBarCollapsed ? "" : "lg:ml-[248px]"
-          )}
-        >
+    <Provider store={store}>
+      <html lang="en">
+        <body className={cn(font.className)}>
+          <GlobalPreloader />
           {children}
-        </div>
-      </div>
+          <Toaster />
+        </body>
+      </html>
+    </Provider>
   );
 }
+
+const GlobalPreloader = () => {
+  const preloaderVisibility = useAppSelector((state) => state.preloader.value);
+  const dispatch = useAppDispatch();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      dispatch(showPreloader());
+      try {
+        const products = await ProductService.getAllProducts();
+        dispatch(setProducts(products.data));
+
+        const brandsResult = await ProductService.getAllBrands();
+        dispatch(setBrands(brandsResult.data));
+
+        const locationsResult = await ProductService.getAllLocations();
+        dispatch(setLocations(locationsResult.data));
+
+        const propertiesResult = await ProductService.getAllProperties();
+        dispatch(setProperties(propertiesResult.data));
+
+        const groupsResult = await ProductService.getAllGroups();
+        dispatch(setGroups(groupsResult.data));
+        dispatch(disablePreloader());
+      } catch (error) {
+        dispatch(disablePreloader());
+        axiosUIErrorHandler(error, toast);
+      }
+    };
+    fetchData();
+  }, []);
+
+  return preloaderVisibility ? <Preloader /> : null;
+};

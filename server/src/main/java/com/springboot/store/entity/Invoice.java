@@ -1,6 +1,7 @@
 package com.springboot.store.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.springboot.store.utils.StatusE;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,23 +21,24 @@ public class Invoice {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name ="discount")
-    private int discount;
-
     @Column(name ="cash")
-    private int cash;
+    private double cash;
 
     @Column(name ="changed")
-    private int changed;
+    private double changed;
+
+    @Column(name ="sub_total")
+    private double subTotal;
 
     @Column(name ="total")
-    private int total;
+    private double total;
+
+
+    @Column(name ="status")
+    private Boolean status;
 
     @Column(name ="payment_method")
     private String paymentMethod;
-
-    @Column(name ="VAT")
-    private int VAT;
 
     @Column(name ="created_at")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -50,10 +52,9 @@ public class Invoice {
     @JoinColumn(name = "staff_id")
     private Staff staff;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "coupon_id")
-    private Coupon coupon;
+    @OneToMany(mappedBy = "invoice")
+    private Set<DiscountCode> discountCodes;
 
-    @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL)
     private Set<InvoiceDetail> invoiceDetails;
 }

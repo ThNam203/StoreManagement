@@ -252,7 +252,6 @@ export default function SalesPage() {
       headerButtons={headerButtons}
     >
       <DataTable data={filteredSaleList} onSubmit={handleFormSubmit} />
-      <Toaster />
     </PageWithFilters>
   );
 }

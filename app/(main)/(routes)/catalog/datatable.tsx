@@ -30,27 +30,18 @@ import {
 } from "@/components/ui/table";
 import React, { Ref, RefObject, useEffect, useRef, useState } from "react";
 import { DataTablePagination } from "@/components/ui/my_table_pagination";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 import Image from "next/image";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { cn } from "@/lib/utils";
 import { ChevronRight, Lock, PenLine, Trash } from "lucide-react";
-import { UpdateProductView } from "@/components/ui/catalog/update_product_form";
-// import { DataTableContent } from "@/components/ui/my_table_content";
 
 type Props = {
   data: Product[];
-  onRowClicked: (rowIndex: number) => any;
-  onProductUpdateButtonClicked: () => any;
+  onProductUpdateButtonClicked: (rowIndex: number) => any;
 };
 
 export function CatalogDatatable({
   data,
-  onRowClicked,
   onProductUpdateButtonClicked,
 }: Props) {
   const tableContainerRef = useRef<HTMLDivElement>(null);
@@ -133,7 +124,6 @@ export function CatalogDatatable({
         data={data}
         table={table}
         tableContainerRef={tableContainerRef}
-        onRowClicked={onRowClicked}
         onProductUpdateButtonClicked={onProductUpdateButtonClicked}
       />
     </div>
@@ -145,8 +135,7 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
   table: ReactTable<TData>;
   tableContainerRef: RefObject<HTMLDivElement>;
-  onRowClicked: (rowIndex: number) => any;
-  onProductUpdateButtonClicked: () => any;
+  onProductUpdateButtonClicked: (rowIndex: number) => any;
 }
 
 function DataTableContent<TData, TValue>({
@@ -154,7 +143,6 @@ function DataTableContent<TData, TValue>({
   data,
   table,
   tableContainerRef,
-  onRowClicked,
   onProductUpdateButtonClicked,
 }: DataTableProps<TData, TValue>) {
   return (
@@ -188,7 +176,6 @@ function DataTableContent<TData, TValue>({
                     key={row.id}
                     row={row}
                     containerRef={tableContainerRef}
-                    onRowClicked={onRowClicked}
                     onProductUpdateButtonClicked={onProductUpdateButtonClicked}
                   />
                 ))
@@ -213,18 +200,16 @@ function DataTableContent<TData, TValue>({
 const CustomRow = ({
   row,
   containerRef,
-  onRowClicked,
   onProductUpdateButtonClicked,
 }: {
   row: any;
   containerRef: RefObject<HTMLDivElement>;
-  onRowClicked: (rowIndex: number) => any;
-  onProductUpdateButtonClicked: () => any;
+  onProductUpdateButtonClicked: (rowIndex: number) => any;
 }) => {
   const [showInfoRow, setShowInfoRow] = React.useState(false);
   const product: Product = row.original;
   const [chosenImagePos, setChosenImagePos] = React.useState<number | null>(
-    product.images.length > 0 ? 0 : null
+    product.images && product.images.length > 0 ? 0 : null
   );
 
   const borderWidth =
@@ -240,7 +225,6 @@ const CustomRow = ({
         data-state={row.getIsSelected() && "selected"}
         onClick={(e) => {
           setShowInfoRow((prev) => !prev);
-          onRowClicked(row.index);
         }}
         className={cn("hover:cursor-pointer relative")}
       >
@@ -258,11 +242,8 @@ const CustomRow = ({
         <td
           className={cn(
             "absolute left-0 right-0 bottom-0 top-0",
-            showInfoRow ? "border-2 border-b-0 border-green-400" : "hidden"
+            showInfoRow ? "border-t-2 border-green-400" : "hidden"
           )}
-          style={{
-            width: borderWidth,
-          }}
         ></td>
       </TableRow>
       {showInfoRow ? (
@@ -271,148 +252,159 @@ const CustomRow = ({
           {/* maintain odd - even row */}
           <tr>
             <td colSpan={row.getVisibleCells().length} className="p-0">
-              <div
-                className={cn(
-                  "table-fixed p-2 flex flex-col gap-4 border-2 border-t-0 border-green-400"
-                )}
-                style={{
-                  width: borderWidth,
-                }}
-              >
-                <h4 className="text-lg font-bold text-blue-800">
-                  {product.name}
-                </h4>
-                <div className="flex flex-row gap-4">
-                  <div className="flex flex-col grow-[2] shrink-[2] gap-2 max-w-[300px]">
-                    <AspectRatio className="w-full flex items-center justify-center  border-2 border-gray-200 rounded-sm" ratio={1/1}>
-                    <img
-                      alt="product image"
-                      src={
-                        chosenImagePos !== null
-                          ? product.images[chosenImagePos]
-                          : "/default-product-img.jpg"
-                      }
-                      className="w-full max-h-[300px] max-w-[300px]"
-                    />
-                    </AspectRatio>
-                    {product.images.length > 0 ? (
-                      <div className="flex flex-row gap-2">
-                        {product.images.map((imageLink, idx) => {
-                          return (
-                            <div
-                              className={cn(
-                                "max-h-[53px] max-w-[60px] border",
-                                chosenImagePos === idx
-                                  ? "border-black"
-                                  : "border-gray-200"
-                              )}
-                              key={idx}
-                              onClick={(_) => setChosenImagePos(idx)}
-                            >
-                              <img
-                                alt="product image preview"
-                                src={imageLink ?? "/default-product-img.jpg"}
-                                className="object-contain mb-1"
-                              />
-                            </div>
-                          );
-                        })}
-                      </div>
-                    ) : null}
-                  </div>
-                  <div className="flex flex-row grow-[5] shrink-[5] text-[0.8rem]">
-                    <div className="flex-1 flex flex-col pr-4">
-                      <div className="flex flex-row font-medium border-b mb-2">
-                        <p className="w-[100px] font-normal">Product id:</p>
-                        <p>{product.id}</p>
-                      </div>
-                      <div className="flex flex-row font-medium border-b mb-2">
-                        <p className="w-[100px] font-normal">Product group:</p>
-                        {product.productGroup ? <p>{product.productGroup}</p> : null}
-                      </div>
-                      <div className="flex flex-row font-medium border-b mb-2">
-                        <p className="w-[100px] font-normal">Brand:</p>
-                        {product.productBrand ? <p>{product.productBrand}</p> : null}
-                      </div>
-                      <div className="flex flex-row font-medium border-b mb-2">
-                        <p className="w-[100px] font-normal">Stock:</p>
-                        <p>{product.stock}</p>
-                      </div>
-                      <div className="flex flex-row font-medium border-b mb-2">
-                        <p className="w-[100px] font-normal">Stock quota:</p>
-                        <div className="flex flex-row items-center">
-                          <p>{product.minStock}</p>
-                          <ChevronRight size={14} className="mx-1 p-0" />
-                          <p>{product.maxStock}</p>
+              <div className={cn("border-b-2 border-green-400")}>
+                <div
+                  className="p-2 flex flex-col gap-4 "
+                  style={{
+                    width: borderWidth,
+                  }}
+                >
+                  <h4 className="text-lg font-bold text-blue-800">
+                    {product.name}
+                  </h4>
+                  <div className="flex flex-row gap-4">
+                    <div className="flex flex-col grow-[2] shrink-[2] gap-2 max-w-[300px]">
+                      <AspectRatio
+                        className="w-full flex items-center justify-center  border-2 border-gray-200 rounded-sm"
+                        ratio={1 / 1}
+                      >
+                        <img
+                          alt="product image"
+                          src={
+                            product.images && chosenImagePos !== null
+                              ? product.images[chosenImagePos]
+                              : "/default-product-img.jpg"
+                          }
+                          className="w-full max-h-[300px] max-w-[300px]"
+                        />
+                      </AspectRatio>
+                      {product.images && product.images.length > 0 ? (
+                        <div className="flex flex-row gap-2">
+                          {product.images.map((imageLink, idx) => {
+                            return (
+                              <div
+                                className={cn(
+                                  "max-h-[53px] max-w-[60px] border",
+                                  chosenImagePos === idx
+                                    ? "border-black"
+                                    : "border-gray-200"
+                                )}
+                                key={idx}
+                                onClick={(_) => setChosenImagePos(idx)}
+                              >
+                                <img
+                                  alt="product image preview"
+                                  src={imageLink ?? "/default-product-img.jpg"}
+                                  className="object-contain mb-1"
+                                />
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : null}
+                    </div>
+                    <div className="flex flex-row grow-[5] shrink-[5] text-[0.8rem]">
+                      <div className="flex-1 flex flex-col pr-4">
+                        <div className="flex flex-row font-medium border-b mb-2">
+                          <p className="w-[100px] font-normal">Product id:</p>
+                          <p>{product.id}</p>
+                        </div>
+                        <div className="flex flex-row font-medium border-b mb-2">
+                          <p className="w-[100px] font-normal">
+                            Product group:
+                          </p>
+                          {product.productGroup ? (
+                            <p>{product.productGroup}</p>
+                          ) : null}
+                        </div>
+                        <div className="flex flex-row font-medium border-b mb-2">
+                          <p className="w-[100px] font-normal">Brand:</p>
+                          {product.productBrand ? (
+                            <p>{product.productBrand}</p>
+                          ) : null}
+                        </div>
+                        <div className="flex flex-row font-medium border-b mb-2">
+                          <p className="w-[100px] font-normal">Stock:</p>
+                          <p>{product.stock}</p>
+                        </div>
+                        <div className="flex flex-row font-medium border-b mb-2">
+                          <p className="w-[100px] font-normal">Stock quota:</p>
+                          <div className="flex flex-row items-center">
+                            <p>{product.minStock}</p>
+                            <ChevronRight size={14} className="mx-1 p-0" />
+                            <p>{product.maxStock}</p>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-row font-medium border-b mb-2">
+                          <p className="w-[100px] font-normal">
+                            Product price:
+                          </p>
+                          <p>{product.productPrice}</p>
+                        </div>
+                        <div className="flex flex-row font-medium border-b mb-2">
+                          <p className="w-[100px] font-normal">
+                            Original price:
+                          </p>
+                          <p>{product.originalPrice}</p>
+                        </div>
+                        <div className="flex flex-row font-medium border-b mb-2">
+                          <p className="w-[100px] font-normal">Weight:</p>
+                          <p>{product.weight}</p>
+                        </div>
+                        <div className="flex flex-row font-medium border-b mb-2">
+                          <p className="w-[100px] font-normal">Location:</p>
+                          <p>{product.location}</p>
                         </div>
                       </div>
-
-                      <div className="flex flex-row font-medium border-b mb-2">
-                        <p className="w-[100px] font-normal">Product price:</p>
-                        <p>{product.productPrice}</p>
-                      </div>
-                      <div className="flex flex-row font-medium border-b mb-2">
-                        <p className="w-[100px] font-normal">Original price:</p>
-                        <p>{product.originalPrice}</p>
-                      </div>
-                      <div className="flex flex-row font-medium border-b mb-2">
-                        <p className="w-[100px] font-normal">Weight:</p>
-                        <p>{product.weight}</p>
-                      </div>
-                      <div className="flex flex-row font-medium border-b mb-2">
-                        <p className="w-[100px] font-normal">Location:</p>
-                        <p>{product.location}</p>
-                      </div>
-                    </div>
-                    <div className="flex-1 flex flex-col pr-4">
-                      <div className="flex flex-row font-medium border-b mb-2">
-                        <p className="w-[100px] font-normal">Status:</p>
-                        <p>{product.status}</p>
-                      </div>
-                      <div>
-                        <p className="mb-2">Description</p>
-                        <textarea
-                          readOnly
-                          className={cn(
-                            "resize-none border-2 rounded-sm p-1 h-[80px] w-full",
-                            scrollbar_style.scrollbar
-                          )}
-                          defaultValue={product.description}
-                        ></textarea>
-                      </div>
-                      <div>
-                        <p className="mb-2">Note</p>
-                        <textarea
-                          readOnly
-                          className={cn(
-                            "resize-none border-2 rounded-sm p-1 h-[80px] w-full",
-                            scrollbar_style.scrollbar
-                          )}
-                          defaultValue={product.note}
-                        ></textarea>
+                      <div className="flex-1 flex flex-col pr-4">
+                        <div className="flex flex-row font-medium border-b mb-2">
+                          <p className="w-[100px] font-normal">Status:</p>
+                          <p>{product.status}</p>
+                        </div>
+                        <div>
+                          <p className="mb-2">Description</p>
+                          <textarea
+                            readOnly
+                            className={cn(
+                              "resize-none border-2 rounded-sm p-1 h-[80px] w-full",
+                              scrollbar_style.scrollbar
+                            )}
+                            defaultValue={product.description}
+                          ></textarea>
+                        </div>
+                        <div>
+                          <p className="mb-2">Note</p>
+                          <textarea
+                            readOnly
+                            className={cn(
+                              "resize-none border-2 rounded-sm p-1 h-[80px] w-full",
+                              scrollbar_style.scrollbar
+                            )}
+                            defaultValue={product.note}
+                          ></textarea>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-                <div className="flex flex-row items-center gap-2">
-                  <div className="flex-1" />
-                  <Button variant={"green"}
-                      onClick={(e) => onProductUpdateButtonClicked()}>
-                    <PenLine
-                      size={16}
-                      fill="white"
-                      className="mr-2"
-                    />
-                    Update
-                  </Button>
-                  <Button variant={"red"}>
-                    <Lock size={16} className="mr-2" />
-                    Disable product
-                  </Button>
-                  <Button variant={"red"}>
-                    <Trash size={16} className="mr-2" />
-                    Remove
-                  </Button>
+                  <div className="flex flex-row items-center gap-2">
+                    <div className="flex-1" />
+                    <Button
+                      variant={"green"}
+                      onClick={(e) => onProductUpdateButtonClicked(row.index)}
+                    >
+                      <PenLine size={16} fill="white" className="mr-2" />
+                      Update
+                    </Button>
+                    <Button variant={"red"}>
+                      <Lock size={16} className="mr-2" />
+                      Disable product
+                    </Button>
+                    <Button variant={"red"}>
+                      <Trash size={16} className="mr-2" />
+                      Remove
+                    </Button>
+                  </div>
                 </div>
               </div>
             </td>

@@ -45,16 +45,17 @@ import {
 } from "@/components/ui/accordion";
 import { useToast } from "@/components/ui/use-toast";
 import { Textarea } from "../textarea";
-import CatalogService from "@/services/catalog_service";
-import {Product} from "@/entities/Product";
+import CatalogService from "@/services/product_service";
+import { Product } from "@/entities/Product";
 import LoadingCircle from "../loading_circle";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { useAppSelector } from "@/hooks";
 
 const productFormSchema = z.object({
   barcode: z
     .string({ required_error: "Barcode is missing" })
     .trim()
-    .min(1, { message: "Barcode is missing!" })
+    .min(0, { message: "Barcode is missing!" })
     .max(50, { message: "Barcode must be at most 50 characters!" }),
   name: z
     .string()
@@ -111,10 +112,13 @@ const productFormSchema = z.object({
     }),
   images: z.array(z.string().nullable()).min(1).max(5),
   properties: z
-    .array(z.object({
-      key: z.string().min(1, "Missing property name!"),
-      value: z.string().min(1, "Missing property value")
-    }))
+    .array(
+      z.object({
+        id: z.number(),
+        key: z.string().min(1, "Missing property name!"),
+        value: z.string().min(1, "Missing property value"),
+      })
+    )
     .nullable(),
   unit: z.object({
     name: z
@@ -130,10 +134,6 @@ const productFormSchema = z.object({
 
 export const UpdateProductView = ({
   onChangeVisibility,
-  productLocations,
-  productGroups,
-  productBrands,
-  productProperties,
   product,
   productIndex,
   onProductUpdated,
@@ -141,84 +141,101 @@ export const UpdateProductView = ({
   addNewGroup,
   addNewBrand,
   addNewProperties,
+  onUpdateProperty,
+  onDeleteProperty,
 }: {
   onChangeVisibility: (val: boolean) => void;
-  productLocations: string[];
-  productGroups: string[];
-  productBrands: string[];
-  productProperties: string[];
   product: Product;
   productIndex: number;
-  onProductUpdated: (data: Product, productIndex: number) => any;
+  onProductUpdated: (data: Product) => any;
   addNewLocation: (value: string) => any;
   addNewGroup: (value: string) => any;
   addNewBrand: (value: string) => any;
   addNewProperties: (value: string) => any;
+  onUpdateProperty: (value: string, propertyId: number) => any;
+  onDeleteProperty: (deletePropertyId: number) => any;
 }) => {
   const { toast } = useToast();
-  const productLocationChoices = productLocations;
-  const productGroupChoices = productGroups;
-  const productBrandChoices = productBrands;
-  const productPropertyChoices = productProperties;
-  const [newChosenImages, setNewChosenImages] = useState<((File | string)[])>(product.images ? [...product.images] : [])
+  const productLocationChoices = useAppSelector(
+    (state) => state.productLocations.value
+  );
+  const productGroupChoices = useAppSelector(
+    (state) => state.productGroups.value
+  );
+  const productBrandChoices = useAppSelector(
+    (state) => state.productBrands.value
+  );
+  const productPropertyChoices = useAppSelector(
+    (state) => state.productProperties.value
+  );
+  const [newChosenImages, setNewChosenImages] = useState<(File | string)[]>(
+    product.images ? [...product.images] : []
+  );
   const [isCreatingNewProduct, setIsCreatingNewProduct] = useState(false);
-  const [openGroup, setOpenGroup] = useState(false)
-  const [openBrand, setOpenBrand] = useState(false)
-  const [openProperty, setOpenProperty] = useState(false)
-  const [openLocation, setOpenLocation] = useState(false)
+  const [openGroup, setOpenGroup] = useState(false);
+  const [openBrand, setOpenBrand] = useState(false);
+  const [openProperty, setOpenProperty] = useState(false);
+  const [openLocation, setOpenLocation] = useState(false);
 
   const form = useForm<z.infer<typeof productFormSchema>>({
     resolver: zodResolver(productFormSchema),
     defaultValues: {
       ...product,
-      images: [...product.images, ...(new Array(Math.max(0, 5 - product.images.length))).fill(null)],
+      images: [
+        ...product.images,
+        ...new Array(Math.max(0, 5 - product.images.length)).fill(null),
+      ],
+      productBrand: product.productBrand ?? "",
+      weight: product.weight ?? 0,
       unit: product.salesUnits,
-      properties: product.productProperties.map((property) => ({
-        key: property.propertyName,
-        value: property.propertyValue,
-      })),
+      properties: product.productProperties.map((property) => {
+        return {
+          id: productPropertyChoices.find(
+            (v) => v.name === property.propertyName
+          )?.id,
+          key: property.propertyName,
+          value: property.propertyValue,
+        };
+      }),
     },
   });
 
   // if newFileUrl == null, it means the user removed image
-  const handleImageChosen = (
-    newFileUrl: File | null,
-    index: number
-  ) => {
+  const handleImageChosen = (newFileUrl: File | null, index: number) => {
     if (newFileUrl === null) {
-      newChosenImages.splice(index, 1)
-    } else newChosenImages.push(newFileUrl)
+      newChosenImages.splice(index, 1);
+    } else newChosenImages.push(newFileUrl);
 
     const formValue: any[] = newChosenImages.map((file) => {
-      if (typeof file === 'string') return file
-      else return URL.createObjectURL(file)
-    })
-    while (formValue.length < 5) formValue.push(null)
-    form.setValue(
-      "images", formValue,
-      { shouldValidate: true }
-    );
+      if (typeof file === "string") return file;
+      else return URL.createObjectURL(file);
+    });
+    while (formValue.length < 5) formValue.push(null);
+    form.setValue("images", formValue, { shouldValidate: true });
     setNewChosenImages(newChosenImages);
   };
 
   function onSubmit(values: z.infer<typeof productFormSchema>) {
-    const data: any = values
-    data.images = newChosenImages.filter(file => typeof file === 'string')
+    const data: any = values;
+    data.images = newChosenImages.filter((file) => typeof file === "string");
     const dataForm: any = new FormData();
-    dataForm.append("data", new Blob([JSON.stringify(data)], {type: "application/json"}));
+    dataForm.append(
+      "data",
+      new Blob([JSON.stringify(data)], { type: "application/json" })
+    );
     dataForm.append(
       "files",
-      newChosenImages.filter((file) => typeof file !== 'string')
+      newChosenImages.filter((file) => typeof file !== "string")
     );
 
     setIsCreatingNewProduct(true);
     CatalogService.updateProduct(dataForm, product.id)
       .then((result) => {
-        onProductUpdated(result.data, productIndex);
+        onProductUpdated(result.data);
       })
       .catch((e) => axiosUIErrorHandler(e, toast))
       .finally(() => {
-        onChangeVisibility(false)
+        onChangeVisibility(false);
         setIsCreatingNewProduct(false);
       });
   }
@@ -311,7 +328,7 @@ export const UpdateProductView = ({
                                   { shouldValidate: true }
                                 );
                               }}
-                              choices={productGroupChoices}
+                              choices={productGroupChoices.map((c) => c.name)}
                             />
                           </div>
                           <AddNewThing
@@ -350,7 +367,7 @@ export const UpdateProductView = ({
                                   shouldValidate: true,
                                 });
                               }}
-                              choices={productBrandChoices}
+                              choices={productBrandChoices.map((c) => c.name)}
                             />
                           </div>
                           <AddNewThing
@@ -389,7 +406,9 @@ export const UpdateProductView = ({
                                   shouldValidate: true,
                                 });
                               }}
-                              choices={productLocationChoices}
+                              choices={productLocationChoices.map(
+                                (c) => c.name
+                              )}
                             />
                           </div>
                           <AddNewThing
@@ -607,7 +626,7 @@ export const UpdateProductView = ({
                     </FormItem>
                   )}
                 />
-                    <FormField
+                <FormField
                   control={form.control}
                   name="unit.name"
                   render={({ field }) => (
@@ -669,7 +688,7 @@ export const UpdateProductView = ({
                           <AccordionTrigger className="text-sm bg-gray-200 p-3">
                             <div className="flex flex-row gap-10">
                               <p>Product properties</p>
-                              <NewProductPropertiesInputErrorFormMessage />
+                              <ProductPropertiesInputErrorFormMessage />
                             </div>
                           </AccordionTrigger>
                           <AccordionContent>
@@ -684,12 +703,59 @@ export const UpdateProductView = ({
                                         <Popover>
                                           <PopoverTrigger>
                                             <div className="ml-4 h-[35px] border-b flex flex-row justify-between items-center w-[250px]">
-                                              <p className=" p-1 text-start">
-                                                {value.key.length === 0
-                                                  ? "Choose property..."
-                                                  : value.key}
-                                              </p>
-                                              <Pencil size={16} />
+                                              {!value.key ||
+                                              value.key.length === 0 ? (
+                                                <>
+                                                  <p className=" p-1 text-start">
+                                                    Choose property...
+                                                  </p>
+                                                </>
+                                              ) : (
+                                                <>
+                                                  <p className=" p-1 text-start">
+                                                    {value.key}
+                                                  </p>
+                                                  <UpdatePropertyView
+                                                    property={value}
+                                                    onDeleteClick={
+                                                      onDeleteProperty
+                                                    }
+                                                    onUpdateClick={
+                                                      onUpdateProperty
+                                                    }
+                                                    onUpdateSuccess={(
+                                                      newVal,
+                                                      valId
+                                                    ) => {
+                                                      const newValue =
+                                                        field.value!.map((v) =>
+                                                          v.id === valId
+                                                            ? {
+                                                                ...v,
+                                                                key: newVal,
+                                                              }
+                                                            : v
+                                                        );
+
+                                                      form.setValue(
+                                                        "properties",
+                                                        newValue
+                                                      );
+                                                    }}
+                                                    onDeleteSuccess={(
+                                                      propertyId
+                                                    ) => {
+                                                      form.setValue(
+                                                        "properties",
+                                                        field.value!.filter(
+                                                          (v) =>
+                                                            v.id !== propertyId
+                                                        )
+                                                      );
+                                                    }}
+                                                  ></UpdatePropertyView>
+                                                </>
+                                              )}
                                             </div>
                                           </PopoverTrigger>
                                           <PopoverContent className="p-0">
@@ -702,7 +768,7 @@ export const UpdateProductView = ({
                                                     onClick={() => {
                                                       if (
                                                         field.value![index]
-                                                          .key === choice
+                                                          .key === choice.name
                                                       ) {
                                                         field.value![
                                                           index
@@ -720,7 +786,7 @@ export const UpdateProductView = ({
                                                           ) => {
                                                             return (
                                                               fieldVal.key !==
-                                                              choice
+                                                              choice.name
                                                             );
                                                           }
                                                         )
@@ -733,9 +799,12 @@ export const UpdateProductView = ({
                                                         });
                                                         return;
                                                       } else {
+                                                        field.value![index].id =
+                                                          choice.id;
+
                                                         field.value![
                                                           index
-                                                        ].key = choice;
+                                                        ].key = choice.name;
 
                                                         form.setValue(
                                                           "properties",
@@ -745,9 +814,10 @@ export const UpdateProductView = ({
                                                     }}
                                                   >
                                                     <p className="text-sm">
-                                                      {choice}
+                                                      {choice.name}
                                                     </p>
-                                                    {value.key === choice ? (
+                                                    {value.key ===
+                                                    choice.name ? (
                                                       <Check size={16} />
                                                     ) : null}
                                                   </div>
@@ -764,7 +834,9 @@ export const UpdateProductView = ({
                                               const properties = field.value!;
                                               properties[index].value =
                                                 e.currentTarget.value;
-                                              form.setValue("properties", [...properties]);
+                                              form.setValue("properties", [
+                                                ...properties,
+                                              ]);
                                             }}
                                             className="h-[35px] w-[200px] rounded-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 border-0 border-b"
                                           />
@@ -787,29 +859,47 @@ export const UpdateProductView = ({
                                   })
                                 : null}
                             </div>
-                            <Button
-                              className="border bg-transparent hover:bg-slate-200 ml-4 mt-2 h-[35px]"
-                              type="button"
-                              onClick={(e) => {
-                                let newVal: {
-                                    key: string,
-                                    value: string,
-                                }[]
-                                if (field.value === null || field.value === undefined)
-                                  newVal = [{ key: "", value: "" }];
-                                else
-                                  newVal = [
-                                    ...field.value,
-                                    { key: "", value: "" },
-                                  ];
-                                form.setValue("properties", newVal, {
-                                  shouldValidate: false,
-                                });
-                              }}
-                            >
-                              <Plus size={16} className="mr-2" />
-                              Add property
-                            </Button>
+                            <div className="flex flex-row">
+                              <Button
+                                variant={"green"}
+                                className="ml-4 mt-2 h-[35px]"
+                                type="button"
+                                onClick={(e) => {
+                                  let newVal: {
+                                    id: number;
+                                    key: string;
+                                    value: string;
+                                  }[];
+                                  if (
+                                    field.value === null ||
+                                    field.value === undefined
+                                  )
+                                    newVal = [
+                                      { id: 123123, key: "", value: "" },
+                                    ];
+                                  /// 123123 is trash number
+                                  else
+                                    newVal = [
+                                      ...field.value,
+                                      { id: 123123, key: "", value: "" }, /// 123123 is trash number
+                                    ];
+                                  form.setValue("properties", newVal, {
+                                    shouldValidate: false,
+                                  });
+                                }}
+                              >
+                                <Plus size={16} className="mr-2" />
+                                New property
+                              </Button>
+                              <ButtonAddNewThing
+                                triggerTitle="Add property"
+                                title="Add new property"
+                                placeholder="Property's name"
+                                open={openProperty}
+                                onOpenChange={setOpenProperty}
+                                onAddClick={addNewProperties}
+                              />
+                            </div>
                           </AccordionContent>
                         </AccordionItem>
                       </Accordion>
@@ -865,6 +955,7 @@ export const UpdateProductView = ({
                 variant={"green"}
                 type="submit"
                 className="px-4 min-w-[150px] uppercase"
+                disabled={isCreatingNewProduct}
               >
                 Save
                 <LoadingCircle
@@ -882,6 +973,7 @@ export const UpdateProductView = ({
                   e.preventDefault();
                   onChangeVisibility(false);
                 }}
+                disabled={isCreatingNewProduct}
               >
                 Cancel
               </Button>
@@ -893,7 +985,7 @@ export const UpdateProductView = ({
   );
 };
 
-const NewProductPropertiesInputErrorFormMessage = React.forwardRef<
+const ProductPropertiesInputErrorFormMessage = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, children, ...props }, ref) => {
@@ -905,10 +997,15 @@ const NewProductPropertiesInputErrorFormMessage = React.forwardRef<
 
   let message: string = "";
   let customError: any = error;
+  
   for (let i = 0; i < customError.length; i++) {
     if (customError[i] === undefined) continue;
     else {
-      message = customError[i].key.message || customError[i].values.message;
+      message = customError[i].id
+        ? customError[i].id.message
+        : customError[i].value
+        ? customError[i].value.message
+        : null;
       break;
     }
   }
@@ -927,53 +1024,7 @@ const NewProductPropertiesInputErrorFormMessage = React.forwardRef<
     </p>
   );
 });
-NewProductPropertiesInputErrorFormMessage.displayName = "FormMessage";
-
-const NewProductUnitInputErrorFormMessage = React.forwardRef<
-  HTMLParagraphElement,
-  React.HTMLAttributes<HTMLParagraphElement>
->(({ className, children, ...props }, ref) => {
-  const { error, formMessageId } = useFormField();
-
-  if (!error) {
-    return null;
-  }
-
-  let message: string = "";
-  let customError: any = error;
-  if (customError.message) message = customError.message;
-  else if (customError.basicUnit) message = customError.basicUnit.message;
-  else {
-    for (let i = 0; i < customError.otherUnits.length; i++) {
-      if (customError.otherUnits[i] === undefined) continue;
-      else {
-        message = customError.otherUnits[i].unitName
-          ? customError.otherUnits[i].unitName.message
-          : customError.otherUnits[i].exchangeValue
-          ? customError.otherUnits[i].exchangeValue.message
-          : customError.otherUnits[i].price.message;
-        break;
-      }
-    }
-  }
-
-  if (!message || message.length === 0)
-    message = "Something went wrong, try later!";
-
-  return (
-    <p
-      ref={ref}
-      id={formMessageId}
-      className={cn("text-sm font-medium text-destructive", className)}
-      {...props}
-    >
-      {message}
-    </p>
-  );
-});
-NewProductUnitInputErrorFormMessage.displayName = "FormMessage";
-
-
+ProductPropertiesInputErrorFormMessage.displayName = "FormMessage";
 
 const AddNewThing = ({
   title,
@@ -1011,20 +1062,11 @@ const AddNewThing = ({
           </div>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel
-            className={
-              "bg-red-400 hover:bg-red-500 text-white hover:text-white"
-            }
-            disabled={isLoading}
-          >
-            Cancel
-          </AlertDialogCancel>
-          <AlertDialogAction
-            className="bg-green-500 hover:bg-green-600 text-white hover:text-white"
+          <Button
+            variant={"green"}
             onClick={async (e) => {
               setIsLoading(true);
-              await onAddClick(value)
-              console.log('in updated')
+              await onAddClick(value);
               setIsLoading(false);
               onOpenChange(false);
             }}
@@ -1032,9 +1074,193 @@ const AddNewThing = ({
           >
             Done
             {isLoading ? <LoadingCircle /> : null}
-          </AlertDialogAction>
+          </Button>
+          <AlertDialogCancel
+            className={
+              "bg-red-400 hover:bg-red-500 text-white hover:text-white !h-[35px]"
+            }
+            disabled={isLoading}
+          >
+            Cancel
+          </AlertDialogCancel>
         </AlertDialogFooter>
       </AlertDialogContent>
+    </AlertDialog>
+  );
+};
+
+const ButtonAddNewThing = ({
+  triggerTitle,
+  title,
+  placeholder,
+  open,
+  onOpenChange,
+  onAddClick,
+}: {
+  triggerTitle: string;
+  title: string;
+  placeholder: string;
+  open: boolean;
+  onOpenChange: (value: boolean) => any;
+  onAddClick: (value: string) => Promise<any>;
+}) => {
+  const [value, setValue] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  return (
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogTrigger>
+        <Button
+          variant={"green"}
+          className="border ml-4 mt-2 h-[35px]"
+          type="button"
+        >
+          {triggerTitle}
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{title}</AlertDialogTitle>
+          <div className="flex flex-row items-center text-sm gap-3 !my-4">
+            <label htmlFor="alert_input" className="font-semibold w-36">
+              {placeholder}
+            </label>
+            <input
+              id="alert_input"
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              className="flex-1 rounded-sm border p-1"
+            />
+          </div>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <Button
+            variant={"green"}
+            onClick={async (e) => {
+              setIsLoading(true);
+              await onAddClick(value);
+              setIsLoading(false);
+              onOpenChange(false);
+            }}
+            disabled={isLoading}
+          >
+            Done
+            {isLoading ? <LoadingCircle /> : null}
+          </Button>
+          <AlertDialogCancel
+            className={
+              "bg-red-400 hover:bg-red-500 text-white hover:text-white !h-[35px]"
+            }
+            disabled={isLoading}
+          >
+            Cancel
+          </AlertDialogCancel>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+};
+
+const UpdatePropertyView = ({
+  property,
+  onUpdateClick,
+  onUpdateSuccess,
+  onDeleteClick,
+  onDeleteSuccess,
+}: {
+  property: {
+    id: number;
+    key: string;
+  };
+  onUpdateClick: (value: string, propertyId: number) => Promise<any>;
+  onUpdateSuccess: (value: string, propertyId: number) => any;
+  onDeleteClick: (propertyId: number) => Promise<any>;
+  onDeleteSuccess: (propertyId: number) => any;
+}) => {
+  const Input = ({
+    inputValue,
+    setOpen,
+  }: {
+    inputValue: string;
+    setOpen: any;
+  }) => {
+    const [value, setValue] = useState(inputValue);
+    const [isLoading, setIsLoading] = useState(false);
+
+    return (
+      <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Change property</AlertDialogTitle>
+          <div className="flex flex-row items-center text-sm gap-3 !my-4">
+            <label htmlFor="alert_input" className="font-semibold w-36">
+              Property&apos;s name
+            </label>
+
+            <input
+              id="alert_input"
+              defaultValue={property.key}
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              className="flex-1 rounded-sm border p-1"
+            />
+          </div>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <Button
+            variant={"green"}
+            onClick={async (e) => {
+              setIsLoading(true);
+              await onUpdateClick(value, property.id)
+                .then(() => {
+                  onUpdateSuccess(value, property.id);
+                })
+                .finally(() => {
+                  setIsLoading(false);
+                  setOpen(false);
+                });
+            }}
+            disabled={isLoading}
+          >
+            Done
+            {isLoading ? <LoadingCircle /> : null}
+          </Button>
+          <Button
+            variant={"red"}
+            onClick={async (e) => {
+              setIsLoading(true);
+              await onDeleteClick(property.id)
+                .then(() => {
+                  onDeleteSuccess(property.id);
+                })
+                .finally(() => {
+                  setIsLoading(false);
+                  setOpen(false);
+                });
+            }}
+            disabled={isLoading}
+          >
+            Delete property
+            {isLoading ? <LoadingCircle /> : null}
+          </Button>
+          <AlertDialogCancel
+            className={
+              "bg-red-400 hover:bg-red-500 text-white hover:text-white !h-[35px]"
+            }
+            disabled={isLoading}
+          >
+            Cancel
+          </AlertDialogCancel>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    );
+  };
+  const [open, setOpen] = useState(false);
+
+  return (
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogTrigger onClick={(e) => e.stopPropagation()}>
+        <Pencil size={16} />
+      </AlertDialogTrigger>
+      <Input inputValue={property.key} setOpen={setOpen} />
     </AlertDialog>
   );
 };
@@ -1069,4 +1295,3 @@ function cartesian(
   helper({}, 0);
   return r;
 }
-

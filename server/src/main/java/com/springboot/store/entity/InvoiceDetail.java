@@ -22,14 +22,9 @@ public class InvoiceDetail {
     @Column(name = "price")
     private double price;
 
+    @Column(name = "product_id")
+    private int productId;
+
     @Column(name = "description")
     private String description;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "invoice_id")
-    private Invoice invoice;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id")
-    private Product product;
 }
