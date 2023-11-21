@@ -25,8 +25,6 @@ public class ProductServiceImpl implements ProductService {
     private final ProductBrandRepository productBrandRepository;
     private final FileService fileService;
 
-
-
     @Override
     public ProductDTO getProductById(int id) {
         Product product = productRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Product not found with id: " + id));
@@ -152,17 +150,17 @@ public class ProductServiceImpl implements ProductService {
         // original price
         if (productDTO.getOriginalPrice() != existingProduct.getOriginalPrices().get(existingProduct.getOriginalPrices().size() - 1).getValue()) {
             existingProduct.getOriginalPrices().add(OriginalPrice.builder()
-                            .value(productDTO.getOriginalPrice())
-                            .createdAt(new Date())
-                            .build());
+                    .value(productDTO.getOriginalPrice())
+                    .createdAt(new Date())
+                    .build());
         }
 
         // product price
         if (productDTO.getProductPrice() != existingProduct.getProductPrices().get(existingProduct.getProductPrices().size() - 1).getValue()) {
             existingProduct.getProductPrices().add(ProductPrice.builder()
-                            .value(productDTO.getProductPrice())
-                            .createdAt(new Date())
-                            .build());
+                    .value(productDTO.getProductPrice())
+                    .createdAt(new Date())
+                    .build());
         }
 
         // sale unit
