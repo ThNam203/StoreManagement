@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -69,7 +70,7 @@ public class StaffServiceImpl implements StaffService {
         }
         staff.setPhoneNumber(newStaff.getPhoneNumber());
 
-        if (file != null) {
+        if (!file.isEmpty()) {
             String avatarUrl = fileService.uploadFile(file);
             Media avatar = Media.builder()
                     .url(avatarUrl)
@@ -255,9 +256,9 @@ public class StaffServiceImpl implements StaffService {
 
     }
 
-    private Staff getAuthorizedStaff() {
-        return staffRepository.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName()).orElseThrow(
-                () -> new CustomException("You not found", HttpStatus.UNPROCESSABLE_ENTITY)
-        );
+    @Override
+    public Staff getAuthorizedStaff() {
+        return staffRepository.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName())
+                .orElseThrow(() -> new UsernameNotFoundException("Your user not found"));
     }
 }

@@ -17,6 +17,6 @@ public class ProductPrice {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    private int value;
+    private double value;
     private Date createdAt;
 }

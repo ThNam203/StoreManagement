@@ -19,4 +19,6 @@ public interface StaffService {
     void deleteStaff(int id);
 
     Staff findByEmail(String email);
+
+    Staff getAuthorizedStaff();
 }
