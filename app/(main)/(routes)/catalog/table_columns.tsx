@@ -86,9 +86,9 @@ function propertiesColumn(accessorKey: string, title: string): ColumnDef<Product
         propertyValue: string,
       }[] = row.getValue(accessorKey);
 
-      const propertyString = value.map((property) => {
+      const propertyString = value ? value.map((property) => {
         return property.propertyName + " - " + property.propertyValue
-      }).join(", ")
+      }).join(", ") : ""
 
       return (
         <p className="text-[0.8rem]">{propertyString}</p>

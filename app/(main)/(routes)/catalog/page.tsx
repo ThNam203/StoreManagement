@@ -6,13 +6,6 @@ import {
 } from "@/components/ui/filter";
 import React, { useEffect, useState } from "react";
 import { CatalogDatatable } from "./datatable";
-import {
-  Product,
-  ProductBrand,
-  ProductGroup,
-  ProductLocation,
-  ProductProperty,
-} from "@/entities/Product";
 import { NewProductView } from "@/components/ui/catalog/new_product_form";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -21,7 +14,6 @@ import { useToast } from "@/components/ui/use-toast";
 import { UpdateProductView } from "@/components/ui/catalog/update_product_form";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
 import { useAppDispatch, useAppSelector } from "@/hooks";
-import { showPreloader, disablePreloader } from "@/reducers/preloaderReducer";
 import { addGroup } from "@/reducers/productGroupsReducer";
 import { addBrand } from "@/reducers/productBrandsReducer";
 import { addLocation } from "@/reducers/productLocationsReducer";

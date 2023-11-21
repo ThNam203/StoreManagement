@@ -46,9 +46,7 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { Textarea } from "../textarea";
 import CatalogService from "@/services/product_service";
-import {
-  Product,
-} from "@/entities/Product";
+import { Product } from "@/entities/Product";
 import LoadingCircle from "../loading_circle";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
 import { useAppSelector } from "@/hooks";
@@ -57,7 +55,7 @@ const productFormSchema = z.object({
   barcode: z
     .string({ required_error: "Barcode is missing" })
     .trim()
-    .min(1, { message: "Barcode is missing!" })
+    .min(0, { message: "Barcode is missing!" })
     .max(50, { message: "Barcode must be at most 50 characters!" }),
   name: z
     .string()
@@ -158,10 +156,18 @@ export const UpdateProductView = ({
   onDeleteProperty: (deletePropertyId: number) => any;
 }) => {
   const { toast } = useToast();
-  const productLocationChoices = useAppSelector((state) => state.productLocations.value)
-  const productGroupChoices = useAppSelector((state) => state.productGroups.value)
-  const productBrandChoices = useAppSelector((state) => state.productBrands.value)
-  const productPropertyChoices = useAppSelector((state) => state.productProperties.value)
+  const productLocationChoices = useAppSelector(
+    (state) => state.productLocations.value
+  );
+  const productGroupChoices = useAppSelector(
+    (state) => state.productGroups.value
+  );
+  const productBrandChoices = useAppSelector(
+    (state) => state.productBrands.value
+  );
+  const productPropertyChoices = useAppSelector(
+    (state) => state.productProperties.value
+  );
   const [newChosenImages, setNewChosenImages] = useState<(File | string)[]>(
     product.images ? [...product.images] : []
   );
@@ -179,11 +185,14 @@ export const UpdateProductView = ({
         ...product.images,
         ...new Array(Math.max(0, 5 - product.images.length)).fill(null),
       ],
+      productBrand: product.productBrand ?? "",
+      weight: product.weight ?? 0,
       unit: product.salesUnits,
       properties: product.productProperties.map((property) => {
         return {
-          id: productPropertyChoices.find((v) => v.id === property.id)
-            ?.id,
+          id: productPropertyChoices.find(
+            (v) => v.name === property.propertyName
+          )?.id,
           key: property.propertyName,
           value: property.propertyValue,
         };
@@ -679,7 +688,7 @@ export const UpdateProductView = ({
                           <AccordionTrigger className="text-sm bg-gray-200 p-3">
                             <div className="flex flex-row gap-10">
                               <p>Product properties</p>
-                              <NewProductPropertiesInputErrorFormMessage />
+                              <ProductPropertiesInputErrorFormMessage />
                             </div>
                           </AccordionTrigger>
                           <AccordionContent>
@@ -946,6 +955,7 @@ export const UpdateProductView = ({
                 variant={"green"}
                 type="submit"
                 className="px-4 min-w-[150px] uppercase"
+                disabled={isCreatingNewProduct}
               >
                 Save
                 <LoadingCircle
@@ -963,6 +973,7 @@ export const UpdateProductView = ({
                   e.preventDefault();
                   onChangeVisibility(false);
                 }}
+                disabled={isCreatingNewProduct}
               >
                 Cancel
               </Button>
@@ -974,7 +985,7 @@ export const UpdateProductView = ({
   );
 };
 
-const NewProductPropertiesInputErrorFormMessage = React.forwardRef<
+const ProductPropertiesInputErrorFormMessage = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, children, ...props }, ref) => {
@@ -986,10 +997,15 @@ const NewProductPropertiesInputErrorFormMessage = React.forwardRef<
 
   let message: string = "";
   let customError: any = error;
+  
   for (let i = 0; i < customError.length; i++) {
     if (customError[i] === undefined) continue;
     else {
-      message = customError[i].key.message || customError[i].values.message;
+      message = customError[i].id
+        ? customError[i].id.message
+        : customError[i].value
+        ? customError[i].value.message
+        : null;
       break;
     }
   }
@@ -1008,51 +1024,7 @@ const NewProductPropertiesInputErrorFormMessage = React.forwardRef<
     </p>
   );
 });
-NewProductPropertiesInputErrorFormMessage.displayName = "FormMessage";
-
-const NewProductUnitInputErrorFormMessage = React.forwardRef<
-  HTMLParagraphElement,
-  React.HTMLAttributes<HTMLParagraphElement>
->(({ className, children, ...props }, ref) => {
-  const { error, formMessageId } = useFormField();
-
-  if (!error) {
-    return null;
-  }
-
-  let message: string = "";
-  let customError: any = error;
-  if (customError.message) message = customError.message;
-  else if (customError.basicUnit) message = customError.basicUnit.message;
-  else {
-    for (let i = 0; i < customError.otherUnits.length; i++) {
-      if (customError.otherUnits[i] === undefined) continue;
-      else {
-        message = customError.otherUnits[i].unitName
-          ? customError.otherUnits[i].unitName.message
-          : customError.otherUnits[i].exchangeValue
-          ? customError.otherUnits[i].exchangeValue.message
-          : customError.otherUnits[i].price.message;
-        break;
-      }
-    }
-  }
-
-  if (!message || message.length === 0)
-    message = "Something went wrong, try later!";
-
-  return (
-    <p
-      ref={ref}
-      id={formMessageId}
-      className={cn("text-sm font-medium text-destructive", className)}
-      {...props}
-    >
-      {message}
-    </p>
-  );
-});
-NewProductUnitInputErrorFormMessage.displayName = "FormMessage";
+ProductPropertiesInputErrorFormMessage.displayName = "FormMessage";
 
 const AddNewThing = ({
   title,

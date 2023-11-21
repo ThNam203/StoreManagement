@@ -3,7 +3,7 @@ import { PayloadAction, createSlice } from '@reduxjs/toolkit'
 export const preloaderSlice = createSlice({
   name: 'preloaderVisibility',
   initialState: {
-    value: false,
+    value: true,
   },
   reducers: {
     showPreloader: (state) => {

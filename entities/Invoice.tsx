@@ -1,23 +1,27 @@
+import { Product } from "./Product";
 import { TransactionType } from "./Transaction";
 
+export type PaymentMethod = "Cash" | "Bank transfer" | "Card";
+
 export type Invoice = {
-  //id, customer_id (optional), discount (% or vnd), money_given, change, pay_method, created_date, staff_id, voucher (coupon), VAT
-  id: any;
-  customerId?: any;
-  discountType: DiscountType;
+  id: number;
   discount: number;
+  cash: number;
+  changed: number;
   subTotal: number;
   total: number;
-  moneyGiven: number;
-  change: number;
-  transactionType: TransactionType;
-  createdDate: Date;
-  creator: any;
-  voucher?: any;
-  VAT: number;
+  paymentMethod: PaymentMethod;
+  createdAt: string;
+  // Customer customer;
+  // Staff staff;
+  // Coupon coupon;
+  invoiceDetails: InvoiceDetail[];
 };
 
-export enum DiscountType {
-  PERCENT = "Percent",
-  MONEY = "Money",
+export type InvoiceDetail = {
+    id: number;
+    quantity: number;
+    price: number;
+    description: string;
+    productId: number;
 }

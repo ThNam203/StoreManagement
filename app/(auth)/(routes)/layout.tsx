@@ -14,10 +14,12 @@ export default function SubRootLayout({
   children: React.ReactNode;
 }) {
   return (
-      <>
-        <div className="h-screen flex justify-center items-center">
-          {children}
-        </div>
-      </>
+      <html lang="en">
+        <body>
+          <div className="h-screen flex justify-center items-center">
+            {children}
+          </div>
+        </body>
+      </html>
   );
 }
