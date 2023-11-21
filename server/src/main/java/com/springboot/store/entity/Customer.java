@@ -44,11 +44,11 @@ public class Customer {
     private String status;
 
     @Column(name = "birthday")
-    @JsonFormat(pattern="yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date birthday;
 
     @Column(name = "created_at")
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdAt;
 
     @ManyToOne()
@@ -59,6 +59,6 @@ public class Customer {
     @JoinColumn(name = "creator_id")
     private Staff creator;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    private Set<Media> images;
+    @OneToOne(cascade = CascadeType.ALL)
+    private Media image;
 }
