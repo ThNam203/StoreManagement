@@ -33,7 +33,6 @@ public class Invoice {
     @Column(name ="total")
     private double total;
 
-
     @Column(name ="status")
     private Boolean status;
 
@@ -52,8 +51,8 @@ public class Invoice {
     @JoinColumn(name = "staff_id")
     private Staff staff;
 
-    @OneToMany(mappedBy = "invoice")
-    private Set<DiscountCode> discountCodes;
+    @OneToOne()
+    private DiscountCode discountCode;
 
     @OneToMany(cascade = CascadeType.ALL)
     private Set<InvoiceDetail> invoiceDetails;

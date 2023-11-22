@@ -54,8 +54,21 @@ public class Discount {
     @OneToMany(mappedBy = "discount", cascade = CascadeType.ALL)
     private Set<DiscountCode> discountCodes;
 
-    @OneToMany()
+    @ManyToMany
+    @JoinTable(
+            name = "coupon_product",
+            joinColumns = @JoinColumn(name = "coupon_id"),
+            inverseJoinColumns = @JoinColumn(name = "product_id")
+    )
     private Set<Product> products;
+
+    @ManyToMany
+    @JoinTable(
+            name = "coupon_product_group",
+            joinColumns = @JoinColumn(name = "coupon_id"),
+            inverseJoinColumns = @JoinColumn(name = "product_group_id")
+    )
+    private Set<ProductGroup> productGroups;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creator_id", nullable = false)

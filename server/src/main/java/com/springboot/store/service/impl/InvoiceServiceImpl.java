@@ -1,12 +1,12 @@
 package com.springboot.store.service.impl;
 
-import com.springboot.store.entity.Invoice;
-import com.springboot.store.entity.InvoiceDetail;
-import com.springboot.store.entity.Staff;
+import com.springboot.store.entity.*;
 import com.springboot.store.exception.CustomException;
 import com.springboot.store.mapper.InvoiceDetailMapper;
 import com.springboot.store.mapper.InvoiceMapper;
 import com.springboot.store.payload.InvoiceDTO;
+import com.springboot.store.repository.CustomerRepository;
+import com.springboot.store.repository.DiscountCodeRepository;
 import com.springboot.store.repository.InvoiceRepository;
 import com.springboot.store.service.InvoiceService;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +22,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class InvoiceServiceImpl implements InvoiceService {
     private final InvoiceRepository invoiceRepository;
+    private final DiscountCodeRepository discountCodeRepository;
+    private final CustomerRepository customerRepository;
     private final StaffServiceImpl staffService;
 
     @Override
@@ -41,8 +43,21 @@ public class InvoiceServiceImpl implements InvoiceService {
         Invoice invoice = InvoiceMapper.toInvoice(invoiceDTO);
         invoice.setCreatedAt(new Date());
         // TODO: set customer and staff
+        if (invoiceDTO.getCustomerId() != 0) {
+            Customer customer = customerRepository.findById(invoiceDTO.getCustomerId()).orElseThrow(() -> new CustomException("Customer with id " + invoiceDTO.getCustomerId() + " does not exist", HttpStatus.NOT_FOUND));
+            invoice.setCustomer(customer);
+        }
+
         Staff staff = staffService.getAuthorizedStaff();
         invoice.setStaff(staff);
+
+        // check code is valid
+        if (invoiceDTO.getCode() != null) {
+            DiscountCode discountCode = discountCodeRepository.findByCode(invoiceDTO.getCode()).orElseThrow(() -> new CustomException("Discount code " + invoiceDTO.getCode() + " does not exist", HttpStatus.NOT_FOUND));
+            if (discountCode.isUsed())
+                throw new CustomException("Discount code " + invoiceDTO.getCode() + " has been used", HttpStatus.BAD_REQUEST);
+            invoice.setDiscountCode(discountCode);
+        }
 
         if (invoiceDTO.getInvoiceDetails() != null) {
             Set<InvoiceDetail> invoiceDetails = invoiceDTO.getInvoiceDetails()
