@@ -56,6 +56,7 @@ public class InvoiceServiceImpl implements InvoiceService {
             DiscountCode discountCode = discountCodeRepository.findByCode(invoiceDTO.getCode()).orElseThrow(() -> new CustomException("Discount code " + invoiceDTO.getCode() + " does not exist", HttpStatus.NOT_FOUND));
             if (discountCode.isUsed())
                 throw new CustomException("Discount code " + invoiceDTO.getCode() + " has been used", HttpStatus.BAD_REQUEST);
+            discountCode.setUsed(true);
             invoice.setDiscountCode(discountCode);
         }
 

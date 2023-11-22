@@ -68,6 +68,8 @@ public class DiscountServiceImpl implements DiscountService {
     public DiscountDTO getDiscountByCode(String code) {
         DiscountCode discountCode = discountCodeRepository.findByCode(code)
                 .orElseThrow(() -> new CustomException("Discount code not found", HttpStatus.NOT_FOUND));
+        if (discountCode.isUsed())
+            throw new CustomException("Discount code has been used", HttpStatus.BAD_REQUEST);
         return DiscountMapper.toDiscountDTO(discountCode.getDiscount());
     }
 
