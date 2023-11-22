@@ -331,7 +331,7 @@ export default function CustomerPage() {
   ];
 
   return (
-    <PageWithFilters title="Customer" filters={filters} headerButtons={[]}>
+    <PageWithFilters title="Customer" filters={filters}>
       <DataTable data={filteredCustomerList} onSubmit={handleFormSubmit} />
     </PageWithFilters>
   );

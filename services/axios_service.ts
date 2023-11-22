@@ -1,7 +1,7 @@
 import axios from "axios";
 import createAuthRefreshInterceptor from 'axios-auth-refresh';
 
-const baseURL = "http://192.168.166.249:8080/";
+const baseURL = "http://localhost:8080";
 
 const AxiosService = axios.create({
   baseURL: baseURL,

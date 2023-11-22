@@ -223,12 +223,10 @@ export default function SupplierPage() {
       />
     </div>,
   ];
-  const headerButtons = [<Button key={0}>More+</Button>];
   return (
     <PageWithFilters
       title="Supplier"
       filters={filters}
-      headerButtons={headerButtons}
     >
       <DataTable data={filteredSupplierList} onSubmit={handleFormSubmit} />
     </PageWithFilters>

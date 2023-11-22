@@ -42,6 +42,7 @@ export const invoicesSlice = createSlice({
       const payload = action.payload
       action.payload.subTotal = payload.invoiceDetails.map((v) => v.price * v.quantity).reduce((prev, cur) => prev + cur, 0)
       action.payload.total = action.payload.subTotal
+      action.payload.cash = action.payload.subTotal
 
       state.value = state.value.map((invoice) =>
         invoice.id === action.payload.id ? action.payload : invoice

@@ -38,8 +38,6 @@ export default function GoodsReportLayout() {
     </div>,
   ];
 
-  const headerButtons = [<Button key={0}>More+</Button>];
-
   const [revenueChartData, setRevenueChartDate] = useState<
     Array<{ label: string; value: number }>
   >([
@@ -100,7 +98,6 @@ export default function GoodsReportLayout() {
     <PageWithFilters
       filters={filters}
       title="Goods Report"
-      headerButtons={headerButtons}
     >
       <div className="flex flex-col space-y-16">
         <div>

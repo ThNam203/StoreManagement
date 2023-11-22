@@ -138,13 +138,10 @@ export default function SaleReportLayout() {
     </div>,
   ];
 
-  const headerButtons = [<Button key={0}>More+</Button>];
-
   return (
     <PageWithFilters
       filters={filters}
       title="Sale Report"
-      headerButtons={headerButtons}
     >
       <div
         className={cn(

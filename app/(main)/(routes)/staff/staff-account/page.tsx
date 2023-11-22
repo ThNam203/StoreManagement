@@ -129,13 +129,11 @@ export default function StaffInfoPage() {
       />
     </div>,
   ];
-  const headerButtons = [<Button key={1}>More+</Button>];
 
   return (
     <PageWithFilters
       title="Staff"
       filters={filters}
-      headerButtons={headerButtons}
     >
       <DataTable data={filterdStaffList} onSubmit={handleFormSubmit} />
     </PageWithFilters>
