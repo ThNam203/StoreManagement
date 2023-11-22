@@ -9,14 +9,6 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import {
-  Page,
-  Text,
-  View,
-  Document,
-  StyleSheet,
-  pdf,
-} from "@react-pdf/renderer";
-import {
   AlignJustify,
   ChevronLeft,
   ChevronRight,
@@ -56,7 +48,6 @@ import {
   deleteInvoice,
   updateInvoice,
 } from "@/reducers/invoicesReducer";
-import { format, parse, parseISO } from "date-fns";
 import { faker } from "@faker-js/faker";
 import {
   Sheet,
@@ -71,6 +62,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import InvoiceService from "@/services/invoice_service";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
 import { useToast } from "@/components/ui/use-toast";
+import createInvoicePdf from "./createInvoicePdf";
 
 export default function Sale() {
   const invoicesContainerRef = useRef<HTMLDivElement>(null);
@@ -237,14 +229,14 @@ const InvoiceView = ({
 
     createInvoicePdf(submitInvoice);
 
-    // InvoiceService.uploadInvoice(submitInvoice)
-    //   .then((response) => {
-
-    //     dispatch(deleteInvoice(invoice.id));
-    //   })
-    //   .catch((e) => {
-    //     axiosUIErrorHandler(e, toast);
-    //   });
+    InvoiceService.uploadInvoice(submitInvoice)
+      .then((response) => {
+        dispatch(deleteInvoice(invoice.id));
+        return createInvoicePdf(response.data)
+      })
+      .catch((e) => {
+        axiosUIErrorHandler(e, toast);
+      });
   };
 
   return (
@@ -624,106 +616,3 @@ function autoGrowTextArea(element: HTMLTextAreaElement) {
   element.style.height = "5px";
   element.style.height = element.scrollHeight + "px";
 }
-
-const pdfStyleSheet = StyleSheet.create({
-  page: {
-    padding: 20,
-    width: "100%",
-    flexDirection: "column",
-    alignItems: "center",
-    backgroundColor: "#E4E4E4",
-  },
-  invoiceTitle: {
-    fontSize: 24,
-    textTransform: "uppercase",
-    fontWeight: "bold",
-    marginBottom: 20,
-  },
-  description: {
-    width: "100%",
-    display: "flex",
-    flexDirection: "row",
-  },
-  firstDescription: {
-    display: "flex",
-    flexDirection: "column",
-    flex: "100 1 1",
-  },
-  secondDescription: {
-    display: "flex",
-    flexDirection: "column",
-    flex: "100 1 1",
-  },
-  descriptionTitle: {
-    fontWeight: "bold",
-    marginBottom: 10,
-  },
-  flexJustifyBetween: {
-    display: "flex",
-    flexDirection: "row",
-    width: "100%",
-    justifyContent: "space-between",
-  },
-});
-
-const createInvoicePdf = async (invoice: Invoice) => {
-  const InvoiceView = () => (
-    <Document>
-      <Page size="A4" style={pdfStyleSheet.page}>
-        <Text style={pdfStyleSheet.invoiceTitle}>Invoice</Text>
-        <View style={pdfStyleSheet.description}>
-          <View style={pdfStyleSheet.firstDescription}>
-            <Text style={pdfStyleSheet.descriptionTitle}>
-              Invoice&apos;s id: {invoice.id}
-            </Text>
-            <Text style={pdfStyleSheet.descriptionTitle}>Staff: Nam Huynh</Text>
-          </View>
-          <View style={pdfStyleSheet.secondDescription}>
-            <Text style={pdfStyleSheet.descriptionTitle}>
-              Issued date: {format(parseISO(invoice.createdAt), "dd/MM/yyyy")}
-            </Text>
-            <Text style={pdfStyleSheet.descriptionTitle}>
-              Issued hours: {format(parseISO(invoice.createdAt), "mm:hh")}
-            </Text>
-          </View>
-        </View>
-        <View style={pdfStyleSheet.flexJustifyBetween}>
-          <Text style={{ fontWeight: "bold" }}>Sub total:</Text>
-          <Text style={{ fontWeight: "normal" }}>{invoice.subTotal}</Text>
-        </View>
-        {invoice.discountCode ? (
-          <View style={{...pdfStyleSheet.flexJustifyBetween, marginTop: 10 }}>
-            <Text style={{ fontWeight: "bold" }}>Discount applied:</Text>
-            <Text style={{ fontWeight: "normal" }}>{invoice.discountCode}</Text>
-          </View>
-        ) : null}
-        <View
-          style={{
-            width: "100%",
-            height: 0,
-            borderBottom: "1 solid #aaaaaa",
-            marginVertical: 10,
-          }}
-        />
-        <View style={pdfStyleSheet.flexJustifyBetween}>
-          <Text style={{ fontWeight: "bold" }}>
-            Total &#40;Pay by {invoice.paymentMethod}&#41;:
-          </Text>
-          <Text style={{ fontWeight: "normal" }}>{invoice.total}</Text>
-        </View>
-      </Page>
-    </Document>
-  );
-
-  const blob = await pdf(InvoiceView()).toBlob();
-  const objectURL = URL.createObjectURL(blob);
-
-  const iframe = document.createElement("iframe");
-  iframe.style.display = "none"; // Hide the iframe
-  document.body.appendChild(iframe);
-  iframe.src = objectURL;
-  iframe.onload = () => {
-    iframe.contentWindow!.print();
-    URL.revokeObjectURL(objectURL);
-  };
-};

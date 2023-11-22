@@ -9,6 +9,7 @@ type Product = {
   status: string;
   weight: number;
   description: string;
+  propertiesString?: string;
   note: string;
   minStock: number; // minstock
   maxStock: number; // maxstock
