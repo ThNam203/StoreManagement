@@ -45,18 +45,26 @@ import {
 } from "@/components/ui/accordion";
 import { useToast } from "@/components/ui/use-toast";
 import { Textarea } from "../textarea";
-import CatalogService from "@/services/catalog_service";
+import CatalogService from "@/services/product_service";
 import { RadioGroup, RadioGroupItem } from "../radio-group";
 import { Label } from "../label";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
-import { Product, ProductBrand, ProductGroup, ProductLocation, ProductProperty } from "@/entities/Product";
+import {
+  Product,
+  ProductBrand,
+  ProductGroup,
+  ProductLocation,
+  ProductProperty,
+} from "@/entities/Product";
 import LoadingCircle from "../loading_circle";
+import { useAppSelector } from "@/hooks";
+import { faker } from "@faker-js/faker";
 
 const newProductFormSchema = z.object({
   barcode: z
     .string({ required_error: "Barcode is missing" })
     .trim()
-    .min(1, { message: "Barcode is missing!" })
+    .min(0, { message: "Barcode is missing!" })
     .max(50, { message: "Barcode must be at most 50 characters!" }),
   name: z
     .string()
@@ -113,7 +121,7 @@ const newProductFormSchema = z.object({
       message: `Value must be less than ${Number.MAX_VALUE}`,
     }),
   images: z.array(z.string().nullable()).min(0).max(5).optional(),
-  properties: z
+  productProperties: z
     .array(
       z.object({
         id: z.number(),
@@ -154,12 +162,17 @@ const newProductFormSchema = z.object({
   note: z.string(),
   sameTypeProducts: z.array(
     z.object({
-      properties: z.record(z.string(), z.string()).optional(),
+      productProperties: z.record(z.string(), z.string()).optional(),
       unit: z.object({
         basicUnit: z.string(),
         name: z.string(),
         exchangeValue: z.number(),
       }),
+      barcode: z
+        .string({ required_error: "Barcode is missing" })
+        .trim()
+        .min(0, { message: "Barcode is missing!" })
+        .max(50, { message: "Barcode must be at most 50 characters!" }),
       originalPrice: z
         .number()
         .min(0, { message: "Original price must be at least 0" })
@@ -186,23 +199,15 @@ const newProductFormSchema = z.object({
 export const NewProductView = ({
   onChangeVisibility,
   onNewProductsAdded,
-  productLocations,
-  productGroups,
-  productBrands,
-  productProperties,
   addNewLocation,
   addNewGroup,
   addNewBrand,
   addNewProperty,
   onUpdateProperty,
-  onDeleteProperty
+  onDeleteProperty,
 }: {
   onChangeVisibility: (val: boolean) => any;
   onNewProductsAdded: (products: Product[]) => any;
-  productLocations: ProductLocation[];
-  productGroups: ProductGroup[];
-  productBrands: ProductBrand[];
-  productProperties: ProductProperty[];
   addNewLocation: (value: string) => any;
   addNewGroup: (value: string) => any;
   addNewBrand: (value: string) => any;
@@ -211,10 +216,18 @@ export const NewProductView = ({
   onDeleteProperty: (deletePropertyId: number) => any;
 }) => {
   const { toast } = useToast();
-  const productLocationChoices = productLocations;
-  const productGroupChoices = productGroups;
-  const productBrandChoices = productBrands;
-  const productPropertyChoices = productProperties;
+  const productLocationChoices = useAppSelector(
+    (state) => state.productLocations.value
+  );
+  const productGroupChoices = useAppSelector(
+    (state) => state.productGroups.value
+  );
+  const productBrandChoices = useAppSelector(
+    (state) => state.productBrands.value
+  );
+  const productPropertyChoices = useAppSelector(
+    (state) => state.productProperties.value
+  );
   const [productPropertyInputValues, setProductPropertyInputValues] = useState<
     string[]
   >([]);
@@ -247,7 +260,7 @@ export const NewProductView = ({
       minStock: 0,
       maxStock: 999999999,
       images: [null, null, null, null, null],
-      properties: null,
+      productProperties: null,
       units: {
         baseUnit: "",
         otherUnits: undefined,
@@ -265,10 +278,17 @@ export const NewProductView = ({
       idx === index ? { ...val, price: value } : val
     );
 
-    form.setValue("units", {
+    const newFormUnits = {
       baseUnit: form.getValues("units.baseUnit"),
       otherUnits: newUnits,
+    };
+
+    updateSameTypeProducts({
+      ...form.getValues(),
+      units: newFormUnits,
     });
+
+    form.setValue("units", newFormUnits);
   };
 
   const updatePriceUnits = () => {
@@ -281,28 +301,36 @@ export const NewProductView = ({
       price: productPrice * val.exchangeValue,
     }));
 
-    form.setValue("units", {
+    const newFormUnits = {
       baseUnit: form.getValues("units.baseUnit"),
       otherUnits: newUnits,
-    });
+    };
+
+    form.setValue("units", newFormUnits);
+
+    const formData = { ...form.getValues() };
+    formData.units = newFormUnits;
+    updateSameTypeProducts(formData);
   };
 
-  const updateSameTypeProducts = () => {
-    let properties = form.getValues("properties");
-    let units = form.getValues("units.otherUnits");
-    const baseUnit = form.getValues("units.baseUnit");
+  const updateSameTypeProducts = (newFormData: any) => {
+    let properties = newFormData.productProperties;
+    let units = newFormData.units ? newFormData.units.otherUnits : null;
+    const baseUnit = newFormData.units ? newFormData.units.baseUnit : null;
     let propertiesLength = 1;
     let unitsLength = 1;
 
     if (properties) {
-      properties = properties.filter((pro) => pro.key.length > 0);
-      properties.forEach((pro) => {
+      properties = properties.filter(
+        (pro: any) => pro.key.length > 0 && pro.values.length > 0
+      );
+      properties.forEach((pro: any) => {
         if (pro.values.length > 0) propertiesLength *= pro.values.length;
       });
     }
 
     if (units) {
-      units = units.filter((unit) => unit.unitName.length > 0);
+      units = units.filter((unit: any) => unit.unitName.length > 0);
       unitsLength += units.length;
     }
 
@@ -311,9 +339,10 @@ export const NewProductView = ({
       return;
     }
 
-    const originalPrice = form.getValues("originalPrice");
-    const productPrice = form.getValues("productPrice");
-    const stock = form.getValues("stock");
+    const originalPrice = newFormData.originalPrice;
+    const productPrice = newFormData.productPrice;
+    const stock = newFormData.stock;
+    const barcode = newFormData.barcode;
 
     const sameTypeProducts: any[] = [];
 
@@ -324,7 +353,7 @@ export const NewProductView = ({
           originalPrice: originalPrice,
           productPrice: productPrice,
           stock: stock,
-          properties: combination,
+          productProperties: combination,
         });
       });
     }
@@ -334,6 +363,7 @@ export const NewProductView = ({
         originalPrice: originalPrice,
         productPrice: productPrice,
         stock: stock,
+        barcode: barcode,
         unit: {
           basicUnit: baseUnit,
           name: baseUnit,
@@ -342,6 +372,7 @@ export const NewProductView = ({
       });
     } else {
       sameTypeProducts.forEach((product) => {
+        product["barcode"] = "";
         product["unit"] = {
           basicUnit: baseUnit,
           name: baseUnit,
@@ -364,7 +395,7 @@ export const NewProductView = ({
       }));
       sameTypeProducts.push(...newProducts);
     }
-
+    sameTypeProducts[0].barcode = barcode;
     form.setValue("sameTypeProducts", sameTypeProducts);
   };
   // if newFileUrl == null, it means the user removed image
@@ -388,7 +419,7 @@ export const NewProductView = ({
     e: React.KeyboardEvent<HTMLInputElement>,
     value: string,
     fieldValue: {
-      id: number,
+      id: number;
       values: string[];
       key: string;
     }[],
@@ -414,7 +445,12 @@ export const NewProductView = ({
           }
           return v;
         });
-        form.setValue("properties", newValue);
+        const newFormData = {
+          ...form.getValues(),
+          productProperties: newValue,
+        };
+        updateSameTypeProducts(newFormData);
+        form.setValue("productProperties", newValue);
       }
     }
   }
@@ -422,10 +458,16 @@ export const NewProductView = ({
   function onProductPropertyValueDelete(
     index: number,
     deleteIndex: number,
-    fieldValue: { id: number, values: string[]; key: string }[]
+    fieldValue: { id: number; values: string[]; key: string }[]
   ) {
     fieldValue[index].values.splice(deleteIndex, 1);
-    form.setValue("properties", [...fieldValue]);
+
+    const newFormData = {
+      ...form.getValues(),
+      productProperties: [...fieldValue],
+    };
+    updateSameTypeProducts(newFormData);
+    form.setValue("productProperties", [...fieldValue]);
   }
 
   function onSubmit(values: z.infer<typeof newProductFormSchema>) {
@@ -435,6 +477,7 @@ export const NewProductView = ({
     if (values.sameTypeProducts.length === 0) {
       data.push({
         ...values,
+        barcode: values.barcode ? values.barcode : faker.number.int({min: 100000000000, max: 999999999999 }),
         salesUnits: {
           basicUnit: values.units.baseUnit,
           name: values.units.baseUnit,
@@ -446,8 +489,9 @@ export const NewProductView = ({
       data = values.sameTypeProducts.map((sameProduct) => {
         const newElement: any = {
           ...values,
-          properties: sameProduct.properties
-            ? Object.entries(sameProduct.properties).map((val) => ({
+          barcode: sameProduct.barcode ? sameProduct.barcode : faker.number.int({min: 100000000000, max: 999999999999 }),
+          productProperties: sameProduct.productProperties
+            ? Object.entries(sameProduct.productProperties).map((val) => ({
                 propertyName: val[0],
                 propertyValue: val[1],
               }))
@@ -463,7 +507,7 @@ export const NewProductView = ({
         return newElement;
       });
     }
-
+    console.log(data)
     const dataForm: any = new FormData();
     dataForm.append(
       "data",
@@ -524,7 +568,7 @@ export const NewProductView = ({
                         <FormMessage className="mr-2 text-xs" />
                       </FormLabel>
                       <FormControl>
-                        <Input className="flex-1 !m-0" {...field} />
+                        <Input className="flex-1 !m-0" {...field} onBlur={() => updateSameTypeProducts(form.getValues())} />
                       </FormControl>
                     </FormItem>
                   )}
@@ -574,7 +618,7 @@ export const NewProductView = ({
                                   { shouldValidate: true }
                                 );
                               }}
-                              choices={productGroupChoices.map(v => v.name)}
+                              choices={productGroupChoices.map((v) => v.name)}
                             />
                           </div>
                           <AddNewThing
@@ -613,7 +657,7 @@ export const NewProductView = ({
                                   shouldValidate: true,
                                 });
                               }}
-                              choices={productBrandChoices.map(v => v.name)}
+                              choices={productBrandChoices.map((v) => v.name)}
                             />
                           </div>
                           <AddNewThing
@@ -652,7 +696,9 @@ export const NewProductView = ({
                                   shouldValidate: true,
                                 });
                               }}
-                              choices={productLocationChoices.map(v => v.name)}
+                              choices={productLocationChoices.map(
+                                (v) => v.name
+                              )}
                             />
                           </div>
                           <AddNewThing
@@ -731,7 +777,7 @@ export const NewProductView = ({
                               { shouldValidate: true }
                             )
                           }
-                          onBlur={updateSameTypeProducts}
+                          onBlur={() => updateSameTypeProducts(form.getValues())}
                         />
                       </FormControl>
                     </FormItem>
@@ -764,10 +810,7 @@ export const NewProductView = ({
                               { shouldValidate: true }
                             )
                           }
-                          onBlur={() => {
-                            updatePriceUnits();
-                            updateSameTypeProducts();
-                          }}
+                          onBlur={updatePriceUnits}
                         />
                       </FormControl>
                     </FormItem>
@@ -802,7 +845,7 @@ export const NewProductView = ({
                               }
                             )
                           }
-                          onBlur={updateSameTypeProducts}
+                          onBlur={() => updateSameTypeProducts(form.getValues())}
                         />
                       </FormControl>
                     </FormItem>
@@ -940,7 +983,7 @@ export const NewProductView = ({
             <div className="border rounded-sm mb-4">
               <FormField
                 control={form.control}
-                name="properties"
+                name="productProperties"
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
@@ -962,47 +1005,60 @@ export const NewProductView = ({
                                         className="flex flex-row items-center gap-2"
                                       >
                                         <Popover>
-                                          <PopoverTrigger>
-                                          {!value.key ||
-                                              value.key.length === 0 ? (
-                                                <>
-                                                  <p className=" p-1 text-start">
-                                                    Choose property...
-                                                  </p>
-                                                </>
-                                              ) : (
-                                                <>
-                                                  <p className=" p-1 text-start">
-                                                    {value.key}
-                                                  </p>
-                                                  <UpdatePropertyView
-                                                    property={value}
-                                                    onDeleteClick={onDeleteProperty}
-                                                    onUpdateClick={
-                                                      onUpdateProperty
-                                                    }
-                                                    onUpdateSuccess={(newVal, valId) => {
-                                                      const newValue = field.value!.map((v) => v.id === valId ? {
-                                                        ...v,
-                                                        key: newVal,
-                                                      } : v)
-
-                                                      form.setValue("properties", newValue)
-                                                    }}
-                                                    onDeleteSuccess={(
-                                                      propertyId
-                                                    ) => {
-                                                      form.setValue(
-                                                        "properties",
-                                                        field.value!.filter(
-                                                          (v) =>
-                                                            v.id !== propertyId
-                                                        )
+                                          <PopoverTrigger className="w-[150px]">
+                                            {!value.key ||
+                                            value.key.length === 0 ? (
+                                              <>
+                                                <p className=" p-1 text-start">
+                                                  Choose property...
+                                                </p>
+                                              </>
+                                            ) : (
+                                              <div className="flex flex-row items-center justify-between">
+                                                <p className=" p-1 text-start">
+                                                  {value.key}
+                                                </p>
+                                                <UpdatePropertyView
+                                                  property={value}
+                                                  onDeleteClick={
+                                                    onDeleteProperty
+                                                  }
+                                                  onUpdateClick={
+                                                    onUpdateProperty
+                                                  }
+                                                  onUpdateSuccess={(
+                                                    newVal,
+                                                    valId
+                                                  ) => {
+                                                    const newValue =
+                                                      field.value!.map((v) =>
+                                                        v.id === valId
+                                                          ? {
+                                                              ...v,
+                                                              key: newVal,
+                                                            }
+                                                          : v
                                                       );
-                                                    }}
-                                                  ></UpdatePropertyView>
-                                                </>
-                                              )}
+
+                                                    form.setValue(
+                                                      "productProperties",
+                                                      newValue
+                                                    );
+                                                  }}
+                                                  onDeleteSuccess={(
+                                                    propertyId
+                                                  ) => {
+                                                    form.setValue(
+                                                      "productProperties",
+                                                      field.value!.filter(
+                                                        (v) =>
+                                                          v.id !== propertyId
+                                                      )
+                                                    );
+                                                  }}
+                                                ></UpdatePropertyView>
+                                              </div>
+                                            )}
                                           </PopoverTrigger>
                                           <PopoverContent className="p-0">
                                             {productPropertyChoices.map(
@@ -1012,6 +1068,7 @@ export const NewProductView = ({
                                                     key={choiceIndex}
                                                     className="p-2 hover:bg-slate-300 rounded-sm hover:cursor-pointer flex flex-row justify-between items-center"
                                                     onClick={() => {
+                                                      let newFormProperties: any;
                                                       if (
                                                         field.value![index]
                                                           .key === choice.name
@@ -1019,10 +1076,13 @@ export const NewProductView = ({
                                                         field.value![
                                                           index
                                                         ].key = "";
+                                                        newFormProperties = [
+                                                          ...field.value!,
+                                                        ];
 
                                                         form.setValue(
-                                                          "properties",
-                                                          [...field.value!]
+                                                          "productProperties",
+                                                          newFormProperties
                                                         );
                                                       } else if (
                                                         !field.value!.every(
@@ -1048,20 +1108,31 @@ export const NewProductView = ({
                                                         field.value![
                                                           index
                                                         ].key = choice.name;
+                                                        newFormProperties = [
+                                                          ...field.value!,
+                                                        ];
 
                                                         form.setValue(
-                                                          "properties",
-                                                          [...field.value!]
+                                                          "productProperties",
+                                                          newFormProperties
                                                         );
                                                       }
                                                       // important
-                                                      updateSameTypeProducts();
+                                                      const newFormData = {
+                                                        ...form.getValues(),
+                                                        productProperties:
+                                                          newFormProperties,
+                                                      };
+                                                      updateSameTypeProducts(
+                                                        newFormData
+                                                      );
                                                     }}
                                                   >
                                                     <p className="text-sm">
                                                       {choice.name}
                                                     </p>
-                                                    {value.key === choice.name ? (
+                                                    {value.key ===
+                                                    choice.name ? (
                                                       <Check size={16} />
                                                     ) : null}
                                                   </div>
@@ -1088,8 +1159,6 @@ export const NewProductView = ({
                                                       keyIdx,
                                                       field.value!
                                                     );
-
-                                                    updateSameTypeProducts();
                                                   }}
                                                 />
                                               </div>
@@ -1109,7 +1178,9 @@ export const NewProductView = ({
                                               );
                                             }}
                                             onBlur={() =>
-                                              updateSameTypeProducts()
+                                              updateSameTypeProducts(
+                                                form.getValues()
+                                              )
                                             }
                                             onKeyDown={(e) => {
                                               onProductPropertyInputKeyDown(
@@ -1120,7 +1191,6 @@ export const NewProductView = ({
                                                 field.value!,
                                                 index
                                               );
-                                              updateSameTypeProducts();
                                             }}
                                             className="h-[35px] w-[200px] rounded-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 border-0 border-b"
                                           />
@@ -1130,19 +1200,26 @@ export const NewProductView = ({
                                           className="mr-4 hover:cursor-pointer"
                                           fill="black"
                                           onClick={(e) => {
-                                            form.setValue(
-                                              "properties",
+                                            const newProperties =
                                               field.value!.filter(
                                                 (_, idx) => idx !== index
-                                              )
+                                              );
+
+                                            form.setValue(
+                                              "productProperties",
+                                              newProperties
                                             );
-                                            updateSameTypeProducts();
                                             setProductPropertyInputValues(
                                               (prev) =>
                                                 prev.filter(
                                                   (_, idx) => idx !== index
                                                 )
                                             );
+
+                                            updateSameTypeProducts({
+                                              ...form.getValues(),
+                                              productProperties: newProperties,
+                                            });
                                           }}
                                         />
                                       </div>
@@ -1163,13 +1240,15 @@ export const NewProductView = ({
                                   }[];
 
                                   if (field.value === null)
-                                    newVal = [{ id: 123123, key: "", values: [] }];
+                                    newVal = [
+                                      { id: 123123, key: "", values: [] },
+                                    ];
                                   else
                                     newVal = [
                                       ...field.value,
                                       { id: 123123, key: "", values: [] },
                                     ];
-                                  form.setValue("properties", newVal, {
+                                  form.setValue("productProperties", newVal, {
                                     shouldValidate: false,
                                   });
                                   setProductPropertyInputValues((prev) => [
@@ -1229,7 +1308,7 @@ export const NewProductView = ({
                                       { shouldValidate: true }
                                     );
                                   }}
-                                  onBlur={updateSameTypeProducts}
+                                  onBlur={() => updateSameTypeProducts(form.getValues())}
                                 />
                               </div>
                               {field.value?.otherUnits
@@ -1240,14 +1319,16 @@ export const NewProductView = ({
                                         unitName={value.unitName}
                                         price={value.price}
                                         exchangeValue={value.exchangeValue}
-                                        onUnitNameBlur={updateSameTypeProducts}
+                                        onUnitNameBlur={() =>
+                                          updateSameTypeProducts(
+                                            form.getValues()
+                                          )
+                                        }
                                         onExchangeValueBlur={() => {
                                           updatePriceUnits();
-                                          updateSameTypeProducts();
                                         }}
                                         onPriceBlur={() => {
                                           updatePriceUnit(value.price, index);
-                                          updateSameTypeProducts();
                                         }}
                                         onUnitNameChanged={(val: string) => {
                                           const newObj = {
@@ -1302,17 +1383,20 @@ export const NewProductView = ({
                                           );
                                         }}
                                         onRemoveClick={() => {
-                                          form.setValue(
-                                            "units",
-                                            {
-                                              baseUnit: field.value!.baseUnit,
-                                              otherUnits:
-                                                field.value!.otherUnits!.filter(
-                                                  (_, idx) => idx !== index
-                                                ),
-                                            },
-                                            { shouldValidate: false }
-                                          );
+                                          const newUnits = {
+                                            baseUnit: field.value!.baseUnit,
+                                            otherUnits:
+                                              field.value!.otherUnits!.filter(
+                                                (_, idx) => idx !== index
+                                              ),
+                                          };
+                                          form.setValue("units", newUnits, {
+                                            shouldValidate: false,
+                                          });
+                                          updateSameTypeProducts({
+                                            ...form.getValues(),
+                                            units: newUnits,
+                                          });
                                         }}
                                       />
                                     );
@@ -1379,18 +1463,19 @@ export const NewProductView = ({
                       <div className="border rounded-b-sm pb-2">
                         <SameTypeProductView
                           properties={field.value
-                            .filter((val) => val.properties !== undefined)
-                            .map((val) => val.properties!)}
-                          unit={field.value
+                            .filter((val) => val.productProperties !== undefined)
+                            .map((val) => val.productProperties!)}
+                          units={field.value
                             .filter((val) => val.unit !== undefined)
                             .map((val) => val.unit.name!)}
-                          originalPrice={field.value.map(
+                          originalPrices={field.value.map(
                             (val) => val.originalPrice
                           )}
-                          productPrice={field.value.map(
+                          productPrices={field.value.map(
                             (val) => val.productPrice
                           )}
-                          stock={field.value.map((val) => val.stock)}
+                          barcodes={field.value.map((val) => val.barcode)}
+                          stocks={field.value.map((val) => val.stock)}
                           onOriginalPriceChanged={(val, index) => {
                             field.value[index].originalPrice = val;
                             form.setValue("sameTypeProducts", [...field.value]);
@@ -1401,6 +1486,10 @@ export const NewProductView = ({
                           }}
                           onStockChanged={(val, index) => {
                             field.value[index].stock = val;
+                            form.setValue("sameTypeProducts", [...field.value]);
+                          }}
+                          onBarcodeChanged={(val, index) => {
+                            field.value[index].barcode = val;
                             form.setValue("sameTypeProducts", [...field.value]);
                           }}
                           onRemoveClick={(index) => {
@@ -1461,6 +1550,7 @@ export const NewProductView = ({
                 variant={"green"}
                 type="submit"
                 className="px-4 min-w-[150px] uppercase"
+                disabled={isCreatingNewProduct}
               >
                 Save
                 <LoadingCircle
@@ -1478,6 +1568,7 @@ export const NewProductView = ({
                   e.preventDefault();
                   onChangeVisibility(false);
                 }}
+                disabled={isCreatingNewProduct}
               >
                 Cancel
               </Button>
@@ -1561,36 +1652,41 @@ const ProductNewUnitView = ({
 
 const SameTypeProductView = ({
   properties,
-  unit,
-  originalPrice,
-  productPrice,
-  stock,
+  units,
+  originalPrices,
+  productPrices,
+  stocks,
+  barcodes,
   onOriginalPriceChanged,
   onProductPriceChanged,
   onStockChanged,
+  onBarcodeChanged,
   onRemoveClick,
 }: {
   properties: Record<string, string>[];
-  unit: string[];
-  originalPrice: number[];
-  productPrice: number[];
-  stock: number[];
-  onOriginalPriceChanged: (val: number, index: number) => void;
-  onProductPriceChanged: (val: number, index: number) => void;
-  onStockChanged: (val: number, index: number) => void;
-  onRemoveClick: (index: number) => void;
+  units: string[];
+  originalPrices: number[];
+  productPrices: number[];
+  stocks: number[];
+  barcodes: string[];
+  onOriginalPriceChanged: (val: number, index: number) => any;
+  onProductPriceChanged: (val: number, index: number) => any;
+  onStockChanged: (val: number, index: number) => any;
+  onBarcodeChanged: (val: string, index: number) => any;
+  onRemoveClick: (index: number) => any;
 }) => {
   return (
     <div className="flex flex-col items-center gap-3 text-[0.8rem] p-1 w-full">
       <div className="flex flex-row w-full gap-2">
         <p className="font-semibold text-center flex-1">Property</p>
         <p className="font-semibold text-center flex-1">Unit</p>
+        <p className="font-semibold text-center flex-1">Barcode</p>
         <p className="font-semibold text-center flex-1">Original price</p>
         <p className="font-semibold text-center flex-1">Product price</p>
         <p className="font-semibold text-center flex-1">Stock</p>
         <div className="w-[50px]" /> {/* for trash bin*/}
       </div>
-      {originalPrice.map((_, idx) => {
+      {originalPrices.map((_, idx) => {
         return (
           <div
             key={idx}
@@ -1613,14 +1709,26 @@ const SameTypeProductView = ({
             {(() => {
               return (
                 <div className="flex-1 basis-0 text-center">
-                  <p>{unit && unit[idx] ? unit[idx] : ""}</p>
+                  <p>{units && units[idx] ? units[idx] : ""}</p>
                 </div>
               );
             })()}
             {(() => {
               return (
                 <input
-                  value={originalPrice[idx]}
+                  value={barcodes[idx]}
+                  placeholder="Generate automatically"
+                  onChange={(e) =>
+                    onBarcodeChanged(e.target.value, idx)
+                  }
+                  className="border-b border-blue-300 p-1 text-end flex-1 min-w-[0px]"
+                />
+              );
+            })()}
+            {(() => {
+              return (
+                <input
+                  value={originalPrices[idx]}
                   type="number"
                   min={0}
                   onChange={(e) =>
@@ -1633,7 +1741,7 @@ const SameTypeProductView = ({
             {(() => {
               return (
                 <input
-                  value={productPrice[idx]}
+                  value={productPrices[idx]}
                   type="number"
                   min={0}
                   onChange={(e) =>
@@ -1646,7 +1754,7 @@ const SameTypeProductView = ({
             {(() => {
               return (
                 <input
-                  value={stock[idx]}
+                  value={stocks[idx]}
                   type="number"
                   min={0}
                   onChange={(e) => onStockChanged(e.target.valueAsNumber, idx)}
@@ -1686,7 +1794,11 @@ const NewProductPropertiesInputErrorFormMessage = React.forwardRef<
   for (let i = 0; i < customError.length; i++) {
     if (customError[i] === undefined) continue;
     else {
-      message = customError[i].key.message || customError[i].values.message;
+      message = customError[i].key
+        ? customError[i].key.message
+        : customError[i].values
+        ? customError[i].values.message
+        : null;
       break;
     }
   }
@@ -1729,7 +1841,9 @@ const NewProductUnitInputErrorFormMessage = React.forwardRef<
           ? customError.otherUnits[i].unitName.message
           : customError.otherUnits[i].exchangeValue
           ? customError.otherUnits[i].exchangeValue.message
-          : customError.otherUnits[i].price.message;
+          : customError.otherUnits[i].price
+          ? customError.otherUnits[i].price.message
+          : null;
         break;
       }
     }
@@ -1791,7 +1905,7 @@ const AddNewThing = ({
             variant={"green"}
             onClick={async (e) => {
               setIsLoading(true);
-              await onAddClick(value)
+              await onAddClick(value);
               setIsLoading(false);
               onOpenChange(false);
             }}
@@ -1802,7 +1916,7 @@ const AddNewThing = ({
           </Button>
           <AlertDialogCancel
             className={
-              "bg-red-400 hover:bg-red-500 text-white hover:text-white"
+              "bg-red-400 hover:bg-red-500 text-white hover:text-white !h-[35px]"
             }
             disabled={isLoading}
           >
@@ -1837,7 +1951,9 @@ const ButtonAddNewThing = ({
         <Button
           variant={"green"}
           className="border ml-4 mt-2 h-[35px]"
-          type="button">{triggerTitle}
+          type="button"
+        >
+          {triggerTitle}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
@@ -1860,7 +1976,7 @@ const ButtonAddNewThing = ({
             variant={"green"}
             onClick={async (e) => {
               setIsLoading(true);
-              await onAddClick(value)
+              await onAddClick(value);
               setIsLoading(false);
               onOpenChange(false);
             }}
@@ -1871,7 +1987,7 @@ const ButtonAddNewThing = ({
           </Button>
           <AlertDialogCancel
             className={
-              "bg-red-400 hover:bg-red-500 text-white hover:text-white"
+              "bg-red-400 hover:bg-red-500 text-white hover:text-white !h-[35px]"
             }
             disabled={isLoading}
           >
@@ -1928,8 +2044,7 @@ const UpdatePropertyView = ({
           </div>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          
-        <Button
+          <Button
             variant={"green"}
             onClick={async (e) => {
               setIsLoading(true);

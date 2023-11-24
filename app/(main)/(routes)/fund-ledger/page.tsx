@@ -243,16 +243,12 @@ export default function SalesPage() {
     </div>,
   ];
 
-  const headerButtons = [<Button key={0}>More+</Button>];
-
   return (
     <PageWithFilters
       title="Fund Ledger"
       filters={filters}
-      headerButtons={headerButtons}
     >
       <DataTable data={filteredSaleList} onSubmit={handleFormSubmit} />
-      <Toaster />
     </PageWithFilters>
   );
 }

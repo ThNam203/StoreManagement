@@ -1,5 +1,5 @@
 import axios from "axios";
-import createAuthRefreshInterceptor from 'axios-auth-refresh';
+import createAuthRefreshInterceptor from "axios-auth-refresh";
 
 const baseURL = "http://localhost:8080/";
 
@@ -14,18 +14,23 @@ const RefreshTokenAxios = axios.create({
 });
 
 // Function that will be called to refresh authorization
-const refreshAuthLogic = async (failedRequest: any) =>{
+const refreshAuthLogic = async (failedRequest: any) => {
   try {
     const response = await RefreshTokenAxios.post(
       "/api/auth/refresh-token",
       {},
-      { withCredentials: true });
+      { withCredentials: true }
+    );
     return await Promise.resolve();
   } catch (refreshError) {
     return await Promise.reject(refreshError);
-  }}
+  }
+};
 
 // Instantiate the interceptor
-createAuthRefreshInterceptor(AxiosService, refreshAuthLogic, {statusCodes: [403], retryInstance: AxiosService });
+createAuthRefreshInterceptor(AxiosService, refreshAuthLogic, {
+  statusCodes: [403],
+  retryInstance: AxiosService,
+});
 
 export default AxiosService;

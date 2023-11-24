@@ -8,7 +8,6 @@ import {
   TimeFilter,
 } from "@/components/ui/filter";
 import { ImportForm, Status } from "@/entities/ImportForm";
-import { DiscountType } from "@/entities/Invoice";
 import { TimeFilterType, formatID, handleTimeFilter } from "@/utils";
 import { useEffect, useState } from "react";
 import { DataTable } from "./datatable";
@@ -25,7 +24,7 @@ for (let i = 0; i < 500; i++) {
     quantity: i,
     itemQuantity: i,
     subTotal: 1000000,
-    discountType: DiscountType.MONEY,
+    discountType: "Money",
     discount: 100000,
     total: 1000000 - 100000,
     moneyGiven: 1000000,
@@ -138,12 +137,11 @@ export default function ImportFormPage() {
       />
     </div>,
   ];
-  const headerButtons = [<Button key={1}>More+</Button>];
+
   return (
     <PageWithFilters
       title="Import Form"
       filters={filters}
-      headerButtons={headerButtons}
     >
       <DataTable data={filteredImportFormList}></DataTable>
     </PageWithFilters>

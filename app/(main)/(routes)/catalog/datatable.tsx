@@ -30,27 +30,18 @@ import {
 } from "@/components/ui/table";
 import React, { Ref, RefObject, useEffect, useRef, useState } from "react";
 import { DataTablePagination } from "@/components/ui/my_table_pagination";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 import Image from "next/image";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { cn } from "@/lib/utils";
 import { ChevronRight, Lock, PenLine, Trash } from "lucide-react";
-import { UpdateProductView } from "@/components/ui/catalog/update_product_form";
-// import { DataTableContent } from "@/components/ui/my_table_content";
 
 type Props = {
   data: Product[];
-  onRowClicked: (rowIndex: number) => any;
-  onProductUpdateButtonClicked: () => any;
+  onProductUpdateButtonClicked: (rowIndex: number) => any;
 };
 
 export function CatalogDatatable({
   data,
-  onRowClicked,
   onProductUpdateButtonClicked,
 }: Props) {
   const tableContainerRef = useRef<HTMLDivElement>(null);
@@ -133,7 +124,6 @@ export function CatalogDatatable({
         data={data}
         table={table}
         tableContainerRef={tableContainerRef}
-        onRowClicked={onRowClicked}
         onProductUpdateButtonClicked={onProductUpdateButtonClicked}
       />
     </div>
@@ -145,8 +135,7 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
   table: ReactTable<TData>;
   tableContainerRef: RefObject<HTMLDivElement>;
-  onRowClicked: (rowIndex: number) => any;
-  onProductUpdateButtonClicked: () => any;
+  onProductUpdateButtonClicked: (rowIndex: number) => any;
 }
 
 function DataTableContent<TData, TValue>({
@@ -154,7 +143,6 @@ function DataTableContent<TData, TValue>({
   data,
   table,
   tableContainerRef,
-  onRowClicked,
   onProductUpdateButtonClicked,
 }: DataTableProps<TData, TValue>) {
   return (
@@ -188,7 +176,6 @@ function DataTableContent<TData, TValue>({
                     key={row.id}
                     row={row}
                     containerRef={tableContainerRef}
-                    onRowClicked={onRowClicked}
                     onProductUpdateButtonClicked={onProductUpdateButtonClicked}
                   />
                 ))
@@ -213,18 +200,16 @@ function DataTableContent<TData, TValue>({
 const CustomRow = ({
   row,
   containerRef,
-  onRowClicked,
   onProductUpdateButtonClicked,
 }: {
   row: any;
   containerRef: RefObject<HTMLDivElement>;
-  onRowClicked: (rowIndex: number) => any;
-  onProductUpdateButtonClicked: () => any;
+  onProductUpdateButtonClicked: (rowIndex: number) => any;
 }) => {
   const [showInfoRow, setShowInfoRow] = React.useState(false);
   const product: Product = row.original;
   const [chosenImagePos, setChosenImagePos] = React.useState<number | null>(
-    product.images.length > 0 ? 0 : null
+    product.images && product.images.length > 0 ? 0 : null
   );
 
   const borderWidth =
@@ -240,7 +225,6 @@ const CustomRow = ({
         data-state={row.getIsSelected() && "selected"}
         onClick={(e) => {
           setShowInfoRow((prev) => !prev);
-          onRowClicked(row.index);
         }}
         className={cn("hover:cursor-pointer relative")}
       >
@@ -268,10 +252,12 @@ const CustomRow = ({
           {/* maintain odd - even row */}
           <tr>
             <td colSpan={row.getVisibleCells().length} className="p-0">
-              <div className={cn("p-2 border-b-2 border-green-400")}>
+              <div className={cn("border-b-2 border-green-400")}>
                 <div
-                  className="flex flex-col gap-4"
-                  style={{ width: borderWidth }}
+                  className="p-2 flex flex-col gap-4 "
+                  style={{
+                    width: borderWidth,
+                  }}
                 >
                   <h4 className="text-lg font-bold text-blue-800">
                     {product.name}
@@ -285,14 +271,14 @@ const CustomRow = ({
                         <img
                           alt="product image"
                           src={
-                            chosenImagePos !== null
+                            product.images && chosenImagePos !== null
                               ? product.images[chosenImagePos]
                               : "/default-product-img.jpg"
                           }
                           className="w-full max-h-[300px] max-w-[300px]"
                         />
                       </AspectRatio>
-                      {product.images.length > 0 ? (
+                      {product.images && product.images.length > 0 ? (
                         <div className="flex flex-row gap-2">
                           {product.images.map((imageLink, idx) => {
                             return (
@@ -405,7 +391,7 @@ const CustomRow = ({
                     <div className="flex-1" />
                     <Button
                       variant={"green"}
-                      onClick={(e) => onProductUpdateButtonClicked()}
+                      onClick={(e) => onProductUpdateButtonClicked(row.index)}
                     >
                       <PenLine size={16} fill="white" className="mr-2" />
                       Update
