@@ -21,7 +21,7 @@ export function CustomInput({
 
   useEffect(() => {
     if (onValueChange) onValueChange(value, unit);
-  }, [unit, value]);
+  }, [unit, value, onValueChange]);
 
   return (
     <div

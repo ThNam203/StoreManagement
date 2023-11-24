@@ -137,8 +137,10 @@ export function DataTable({ data, onSubmit }: Props) {
             [headerContent]: dataRow[header as keyof typeof dataRow],
           };
         } else {
+          console.log("header of undefined", header);
         }
       });
+      console.log("Temp: ", row);
       return row;
     });
 
@@ -156,7 +158,7 @@ export function DataTable({ data, onSubmit }: Props) {
           placeholder="Search anything..."
           value={filterInput}
           onChange={(event) => setFilterInput(event.target.value)}
-          className="max-w-sm mr-2"
+          className="max-w-sm"
         />
         <div className="flex flex-row">
           <div className="mr-2">

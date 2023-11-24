@@ -40,7 +40,6 @@ export function DataTable({ data, onSubmit }: Props) {
       sex: false,
       email: true,
       address: false,
-      branch: false,
       position: true,
       createAt: false,
     });

@@ -845,7 +845,9 @@ const PageWithFilters = ({
         )}
       >
         <div className="flex flex-col">
-          <ScrollArea className={cn("rounded-md", openFilter ? "pr-[1px]" : "")}>
+          <ScrollArea
+            className={cn("rounded-md", openFilter ? "pr-[1px]" : "")}
+          >
             <div className={openFilter ? "h-[calc(96vh-40px)]" : "h-[96vh]"}>
               {...filters}
             </div>
@@ -874,6 +876,7 @@ export {
   SearchFilter,
   RangeFilter,
   PageWithFilters,
+  TimerFilterRangePicker,
   FilterDay,
   FilterMonth,
   FilterWeek,
