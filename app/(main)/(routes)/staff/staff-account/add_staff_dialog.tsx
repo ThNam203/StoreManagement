@@ -63,7 +63,6 @@ const formSchema = z.object({
   sex: z.string(),
   CCCD: z.string().min(1, { message: "CCCD is empty" }),
   position: z.string(),
-  workingBranch: z.string(),
   phoneNumber: z.string().min(1, { message: "Phone number is empty" }),
   email: z.string().email({ message: "Please enter a valid email" }),
   address: z.string(),
@@ -177,7 +176,6 @@ export function AddStaffDialog({ data, submit }: Props) {
       sex: values.sex as Sex,
       email: values.email,
       address: values.address,
-      workingBranch: values.workingBranch,
       position: values.position,
       createAt: new Date(),
       salarySetting: {
@@ -197,16 +195,8 @@ export function AddStaffDialog({ data, submit }: Props) {
   function handleCancelDialog() {
     setOpen(false);
     form.reset();
+    setOvertimeBonusViewOption(false);
   }
-
-  const [branchList, setBranchList] = useState([
-    "Center Branch",
-    "Branch 1",
-    "Branch 2",
-    "Branch 3",
-  ]);
-  const branchInputRef = useRef<HTMLInputElement>(null);
-  const [openAddBranchDialog, setOpenAddBranchDialog] = useState(false);
 
   const [positionList, setPositionList] = useState([
     "Owner",
@@ -218,12 +208,6 @@ export function AddStaffDialog({ data, submit }: Props) {
   const positionInputRef = useRef<HTMLInputElement>(null);
   const [openAddPositionDialog, setOpenAddPositionDialog] = useState(false);
 
-  const handleAddingNewBranch = () => {
-    if (!branchInputRef.current) return;
-    if (branchList.includes(branchInputRef.current?.value)) return;
-    setBranchList((prev) => [...prev, branchInputRef.current?.value!]);
-    setOpenAddBranchDialog(false);
-  };
   const handleAddingNewPosition = () => {
     if (!positionInputRef.current) return;
     if (positionList.includes(positionInputRef.current?.value)) return;
@@ -315,34 +299,6 @@ export function AddStaffDialog({ data, submit }: Props) {
             variant={"default"}
             type="button"
             onClick={handleAddingNewPosition}
-          >
-            Save
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-  const addBranchDailog = (
-    <Dialog open={openAddBranchDialog} onOpenChange={setOpenAddBranchDialog}>
-      <DialogTrigger asChild>
-        <PlusCircle className="w-4 h-4 opacity-50 hover:cursor-pointer hover:opacity-100" />
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Add a new branch</DialogTitle>
-        </DialogHeader>
-
-        <div className="grid grid-cols-6 items-center gap-4">
-          <Label htmlFor="name" className="text-right grid-col-1 col-span-1">
-            Branch
-          </Label>
-          <Input ref={branchInputRef} className="grid-col-2 col-span-5" />
-        </div>
-        <DialogFooter>
-          <Button
-            variant={"default"}
-            type="button"
-            onClick={handleAddingNewBranch}
           >
             Save
           </Button>
@@ -531,36 +487,8 @@ export function AddStaffDialog({ data, submit }: Props) {
                                   }}
                                   className="w-2/3"
                                   placeholder="Search position..."
-                                  optionList={positionList}
+                                  choices={positionList}
                                   endIcon={addPositionDailog}
-                                />
-                              </FormControl>
-                            </div>
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="workingBranch"
-                        render={({ field }) => (
-                          <FormItem className="mt-2">
-                            <div className="flex flex-row items-center">
-                              <FormLabel className="w-1/3">
-                                <div className="flex flex-row items-center space-x-2">
-                                  <h5 className="text-sm">Branch</h5>
-                                  <Info size={16} />
-                                </div>
-                              </FormLabel>
-                              <FormControl>
-                                <MyCombobox
-                                  defaultValue={field.value}
-                                  onValueChange={(val) => {
-                                    form.setValue("workingBranch", val);
-                                  }}
-                                  className="w-2/3"
-                                  placeholder="Search branch..."
-                                  optionList={branchList}
-                                  endIcon={addBranchDailog}
                                 />
                               </FormControl>
                             </div>
@@ -669,7 +597,7 @@ export function AddStaffDialog({ data, submit }: Props) {
                                       <MyCombobox
                                         className="w-full"
                                         defaultValue={field.value.salaryType}
-                                        optionList={Object.values(SalaryType)}
+                                        choices={Object.values(SalaryType)}
                                         onValueChange={(val) => {
                                           form.setValue(
                                             "baseSalary.salaryType",

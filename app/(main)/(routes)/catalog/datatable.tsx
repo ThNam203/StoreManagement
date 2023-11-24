@@ -258,11 +258,8 @@ const CustomRow = ({
         <td
           className={cn(
             "absolute left-0 right-0 bottom-0 top-0",
-            showInfoRow ? "border-2 border-b-0 border-green-400" : "hidden"
+            showInfoRow ? "border-t-2 border-green-400" : "hidden"
           )}
-          style={{
-            width: borderWidth,
-          }}
         ></td>
       </TableRow>
       {showInfoRow ? (
@@ -271,148 +268,157 @@ const CustomRow = ({
           {/* maintain odd - even row */}
           <tr>
             <td colSpan={row.getVisibleCells().length} className="p-0">
-              <div
-                className={cn(
-                  "table-fixed p-2 flex flex-col gap-4 border-2 border-t-0 border-green-400"
-                )}
-                style={{
-                  width: borderWidth,
-                }}
-              >
-                <h4 className="text-lg font-bold text-blue-800">
-                  {product.name}
-                </h4>
-                <div className="flex flex-row gap-4">
-                  <div className="flex flex-col grow-[2] shrink-[2] gap-2 max-w-[300px]">
-                    <AspectRatio className="w-full flex items-center justify-center  border-2 border-gray-200 rounded-sm" ratio={1/1}>
-                    <img
-                      alt="product image"
-                      src={
-                        chosenImagePos !== null
-                          ? product.images[chosenImagePos]
-                          : "/default-product-img.jpg"
-                      }
-                      className="w-full max-h-[300px] max-w-[300px]"
-                    />
-                    </AspectRatio>
-                    {product.images.length > 0 ? (
-                      <div className="flex flex-row gap-2">
-                        {product.images.map((imageLink, idx) => {
-                          return (
-                            <div
-                              className={cn(
-                                "max-h-[53px] max-w-[60px] border",
-                                chosenImagePos === idx
-                                  ? "border-black"
-                                  : "border-gray-200"
-                              )}
-                              key={idx}
-                              onClick={(_) => setChosenImagePos(idx)}
-                            >
-                              <img
-                                alt="product image preview"
-                                src={imageLink ?? "/default-product-img.jpg"}
-                                className="object-contain mb-1"
-                              />
-                            </div>
-                          );
-                        })}
-                      </div>
-                    ) : null}
-                  </div>
-                  <div className="flex flex-row grow-[5] shrink-[5] text-[0.8rem]">
-                    <div className="flex-1 flex flex-col pr-4">
-                      <div className="flex flex-row font-medium border-b mb-2">
-                        <p className="w-[100px] font-normal">Product id:</p>
-                        <p>{product.id}</p>
-                      </div>
-                      <div className="flex flex-row font-medium border-b mb-2">
-                        <p className="w-[100px] font-normal">Product group:</p>
-                        {product.productGroup ? <p>{product.productGroup}</p> : null}
-                      </div>
-                      <div className="flex flex-row font-medium border-b mb-2">
-                        <p className="w-[100px] font-normal">Brand:</p>
-                        {product.productBrand ? <p>{product.productBrand}</p> : null}
-                      </div>
-                      <div className="flex flex-row font-medium border-b mb-2">
-                        <p className="w-[100px] font-normal">Stock:</p>
-                        <p>{product.stock}</p>
-                      </div>
-                      <div className="flex flex-row font-medium border-b mb-2">
-                        <p className="w-[100px] font-normal">Stock quota:</p>
-                        <div className="flex flex-row items-center">
-                          <p>{product.minStock}</p>
-                          <ChevronRight size={14} className="mx-1 p-0" />
-                          <p>{product.maxStock}</p>
+              <div className={cn("p-2 border-b-2 border-green-400")}>
+                <div
+                  className="flex flex-col gap-4"
+                  style={{ width: borderWidth }}
+                >
+                  <h4 className="text-lg font-bold text-blue-800">
+                    {product.name}
+                  </h4>
+                  <div className="flex flex-row gap-4">
+                    <div className="flex flex-col grow-[2] shrink-[2] gap-2 max-w-[300px]">
+                      <AspectRatio
+                        className="w-full flex items-center justify-center  border-2 border-gray-200 rounded-sm"
+                        ratio={1 / 1}
+                      >
+                        <img
+                          alt="product image"
+                          src={
+                            chosenImagePos !== null
+                              ? product.images[chosenImagePos]
+                              : "/default-product-img.jpg"
+                          }
+                          className="w-full max-h-[300px] max-w-[300px]"
+                        />
+                      </AspectRatio>
+                      {product.images.length > 0 ? (
+                        <div className="flex flex-row gap-2">
+                          {product.images.map((imageLink, idx) => {
+                            return (
+                              <div
+                                className={cn(
+                                  "max-h-[53px] max-w-[60px] border",
+                                  chosenImagePos === idx
+                                    ? "border-black"
+                                    : "border-gray-200"
+                                )}
+                                key={idx}
+                                onClick={(_) => setChosenImagePos(idx)}
+                              >
+                                <img
+                                  alt="product image preview"
+                                  src={imageLink ?? "/default-product-img.jpg"}
+                                  className="object-contain mb-1"
+                                />
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : null}
+                    </div>
+                    <div className="flex flex-row grow-[5] shrink-[5] text-[0.8rem]">
+                      <div className="flex-1 flex flex-col pr-4">
+                        <div className="flex flex-row font-medium border-b mb-2">
+                          <p className="w-[100px] font-normal">Product id:</p>
+                          <p>{product.id}</p>
+                        </div>
+                        <div className="flex flex-row font-medium border-b mb-2">
+                          <p className="w-[100px] font-normal">
+                            Product group:
+                          </p>
+                          {product.productGroup ? (
+                            <p>{product.productGroup}</p>
+                          ) : null}
+                        </div>
+                        <div className="flex flex-row font-medium border-b mb-2">
+                          <p className="w-[100px] font-normal">Brand:</p>
+                          {product.productBrand ? (
+                            <p>{product.productBrand}</p>
+                          ) : null}
+                        </div>
+                        <div className="flex flex-row font-medium border-b mb-2">
+                          <p className="w-[100px] font-normal">Stock:</p>
+                          <p>{product.stock}</p>
+                        </div>
+                        <div className="flex flex-row font-medium border-b mb-2">
+                          <p className="w-[100px] font-normal">Stock quota:</p>
+                          <div className="flex flex-row items-center">
+                            <p>{product.minStock}</p>
+                            <ChevronRight size={14} className="mx-1 p-0" />
+                            <p>{product.maxStock}</p>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-row font-medium border-b mb-2">
+                          <p className="w-[100px] font-normal">
+                            Product price:
+                          </p>
+                          <p>{product.productPrice}</p>
+                        </div>
+                        <div className="flex flex-row font-medium border-b mb-2">
+                          <p className="w-[100px] font-normal">
+                            Original price:
+                          </p>
+                          <p>{product.originalPrice}</p>
+                        </div>
+                        <div className="flex flex-row font-medium border-b mb-2">
+                          <p className="w-[100px] font-normal">Weight:</p>
+                          <p>{product.weight}</p>
+                        </div>
+                        <div className="flex flex-row font-medium border-b mb-2">
+                          <p className="w-[100px] font-normal">Location:</p>
+                          <p>{product.location}</p>
                         </div>
                       </div>
-
-                      <div className="flex flex-row font-medium border-b mb-2">
-                        <p className="w-[100px] font-normal">Product price:</p>
-                        <p>{product.productPrice}</p>
-                      </div>
-                      <div className="flex flex-row font-medium border-b mb-2">
-                        <p className="w-[100px] font-normal">Original price:</p>
-                        <p>{product.originalPrice}</p>
-                      </div>
-                      <div className="flex flex-row font-medium border-b mb-2">
-                        <p className="w-[100px] font-normal">Weight:</p>
-                        <p>{product.weight}</p>
-                      </div>
-                      <div className="flex flex-row font-medium border-b mb-2">
-                        <p className="w-[100px] font-normal">Location:</p>
-                        <p>{product.location}</p>
-                      </div>
-                    </div>
-                    <div className="flex-1 flex flex-col pr-4">
-                      <div className="flex flex-row font-medium border-b mb-2">
-                        <p className="w-[100px] font-normal">Status:</p>
-                        <p>{product.status}</p>
-                      </div>
-                      <div>
-                        <p className="mb-2">Description</p>
-                        <textarea
-                          readOnly
-                          className={cn(
-                            "resize-none border-2 rounded-sm p-1 h-[80px] w-full",
-                            scrollbar_style.scrollbar
-                          )}
-                          defaultValue={product.description}
-                        ></textarea>
-                      </div>
-                      <div>
-                        <p className="mb-2">Note</p>
-                        <textarea
-                          readOnly
-                          className={cn(
-                            "resize-none border-2 rounded-sm p-1 h-[80px] w-full",
-                            scrollbar_style.scrollbar
-                          )}
-                          defaultValue={product.note}
-                        ></textarea>
+                      <div className="flex-1 flex flex-col pr-4">
+                        <div className="flex flex-row font-medium border-b mb-2">
+                          <p className="w-[100px] font-normal">Status:</p>
+                          <p>{product.status}</p>
+                        </div>
+                        <div>
+                          <p className="mb-2">Description</p>
+                          <textarea
+                            readOnly
+                            className={cn(
+                              "resize-none border-2 rounded-sm p-1 h-[80px] w-full",
+                              scrollbar_style.scrollbar
+                            )}
+                            defaultValue={product.description}
+                          ></textarea>
+                        </div>
+                        <div>
+                          <p className="mb-2">Note</p>
+                          <textarea
+                            readOnly
+                            className={cn(
+                              "resize-none border-2 rounded-sm p-1 h-[80px] w-full",
+                              scrollbar_style.scrollbar
+                            )}
+                            defaultValue={product.note}
+                          ></textarea>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-                <div className="flex flex-row items-center gap-2">
-                  <div className="flex-1" />
-                  <Button variant={"green"}
-                      onClick={(e) => onProductUpdateButtonClicked()}>
-                    <PenLine
-                      size={16}
-                      fill="white"
-                      className="mr-2"
-                    />
-                    Update
-                  </Button>
-                  <Button variant={"red"}>
-                    <Lock size={16} className="mr-2" />
-                    Disable product
-                  </Button>
-                  <Button variant={"red"}>
-                    <Trash size={16} className="mr-2" />
-                    Remove
-                  </Button>
+                  <div className="flex flex-row items-center gap-2">
+                    <div className="flex-1" />
+                    <Button
+                      variant={"green"}
+                      onClick={(e) => onProductUpdateButtonClicked()}
+                    >
+                      <PenLine size={16} fill="white" className="mr-2" />
+                      Update
+                    </Button>
+                    <Button variant={"red"}>
+                      <Lock size={16} className="mr-2" />
+                      Disable product
+                    </Button>
+                    <Button variant={"red"}>
+                      <Trash size={16} className="mr-2" />
+                      Remove
+                    </Button>
+                  </div>
                 </div>
               </div>
             </td>

@@ -94,7 +94,11 @@ export default function Catalog() {
   const updateProperty = async (newValue: string, propertyId: number) => {
     try {
       const data = await CatalogService.updateProperty(newValue, propertyId);
-      setProductProperties((prev) => prev.map((property) => propertyId === property.id ? data.data : property));
+      setProductProperties((prev) =>
+        prev.map((property) =>
+          propertyId === property.id ? data.data : property
+        )
+      );
       return Promise.resolve();
     } catch (e) {
       axiosUIErrorHandler(e, toast);
@@ -104,14 +108,16 @@ export default function Catalog() {
 
   const deleteProperty = async (propertyId: number) => {
     try {
-      await CatalogService.deleteProperty(propertyId)
-      setProductProperties(prev => prev.filter((property) => propertyId !== property.id))
+      await CatalogService.deleteProperty(propertyId);
+      setProductProperties((prev) =>
+        prev.filter((property) => propertyId !== property.id)
+      );
       return Promise.resolve();
     } catch (e) {
-      axiosUIErrorHandler(e, toast)
+      axiosUIErrorHandler(e, toast);
       return Promise.reject();
     }
-  }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -128,7 +134,7 @@ export default function Catalog() {
 
         const propertiesResult = await CatalogService.getAllProperties();
         setProductProperties(propertiesResult.data);
-        
+
         const groupsResult = await CatalogService.getAllGroups();
         setProductGroups(groupsResult.data);
         dispatch(disablePreloader());

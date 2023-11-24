@@ -362,6 +362,8 @@ export {
   formatPrice,
   getMinMaxOfListTime,
   getStaticRangeFilterTime,
+  isInRangeNum,
+  isInRangeTime,
   handleMultipleFilter,
   handleRangeNumFilter,
   handleRangeTimeFilter,

@@ -1,23 +1,13 @@
 "use client";
 
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import { ChevronDown } from "lucide-react";
-import { nanoid } from "nanoid";
-
+import { Button } from "@/components/ui/button";
+import { PageWithFilters, SearchFilter } from "@/components/ui/filter";
 import { Sex, Staff } from "@/entities/Staff";
+import { formatID, handleMultipleFilter } from "@/utils";
 import { useEffect, useState } from "react";
 import { DataTable } from "./datatable";
-import {
-  ChoicesFilter,
-  PageWithFilters,
-  SearchFilter,
-} from "@/components/ui/filter";
-import { Button } from "@/components/ui/button";
-import { formatID, handleMultipleFilter } from "@/utils";
+import { BonusUnit, SalaryType } from "@/entities/SalarySetting";
+import { getAllStaffs } from "@/services/staff_service";
 
 const originalStaffList: Staff[] = [
   {
@@ -32,9 +22,50 @@ const originalStaffList: Staff[] = [
     CCCD: "012301923012",
     birthday: new Date("2003-8-4"),
     createAt: new Date(),
-    workingBranch: "Center",
     position: "Safe guard",
     salaryDebt: 0,
+    salarySetting: {
+      baseSalary: {
+        value: 100000,
+        salaryType: SalaryType.ByDay,
+      },
+      baseBonus: {
+        saturday: {
+          value: 0,
+          unit: BonusUnit["%"],
+        },
+        sunday: {
+          value: 0,
+          unit: BonusUnit["%"],
+        },
+        dayOff: {
+          value: 0,
+          unit: BonusUnit["%"],
+        },
+        holiday: {
+          value: 0,
+          unit: BonusUnit["%"],
+        },
+      },
+      overtimeBonus: {
+        saturday: {
+          value: 0,
+          unit: BonusUnit["%"],
+        },
+        sunday: {
+          value: 0,
+          unit: BonusUnit["%"],
+        },
+        dayOff: {
+          value: 0,
+          unit: BonusUnit["%"],
+        },
+        holiday: {
+          value: 0,
+          unit: BonusUnit["%"],
+        },
+      },
+    },
   },
   {
     avatar: "",
@@ -48,9 +79,50 @@ const originalStaffList: Staff[] = [
     CCCD: "012301923011",
     birthday: new Date("2003-4-4"),
     createAt: new Date(),
-    workingBranch: "Branch 1",
     position: "Cashier",
     salaryDebt: 0,
+    salarySetting: {
+      baseSalary: {
+        value: 100000,
+        salaryType: SalaryType.ByDay,
+      },
+      baseBonus: {
+        saturday: {
+          value: 0,
+          unit: BonusUnit["%"],
+        },
+        sunday: {
+          value: 0,
+          unit: BonusUnit["%"],
+        },
+        dayOff: {
+          value: 0,
+          unit: BonusUnit["%"],
+        },
+        holiday: {
+          value: 0,
+          unit: BonusUnit["%"],
+        },
+      },
+      overtimeBonus: {
+        saturday: {
+          value: 0,
+          unit: BonusUnit["%"],
+        },
+        sunday: {
+          value: 0,
+          unit: BonusUnit["%"],
+        },
+        dayOff: {
+          value: 0,
+          unit: BonusUnit["%"],
+        },
+        holiday: {
+          value: 0,
+          unit: BonusUnit["%"],
+        },
+      },
+    },
   },
   {
     avatar: "",
@@ -64,21 +136,65 @@ const originalStaffList: Staff[] = [
     CCCD: "012301943012",
     birthday: new Date("2003-8-8"),
     createAt: new Date(),
-    workingBranch: "Branch 2",
     position: "Store Manager",
     salaryDebt: 0,
+    salarySetting: {
+      baseSalary: {
+        value: 100000,
+        salaryType: SalaryType.ByDay,
+      },
+      baseBonus: {
+        saturday: {
+          value: 0,
+          unit: BonusUnit["%"],
+        },
+        sunday: {
+          value: 0,
+          unit: BonusUnit["%"],
+        },
+        dayOff: {
+          value: 0,
+          unit: BonusUnit["%"],
+        },
+        holiday: {
+          value: 0,
+          unit: BonusUnit["%"],
+        },
+      },
+      overtimeBonus: {
+        saturday: {
+          value: 0,
+          unit: BonusUnit["%"],
+        },
+        sunday: {
+          value: 0,
+          unit: BonusUnit["%"],
+        },
+        dayOff: {
+          value: 0,
+          unit: BonusUnit["%"],
+        },
+        holiday: {
+          value: 0,
+          unit: BonusUnit["%"],
+        },
+      },
+    },
   },
 ];
 
 export default function StaffInfoPage() {
   const [staffList, setStaffList] = useState<Staff[]>([]);
-  const [workingBranchList, setWorkingBranchList] = useState<string[]>([]);
   const [filterdStaffList, setFilteredStaffList] = useState<Staff[]>([]);
   const [multiFilter, setMultiFilter] = useState({
-    branch: [] as string[],
     position: [] as string[],
   });
   useEffect(() => {
+    const fetchStaffs = async () => {
+      const res = await getAllStaffs();
+      console.log(res);
+    };
+    fetchStaffs();
     const res = originalStaffList;
     const formatedData: Staff[] = res.map((row) => {
       const newRow = { ...row };
@@ -86,9 +202,6 @@ export default function StaffInfoPage() {
       return newRow;
     });
     setStaffList(formatedData);
-    setWorkingBranchList(
-      Array.from(new Set(formatedData.map((staff) => staff.workingBranch)))
-    );
   }, []);
 
   useEffect(() => {
@@ -101,10 +214,6 @@ export default function StaffInfoPage() {
   function handleFormSubmit(values: Staff) {
     setStaffList((prev) => [...prev, values]);
   }
-
-  const updateBranchMultiFilter = (values: string[]) => {
-    setMultiFilter((prev) => ({ ...prev, branch: values }));
-  };
   const updatePositionMultiFilter = (values: string[]) => {
     setMultiFilter((prev) => ({ ...prev, position: values }));
   };
@@ -118,14 +227,6 @@ export default function StaffInfoPage() {
         chosenValues={multiFilter.position}
         choices={Array.from(new Set(staffList.map((staff) => staff.position)))}
         onValuesChanged={updatePositionMultiFilter}
-      />
-      <SearchFilter
-        key={2}
-        title="Branch"
-        placeholder="Search branch"
-        chosenValues={multiFilter.branch}
-        choices={workingBranchList}
-        onValuesChanged={updateBranchMultiFilter}
       />
     </div>,
   ];

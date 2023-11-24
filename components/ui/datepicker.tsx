@@ -13,13 +13,16 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-type Props = {
+export function DatePicker({
+  value = new Date(),
+  onChange,
+  disabled = false,
+}: {
   value?: Date;
   onChange?: (date: Date) => void;
-};
-
-export function DatePicker({ value, onChange }: Props) {
-  const [date, setDate] = React.useState<Date>();
+  disabled?: boolean;
+}) {
+  const [date, setDate] = React.useState<Date | undefined>(value);
 
   React.useEffect(() => {
     if (onChange && date) onChange(date);
@@ -29,6 +32,7 @@ export function DatePicker({ value, onChange }: Props) {
     <Popover>
       <PopoverTrigger asChild>
         <Button
+          disabled={disabled}
           variant={"outline"}
           className={cn(
             "w-full justify-start text-left font-normal",

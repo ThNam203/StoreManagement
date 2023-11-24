@@ -12,10 +12,9 @@ export type Staff = {
   sex: Sex;
   email: string;
   address: string;
-  workingBranch: string;
   position: string;
   createAt: Date;
-  salarySetting?: SalarySetting;
+  salarySetting: SalarySetting;
 };
 
 export enum Sex {
