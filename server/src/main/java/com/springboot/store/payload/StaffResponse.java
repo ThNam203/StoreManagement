@@ -28,7 +28,7 @@ public class StaffResponse {
     private Role role;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdAt;
-    private String creator;
+    private Integer creator;
 
     private StaffSalary staffSalary;
 }
