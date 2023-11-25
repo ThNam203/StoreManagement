@@ -1,5 +1,3 @@
-import { DiscountType } from "./Invoice";
-
 export type ImportForm = {
   id: any;
   returnId?: any;
@@ -11,7 +9,7 @@ export type ImportForm = {
   quantity: number;
   itemQuantity: number;
   subTotal: number;
-  discountType: DiscountType;
+  discountType: string;
   discount: number;
   total: number;
   moneyGiven: number;

@@ -72,12 +72,10 @@ function defaultConfigColumn<T>(): ColumnDef<T> {
   return {
     id: "actions",
     enableHiding: false,
-    cell: ({ row }) => {
+    cell: ({ row, table }) => {
       const rowData = row.original;
 
-      const handleDeleteRow = (id: any) => {
-        // Gửi request đến API để xóa row
-      };
+      const handleDeleteRow = (id: any) => {};
 
       return (
         <div className="text-right">
@@ -101,7 +99,10 @@ function defaultConfigColumn<T>(): ColumnDef<T> {
   };
 }
 
-function getColumns<T>(columnHeader: object): ColumnDef<T>[] {
+function getColumns<T>(
+  columnHeader: object,
+  hasConfigColumn?: boolean
+): ColumnDef<T>[] {
   const columns: ColumnDef<T>[] = [
     defaultSelectColumn<T>(),
     defaultIndexColumn<T>(),
@@ -110,8 +111,10 @@ function getColumns<T>(columnHeader: object): ColumnDef<T>[] {
     const col: ColumnDef<T> = defaultColumn<T>(key, columnHeader);
     columns.push(col);
   }
-  const lastCol: ColumnDef<T> = defaultConfigColumn();
-  columns.push(lastCol);
+  if (hasConfigColumn) {
+    const lastCol: ColumnDef<T> = defaultConfigColumn();
+    columns.push(lastCol);
+  }
   return columns;
 }
 

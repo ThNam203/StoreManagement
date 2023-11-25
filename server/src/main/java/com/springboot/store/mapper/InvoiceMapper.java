@@ -16,13 +16,14 @@ public class InvoiceMapper {
                 .status(invoice.getStatus())
                 .paymentMethod(invoice.getPaymentMethod())
                 .createdAt(invoice.getCreatedAt())
-                .customerName(invoice.getCustomer() == null ? null : invoice.getCustomer().getName())
-                .staffName(invoice.getStaff() == null ? null : invoice.getStaff().getName())
+                .customerId(invoice.getCustomer() == null ? 0 : invoice.getCustomer().getId())
+                .staffId(invoice.getStaff() == null ? 0 : invoice.getStaff().getId())
                 .invoiceDetails(invoice.getInvoiceDetails() == null ? null
                         : invoice.getInvoiceDetails()
                         .stream()
                         .map(InvoiceDetailMapper::toInvoiceDetailDTO)
                         .collect(Collectors.toSet()))
+                .code(invoice.getDiscountCode() == null ? null : invoice.getDiscountCode().getCode())
                 .build();
     }
 

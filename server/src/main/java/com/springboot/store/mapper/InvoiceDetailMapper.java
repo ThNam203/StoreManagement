@@ -9,6 +9,7 @@ public class InvoiceDetailMapper {
                 .id(invoiceDetail.getId())
                 .quantity(invoiceDetail.getQuantity())
                 .price(invoiceDetail.getPrice())
+                .discount(invoiceDetail.getDiscount())
                 .description(invoiceDetail.getDescription())
                 .productId(invoiceDetail.getProductId())
                 .build();
@@ -18,6 +19,7 @@ public class InvoiceDetailMapper {
         return InvoiceDetail.builder()
                 .quantity(invoiceDetailDTO.getQuantity())
                 .price(invoiceDetailDTO.getPrice())
+                .discount(invoiceDetailDTO.getDiscount())
                 .description(invoiceDetailDTO.getDescription())
                 .productId(invoiceDetailDTO.getProductId())
                 .build();

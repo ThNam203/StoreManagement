@@ -1,13 +1,15 @@
 package com.springboot.store.service.impl;
 
-import com.springboot.store.entity.Invoice;
-import com.springboot.store.entity.InvoiceDetail;
-import com.springboot.store.entity.Staff;
+import com.springboot.store.entity.*;
 import com.springboot.store.exception.CustomException;
 import com.springboot.store.mapper.InvoiceDetailMapper;
 import com.springboot.store.mapper.InvoiceMapper;
 import com.springboot.store.payload.InvoiceDTO;
+import com.springboot.store.repository.CustomerRepository;
+import com.springboot.store.repository.DiscountCodeRepository;
 import com.springboot.store.repository.InvoiceRepository;
+import com.springboot.store.repository.ProductRepository;
+import com.springboot.store.service.DiscountService;
 import com.springboot.store.service.InvoiceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,7 +24,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class InvoiceServiceImpl implements InvoiceService {
     private final InvoiceRepository invoiceRepository;
+    private final CustomerRepository customerRepository;
+    private final ProductRepository productRepository;
     private final StaffServiceImpl staffService;
+    private final DiscountService discountService;
 
     @Override
     public InvoiceDTO getInvoiceById(int id) {
@@ -41,8 +46,19 @@ public class InvoiceServiceImpl implements InvoiceService {
         Invoice invoice = InvoiceMapper.toInvoice(invoiceDTO);
         invoice.setCreatedAt(new Date());
         // TODO: set customer and staff
+        if (invoiceDTO.getCustomerId() != 0) {
+            Customer customer = customerRepository.findById(invoiceDTO.getCustomerId()).orElseThrow(() -> new CustomException("Customer with id " + invoiceDTO.getCustomerId() + " does not exist", HttpStatus.NOT_FOUND));
+            invoice.setCustomer(customer);
+        }
+
         Staff staff = staffService.getAuthorizedStaff();
         invoice.setStaff(staff);
+
+        // check code is valid
+        if (invoiceDTO.getCode() != null) {
+            DiscountCode discountCode = discountService.useDiscountCode(invoiceDTO.getCode());
+            invoice.setDiscountCode(discountCode);
+        }
 
         if (invoiceDTO.getInvoiceDetails() != null) {
             Set<InvoiceDetail> invoiceDetails = invoiceDTO.getInvoiceDetails()
@@ -59,6 +75,15 @@ public class InvoiceServiceImpl implements InvoiceService {
         }
 
         Invoice invoiceNew = invoiceRepository.save(invoice);
+
+        if (invoiceDTO.getInvoiceDetails() != null) {
+            invoiceDTO.getInvoiceDetails()
+                    .forEach(invoiceDetailDTO -> {
+                        Product product = productRepository.findById(invoiceDetailDTO.getProductId()).orElseThrow(() -> new CustomException("Product with id " + invoiceDetailDTO.getProductId() + " does not exist", HttpStatus.NOT_FOUND));
+                        product.setStock(product.getStock() - invoiceDetailDTO.getQuantity());
+                        productRepository.save(product);
+                    });
+        }
         return InvoiceMapper.toInvoiceDTO(invoiceNew);
     }
 

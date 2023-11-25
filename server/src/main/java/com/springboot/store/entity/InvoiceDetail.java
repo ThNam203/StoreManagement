@@ -22,6 +22,9 @@ public class InvoiceDetail {
     @Column(name = "price")
     private double price;
 
+    @Column(name = "discount")
+    private double discount;
+
     @Column(name = "product_id")
     private int productId;
 

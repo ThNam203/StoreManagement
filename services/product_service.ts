@@ -58,7 +58,13 @@ const getAllProperties = () => {
 };
 
 const getAllProducts = () => {
-  return AxiosService.get<Product[]>("/api/products");
+  return AxiosService.get<Product[]>("/api/products").then((result) => {
+    result.data.forEach((product) => {
+      product.propertiesString = product.productProperties.map((property) => property.propertyValue).join(' - ');
+    })
+
+    return Promise.resolve(result)
+  });
 };
 
 const createNewProduct = (data: any) => {

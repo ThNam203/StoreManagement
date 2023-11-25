@@ -29,23 +29,22 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-type Props = {
-  placeholder?: string;
-  optionList: string[];
-  className?: string;
-  defaultValue?: string;
-  onValueChange?: (value: string) => void;
-  endIcon?: React.JSX.Element;
-};
 
 export function MyCombobox({
   placeholder,
-  optionList,
+  choices,
   className,
   defaultValue = "",
   endIcon,
   onValueChange,
-}: Props) {
+}: {
+  placeholder?: string;
+  choices: string[];
+  className?: string;
+  defaultValue?: string;
+  onValueChange?: (value: string) => void;
+  endIcon?: React.JSX.Element;
+}) {
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState(defaultValue);
 
@@ -82,7 +81,7 @@ export function MyCombobox({
             <CommandInput placeholder={placeholder} />
             <CommandEmpty>No result found.</CommandEmpty>
             <CommandGroup>
-              {optionList.map((option) => (
+              {choices.map((option, index) => (
                 <CommandItem
                   key={option}
                   onSelect={(currentValue) => {
@@ -96,7 +95,101 @@ export function MyCombobox({
                       value === option ? "opacity-100" : "opacity-0"
                     )}
                   />
-                  {option}
+                  <div className="flex flex-col gap-1">
+                    <span>{option}</span>
+                  </div>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </Command>
+        </PopoverContent>
+      </Popover>
+    </div>
+  );
+}
+
+export function MyObjectCombobox({
+  placeholder,
+  choices,
+  className,
+  defaultValues = [],
+  propToShow = [],
+  endIcon,
+  onValuesChange,
+}: {
+  placeholder?: string;
+  choices: Array<object>;
+  className?: string;
+  defaultValues?: Array<object>;
+  propToShow: Array<any>;
+  onValuesChange?: (values: Array<object>) => void;
+  endIcon?: React.JSX.Element;
+}) {
+  const [open, setOpen] = React.useState(false);
+  const [values, setValues] = React.useState<Array<object>>(defaultValues);
+
+  React.useEffect(() => {
+    if (onValuesChange) onValuesChange(values);
+  }, [values]);
+
+  return (
+    <div className={className}>
+      <Popover open={open} onOpenChange={setOpen}>
+        <Button
+          type="button"
+          variant="outline"
+          role="combobox"
+          className="w-full flex flex-row items-center justify-between gap-2"
+        >
+          <PopoverTrigger asChild>
+            <div
+              className={cn(
+                "w-full flex flex-row items-center justify-between text-muted-foreground"
+              )}
+            >
+              {placeholder}
+
+              <ChevronDown className="w-4 h-4 text-muted-foreground ease-linear duration-200" />
+            </div>
+          </PopoverTrigger>
+          {endIcon}
+        </Button>
+
+        <PopoverContent className="w-full p-0">
+          <Command>
+            <CommandInput placeholder={placeholder} />
+            <CommandEmpty>No result found.</CommandEmpty>
+            <CommandGroup>
+              {choices.map((choice, index) => (
+                <CommandItem
+                  key={index}
+                  onSelect={() => {
+                    if (!values.includes(choice)) {
+                      setValues([...values, choice]);
+                    }
+                  }}
+                >
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      values.includes(choice) ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                  <div key={index} className="flex flex-col gap-1">
+                    {propToShow.map((prop, i) => {
+                      return (
+                        <span
+                          key={i}
+                          className={cn(
+                            "text-xs",
+                            prop === "name" ? "font-semibold" : ""
+                          )}
+                        >
+                          {choice[prop as keyof object]}
+                        </span>
+                      );
+                    })}
+                  </div>
                 </CommandItem>
               ))}
             </CommandGroup>

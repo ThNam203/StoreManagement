@@ -20,9 +20,10 @@ public class InvoiceDTO {
     private double total;
     private Boolean status;
     private String paymentMethod;
+    private String code;
     private Set<InvoiceDetailDTO> invoiceDetails;
-    private String customerName;
-    private String staffName;
+    private int customerId;
+    private int staffId;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdAt;
 }

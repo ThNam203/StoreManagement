@@ -12,6 +12,7 @@ public class InvoiceDetailDTO {
     private int id;
     private int quantity;
     private double price;
+    private double discount;
     private String description;
     private int productId;
 }

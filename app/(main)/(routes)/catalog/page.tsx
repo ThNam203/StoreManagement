@@ -102,8 +102,7 @@ export default function Catalog() {
       axiosUIErrorHandler(e, toast);
       return Promise.reject();
     }
-  }
-
+  };
 
   const [filtersChoice, setFiltersChoice] = useState<{
     type: string[];

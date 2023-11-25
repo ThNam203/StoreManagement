@@ -149,12 +149,10 @@ export default function DailyReportLayout() {
     </div>,
   ];
 
-  const headerButtons = [<Button key={0}>More+</Button>];
   return (
     <PageWithFilters
       filters={filters}
       title="Daily Report"
-      headerButtons={headerButtons}
     >
       <div className="flex flex-col space-y-4">
         <ReportPDFDownloader data={dailyReport} classname="self-end" />
