@@ -26,22 +26,23 @@ import {
   TableRow,
 } from "./table";
 import { DataTablePagination } from "./my_table_pagination";
-
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
-  table: ReactTable<TData>;
-  onRowClick?: (data: TData, index: number) => void;
-  rowClassname?: string,
-}
+import { cn } from "@/lib/utils";
 
 function DataTableContent<TData, TValue>({
   columns,
   data,
   table,
   onRowClick,
-  rowClassname
-}: DataTableProps<TData, TValue>) {
+  rowClassname,
+  hasPagination = true,
+}: {
+  columns: ColumnDef<TData, TValue>[];
+  data: TData[];
+  table: ReactTable<TData>;
+  onRowClick?: (data: TData, index: number) => void;
+  rowClassname?: string;
+  hasPagination?: boolean;
+}) {
   return (
     <div className="space-y-4">
       <div className="rounded-md border">
@@ -70,7 +71,9 @@ function DataTableContent<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  onClick={(e) => onRowClick ? onRowClick(row.original, idx) : null}
+                  onClick={(e) =>
+                    onRowClick ? onRowClick(row.original, idx) : null
+                  }
                   className={rowClassname}
                 >
                   {row.getVisibleCells().map((cell) => (
@@ -96,7 +99,9 @@ function DataTableContent<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <DataTablePagination table={table} />
+      <div className={cn(hasPagination ? "visible" : "hidden")}>
+        <DataTablePagination table={table} />
+      </div>
     </div>
   );
 }

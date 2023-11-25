@@ -16,7 +16,6 @@ export const columnHeader = {
   sex: "Sex",
   email: "Email",
   address: "Address",
-  branch: "Branch",
   position: "Position",
   createAt: "Date Created",
 };

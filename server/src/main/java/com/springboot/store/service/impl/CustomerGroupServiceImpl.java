@@ -21,7 +21,7 @@ public class CustomerGroupServiceImpl implements CustomerGroupService {
 
     @Override
     public CustomerGroupDTO createCustomerGroup(CustomerGroupDTO customerGroupDTO) {
-        customerGroupDTO.setCreatorName(staffService.getAuthorizedStaff().getName());
+        customerGroupDTO.setCreator(Integer.toString(staffService.getAuthorizedStaff().getId()));
         CustomerGroup customerGroup = modelMapper.map(customerGroupDTO, CustomerGroup.class);
         customerGroup.setCreatedAt(new Date());
         customerGroup.setCreator(staffService.getAuthorizedStaff());
@@ -35,21 +35,29 @@ public class CustomerGroupServiceImpl implements CustomerGroupService {
         existingCustomerGroup.setName(customerGroupDTO.getName());
         existingCustomerGroup.setDescription(customerGroupDTO.getDescription());
         existingCustomerGroup = customerGroupRepository.save(existingCustomerGroup);
-        return modelMapper.map(existingCustomerGroup, CustomerGroupDTO.class);
+        customerGroupDTO = modelMapper.map(existingCustomerGroup, CustomerGroupDTO.class);
+        customerGroupDTO.setCreator(Integer.toString(existingCustomerGroup.getCreator().getId()));
+        return customerGroupDTO;
     }
 
     @Override
     public List<CustomerGroupDTO> getAllCustomerGroups() {
         List<CustomerGroup> customerGroups = customerGroupRepository.findAll();
         return customerGroups.stream()
-                .map(customerGroup -> modelMapper.map(customerGroup, CustomerGroupDTO.class))
+                .map(customerGroup -> {
+                    CustomerGroupDTO customerGroupDTO = modelMapper.map(customerGroup, CustomerGroupDTO.class);
+                    customerGroupDTO.setCreator(Integer.toString(customerGroup.getCreator().getId()));
+                    return customerGroupDTO;
+                })
                 .collect(java.util.stream.Collectors.toList());
     }
 
     @Override
     public CustomerGroupDTO getCustomerGroupById(int id) {
         CustomerGroup customerGroup = customerGroupRepository.findById(id).orElseThrow(() -> new RuntimeException("Customer group not found with id: " + id));
-        return modelMapper.map(customerGroup, CustomerGroupDTO.class);
+        CustomerGroupDTO customerGroupDTO = modelMapper.map(customerGroup, CustomerGroupDTO.class);
+        customerGroupDTO.setCreator(Integer.toString(customerGroup.getCreator().getId()));
+        return customerGroupDTO;
     }
 
     @Override

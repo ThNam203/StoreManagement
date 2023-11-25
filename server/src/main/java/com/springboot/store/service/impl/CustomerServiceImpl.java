@@ -35,7 +35,7 @@ public class CustomerServiceImpl implements CustomerService {
         return customers.stream()
                 .map(customer -> {
                     CustomerDTO customerDTO = modelMapper.map(customer, CustomerDTO.class);
-                    customerDTO.setCreator(customer.getCreator().getName());
+                    customerDTO.setCreator(Integer.toString(customer.getCreator().getId()));
                     customerDTO.setCustomerGroup(customer.getCustomerGroup().getName());
                     return customerDTO;
                 })
@@ -60,7 +60,10 @@ public class CustomerServiceImpl implements CustomerService {
         Staff staff = staffService.getAuthorizedStaff();
         customer.setCreator(staff);
         customer = customerRepository.save(customer);
-        return modelMapper.map(customer, CustomerDTO.class);
+        customerDTO = modelMapper.map(customer, CustomerDTO.class);
+        customerDTO.setCreator(Integer.toString(customer.getCreator().getId()));
+        customerDTO.setCustomerGroup(customer.getCustomerGroup().getName());
+        return customerDTO;
     }
 
     @Override
@@ -89,7 +92,7 @@ public class CustomerServiceImpl implements CustomerService {
         customer = customerRepository.save(customer);
 
         customerDTO = modelMapper.map(customer, CustomerDTO.class);
-        customerDTO.setCreator(customer.getCreator().getName());
+        customerDTO.setCreator(Integer.toString(customer.getCreator().getId()));
         customerDTO.setCustomerGroup(customer.getCustomerGroup().getName());
         return customerDTO;
     }
@@ -98,7 +101,7 @@ public class CustomerServiceImpl implements CustomerService {
     public CustomerDTO getCustomerById(int id) {
         Customer customer = customerRepository.findById(id).orElseThrow(() -> new RuntimeException("Customer not found with id: " + id));
         CustomerDTO customerDTO = modelMapper.map(customer, CustomerDTO.class);
-        customerDTO.setCreator(customer.getCreator().getName());
+        customerDTO.setCreator(Integer.toString(customer.getCreator().getId()));
         customerDTO.setCustomerGroup(customer.getCustomerGroup().getName());
         return customerDTO;
     }
