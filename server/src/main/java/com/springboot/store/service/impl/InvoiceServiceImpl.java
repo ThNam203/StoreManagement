@@ -8,6 +8,8 @@ import com.springboot.store.payload.InvoiceDTO;
 import com.springboot.store.repository.CustomerRepository;
 import com.springboot.store.repository.DiscountCodeRepository;
 import com.springboot.store.repository.InvoiceRepository;
+import com.springboot.store.repository.ProductRepository;
+import com.springboot.store.service.DiscountService;
 import com.springboot.store.service.InvoiceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,9 +24,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class InvoiceServiceImpl implements InvoiceService {
     private final InvoiceRepository invoiceRepository;
-    private final DiscountCodeRepository discountCodeRepository;
     private final CustomerRepository customerRepository;
+    private final ProductRepository productRepository;
     private final StaffServiceImpl staffService;
+    private final DiscountService discountService;
 
     @Override
     public InvoiceDTO getInvoiceById(int id) {
@@ -53,10 +56,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
         // check code is valid
         if (invoiceDTO.getCode() != null) {
-            DiscountCode discountCode = discountCodeRepository.findByCode(invoiceDTO.getCode()).orElseThrow(() -> new CustomException("Discount code " + invoiceDTO.getCode() + " does not exist", HttpStatus.NOT_FOUND));
-            if (discountCode.isUsed())
-                throw new CustomException("Discount code " + invoiceDTO.getCode() + " has been used", HttpStatus.BAD_REQUEST);
-            discountCode.setUsed(true);
+            DiscountCode discountCode = discountService.useDiscountCode(invoiceDTO.getCode());
             invoice.setDiscountCode(discountCode);
         }
 
@@ -75,6 +75,15 @@ public class InvoiceServiceImpl implements InvoiceService {
         }
 
         Invoice invoiceNew = invoiceRepository.save(invoice);
+
+        if (invoiceDTO.getInvoiceDetails() != null) {
+            invoiceDTO.getInvoiceDetails()
+                    .forEach(invoiceDetailDTO -> {
+                        Product product = productRepository.findById(invoiceDetailDTO.getProductId()).orElseThrow(() -> new CustomException("Product with id " + invoiceDetailDTO.getProductId() + " does not exist", HttpStatus.NOT_FOUND));
+                        product.setStock(product.getStock() - invoiceDetailDTO.getQuantity());
+                        productRepository.save(product);
+                    });
+        }
         return InvoiceMapper.toInvoiceDTO(invoiceNew);
     }
 

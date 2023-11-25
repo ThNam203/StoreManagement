@@ -121,8 +121,21 @@ public class DiscountServiceImpl implements DiscountService {
                 .code(code)
                 .discount(discount)
                 .build());
+        discount.setAmount(discount.getAmount() + 1);
         discountRepository.save(discount);
         return code;
+    }
+
+    @Override
+    public DiscountCode useDiscountCode(String code) {
+        DiscountCode discountCode = discountCodeRepository.findByCode(code)
+                .orElseThrow(() -> new CustomException("Discount code not found", HttpStatus.NOT_FOUND));
+        if (discountCode.isUsed())
+            throw new CustomException("Discount code has been used", HttpStatus.BAD_REQUEST);
+        discountCode.getDiscount().setAmount(discountCode.getDiscount().getAmount() - 1);
+        discountCode.setUsed(true);
+        discountCodeRepository.save(discountCode);
+        return discountCode;
     }
 
     @Override
