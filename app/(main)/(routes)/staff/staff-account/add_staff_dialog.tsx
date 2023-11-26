@@ -26,7 +26,7 @@ import {
   FormItem,
   FormLabel,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Input, PasswordInput } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MyCombobox } from "@/components/ui/my_combobox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -45,6 +45,8 @@ import {
   AlignJustify,
   Camera,
   CircleDollarSign,
+  Eye,
+  EyeOff,
   Info,
   PlusCircle,
 } from "lucide-react";
@@ -57,14 +59,16 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { DatePicker } from "@/components/ui/datepicker";
 
 const formSchema = z.object({
-  id: z.any(),
   name: z.string().min(1, { message: "Name must be at least one character" }),
   birthday: z.date(),
   sex: z.string(),
   CCCD: z.string().min(1, { message: "CCCD is empty" }),
-  position: z.string(),
+  position: z.string().min(1, { message: "Position is empty" }),
   phoneNumber: z.string().min(1, { message: "Phone number is empty" }),
   email: z.string().email({ message: "Please enter a valid email" }),
+  password: z
+    .string()
+    .min(8, { message: "Password must be at least 8 characters" }),
   address: z.string(),
   note: z.string().optional(),
   baseSalary: z.object({
@@ -109,12 +113,13 @@ const formSchema = z.object({
   }),
 });
 
-type Props = {
+export function AddStaffDialog({
+  data,
+  submit,
+}: {
   data?: Staff;
   submit: (values: Staff) => void;
-};
-
-export function AddStaffDialog({ data, submit }: Props) {
+}) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -164,6 +169,7 @@ export function AddStaffDialog({ data, submit }: Props) {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
+    console.log(values);
     const newStaff: Staff = {
       avatar: "",
       id: nanoid(9).toUpperCase(),
@@ -175,6 +181,7 @@ export function AddStaffDialog({ data, submit }: Props) {
       birthday: new Date(values.birthday),
       sex: values.sex as Sex,
       email: values.email,
+      password: values.password,
       address: values.address,
       position: values.position,
       createAt: new Date(),
@@ -283,7 +290,10 @@ export function AddStaffDialog({ data, submit }: Props) {
       <DialogTrigger asChild>
         <PlusCircle className="w-4 h-4 opacity-50 hover:cursor-pointer hover:opacity-100" />
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent
+        className="sm:max-w-[425px]"
+        onInteractOutside={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle>Add a new position</DialogTitle>
         </DialogHeader>
@@ -312,7 +322,7 @@ export function AddStaffDialog({ data, submit }: Props) {
       <DialogTrigger asChild>
         <Button variant="default">Add new staff</Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent onInteractOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>Add new staff</DialogTitle>
         </DialogHeader>
@@ -541,6 +551,26 @@ export function AddStaffDialog({ data, submit }: Props) {
 
                               <FormControl className="w-2/3">
                                 <Input type="email" {...field} />
+                              </FormControl>
+                            </div>
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="password"
+                        render={({ field }) => (
+                          <FormItem className="mt-2">
+                            <div className="flex flex-row items-center">
+                              <FormLabel className="w-1/3">
+                                <div className="flex flex-row items-center space-x-2">
+                                  <h5 className="text-sm">Password</h5>
+                                  <Info size={16} />
+                                </div>
+                              </FormLabel>
+
+                              <FormControl className="w-2/3">
+                                <PasswordInput {...field} />
                               </FormControl>
                             </div>
                           </FormItem>

@@ -19,6 +19,8 @@ import { setBrands } from "@/reducers/productBrandsReducer";
 import { setLocations } from "@/reducers/productLocationsReducer";
 import { setProperties } from "@/reducers/productPropertiesReducer";
 import { setGroups } from "@/reducers/productGroupsReducer";
+import StaffService from "@/services/staff_service";
+import { setStaffs } from "@/reducers/staffReducer";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
@@ -43,20 +45,24 @@ const GlobalPreloader = () => {
     const fetchData = async () => {
       dispatch(showPreloader());
       try {
-        const products = await ProductService.getAllProducts();
-        dispatch(setProducts(products.data));
+        // const products = await ProductService.getAllProducts();
+        // dispatch(setProducts(products.data));
 
-        const brandsResult = await ProductService.getAllBrands();
-        dispatch(setBrands(brandsResult.data));
+        // const brandsResult = await ProductService.getAllBrands();
+        // dispatch(setBrands(brandsResult.data));
 
-        const locationsResult = await ProductService.getAllLocations();
-        dispatch(setLocations(locationsResult.data));
+        // const locationsResult = await ProductService.getAllLocations();
+        // dispatch(setLocations(locationsResult.data));
 
-        const propertiesResult = await ProductService.getAllProperties();
-        dispatch(setProperties(propertiesResult.data));
+        // const propertiesResult = await ProductService.getAllProperties();
+        // dispatch(setProperties(propertiesResult.data));
 
-        const groupsResult = await ProductService.getAllGroups();
-        dispatch(setGroups(groupsResult.data));
+        // const groupsResult = await ProductService.getAllGroups();
+        // dispatch(setGroups(groupsResult.data));
+
+        const staffResult = await StaffService.getAllStaffs();
+        dispatch(setStaffs(staffResult.data));
+
         dispatch(disablePreloader());
       } catch (error) {
         dispatch(disablePreloader());

@@ -27,15 +27,7 @@ const dataTable: Shift[] = [
     status: Status.Working,
     workingTime: { start: new Date(), end: new Date() },
     editingTime: { start: new Date(), end: new Date() },
-    dailyShiftList: [
-      {
-        shiftId: 1,
-        shiftName: "Ca sang",
-        date: new Date(),
-        note: "",
-        attendList: [],
-      },
-    ],
+    dailyShiftList: [],
   },
   {
     id: 2,
@@ -43,15 +35,7 @@ const dataTable: Shift[] = [
     status: Status.Working,
     workingTime: { start: new Date(), end: new Date() },
     editingTime: { start: new Date(), end: new Date() },
-    dailyShiftList: [
-      {
-        shiftId: 2,
-        shiftName: "Ca chieu",
-        date: new Date(),
-        note: "",
-        attendList: [],
-      },
-    ],
+    dailyShiftList: [],
   },
 ];
 
@@ -61,6 +45,7 @@ const originalStaffList: Staff[] = [
     id: 1,
     name: "Henry",
     email: "henry@gmail.com",
+    password: "123456",
     address: "address",
     phoneNumber: "0123456789",
     note: "",
@@ -118,6 +103,7 @@ const originalStaffList: Staff[] = [
     id: 2,
     name: "Mary",
     email: "mary@gmail.com",
+    password: "123456",
     address: "address Mary",
     phoneNumber: "0123456769",
     note: "",
@@ -175,6 +161,7 @@ const originalStaffList: Staff[] = [
     id: 3,
     name: "David",
     email: "david@gmail.com",
+    password: "123456",
     address: "address David",
     phoneNumber: "0124456789",
     note: "",
@@ -235,6 +222,7 @@ export default function Attendance() {
   );
   const [displayType, setDisplayType] = useState<DisplayType>("Week");
   const [table, setTable] = useState<Shift[]>([]);
+  const [openSetTimeDialog, setOpenSetTimeDialog] = useState(false);
 
   const [staffList, setStaffList] = useState<Staff[]>([]);
   useEffect(() => {
@@ -293,20 +281,14 @@ export default function Attendance() {
           />
         </div>
         <div className="flex flex-row items-center gap-4">
-          <SetTimeDialog
-            staffList={staffList}
-            shiftList={table}
-            triggerElement={
-              <Button
-                variant={"default"}
-                className="bg-green-500 hover:bg-green-600 gap-2"
-              >
-                <Plus size={16} />
-                <span>Set time</span>
-              </Button>
-            }
-            submit={setTable}
-          />
+          <Button
+            variant={"default"}
+            className="bg-green-500 hover:bg-green-600 gap-2"
+            onClick={() => setOpenSetTimeDialog(true)}
+          >
+            <Plus size={16} />
+            <span>Set time</span>
+          </Button>
           <Button
             variant={"default"}
             className="bg-green-500 hover:bg-green-600 gap-2"
@@ -330,6 +312,14 @@ export default function Attendance() {
         displayType={displayType}
         onUpdateShift={handleSubmitOrUpdateShift}
         onSetTime={setTable}
+      />
+      <SetTimeDialog
+        open={openSetTimeDialog}
+        setOpen={setOpenSetTimeDialog}
+        shiftList={table}
+        staffList={staffList}
+        specificShift={null}
+        submit={setTable}
       />
     </div>
   );

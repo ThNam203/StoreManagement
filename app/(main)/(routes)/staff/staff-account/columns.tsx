@@ -20,4 +20,7 @@ export const columnHeader = {
   createAt: "Date Created",
 };
 
-export const columns: ColumnDef<Staff>[] = getColumns<Staff>(columnHeader);
+export const columns: ColumnDef<Staff>[] = getColumns<Staff>(
+  columnHeader,
+  true
+);
