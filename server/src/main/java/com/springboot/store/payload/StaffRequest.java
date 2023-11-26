@@ -28,13 +28,11 @@ public class StaffRequest {
     private String cccd;
     private String address;
     private String phoneNumber;
-    private String facebook;
     private String avatar;
     private String note;
     private String sex;
     private String position;
     private int salaryDebt;
-    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date birthday;
     private Role role;
 
