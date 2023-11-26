@@ -127,7 +127,6 @@ public class StaffServiceImpl implements StaffService {
 
         staff.setName(staffRequest.getName());
         staff.setAddress(staffRequest.getAddress());
-        staff.setFacebook(staffRequest.getFacebook());
         staff.setNote(staffRequest.getNote());
         staff.setSex(staffRequest.getSex());
         staff.setBirthday(staffRequest.getBirthday());
@@ -201,7 +200,6 @@ public class StaffServiceImpl implements StaffService {
                 .position(staff.getPosition())
                 .salaryDebt(staff.getSalaryDebt())
                 .address(staff.getAddress())
-                .facebook(staff.getFacebook())
                 .note(staff.getNote())
                 .birthday(staff.getBirthday())
                 .createdAt(staff.getCreatedAt())
@@ -221,7 +219,6 @@ public class StaffServiceImpl implements StaffService {
                 .password(staffRequest.getPassword())
                 .address(staffRequest.getAddress())
                 .phoneNumber(staffRequest.getPhoneNumber())
-                .facebook(staffRequest.getFacebook())
                 .note(staffRequest.getNote())
                 .sex(staffRequest.getSex())
                 .birthday(staffRequest.getBirthday())
@@ -253,7 +250,6 @@ public class StaffServiceImpl implements StaffService {
         if (newStaff.getBirthday() != null && newStaff.getBirthday().after(new Date())) {
             throw new CustomException("Birthday is invalid", HttpStatus.UNPROCESSABLE_ENTITY);
         }
-
     }
 
     @Override

@@ -62,11 +62,9 @@ public class Staff implements UserDetails {
     private int salaryDebt = 0;
 
     @Column(name = "birthday")
-    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date birthday;
 
     @Column(name = "created_at")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdAt;
 
     @OneToOne(cascade = CascadeType.ALL)

@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -22,15 +23,18 @@ public class Shift {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "description")
-    private String description;
+    @Column(name = "status")
+    private String status;
 
-    @Column(name = "start_time")
-    @JsonFormat(pattern = "HH:mm:ss")
-    private Date startTime;
+    @OneToOne(cascade = CascadeType.ALL)
+    @Column(name = "working_time")
+    private ShiftWorkingTime workingTime;
 
-    @Column(name = "end_time")
-    @JsonFormat(pattern = "HH:mm:ss")
-    private Date endTime;
-    
+    @OneToOne(cascade = CascadeType.ALL)
+    @Column(name = "clicking_time")
+    private ShiftClickingTime clickingTime;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<DailyShift> dailyShifts;
+
 }
