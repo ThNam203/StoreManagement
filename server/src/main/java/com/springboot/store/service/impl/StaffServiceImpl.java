@@ -199,6 +199,7 @@ public class StaffServiceImpl implements StaffService {
                 .phoneNumber(staff.getPhoneNumber())
                 .position(staff.getPosition())
                 .salaryDebt(staff.getSalaryDebt())
+                .sex(staff.getSex())
                 .address(staff.getAddress())
                 .note(staff.getNote())
                 .birthday(staff.getBirthday())
