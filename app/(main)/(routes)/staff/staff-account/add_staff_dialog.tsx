@@ -62,7 +62,7 @@ const formSchema = z.object({
   name: z.string().min(1, { message: "Name must be at least one character" }),
   birthday: z.date(),
   sex: z.string(),
-  CCCD: z.string().min(1, { message: "CCCD is empty" }),
+  cccd: z.string().min(1, { message: "CCCD is empty" }),
   position: z.string().min(1, { message: "Position is empty" }),
   phoneNumber: z.string().min(1, { message: "Phone number is empty" }),
   email: z.string().email({ message: "Please enter a valid email" }),
@@ -175,7 +175,7 @@ export function AddStaffDialog({
       id: nanoid(9).toUpperCase(),
       name: values.name,
       phoneNumber: values.phoneNumber,
-      CCCD: values.CCCD,
+      cccd: values.cccd,
       salaryDebt: 0,
       note: "",
       birthday: new Date(values.birthday),
@@ -185,6 +185,7 @@ export function AddStaffDialog({
       address: values.address,
       position: values.position,
       createAt: new Date(),
+      role: "STAFF",
       salarySetting: {
         baseSalary: values.baseSalary,
         baseBonus: values.baseBonus,
@@ -449,7 +450,7 @@ export function AddStaffDialog({
 
                       <FormField
                         control={form.control}
-                        name="CCCD"
+                        name="cccd"
                         render={({ field }) => (
                           <FormItem className="mt-2">
                             <div className="flex flex-row items-center">

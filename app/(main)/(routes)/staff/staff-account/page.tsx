@@ -3,7 +3,11 @@
 import { PageWithFilters, SearchFilter } from "@/components/ui/filter";
 import { Staff } from "@/entities/Staff";
 import { useAppDispatch, useAppSelector } from "@/hooks";
-import { handleMultipleFilter } from "@/utils";
+import {
+  convertStaffReceived,
+  convertStaffToSent,
+  handleMultipleFilter,
+} from "@/utils";
 import { useEffect, useState } from "react";
 import { DataTable } from "./datatable";
 import StaffService from "@/services/staff_service";
@@ -31,11 +35,18 @@ export default function StaffInfoPage() {
   }, [multiFilter, staffList]);
 
   const addNewStaff = async (value: Staff) => {
-    const staffResult = await StaffService.createNewStaff(value);
-    dispatch(addStaff(staffResult.data));
     try {
-      const staffResult = await StaffService.createNewStaff(value);
-      dispatch(addStaff(staffResult.data));
+      const staffToSent = convertStaffToSent(value);
+      const dataForm: any = new FormData();
+      dataForm.append(
+        "data",
+        new Blob([JSON.stringify(staffToSent)], { type: "application/json" })
+      );
+      dataForm.append("file", null);
+
+      const staffResult = await StaffService.createNewStaff(dataForm);
+      const staffReceived = convertStaffReceived(staffResult.data);
+      dispatch(addStaff(staffReceived));
       console.log("return", staffResult.data);
       return Promise.resolve();
     } catch (e) {
@@ -45,11 +56,7 @@ export default function StaffInfoPage() {
   };
 
   const handleFormSubmit = async (value: Staff) => {
-    try {
-      addNewStaff(value);
-    } catch (e) {
-      console.log(e);
-    }
+    addNewStaff(value);
   };
   const updatePositionMultiFilter = (values: string[]) => {
     setMultiFilter((prev) => ({ ...prev, position: values }));

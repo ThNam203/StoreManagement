@@ -21,6 +21,7 @@ import { setProperties } from "@/reducers/productPropertiesReducer";
 import { setGroups } from "@/reducers/productGroupsReducer";
 import StaffService from "@/services/staff_service";
 import { setStaffs } from "@/reducers/staffReducer";
+import { convertStaffReceived } from "@/utils";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
@@ -61,7 +62,10 @@ const GlobalPreloader = () => {
         // dispatch(setGroups(groupsResult.data));
 
         const staffResult = await StaffService.getAllStaffs();
-        dispatch(setStaffs(staffResult.data));
+        const convertedStaffs = staffResult.data.map((staff) =>
+          convertStaffReceived(staff)
+        );
+        dispatch(setStaffs(convertedStaffs));
 
         dispatch(disablePreloader());
       } catch (error) {

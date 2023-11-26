@@ -5,7 +5,7 @@ export type Staff = {
   id: any;
   name: string;
   phoneNumber: string;
-  CCCD: string;
+  cccd: string;
   salaryDebt: number;
   note: string;
   birthday: Date;
@@ -14,6 +14,7 @@ export type Staff = {
   address: string;
   position: string;
   createAt: Date;
+  role: string;
   salarySetting: SalarySetting;
   password: string;
 };
