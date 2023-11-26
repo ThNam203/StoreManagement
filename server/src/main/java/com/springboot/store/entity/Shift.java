@@ -27,11 +27,9 @@ public class Shift {
     private String status;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @Column(name = "working_time")
     private ShiftWorkingTime workingTime;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @Column(name = "clicking_time")
     private ShiftClickingTime clickingTime;
 
     @OneToMany(cascade = CascadeType.ALL)
