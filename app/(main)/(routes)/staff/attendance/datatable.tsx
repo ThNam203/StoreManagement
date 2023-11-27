@@ -29,7 +29,9 @@ export function DataTable({
   staffList: Staff[];
   onDataChange?: (data: Staff[]) => void;
 }) {
-  const [data, setData] = React.useState<Staff[]>(defaultData ?? []);
+  const [data, setData] = React.useState<Staff[]>(
+    defaultData ? defaultData : []
+  );
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []

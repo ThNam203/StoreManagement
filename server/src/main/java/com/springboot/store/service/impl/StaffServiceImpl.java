@@ -70,7 +70,7 @@ public class StaffServiceImpl implements StaffService {
         }
         staff.setPhoneNumber(newStaff.getPhoneNumber());
 
-        if (!file.isEmpty()) {
+        if (file != null && !file.isEmpty()) {
             String avatarUrl = fileService.uploadFile(file);
             Media avatar = Media.builder()
                     .url(avatarUrl)
@@ -157,7 +157,7 @@ public class StaffServiceImpl implements StaffService {
             staff.setStaffSalary(staffSalary);
         }
 
-        if (!file.isEmpty()) {
+        if (file != null && !file.isEmpty()) {
             String avatarUrl = fileService.uploadFile(file);
             Media avatar = Media.builder()
                     .url(avatarUrl)
@@ -199,6 +199,7 @@ public class StaffServiceImpl implements StaffService {
                 .phoneNumber(staff.getPhoneNumber())
                 .position(staff.getPosition())
                 .salaryDebt(staff.getSalaryDebt())
+                .sex(staff.getSex())
                 .address(staff.getAddress())
                 .note(staff.getNote())
                 .birthday(staff.getBirthday())
