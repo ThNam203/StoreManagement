@@ -1,15 +1,14 @@
 "use client";
 
-import { FilterWeek } from "@/components/ui/filter";
-import { cn } from "@/lib/utils";
-import { getStaticRangeFilterTime, isInRangeTime } from "@/utils";
-import { format } from "date-fns";
-import { ChevronDown, Pencil, PlusCircle } from "lucide-react";
-import dynamic from "next/dynamic";
-import { AddShiftDialog } from "./add_shift_dialog";
-import { SetTimeDialog } from "./set_time_dialog";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Staff } from "@/entities/Staff";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { Pencil, PlusCircle } from "lucide-react";
+import dynamic from "next/dynamic";
+import { useState } from "react";
+import { AddShiftDialog } from "./add_shift_dialog";
+import { SetTimeDialog } from "./set_time_dialog";
 
 const HeaderCellStyleWeek =
   "w-[calc(100%/8)] h-10 border border-gray-100 border-[1px]";
@@ -34,6 +33,21 @@ const AttendanceTable = ({
   onUpdateShift?: (values: Shift) => void;
   onSetTime?: (values: Shift[]) => void;
 }) => {
+  const [selectedShift, setSelectedShift] = useState<Shift | null>(null);
+  const [openAddShiftDialog, setOpenAddShiftDialog] = useState<boolean>(false);
+  const [selectedDailyShift, setSelectedDailyShift] =
+    useState<DailyShift | null>(null);
+  const [openSetTimeDialog, setOpenSetTimeDialog] = useState<boolean>(false);
+
+  const handleOpenAddShiftDialog = (shift: Shift | null) => {
+    setSelectedShift(shift);
+    setOpenAddShiftDialog(true);
+  };
+  const handleOpenSetTimeDialog = (dailyShift: DailyShift | null) => {
+    setSelectedDailyShift(dailyShift);
+    setOpenSetTimeDialog(true);
+  };
+
   data.sort((a, b) => {
     if (a.workingTime.start > b.workingTime.start) return 1;
     else if (a.workingTime.start < b.workingTime.start) return -1;
@@ -46,25 +60,37 @@ const AttendanceTable = ({
           <AttendanceHeaderRow
             range={rangeDate}
             displayType={displayType}
-            onUpdateShift={onUpdateShift}
+            handleOpenShiftDialog={handleOpenAddShiftDialog}
           />
         </tr>
         {data.map((shift, index) => {
           return (
             <tr key={shift.name + index}>
               <AttendanceDataRow
-                staffList={staffList}
-                table={data}
                 shift={shift}
                 rangeDate={rangeDate}
                 displayType={displayType}
-                onUpdateShift={onUpdateShift}
-                onSetTime={onSetTime}
+                handleOpenSetTimeDialog={handleOpenSetTimeDialog}
+                handleOpenShiftDialog={handleOpenAddShiftDialog}
               />
             </tr>
           );
         })}
       </table>
+      <AddShiftDialog
+        shift={selectedShift}
+        open={openAddShiftDialog}
+        setOpen={setOpenAddShiftDialog}
+        submit={onUpdateShift}
+      />
+      <SetTimeDialog
+        open={openSetTimeDialog}
+        setOpen={setOpenSetTimeDialog}
+        shiftList={data}
+        staffList={staffList}
+        specificShift={selectedDailyShift}
+        submit={onSetTime}
+      />
       <ScrollBar orientation="horizontal" className="bg-slate-300" />
     </ScrollArea>
   );
@@ -86,11 +112,11 @@ const createRangeDate = (range: { startDate: Date; endDate: Date }): Date[] => {
 const AttendanceHeaderRow = ({
   range,
   displayType = "Week",
-  onUpdateShift,
+  handleOpenShiftDialog,
 }: {
   range: { startDate: Date; endDate: Date };
   displayType?: DisplayType;
-  onUpdateShift?: (values: Shift) => void;
+  handleOpenShiftDialog?: (values: Shift | null) => void;
 }) => {
   const rangeDate: Date[] = createRangeDate(range);
   return (
@@ -99,7 +125,7 @@ const AttendanceHeaderRow = ({
         className={cn(
           displayType === "Month" ? HeaderCellStyleMonth : HeaderCellStyleWeek
         )}
-        onUpdateShift={onUpdateShift}
+        handleOpenShiftDialog={handleOpenShiftDialog}
       />
       {rangeDate.map((date, index) => {
         return (
@@ -146,20 +172,16 @@ const formatDailyShiftList = (
 
 const AttendanceDataRow = ({
   shift,
-  table,
   rangeDate,
   displayType = "Week",
-  staffList,
-  onUpdateShift,
-  onSetTime,
+  handleOpenShiftDialog,
+  handleOpenSetTimeDialog,
 }: {
-  table: Shift[];
   shift: Shift;
   rangeDate: { startDate: Date; endDate: Date };
   displayType?: DisplayType;
-  staffList: Staff[];
-  onUpdateShift?: (values: Shift) => void;
-  onSetTime?: (values: Shift[]) => void;
+  handleOpenShiftDialog?: (values: Shift | null) => void;
+  handleOpenSetTimeDialog?: (values: DailyShift | null) => void;
 }) => {
   const formattedDailyShiftList = formatDailyShiftList(shift, rangeDate);
 
@@ -168,16 +190,14 @@ const AttendanceDataRow = ({
       <ShiftInfoCell
         shift={shift}
         className={cn(displayType === "Month" ? CellStyleMonth : CellStyleWeek)}
-        onUpdateShift={onUpdateShift}
+        handleOpenShiftDialog={handleOpenShiftDialog}
       />
       {formattedDailyShiftList.map((dailyShift, index) => {
         return (
           <DataCell
-            staffList={staffList}
             key={index}
-            table={table}
             data={dailyShift}
-            onSetTime={onSetTime}
+            handleOpenSetTimeDialog={handleOpenSetTimeDialog}
             className={cn(
               displayType === "Month" ? CellStyleMonth : CellStyleWeek
             )}
@@ -190,10 +210,10 @@ const AttendanceDataRow = ({
 
 const ShiftCell = ({
   className,
-  onUpdateShift,
+  handleOpenShiftDialog,
 }: {
   className?: string;
-  onUpdateShift?: (values: Shift) => void;
+  handleOpenShiftDialog?: (values: Shift | null) => void;
 }) => {
   return (
     <div
@@ -203,14 +223,12 @@ const ShiftCell = ({
       )}
     >
       <span className="font-semibold">Shift</span>
-      <AddShiftDialog
-        triggerElement={
-          <PlusCircle
-            size={16}
-            className="opacity-50 hover:opacity-100 ease-linear duration-100 cursor-pointer select-none"
-          />
-        }
-        submit={onUpdateShift}
+      <PlusCircle
+        size={16}
+        className="opacity-50 hover:opacity-100 ease-linear duration-100 cursor-pointer select-none"
+        onClick={() => {
+          if (handleOpenShiftDialog) handleOpenShiftDialog(null);
+        }}
       />
     </div>
   );
@@ -260,32 +278,30 @@ const DateCell = ({
 const ShiftInfoCell = ({
   shift,
   className,
-  onUpdateShift,
+  handleOpenShiftDialog,
 }: {
   shift: Shift;
   className?: string;
-  onUpdateShift?: (values: Shift) => void;
+  handleOpenShiftDialog?: (values: Shift | null) => void;
 }) => {
   return (
-    <div className={cn("p-2 flex flex-col relative", className)}>
+    <div
+      className={cn("p-2 flex flex-col relative", className)}
+      onClick={() => {
+        if (handleOpenShiftDialog) handleOpenShiftDialog(shift);
+      }}
+    >
       <span className="font-semibold">{shift.name}</span>
       <span className="text-xs">{`${format(
         shift.workingTime.start,
-        "hh:mm"
-      )} - ${format(shift.workingTime.end, "hh:mm")}`}</span>
+        "hh:mm a"
+      )} - ${format(shift.workingTime.end, "hh:mm a")}`}</span>
 
-      <AddShiftDialog
-        shift={shift}
-        title="Update shift"
-        triggerElement={
-          <div className="w-full h-full absolute top-0 left-0 cursor-pointer select-none opacity-0 hover:opacity-100 ease-linear duration-100">
-            <div className="flex justify-center p-1 absolute top-2 right-2 bg-gray-100 rounded-full">
-              <Pencil size={16} />
-            </div>
-          </div>
-        }
-        submit={onUpdateShift}
-      />
+      <div className="w-full h-full absolute top-0 left-0 cursor-pointer select-none opacity-0 hover:opacity-100 ease-linear duration-100">
+        <div className="flex justify-center p-1 absolute top-2 right-2 bg-gray-100 rounded-full">
+          <Pencil size={16} />
+        </div>
+      </div>
     </div>
   );
 };
@@ -293,17 +309,13 @@ const ShiftInfoCell = ({
 const DataCell = ({
   data,
   className,
-  staffList,
-  table,
   maxItem = 2,
-  onSetTime,
+  handleOpenSetTimeDialog,
 }: {
   data: DailyShift;
-  table: Shift[];
-  staffList: Staff[];
   className?: string;
   maxItem?: number;
-  onSetTime?: (values: Shift[]) => void;
+  handleOpenSetTimeDialog?: (values: DailyShift | null) => void;
 }) => {
   const toShow = data.attendList.slice(0, maxItem);
   const hidedItem = data.attendList.length - maxItem;
@@ -342,22 +354,17 @@ const DataCell = ({
           data.attendList.length === 2 ? "h-1/4 absolute bottom-0" : ""
         )}
       >
-        <SetTimeDialog
-          staffList={staffList}
-          shiftList={table}
-          specificShift={data}
-          submit={onSetTime}
-          triggerElement={
-            <div
-              className={cn(
-                "w-full flex flex-row items-center justify-center bg-gray-100 hover:bg-green-400 hover:text-white hover:font-semibold backdrop-blur-sm text-gray-600 ease-linear duration-100 cursor-pointer select-none",
-                data.attendList.length > maxItem ? "h-1/2" : "h-full"
-              )}
-            >
-              Set time
-            </div>
-          }
-        />
+        <div
+          className={cn(
+            "w-full flex flex-row items-center justify-center bg-gray-100 hover:bg-green-400 hover:text-white hover:font-semibold backdrop-blur-sm text-gray-600 ease-linear duration-100 cursor-pointer select-none",
+            data.attendList.length > maxItem ? "h-1/2" : "h-full"
+          )}
+          onClick={() => {
+            if (handleOpenSetTimeDialog) handleOpenSetTimeDialog(data);
+          }}
+        >
+          Set time
+        </div>
         <div
           className={cn(
             "w-full h-1/2 flex flex-row items-center justify-center bg-gray-100 hover:bg-blue-400 hover:text-white hover:font-semibold backdrop-blur-sm text-gray-600 ease-linear duration-100 cursor-pointer select-none",

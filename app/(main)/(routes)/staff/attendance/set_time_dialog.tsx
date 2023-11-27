@@ -35,52 +35,60 @@ const formSchema = z.object({
   finishRepeat: z.date().optional(),
   shiftName: z.string(),
   note: z.string(),
-  staffList: z.array(z.any()),
 });
 
 export function SetTimeDialog({
-  triggerElement,
   shiftList,
   specificShift,
   staffList,
   submit,
+  open,
+  setOpen,
 }: {
-  triggerElement: JSX.Element;
   shiftList: Shift[];
-  specificShift?: DailyShift;
+  specificShift: DailyShift | null;
   staffList: Staff[];
   submit?: (values: Shift[]) => void;
+  open: boolean;
+  setOpen: (open: boolean) => void;
 }) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      date: specificShift ? specificShift.date : new Date(),
+      date: new Date(),
       isRepeat: false,
       repeatPeriod: "daily",
       startRepeat: new Date(),
       finishRepeat: new Date(),
-      shiftName: specificShift ? specificShift.shiftName : "",
+      shiftName: "",
       note: "",
-      staffList: [],
     },
   });
-  useEffect(() => {
-    if (specificShift) {
-      resetForm(specificShift);
-    }
-  }, [specificShift]);
+  let attendStaffList: Staff[] = [];
 
-  const resetForm = (specificShift: DailyShift) => {
-    form.setValue("date", specificShift.date);
-    form.setValue("shiftName", specificShift.shiftName);
-    form.setValue("note", specificShift.note);
-    let attendSfaftList: Staff[] = [];
-    specificShift.attendList.forEach((attend) => {
-      const staff = staffList.find((staff) => staff.id === attend.staffId);
-      if (staff) attendSfaftList.push(staff);
-    });
-    form.setValue("staffList", attendSfaftList);
+  useEffect(() => {
+    if (open) resetValues(specificShift);
+  }, [open]);
+
+  const resetValues = (specificShift: DailyShift | null) => {
+    if (specificShift) {
+      form.setValue("date", specificShift.date);
+      form.setValue("shiftName", specificShift.shiftName);
+      form.setValue("note", specificShift.note);
+      specificShift.attendList.forEach((attend) => {
+        const staff = staffList.find((staff) => staff.id === attend.staffId);
+        if (staff) attendStaffList.push(staff);
+      });
+    } else resetToEmptyForm();
   };
+  const resetToEmptyForm = () => {
+    form.reset();
+    attendStaffList = [];
+  };
+  useEffect(() => {
+    console.log("change", attendStaffList);
+  }, [attendStaffList]);
+
   const repeatPeriodList = ["daily", "weekly", "monthly"];
 
   function onSubmit(values: z.infer<typeof formSchema>) {
@@ -91,7 +99,7 @@ export function SetTimeDialog({
       note: values.note,
       attendList: [],
     };
-    values.staffList.forEach((staff) => {
+    attendStaffList.forEach((staff) => {
       updatedDailyShift.attendList.push({
         staffId: staff.id,
         staffName: staff.name,
@@ -104,13 +112,14 @@ export function SetTimeDialog({
     });
     const newShiftList = [...shiftList];
 
-    newShiftList.map((shift) => {
+    newShiftList.forEach((shift) => {
       if (shift.name === values.shiftName) {
         const index = shift.dailyShiftList.findIndex(
           (dailyShift) =>
             dailyShift.date.toLocaleDateString() ===
             values.date.toLocaleDateString()
         );
+        updatedDailyShift.shiftId = shift.id;
         if (index !== -1) {
           shift.dailyShiftList[index] = updatedDailyShift;
         } else {
@@ -120,27 +129,23 @@ export function SetTimeDialog({
     });
     if (submit) {
       submit(newShiftList);
-      if (specificShift) resetForm(specificShift);
-      else form.reset();
+      resetToEmptyForm();
       setOpen(false);
     }
   }
-  const [open, setOpen] = useState(false);
   function handleCancelDialog() {
     setOpen(false);
-    if (specificShift) resetForm(specificShift);
-    else form.reset();
+    // resetValues(specificShift);
   }
 
   const [isRepeat, setIsRepeat] = useState(false);
   const handleDataChange = (data: Staff[]) => {
-    form.setValue("staffList", data);
+    attendStaffList = data;
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{triggerElement}</DialogTrigger>
-      <DialogContent>
+      <DialogContent onInteractOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>Set a work schedule</DialogTitle>
         </DialogHeader>
@@ -316,7 +321,7 @@ export function SetTimeDialog({
               </div>
 
               <DataTable
-                defaultData={form.getValues("staffList")}
+                defaultData={attendStaffList}
                 staffList={staffList}
                 onDataChange={handleDataChange}
               />

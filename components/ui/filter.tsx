@@ -660,7 +660,10 @@ const SearchFilter = ({
               >
                 <ul>
                   {choices
-                    .filter((value) => value.includes(searchInput.trim()))
+                    .filter(
+                      (value) =>
+                        value !== null && value.includes(searchInput.trim())
+                    )
                     .map((value, idx) => (
                       <li
                         key={idx}

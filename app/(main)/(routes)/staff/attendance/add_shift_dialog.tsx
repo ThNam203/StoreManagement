@@ -19,7 +19,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { Info } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Shift, Status } from "./attendance_table";
@@ -27,42 +27,75 @@ import { Shift, Status } from "./attendance_table";
 const formSchema = z.object({
   name: z.string().min(1),
   workingTime: z.object({
-    start: z.string(),
-    end: z.string(),
+    start: z.string().min(2),
+    end: z.string().min(2),
   }),
   edittingTime: z.object({
-    start: z.string(),
-    end: z.string(),
+    start: z.string().min(2),
+    end: z.string().min(2),
   }),
   status: z.string(),
 });
 
 export function AddShiftDialog({
   title = "Add a new shift",
-  triggerElement,
   shift,
   submit,
+  open,
+  setOpen,
 }: {
-  triggerElement: JSX.Element;
   title?: string;
-  shift?: Shift;
+  shift: Shift | null;
   submit?: (value: Shift) => void;
+  open: boolean;
+  setOpen: (value: boolean) => void;
 }) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: shift ? shift.name : "",
+      name: "",
       workingTime: {
-        start: shift ? format(shift.workingTime.start, "HH:mm:ss") : "",
-        end: shift ? format(shift.workingTime.end, "HH:mm:ss") : "",
+        start: "",
+        end: "",
       },
       edittingTime: {
-        start: shift ? format(shift.editingTime.start, "HH:mm:ss") : "",
-        end: shift ? format(shift.editingTime.end, "HH:mm:ss") : "",
+        start: "",
+        end: "",
       },
-      status: shift ? shift.status : Status.Working,
+      status: Status.Working,
     },
   });
+
+  const resetValues = (shift: Shift | null) => {
+    if (shift) {
+      form.setValue("name", shift.name);
+      form.setValue(
+        "workingTime.start",
+        format(shift.workingTime.start, "HH:mm:ss")
+      );
+      form.setValue(
+        "workingTime.end",
+        format(shift.workingTime.end, "HH:mm:ss")
+      );
+      form.setValue(
+        "edittingTime.start",
+        format(shift.editingTime.start, "HH:mm:ss")
+      );
+      form.setValue(
+        "edittingTime.end",
+        format(shift.editingTime.end, "HH:mm:ss")
+      );
+      form.setValue("status", shift.status);
+    } else resetToEmptyForm();
+  };
+
+  const resetToEmptyForm = () => {
+    form.reset();
+  };
+
+  useEffect(() => {
+    if (open) resetValues(shift);
+  }, [open]);
 
   const stringTimeToDate = (strTime: string) => {
     if (strTime === "") return new Date();
@@ -97,20 +130,18 @@ export function AddShiftDialog({
 
   function handleCancelDialog() {
     setOpen(false);
-    form.reset();
+    resetValues(shift);
   }
 
-  const [open, setOpen] = useState(false);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{triggerElement}</DialogTrigger>
-      <DialogContent>
+      <DialogContent onInteractOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            <div className="w-[600px] h-[250px] flex flex-col justify-start gap-2">
+            <div className="w-[600px] h-[250px] flex flex-col justify-start gap-3">
               <FormField
                 control={form.control}
                 name="name"
@@ -120,7 +151,6 @@ export function AddShiftDialog({
                       <FormLabel>
                         <div className="w-[150px] flex flex-row items-center space-x-2">
                           <h5 className="text-sm">Name</h5>
-                          <Info size={16} />
                         </div>
                       </FormLabel>
 
@@ -138,109 +168,103 @@ export function AddShiftDialog({
                 )}
               />
 
-              <div className="flex flex-row items-center">
-                <FormField
-                  control={form.control}
-                  name="workingTime"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <div className="w-full flex flex-row items-center gap-2">
-                          <div className="flex flex-row items-center gap-2">
-                            <FormLabel>
-                              <h5 className="w-[150px] text-sm">
-                                Working from
-                              </h5>
-                            </FormLabel>
-                            <Input
-                              type="time"
-                              defaultValue={field.value.start}
-                              onChange={(val) => {
-                                form.setValue(
-                                  "workingTime.start",
-                                  val.target.value
-                                );
-                              }}
-                            />
-                          </div>
-                          <div className="flex flex-row items-center gap-2">
-                            <FormLabel>
-                              <h5 className="text-sm">To</h5>
-                            </FormLabel>
-                            <Input
-                              type="time"
-                              defaultValue={field.value.end}
-                              onChange={(val) => {
-                                form.setValue(
-                                  "workingTime.end",
-                                  val.target.value
-                                );
-                              }}
-                            />
-                          </div>
+              <FormField
+                control={form.control}
+                name="workingTime"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <div className="w-full flex flex-row items-center gap-2">
+                        <div className="flex flex-row items-center gap-2">
+                          <FormLabel>
+                            <h5 className="w-[150px] text-sm">Working from</h5>
+                          </FormLabel>
+                          <Input
+                            type="time"
+                            defaultValue={field.value.start}
+                            onChange={(val) => {
+                              form.setValue(
+                                "workingTime.start",
+                                val.target.value
+                              );
+                            }}
+                          />
                         </div>
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="flex flex-row items-center gap-2">
+                        <div className="flex flex-row items-center gap-2">
+                          <FormLabel>
+                            <h5 className="text-sm">To</h5>
+                          </FormLabel>
+                          <Input
+                            type="time"
+                            defaultValue={field.value.end}
+                            onChange={(val) => {
+                              form.setValue(
+                                "workingTime.end",
+                                val.target.value
+                              );
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              <div className="flex flex-row items-center gap-2 my-1">
                 <span className="font-semibold">
                   Time allowed for employees to clock in
                 </span>
                 <Info size={16} />
               </div>
-              <div className="flex flex-row items-center">
-                <FormField
-                  control={form.control}
-                  name="edittingTime"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <div className="w-full flex flex-row items-center gap-2">
-                          <div className="flex flex-row items-center gap-2">
-                            <FormLabel>
-                              <h5 className="w-[150px] text-sm">
-                                Timekeeping from
-                              </h5>
-                            </FormLabel>
-                            <Input
-                              type="time"
-                              defaultValue={field.value.start}
-                              onChange={(val) => {
-                                form.setValue(
-                                  "edittingTime.start",
-                                  val.target.value
-                                );
-                              }}
-                            />
-                          </div>
-                          <div className="flex flex-row items-center gap-2">
-                            <FormLabel>
-                              <h5 className="text-sm">To</h5>
-                            </FormLabel>
-                            <Input
-                              type="time"
-                              defaultValue={field.value.end}
-                              onChange={(val) => {
-                                form.setValue(
-                                  "edittingTime.end",
-                                  val.target.value
-                                );
-                              }}
-                            />
-                          </div>
+              <FormField
+                control={form.control}
+                name="edittingTime"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <div className="w-full flex flex-row items-center gap-2">
+                        <div className="flex flex-row items-center gap-2">
+                          <FormLabel>
+                            <h5 className="w-[150px] text-sm">
+                              Timekeeping from
+                            </h5>
+                          </FormLabel>
+                          <Input
+                            type="time"
+                            defaultValue={field.value.start}
+                            onChange={(val) => {
+                              form.setValue(
+                                "edittingTime.start",
+                                val.target.value
+                              );
+                            }}
+                          />
                         </div>
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </div>
+                        <div className="flex flex-row items-center gap-2">
+                          <FormLabel>
+                            <h5 className="text-sm">To</h5>
+                          </FormLabel>
+                          <Input
+                            type="time"
+                            defaultValue={field.value.end}
+                            onChange={(val) => {
+                              form.setValue(
+                                "edittingTime.end",
+                                val.target.value
+                              );
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="status"
                 render={({ field }) => (
-                  <FormItem className="mt-6 mb-2">
+                  <FormItem>
                     <div className="flex flex-row items-center gap-2">
                       <FormLabel>
                         <div className="w-[150px] flex flex-row items-center space-x-2">
