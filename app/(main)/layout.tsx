@@ -61,11 +61,11 @@ const GlobalPreloader = () => {
         // const groupsResult = await ProductService.getAllGroups();
         // dispatch(setGroups(groupsResult.data));
 
-        const staffResult = await StaffService.getAllStaffs();
-        const convertedStaffs = staffResult.data.map((staff) =>
-          convertStaffReceived(staff)
-        );
-        dispatch(setStaffs(convertedStaffs));
+        // const staffResult = await StaffService.getAllStaffs();
+        // const convertedStaffs = staffResult.data.map((staff) =>
+        //   convertStaffReceived(staff)
+        // );
+        // dispatch(setStaffs(convertedStaffs));
 
         dispatch(disablePreloader());
       } catch (error) {

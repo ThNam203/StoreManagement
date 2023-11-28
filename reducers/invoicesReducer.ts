@@ -11,6 +11,8 @@ function getNewInvoice(): Invoice {
     changed: 0,
     subTotal: 0,
     total: 0,
+    discountCode: "",
+    note: "",
     paymentMethod: "Cash",
     createdAt: format(new Date(), "yyyy-MM-dd HH:mm:ss"),
     invoiceDetails: [],
@@ -26,7 +28,7 @@ export const invoicesSlice = createSlice({
     addInvoice: (state, action: PayloadAction<Invoice>) => {
       state.value.push(action.payload)
     },
-    createNewInvoice: (state, action) => {
+    createNewInvoice: (state) => {
       const newInvoice: Invoice = getNewInvoice();
       state.value.push(newInvoice);
     },

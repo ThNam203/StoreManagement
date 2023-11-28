@@ -6,10 +6,10 @@ import { nanoid } from "nanoid";
 import { XCircle } from "lucide-react";
 
 export const ChooseImageButton = ({
-  file,
+  fileUrl,
   onImageChanged,
 }: {
-  file: string | null;
+  fileUrl: string | null;
   onImageChanged: (file: File | null) => void;
 }) => {
   const id = nanoid();
@@ -24,11 +24,11 @@ export const ChooseImageButton = ({
         width={0}
         height={0}
         sizes="100vw"
-        src={file || "/default-product-img.jpg"}
+        src={fileUrl || "/default-product-img.jpg"}
         alt="image"
         className="w-full h-full border rounded-sm"
       />
-      {file === null || file.length === 0 ? (
+      {!fileUrl || fileUrl.length === 0 ? (
         <>
           <Label
             htmlFor={id}

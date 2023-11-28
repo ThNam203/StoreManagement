@@ -478,6 +478,10 @@ export const NewProductView = ({
       data.push({
         ...values,
         barcode: values.barcode ? values.barcode : faker.number.int({min: 100000000000, max: 999999999999 }),
+        productProperties: values.productProperties?.map((propertyObj) => ({
+          propertyName: propertyObj.key,
+          propertyValue: propertyObj.values[0],
+        })),
         salesUnits: {
           basicUnit: values.units.baseUnit,
           name: values.units.baseUnit,
@@ -485,6 +489,7 @@ export const NewProductView = ({
         },
       });
       if (data[0].units) delete data[0].units;
+      delete data[0].sameTypeProducts
     } else {
       data = values.sameTypeProducts.map((sameProduct) => {
         const newElement: any = {
@@ -507,7 +512,6 @@ export const NewProductView = ({
         return newElement;
       });
     }
-    console.log(data)
     const dataForm: any = new FormData();
     dataForm.append(
       "data",
@@ -610,7 +614,6 @@ export const NewProductView = ({
                               value={field.value}
                               placeholder="---Choose group---"
                               searchPlaceholder="Search product..."
-                              // onValueChanged={setProductGroup}
                               onValueChanged={(val) => {
                                 form.setValue(
                                   "productGroup",
@@ -965,7 +968,7 @@ export const NewProductView = ({
                           ? field.value.map((imageLink, index) => (
                               <ChooseImageButton
                                 key={index}
-                                file={imageLink}
+                                fileUrl={imageLink}
                                 onImageChanged={(newFile: File | null) => {
                                   handleImageChosen(newFile, index);
                                 }}
@@ -995,7 +998,7 @@ export const NewProductView = ({
                               <NewProductPropertiesInputErrorFormMessage />
                             </div>
                           </AccordionTrigger>
-                          <AccordionContent>
+                          <AccordionContent className="px-2">
                             <div className="flex flex-col">
                               {field.value
                                 ? field.value.map((value, index) => {
@@ -1060,7 +1063,7 @@ export const NewProductView = ({
                                               </div>
                                             )}
                                           </PopoverTrigger>
-                                          <PopoverContent className="p-0">
+                                          <PopoverContent className={cn("p-0 max-h-[200px] overflow-auto", scrollbar_style.scrollbar)}>
                                             {productPropertyChoices.map(
                                               (choice, choiceIndex) => {
                                                 return (
@@ -1197,7 +1200,7 @@ export const NewProductView = ({
                                         </div>
                                         <Trash
                                           size={16}
-                                          className="mr-4 hover:cursor-pointer"
+                                          className="hover:cursor-pointer mr-1"
                                           fill="black"
                                           onClick={(e) => {
                                             const newProperties =
@@ -1230,7 +1233,7 @@ export const NewProductView = ({
                             <div className="flex flex-row">
                               <Button
                                 variant={"green"}
-                                className="border ml-4 mt-2 h-[35px]"
+                                className="border ml-1 mt-2 h-[35px]"
                                 type="button"
                                 onClick={(e) => {
                                   let newVal: {
