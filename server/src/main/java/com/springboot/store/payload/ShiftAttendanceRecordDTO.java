@@ -16,11 +16,8 @@ public class ShiftAttendanceRecordDTO {
     private int staffId;
     private String staffName;
     private boolean hasAttend;
-    @JsonFormat(pattern = "dd-MM-yyyy")
     private Date date;
-    @JsonFormat(pattern = "HH:mm:ss")
     private Date timeIn;
-    @JsonFormat(pattern = "HH:mm:ss")
     private Date timeOut;
     private String note;
 

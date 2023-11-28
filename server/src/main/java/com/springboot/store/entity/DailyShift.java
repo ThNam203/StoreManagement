@@ -21,14 +21,7 @@ public class DailyShift {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "shift_id")
-    private int shiftId;
-
-    @Column(name = "shift_name")
-    private String shiftName;
-
     @Column(name = "date")
-    @JsonFormat(pattern = "dd-MM-yyyy")
     private Date date;
 
     @Column(name = "note")

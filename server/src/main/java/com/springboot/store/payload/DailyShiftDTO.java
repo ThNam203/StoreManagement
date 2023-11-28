@@ -16,7 +16,6 @@ public class DailyShiftDTO {
     private int id;
     private int shiftId;
     private String shiftName;
-    @JsonFormat(pattern = "dd-MM-yyyy")
     private Date date;
     private String note;
 

@@ -13,8 +13,8 @@ import java.util.Date;
 @Builder
 public class ShiftWorkingTimeDTO {
     private int id;
-    @JsonFormat(pattern = "HH:mm:ss")
+
     private Date startTime;
-    @JsonFormat(pattern = "HH:mm:ss")
+
     private Date endTime;
 }

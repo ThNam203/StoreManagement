@@ -33,7 +33,6 @@ public class ShiftAttendanceRecordServiceImpl implements ShiftAttendanceRecordSe
         ShiftAttendanceRecord existingShiftAttendanceRecord = shiftAttendanceRecordRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("ShiftAttendanceRecord not found with id: " + id));
         existingShiftAttendanceRecord.setStaffId(shiftAttendanceRecordDTO.getStaffId());
         existingShiftAttendanceRecord.setHasAttend(shiftAttendanceRecordDTO.isHasAttend());
-        existingShiftAttendanceRecord.setStaffName(shiftAttendanceRecordDTO.getStaffName());
         existingShiftAttendanceRecord.setDate(shiftAttendanceRecordDTO.getDate());
         existingShiftAttendanceRecord.setNote(shiftAttendanceRecordDTO.getNote());
         existingShiftAttendanceRecord.setTimeIn(shiftAttendanceRecordDTO.getTimeIn());

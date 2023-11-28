@@ -22,22 +22,16 @@ public class ShiftAttendanceRecord {
     @Column(name = "staff_id")
     private int staffId;
 
-    @Column(name = "staff_name")
-    private String staffName;
-
     @Column(name = "has_attend")
     private boolean hasAttend;
 
     @Column(name = "date")
-    @JsonFormat(pattern = "dd-MM-yyyy")
     private Date date;
 
     @Column(name = "time_in")
-    @JsonFormat(pattern = "HH:mm:ss")
     private Date timeIn;
 
     @Column(name = "time_out")
-    @JsonFormat(pattern = "HH:mm:ss")
     private Date timeOut;
 
     @Column(name = "note")
