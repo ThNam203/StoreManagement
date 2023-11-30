@@ -21,7 +21,7 @@ public class CustomerGroupServiceImpl implements CustomerGroupService {
 
     @Override
     public CustomerGroupDTO createCustomerGroup(CustomerGroupDTO customerGroupDTO) {
-        customerGroupDTO.setCreator(Integer.toString(staffService.getAuthorizedStaff().getId()));
+        customerGroupDTO.setCreator(staffService.getAuthorizedStaff().getId());
         CustomerGroup customerGroup = modelMapper.map(customerGroupDTO, CustomerGroup.class);
         customerGroup.setCreatedAt(new Date());
         customerGroup.setCreator(staffService.getAuthorizedStaff());
@@ -36,7 +36,7 @@ public class CustomerGroupServiceImpl implements CustomerGroupService {
         existingCustomerGroup.setDescription(customerGroupDTO.getDescription());
         existingCustomerGroup = customerGroupRepository.save(existingCustomerGroup);
         customerGroupDTO = modelMapper.map(existingCustomerGroup, CustomerGroupDTO.class);
-        customerGroupDTO.setCreator(Integer.toString(existingCustomerGroup.getCreator().getId()));
+        customerGroupDTO.setCreator(existingCustomerGroup.getCreator().getId());
         return customerGroupDTO;
     }
 
@@ -46,7 +46,8 @@ public class CustomerGroupServiceImpl implements CustomerGroupService {
         return customerGroups.stream()
                 .map(customerGroup -> {
                     CustomerGroupDTO customerGroupDTO = modelMapper.map(customerGroup, CustomerGroupDTO.class);
-                    customerGroupDTO.setCreator(Integer.toString(customerGroup.getCreator().getId()));
+                    // check if creator is null
+                    customerGroupDTO.setCreator(customerGroup.getCreator() == null ? null : customerGroup.getCreator().getId());
                     return customerGroupDTO;
                 })
                 .collect(java.util.stream.Collectors.toList());
@@ -56,7 +57,7 @@ public class CustomerGroupServiceImpl implements CustomerGroupService {
     public CustomerGroupDTO getCustomerGroupById(int id) {
         CustomerGroup customerGroup = customerGroupRepository.findById(id).orElseThrow(() -> new RuntimeException("Customer group not found with id: " + id));
         CustomerGroupDTO customerGroupDTO = modelMapper.map(customerGroup, CustomerGroupDTO.class);
-        customerGroupDTO.setCreator(Integer.toString(customerGroup.getCreator().getId()));
+        customerGroupDTO.setCreator(customerGroup == null ? null : customerGroup.getCreator().getId());
         return customerGroupDTO;
     }
 
