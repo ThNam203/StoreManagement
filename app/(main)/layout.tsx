@@ -22,6 +22,10 @@ import { setGroups } from "@/reducers/productGroupsReducer";
 import StaffService from "@/services/staff_service";
 import { setStaffs } from "@/reducers/staffReducer";
 import { convertStaffReceived } from "@/utils";
+import { useRouter } from "next/navigation";
+import CustomerService from "@/services/customer_service";
+import { setCustomerGroup } from "@/reducers/customerGroupsReducer";
+import { setCustomers } from "@/reducers/customersReducer";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
@@ -41,36 +45,45 @@ const GlobalPreloader = () => {
   const preloaderVisibility = useAppSelector((state) => state.preloader.value);
   const dispatch = useAppDispatch();
   const { toast } = useToast();
+  const router = useRouter();
 
   useEffect(() => {
     const fetchData = async () => {
       dispatch(showPreloader());
       try {
-        // const products = await ProductService.getAllProducts();
-        // dispatch(setProducts(products.data));
+        const products = await ProductService.getAllProducts();
+        dispatch(setProducts(products.data));
 
-        // const brandsResult = await ProductService.getAllBrands();
-        // dispatch(setBrands(brandsResult.data));
+        const brandsResult = await ProductService.getAllBrands();
+        dispatch(setBrands(brandsResult.data));
 
-        // const locationsResult = await ProductService.getAllLocations();
-        // dispatch(setLocations(locationsResult.data));
+        const locationsResult = await ProductService.getAllLocations();
+        dispatch(setLocations(locationsResult.data));
 
-        // const propertiesResult = await ProductService.getAllProperties();
-        // dispatch(setProperties(propertiesResult.data));
+        const propertiesResult = await ProductService.getAllProperties();
+        dispatch(setProperties(propertiesResult.data));
 
-        // const groupsResult = await ProductService.getAllGroups();
-        // dispatch(setGroups(groupsResult.data));
+        const groupsResult = await ProductService.getAllGroups();
+        dispatch(setGroups(groupsResult.data));
 
-        // const staffResult = await StaffService.getAllStaffs();
-        // const convertedStaffs = staffResult.data.map((staff) =>
-        //   convertStaffReceived(staff)
-        // );
-        // dispatch(setStaffs(convertedStaffs));
+        const customers = await CustomerService.getAllCustomers();
+        dispatch(setCustomers(customers.data))
+
+        const customerGroups = await CustomerService.getAllCustomerGroups();
+        dispatch(setCustomerGroup(customerGroups.data))
+
+        const staffResult = await StaffService.getAllStaffs();
+        const convertedStaffs = staffResult.data.map((staff) =>
+          convertStaffReceived(staff)
+        );
+        dispatch(setStaffs(convertedStaffs));
 
         dispatch(disablePreloader());
       } catch (error) {
+        // router.push("/login")
         dispatch(disablePreloader());
         axiosUIErrorHandler(error, toast);
+        console.log(error)
       }
     };
     fetchData();

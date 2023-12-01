@@ -7,6 +7,8 @@ import productLocationsReducer from "./reducers/productLocationsReducer";
 import productPropertiesReducer from "./reducers/productPropertiesReducer";
 import invoicesReducer from "./reducers/invoicesReducer";
 import staffAccountReducer from "./reducers/staffReducer";
+import customersReducer from "./reducers/customersReducer";
+import customerGroupsReducer from "./reducers/customerGroupsReducer";
 
 const store = configureStore({
   reducer: {
@@ -18,6 +20,8 @@ const store = configureStore({
     productProperties: productPropertiesReducer,
     invoices: invoicesReducer,
     staffs: staffAccountReducer,
+    customers: customersReducer,
+    customerGroups: customerGroupsReducer,
   },
 });
 

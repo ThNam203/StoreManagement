@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { QrScanner } from "@yudiel/react-qr-scanner";
 import {
   AlignJustify,
   ChevronLeft,
@@ -23,6 +24,8 @@ import {
   PieChart,
   Plus,
   PlusCircle,
+  Scan,
+  ScanLine,
   Search,
   Trash,
   Undo,
@@ -78,162 +81,87 @@ import {
 } from "@/components/ui/alert-dialog";
 import LoadingCircle from "@/components/ui/loading_circle";
 import NewCustomerDialog from "@/components/ui/new_customer_dialog";
+import SearchView from "@/components/ui/search_view";
+import PropertiesString from "@/components/ui/properties_string_view";
+import { Customer } from "@/entities/Customer";
+import { decode } from "punycode";
+// import { Html5QrcodeScanner } from "html5-qrcode";
+
+// function onScanSuccess(decodedText: string, decodedResult: any) {
+//   console.log(`Code matched = ${decodedText}`, decodedResult);
+// }
+
+// function onScanFailure(error: any) {
+//   // handle scan failure, usually better to ignore and keep scanning.
+//   // for example:
+//   console.warn(`Code scan error = ${error}`);
+// }
+
+// let html5QrcodeScanner = new Html5QrcodeScanner(
+//   "reader",
+//   { fps: 10, qrbox: { width: 250, height: 250 } },
+//   /* verbose= */ false
+// );
+
+const ProductSearchItemView: (product: Product) => React.ReactNode = (
+  product: Product
+) => {
+  return (
+    <div className="flex flex-row items-center gap-2 px-4 hover:bg-blue-200 hover:cursor-pointer rounded-sm m-1 p-1">
+      <img
+        className="h-10 w-10 object-contain object-center border"
+        src={
+          product.images && product.images.length > 0
+            ? product.images[0]
+            : "/default-product-img.jpg"
+        }
+      />
+      <div className="text-sm flex flex-col flex-1">
+        <div className="flex flex-row gap-2">
+          <p className="font-semibold">{product.name}</p>
+          <PropertiesString propertiesString={product.propertiesString} />
+        </div>
+        <p>ID: {product.id}</p>
+        <p>In stock: {product.stock}</p>
+      </div>
+      <p className="text-base text-blue-400">
+        {product.productPrice}/{product.salesUnits.name}
+      </p>
+    </div>
+  );
+};
+
+const CustomerSearchItemView: (customer: Customer) => React.ReactNode = (
+  customer: Customer
+) => {
+  return (
+    <div className="flex flex-row items-center gap-2 hover:bg-blue-200 hover:cursor-pointer rounded-sm m-1 p-1">
+      <img
+        className="h-10 w-10 object-contain object-center border"
+        src={customer.image.url ?? "/ic_user.png"}
+      />
+      <div className="text-sm flex flex-col flex-1">
+        <p>Name: {customer.name}</p>
+        <p>ID: {customer.id}</p>
+      </div>
+    </div>
+  );
+};
 
 export default function Sale() {
   const invoicesContainerRef = useRef<HTMLDivElement>(null);
   const dispatch = useAppDispatch();
   const { toast } = useToast();
   const [chosenInvoicePosition, setChosenInvoicePosition] = useState(0);
-  const products = useAppSelector((state) => state.products.value);
-  const invoices = useAppSelector((state) => state.invoices.value);
   const [isCompletingInvoice, setIsCompletingInvoice] = useState(false);
+  const [productSearch, setProductSearch] = useState("");
+  const [showScanner, setShowScanner] = useState(false);
+  const products = useAppSelector((state) => state.products.value);
+  const customers = useAppSelector((state) => state.customers.value);
+  const invoices = useAppSelector((state) => state.invoices.value);
 
-  return (
-    <div className="flex flex-col h-screen w-screen bg-blue-500">
-      <div className="flex flex-row items-center h-[calc(35px+1rem)] px-2">
-        <div className="flex flex-row bg-white items-center rounded-sm pl-2 min-w-[250px] max-w-[400px] w-[400px] mx-2 my-auto">
-          <Search size={20} color="rgb(156 163 175)" />
-          <div className="flex-1">
-            <Input
-              placeholder="Find products..."
-              className="h-[35px] w-full border-0 focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0"
-            />
-          </div>
-        </div>
-        <ChevronLeft
-          size={26}
-          color="white"
-          className="hover:cursor-pointer hover:bg-black hover:bg-opacity-50 p-1 rounded-full mr-2"
-          onClick={(e) => {
-            if (invoicesContainerRef.current)
-              invoicesContainerRef.current.scrollLeft -= 20;
-          }}
-        />
-        <div
-          ref={invoicesContainerRef}
-          className="flex flex-row h-full overflow-hidden max-w-[450px] overflow-x-hidden overflow-y-hidden"
-        >
-          {invoices.map((val, idx) => (
-            <div
-              key={idx}
-              className={cn(
-                "flex flex-row items-center min-w-[100px] w-[100px] hover:cursor-pointer px-2 mt-2 pb-4 rounded-t-sm h-full ease-linear duration-200",
-                chosenInvoicePosition === idx
-                  ? "bg-slate-200 text-black font-semibold"
-                  : "hover:bg-slate-700 text-white"
-              )}
-              onClick={(e) => setChosenInvoicePosition(idx)}
-            >
-              <p className="flex-1 text-sm">Invoice {idx + 1}</p>
-              <AlertDialog>
-                <AlertDialogTrigger asChild disabled={isCompletingInvoice}>
-                  <X
-                    size={16}
-                    className={cn(
-                      "rounded-full p-[1px] ease-linear duration-100",
-                      chosenInvoicePosition === idx
-                        ? "hover:bg-slate-600 hover:text-white"
-                        : "hover:bg-opacity-50 hover:bg-slate-50"
-                    )}
-                  />
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>
-                      Remove invoice {idx + 1}?
-                    </AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Are you sure to delete the invoice?
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={(e) => {
-                        if (isCompletingInvoice) return;
-                        dispatch(deleteInvoice(invoices[idx].id));
-                      }}
-                    >
-                      Delete
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
-          ))}
-        </div>
-        <ChevronRight
-          size={26}
-          color="white"
-          className="hover:cursor-pointer hover:bg-black hover:bg-opacity-50 p-1 rounded-full mx-2"
-          onClick={(e) => {
-            if (invoicesContainerRef.current)
-              invoicesContainerRef.current.scrollLeft += 20;
-          }}
-        />
-        <PlusCircle
-          size={26}
-          color="white"
-          className="hover:cursor-pointer hover:bg-black hover:bg-opacity-50 p-1 rounded-full"
-          onClick={() => dispatch(createNewInvoice())}
-        />
-        <div className="flex-1 min-w-[16px]" />
-        <Popover>
-          <PopoverTrigger className="mr-2">
-            <AlignJustify size={24} color="white" className="end" />
-          </PopoverTrigger>
-          <PopoverContent className="flex flex-col rounded-sm bg-white p-2 mr-2">
-            <div className="flex flex-row items-center gap-4 p-2 hover:cursor-pointer hover:bg-slate-200">
-              <PieChart size={16} />
-              <p className="text-sm font-medium">End of day report</p>
-            </div>
-            <div className="flex flex-row items-center gap-4 p-2 hover:cursor-pointer hover:bg-slate-200">
-              <Undo size={16} />
-              <p className="text-sm font-medium">Return</p>
-            </div>
-            <div className="flex flex-row items-center gap-4 p-2 hover:cursor-pointer hover:bg-slate-200">
-              <FileDown size={16} />
-              <p className="text-sm font-medium">New Receipt</p>
-            </div>
-            <div className="flex flex-row items-center gap-4 p-2 hover:cursor-pointer hover:bg-slate-200">
-              <FilePlus size={16} />
-              <p className="text-sm font-medium">Import</p>
-            </div>
-            <div className="flex flex-row items-center gap-4 p-2 hover:cursor-pointer hover:bg-slate-200">
-              <Info size={16} />
-              <p className="text-sm font-medium">Shortcuts</p>
-            </div>
-          </PopoverContent>
-        </Popover>
-      </div>
-      <InvoiceView
-        isCompletingInvoice={isCompletingInvoice}
-        setIsCompletingInvoice={setIsCompletingInvoice}
-        products={products}
-        invoice={invoices[chosenInvoicePosition]}
-      />
-    </div>
-  );
-}
-
-const InvoiceView = ({
-  isCompletingInvoice,
-  setIsCompletingInvoice,
-  invoice,
-  products,
-}: {
-  isCompletingInvoice: boolean;
-  setIsCompletingInvoice: (value: boolean) => any;
-  invoice: Invoice;
-  products: Product[];
-}) => {
-  const { toast } = useToast();
-  const dispatch = useAppDispatch();
-  const [discountCode, setDiscountCode] = useState("");
-  const [showAddNewCustomer, setShowAddNewCustomer] = useState(false);
-
-  const onProductClick = (product: Product) => {
-    let modifiedInvoice = { ...invoice };
+  const onProductClick = (currentInvoice: Invoice, product: Product) => {
+    let modifiedInvoice = { ...currentInvoice };
     let detailInvoice: InvoiceDetail;
 
     if (
@@ -247,13 +175,13 @@ const InvoiceView = ({
         productId: product.id,
       };
       modifiedInvoice.invoiceDetails = [
-        ...invoice.invoiceDetails,
+        ...currentInvoice.invoiceDetails,
         detailInvoice,
       ];
     } else {
       modifiedInvoice = {
-        ...invoice,
-        invoiceDetails: invoice.invoiceDetails.map((v) => {
+        ...currentInvoice,
+        invoiceDetails: currentInvoice.invoiceDetails.map((v) => {
           if (v.productId === product.id) {
             detailInvoice = {
               ...v,
@@ -266,9 +194,214 @@ const InvoiceView = ({
       };
     }
 
-    onDetailQuantityChanged(detailInvoice!.quantity, detailInvoice!);
     dispatch(updateInvoice(modifiedInvoice));
+    return modifiedInvoice;
   };
+  return (
+    <>
+      {showScanner ? (
+        <div className="fixed w-screen h-screen z-[9] bg-blue-300 flex items-center justify-center" onClick={(e) => {
+          e.stopPropagation()
+          e.preventDefault()
+          setShowScanner(false)
+        }}>
+          <div className="w-[500px] h-[500px]">
+          <QrScanner
+            onDecode={(result) => {
+              setShowScanner(false);
+              const product = products.find(
+                (product) => product.barcode === result
+              );
+              if (product)
+                onProductClick(invoices[chosenInvoicePosition], product);
+              else
+                toast({
+                  description: "Can't find product with barcode " + result,
+                  variant: "destructive",
+                });
+            }}
+            onError={(error) => {
+              if (error)
+                toast({
+                  title: error.name,
+                  description: error.message,
+                  variant: "destructive",
+                });
+            }}
+          />
+          </div>
+          
+        </div>
+      ) : null}
+      <div className="flex flex-col h-screen w-screen bg-blue-500">
+        <div className="flex flex-row items-center h-[calc(35px+1rem)] px-2">
+          <div className="bg-white rounded-sm min-w-[250px] max-w-[400px] w-[400px] mx-2 my-auto">
+            <SearchView
+              placeholder="Find products by id or name"
+              className="flex-1"
+              choices={products}
+              onSearchChange={(value) => setProductSearch(value)}
+              itemView={ProductSearchItemView}
+              onItemClick={(product) =>
+                onProductClick(invoices[chosenInvoicePosition], product)
+              }
+              filter={(product) =>
+                product.id.toString().includes(productSearch) ||
+                product.name.includes(productSearch)
+              }
+              endIcon={
+                <ScanLine
+                  size={20}
+                  color="rgb(156 163 175)"
+                  className="mr-2 hover:cursor-pointer"
+                  onClick={(e) => setShowScanner((prev) => !prev)}
+                />
+              }
+            />
+          </div>
+          <ChevronLeft
+            size={26}
+            color="white"
+            className="hover:cursor-pointer hover:bg-black hover:bg-opacity-50 p-1 rounded-full mr-2"
+            onClick={(e) => {
+              if (invoicesContainerRef.current)
+                invoicesContainerRef.current.scrollLeft -= 20;
+            }}
+          />
+          <div
+            ref={invoicesContainerRef}
+            className="flex flex-row h-full overflow-hidden max-w-[450px] overflow-x-hidden overflow-y-hidden"
+          >
+            {invoices.map((val, idx) => (
+              <div
+                key={idx}
+                className={cn(
+                  "flex flex-row items-center min-w-[100px] w-[100px] hover:cursor-pointer px-2 mt-2 pb-4 rounded-t-sm h-full ease-linear duration-200",
+                  chosenInvoicePosition === idx
+                    ? "bg-slate-200 text-black font-semibold"
+                    : "hover:bg-slate-700 text-white"
+                )}
+                onClick={(e) => setChosenInvoicePosition(idx)}
+              >
+                <p className="flex-1 text-sm">Invoice {idx + 1}</p>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild disabled={isCompletingInvoice}>
+                    <X
+                      size={16}
+                      className={cn(
+                        "rounded-full p-[1px] ease-linear duration-100",
+                        chosenInvoicePosition === idx
+                          ? "hover:bg-slate-600 hover:text-white"
+                          : "hover:bg-opacity-50 hover:bg-slate-50"
+                      )}
+                    />
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>
+                        Remove invoice {idx + 1}?
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure to delete the invoice?
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (isCompletingInvoice) return;
+                          if (
+                            chosenInvoicePosition >= idx &&
+                            chosenInvoicePosition > 0
+                          )
+                            setChosenInvoicePosition((prev) => prev - 1);
+                          dispatch(deleteInvoice(invoices[idx].id));
+                        }}
+                      >
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+            ))}
+          </div>
+          <ChevronRight
+            size={26}
+            color="white"
+            className="hover:cursor-pointer hover:bg-black hover:bg-opacity-50 p-1 rounded-full mx-2"
+            onClick={(e) => {
+              if (invoicesContainerRef.current)
+                invoicesContainerRef.current.scrollLeft += 20;
+            }}
+          />
+          <PlusCircle
+            size={26}
+            color="white"
+            className="hover:cursor-pointer hover:bg-black hover:bg-opacity-50 p-1 rounded-full"
+            onClick={() => dispatch(createNewInvoice())}
+          />
+          <div className="flex-1 min-w-[16px]" />
+          <Popover>
+            <PopoverTrigger className="mr-2">
+              <AlignJustify size={24} color="white" className="end" />
+            </PopoverTrigger>
+            <PopoverContent className="flex flex-col rounded-sm bg-white p-2 mr-2">
+              <div className="flex flex-row items-center gap-4 p-2 hover:cursor-pointer hover:bg-slate-200">
+                <PieChart size={16} />
+                <p className="text-sm font-medium">End of day report</p>
+              </div>
+              <div className="flex flex-row items-center gap-4 p-2 hover:cursor-pointer hover:bg-slate-200">
+                <Undo size={16} />
+                <p className="text-sm font-medium">Return</p>
+              </div>
+              <div className="flex flex-row items-center gap-4 p-2 hover:cursor-pointer hover:bg-slate-200">
+                <FileDown size={16} />
+                <p className="text-sm font-medium">New Receipt</p>
+              </div>
+              <div className="flex flex-row items-center gap-4 p-2 hover:cursor-pointer hover:bg-slate-200">
+                <FilePlus size={16} />
+                <p className="text-sm font-medium">Import</p>
+              </div>
+              <div className="flex flex-row items-center gap-4 p-2 hover:cursor-pointer hover:bg-slate-200">
+                <Info size={16} />
+                <p className="text-sm font-medium">Shortcuts</p>
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>
+        <InvoiceView
+          isCompletingInvoice={isCompletingInvoice}
+          setIsCompletingInvoice={setIsCompletingInvoice}
+          onProductClick={onProductClick}
+          products={products}
+          invoice={invoices[chosenInvoicePosition]}
+          customers={customers}
+        />
+      </div>
+    </>
+  );
+}
+
+const InvoiceView = ({
+  isCompletingInvoice,
+  setIsCompletingInvoice,
+  onProductClick,
+  invoice,
+  products,
+  customers,
+}: {
+  isCompletingInvoice: boolean;
+  setIsCompletingInvoice: (value: boolean) => any;
+  onProductClick: (currentInvoice: Invoice, product: Product) => Invoice;
+  invoice: Invoice;
+  products: Product[];
+  customers: Customer[];
+}) => {
+  const { toast } = useToast();
+  const dispatch = useAppDispatch();
+  const [discountCode, setDiscountCode] = useState("");
 
   const updateDiscountCode = (value: string) => {
     const modifiedInvoice = {
@@ -307,15 +440,22 @@ const InvoiceView = ({
   const [exceedStockDetailIds, setExceedStockDetailIds] = useState<number[]>(
     []
   );
-  function onDetailQuantityChanged(value: number, detail: InvoiceDetail): any {
+
+  const [customerSearch, setCustomerSearch] = useState("");
+
+  React.useEffect(() => {
     let exceedState = [...exceedStockDetailIds];
-    if (products.find((v) => v.id === detail.productId)!.stock < value)
-      exceedState.push(detail.id);
-    else if (exceedStockDetailIds.includes(detail.id))
-      exceedState = exceedState.filter((v) => v !== detail.id);
+    invoice.invoiceDetails.forEach((detail) => {
+      if (
+        products.find((v) => v.id === detail.productId)!.stock < detail.quantity
+      )
+        exceedState.push(detail.id);
+      else if (exceedStockDetailIds.includes(detail.id))
+        exceedState = exceedState.filter((v) => v !== detail.id);
+    });
 
     setExceedStockDetailIds(exceedState);
-  }
+  }, [invoice]);
 
   return (
     <div className="flex-1 bg-slate-200 flex flex-row">
@@ -332,9 +472,6 @@ const InvoiceView = ({
               products={products}
               invoice={invoice}
               detailIndex={detailIdx}
-              onDetailQuantityChange={(value: number) =>
-                onDetailQuantityChanged(value, detail)
-              }
               showExceedError={exceedStockDetailIds.includes(detail.id)}
               onDeleteDetail={() => {
                 const idx = exceedStockDetailIds.indexOf(detail.id);
@@ -392,13 +529,29 @@ const InvoiceView = ({
       </div>
       <div className="grow shrink basis-5/12 rounded-md m-2 ml-0 bg-white p-2 flex flex-col">
         <div className="flex flex-row">
-          <div className="flex flex-row bg-slate-200 items-center rounded-sm px-2 min-w-[250px] max-w-[400px] w-[250px] mr-2">
-            <Search size={20} color="rgb(156 163 175)" />
-            <Input
-              placeholder="Find customer (F4)"
-              className="h-[40px] w-[170px] flex-1 border-0 bg-slate-200 focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0"
+          <div className="flex flex-row bg-slate-200 items-center rounded-sm min-w-[250px] max-w-[400px] w-[250px]">
+            <SearchView
+              placeholder="Find customer"
+              className="flex-1"
+              choices={customers}
+              onSearchChange={(value) => setCustomerSearch(value)}
+              itemView={CustomerSearchItemView}
+              inputColor="bg-slate-200"
+              onItemClick={(customer) => {
+                throw new Error("not doing anything");
+              }}
+              filter={(customer) =>
+                customer.id.toString().includes(customerSearch) ||
+                customer.name.includes(customerSearch)
+              }
+              triggerClassname="bg-slate-200"
+              endIcon={
+                <NewCustomerDialog
+                  DialogTrigger={<Plus size={20} />}
+                  triggerClassname="mr-2"
+                />
+              }
             />
-            <NewCustomerDialog DialogTrigger={<Plus size={20} />} />
           </div>
           <div className="flex-1" />
           <TooltipProvider>
@@ -426,9 +579,7 @@ const InvoiceView = ({
             <ProductView
               key={idx}
               product={product}
-              onClick={() => {
-                onProductClick(product);
-              }}
+              onClick={() => onProductClick(invoice, product)}
             />
           ))}
         </div>
@@ -583,13 +734,7 @@ const ProductView = ({
       <div className="flex flex-col gap-2">
         <div className="flex flex-row gap-1">
           <p className="text-sm font-semibold">{product.name}</p>
-          {product.propertiesString ? (
-            <div className="rounded-sm bg-blue-300 text-white px-1 max-w-[80px] whitespace-nowrap overflow-hidden">
-              <p className="text-xs animate-marquee">
-                {product.propertiesString}
-              </p>
-            </div>
-          ) : null}
+          <PropertiesString propertiesString={product.propertiesString} />
         </div>
         <p className="text-xs font-semibold text-sky-700">
           {product.productPrice}/{product.salesUnits.name}
@@ -603,7 +748,6 @@ const InvoiceDetailView = ({
   products,
   invoice,
   detailIndex,
-  onDetailQuantityChange,
   onDeleteDetail,
   showExceedError,
 }: {
@@ -611,7 +755,6 @@ const InvoiceDetailView = ({
   invoice: Invoice;
   detailIndex: number;
   onDeleteDetail: () => any;
-  onDetailQuantityChange: (value: number) => any;
   showExceedError: boolean;
 }) => {
   const dispatch = useAppDispatch();
@@ -631,7 +774,6 @@ const InvoiceDetailView = ({
       ),
     };
 
-    onDetailQuantityChange(value);
     dispatch(updateInvoice(updatedInvoice));
   };
 

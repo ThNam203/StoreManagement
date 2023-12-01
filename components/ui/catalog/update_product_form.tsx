@@ -182,13 +182,13 @@ export const UpdateProductView = ({
     defaultValues: {
       ...product,
       images: [
-        ...product.images,
-        ...new Array(Math.max(0, 5 - product.images.length)).fill(null),
+        ...(product.images ? product.images : []),
+        ...new Array(Math.max(0, 5 - (product.images ? product.images.length : 0))).fill(null),
       ],
       productBrand: product.productBrand ?? "",
       weight: product.weight ?? 0,
       unit: product.salesUnits,
-      properties: product.productProperties.map((property) => {
+      properties: product.productProperties ? product.productProperties.map((property) => {
         return {
           id: productPropertyChoices.find(
             (v) => v.name === property.propertyName
@@ -196,7 +196,7 @@ export const UpdateProductView = ({
           key: property.propertyName,
           value: property.propertyValue,
         };
-      }),
+      }) : null,
     },
   });
 
@@ -662,7 +662,7 @@ export const UpdateProductView = ({
                         {field.value.map((imageLink, index) => (
                           <ChooseImageButton
                             key={index}
-                            file={imageLink}
+                            fileUrl={imageLink}
                             onImageChanged={(newFileUrl) => {
                               handleImageChosen(newFileUrl, index);
                             }}

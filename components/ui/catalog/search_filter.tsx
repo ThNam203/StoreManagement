@@ -29,7 +29,7 @@ export default function SearchAndChooseButton({
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [searchInput, setSearchInput] = useState("");
   const results = choices
-    .filter((choice) => choice.includes(searchInput.trim()))
+    .filter((choice) => choice.toLowerCase().includes(searchInput.trim().toLowerCase()))
     .map((choice, idx) => (
       <li
         key={idx}
@@ -70,7 +70,7 @@ export default function SearchAndChooseButton({
     <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
       <PopoverTrigger className="w-full h-full min-h-[40px]">
         <p className="text-xs leading-4 px-2 text-start">
-          {value !== undefined ? value : placeholder}
+          {value ? value : placeholder}
         </p>
       </PopoverTrigger>
       <PopoverContent className="overflow-hidden shadow-sm shadow-gray-600 data-[state=open]:overflow-visible p-[1px] bg-white w-[272px] h-full !rounded-none -mt-1">

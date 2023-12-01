@@ -62,8 +62,7 @@ function imageColumn(accessorKey: string, title: string): ColumnDef<Product> {
           alt="product image"
           width={30}
           height={30}
-          // src={value && value[0] ? value[0] : "/default-product-img.jpg"}
-          src={"/default-product-img.jpg"}
+          src={value && value[0] ? value[0] : "/default-product-img.jpg"}
           className="object-contain mx-auto"
         />
       );

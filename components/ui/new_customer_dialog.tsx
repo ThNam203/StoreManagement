@@ -25,25 +25,31 @@ import {
   AlertDialogContent,
   AlertDialogTrigger,
 } from "./alert-dialog";
-import { useState } from "react";
-import { DatePicker } from "./datepicker";
+import { useEffect, useState } from "react";
+import CustomerService from "@/services/customer_service";
+import { useAppDispatch, useAppSelector } from "@/hooks";
+import { addCustomer } from "@/reducers/customersReducer";
+import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { useToast } from "./use-toast";
+import AddNewThing from "./add_new_thing_dialog";
+import { addCustomerGroup } from "@/reducers/customerGroupsReducer";
 
 const newCustomerFormSchema = z.object({
   name: z
     .string()
     .trim()
-    .min(1, { message: "Name is missing!" })
+    .min(1, { message: "Missing name!" })
     .max(100, { message: "Customer name must be at most 100 characters!" }),
   email: z
     .string()
     .trim()
-    .min(1, { message: "Email is missing!" })
     .max(100, { message: "Email must be at most 100 characters!" })
-    .email({ message: "Email not valid!" }),
+    .email({ message: "Email not valid!" })
+    .or(z.literal("")),
   phoneNumber: z
     .string({ required_error: "Phone number is missing" })
     .trim()
-    .min(1, { message: "Group is missing" })
+    .min(1, { message: "Missing group!" })
     .max(10, { message: "Phone number must be at most 10 characters!" }),
   address: z
     .string()
@@ -52,21 +58,43 @@ const newCustomerFormSchema = z.object({
     .optional(),
   sex: z.enum(["Male", "Female", "Not to say"]),
   description: z.string(),
-  birthday: z.date(),
-  customerGroup: z.string(),
+  birthday: z.string(),
+  customerGroup: z.string().min(1, "Missing group!"),
 });
 
 export default function NewCustomerDialog({
   DialogTrigger,
+  triggerClassname,
 }: {
   DialogTrigger: JSX.Element;
+  triggerClassname?: string;
 }) {
+  const [isCreatingNewCustomer, setIsCreatingNewCustomer] = useState(false);
   const [open, setOpen] = useState(false);
-  const onSubmit = () => {};
+  let [file, setFile] = useState<File | null>(null);
+  const onFileChanged = (newFile: File | null) => setFile(newFile);
+  const dispatch = useAppDispatch();
+  const { toast } = useToast();
+
+  const onSubmit = (values: z.infer<typeof newCustomerFormSchema>) => {
+    const formData = new FormData();
+    if (file) formData.append("file", file);
+    formData.append("data", new Blob([JSON.stringify(values)], { type: "application/json" }));
+    setIsCreatingNewCustomer(true);
+    CustomerService.uploadCustomer(formData)
+      .then((result) => {
+        dispatch(addCustomer(result.data));
+        setOpen(false);
+      })
+      .catch((error) => axiosUIErrorHandler(error, toast))
+      .finally(() => {
+        setIsCreatingNewCustomer(false);
+      });
+  };
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger>{DialogTrigger}</AlertDialogTrigger>
+      <AlertDialogTrigger className={triggerClassname}>{DialogTrigger}</AlertDialogTrigger>
       <AlertDialogContent
         className="max-w-[960px] !w-[500px] md:!w-[600px]"
         asChild
@@ -86,9 +114,13 @@ export default function NewCustomerDialog({
             />
           </div>
           <div className="flex flex-col md:flex-row gap-8">
-            <FormImage onImageChosen={() => {}} />
+            <FormImage onImageChosen={onFileChanged} />
             <div className="flex-1">
-              <FormContent onSubmit={onSubmit} />
+              <FormContent
+                onSubmit={onSubmit}
+                isCreatingNewCustomer={isCreatingNewCustomer}
+                setOpen={setOpen}
+              />
             </div>
           </div>
         </div>
@@ -104,6 +136,12 @@ const FormImage = ({
 }) => {
   const [file, setFile] = useState<File | null>(null);
 
+  useEffect(() => {
+    return () => {
+      onImageChosen(null);
+    };
+  }, []);
+
   return (
     <div className="flex flex-row gap-4 md:flex-col items-center">
       <div className="relative">
@@ -113,7 +151,7 @@ const FormImage = ({
               "object-contain",
               file ? "w-full h-full" : "h-10 w-10"
             )}
-            src={file ? URL.createObjectURL(file) : "ic_user.svg"}
+            src={file ? URL.createObjectURL(file) : "/ic_user.png"}
           />
         </div>
         {file ? (
@@ -146,7 +184,7 @@ const FormImage = ({
             setFile(file);
             onImageChosen(file);
           }}
-          onClick={(e) => e.currentTarget.value = ""}
+          onClick={(e) => (e.currentTarget.value = "")}
           className="hidden"
           accept="image/*"
         />
@@ -155,7 +193,17 @@ const FormImage = ({
   );
 };
 
-const FormContent = ({ onSubmit }: { onSubmit: () => any }) => {
+const FormContent = ({
+  onSubmit,
+  setOpen,
+  isCreatingNewCustomer,
+}: {
+  onSubmit: (values: any) => any;
+  setOpen: (value: boolean) => any;
+  isCreatingNewCustomer: boolean;
+}) => {
+  const { toast } = useToast();
+  const customerGroups = useAppSelector((state) => state.customerGroups.value)
   const form = useForm<z.infer<typeof newCustomerFormSchema>>({
     resolver: zodResolver(newCustomerFormSchema),
     defaultValues: {
@@ -165,10 +213,24 @@ const FormContent = ({ onSubmit }: { onSubmit: () => any }) => {
       address: "",
       sex: "Male",
       description: "",
-      birthday: new Date(),
+      birthday: format(new Date(), "yyyy-MM-dd"),
       customerGroup: "",
     },
   });
+
+  const dispatch = useAppDispatch();
+  const [openNewCustomerGroupDialog, setOpenNewCustomerGroupDialog] =
+    useState(false);
+  const addNewCustomerGroup = async (groupName: string) => {
+    try {
+      const data = await CustomerService.uploadCustomerGroup(groupName);
+      dispatch(addCustomerGroup(data.data))
+      return Promise.resolve();
+    } catch (e) {
+      axiosUIErrorHandler(e, toast);
+      return Promise.reject(e)
+    }
+  };
 
   return (
     <Form {...form}>
@@ -271,16 +333,16 @@ const FormContent = ({ onSubmit }: { onSubmit: () => any }) => {
                           { shouldValidate: true }
                         );
                       }}
-                      choices={["a", "b", "c"]}
+                      choices={customerGroups.map((v) => v.name)}
                     />
                   </div>
-                  {/* <AddNewThing
-                          title="Add new group"
-                          placeholder="Group's name"
-                          open={openGroup}
-                          onOpenChange={setOpenGroup}
-                          onAddClick={addNewGroup}
-                        /> */}
+                  <AddNewThing
+                    title="Add new customer group"
+                    placeholder="Group's name"
+                    open={openNewCustomerGroupDialog}
+                    onOpenChange={setOpenNewCustomerGroupDialog}
+                    onAddClick={addNewCustomerGroup}
+                  />
                 </div>
               </FormControl>
             </FormItem>
@@ -298,7 +360,7 @@ const FormContent = ({ onSubmit }: { onSubmit: () => any }) => {
                 <FormMessage className="mr-2 text-xs" />
               </FormLabel>
               <FormControl>
-                <DatePicker value={field.value} onChange={field.onChange} />
+                <Input type="date" {...field} className="w-full" />
               </FormControl>
             </FormItem>
           )}
@@ -364,14 +426,12 @@ const FormContent = ({ onSubmit }: { onSubmit: () => any }) => {
             variant={"green"}
             type="submit"
             className="px-4 min-w-[150px] uppercase"
-            // disabled={isCreatingNewProduct}
+            disabled={isCreatingNewCustomer}
           >
             Save
-            {/* <LoadingCircle
-            className={
-              "!w-4 ml-4 " + (isCreatingNewProduct ? "" : "hidden")
-            }
-          /> */}
+            <LoadingCircle
+              className={"!w-4 ml-4 " + (isCreatingNewCustomer ? "" : "hidden")}
+            />
           </Button>
           <Button
             variant={"green"}
@@ -380,9 +440,9 @@ const FormContent = ({ onSubmit }: { onSubmit: () => any }) => {
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
-              //   onChangeVisibility(false);
+              setOpen(false);
             }}
-            // disabled={isCreatingNewProduct}
+            disabled={isCreatingNewCustomer}
           >
             Cancel
           </Button>

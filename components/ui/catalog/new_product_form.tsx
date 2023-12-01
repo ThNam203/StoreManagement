@@ -59,6 +59,16 @@ import {
 import LoadingCircle from "../loading_circle";
 import { useAppSelector } from "@/hooks";
 import { faker } from "@faker-js/faker";
+import AddNewThing from "../add_new_thing_dialog";
+
+const formatNumberInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+  let rawValue = e.currentTarget.value.replace(/[^\d]/g, "");
+  rawValue = rawValue.replace(/^0+(\d)/, "$1");
+  // Add commas for every 3 digits from the right
+  const formattedValue = rawValue.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  e.currentTarget.value = formattedValue;
+  return isNaN(Number(rawValue)) ? 0 : Number(rawValue);
+};
 
 const newProductFormSchema = z.object({
   barcode: z
@@ -144,15 +154,21 @@ const newProductFormSchema = z.object({
             .max(100, { message: "Unit name must be less than 100" }),
           exchangeValue: z
             .number({ required_error: "Missing exchange value!" })
-            .min(0, { message: "Value must be at least 0" })
+            .min(0, { message: "Exchange value must be at least 0" })
             .max(Number.MAX_VALUE, {
-              message: `Value must be lest than ${Number.MAX_VALUE}`,
+              message: `Exchange value must be lest than ${Number.MAX_VALUE}`,
+            }),
+          originalPrice: z
+            .number({ required_error: "Missing original price!" })
+            .min(0, { message: "Original price must be at least 0" })
+            .max(Number.MAX_VALUE, {
+              message: `Original price must be less than ${Number.MAX_VALUE}`,
             }),
           price: z
             .number({ required_error: "Missing price!" })
-            .min(0, { message: "Value must be at least 0" })
+            .min(0, { message: "Price must be at least 0" })
             .max(Number.MAX_VALUE, {
-              message: `Value must be less than ${Number.MAX_VALUE}`,
+              message: `Price must be less than ${Number.MAX_VALUE}`,
             }),
         })
       )
@@ -270,34 +286,36 @@ export const NewProductView = ({
     },
   });
 
-  const updatePriceUnit = (value: number, index: number) => {
-    const units = form.getValues("units.otherUnits");
-    if (!units) return;
+  // const updatePriceUnit = (value: number, index: number) => {
+  //   const units = form.getValues("units.otherUnits");
+  //   if (!units) return;
 
-    const newUnits = units.map((val, idx) =>
-      idx === index ? { ...val, price: value } : val
-    );
+  //   const newUnits = units.map((val, idx) =>
+  //     idx === index ? { ...val, price: value } : val
+  //   );
 
-    const newFormUnits = {
-      baseUnit: form.getValues("units.baseUnit"),
-      otherUnits: newUnits,
-    };
+  //   const newFormUnits = {
+  //     baseUnit: form.getValues("units.baseUnit"),
+  //     otherUnits: newUnits,
+  //   };
 
-    updateSameTypeProducts({
-      ...form.getValues(),
-      units: newFormUnits,
-    });
+  //   updateSameTypeProducts({
+  //     ...form.getValues(),
+  //     units: newFormUnits,
+  //   });
 
-    form.setValue("units", newFormUnits);
-  };
+  //   form.setValue("units", newFormUnits);
+  // };
 
   const updatePriceUnits = () => {
     const units = form.getValues("units.otherUnits");
     const productPrice = form.getValues("productPrice");
-    if (!units || !productPrice) return;
+    const originalPrice = form.getValues("originalPrice");
+    if (!units || !productPrice || !originalPrice) return;
 
     const newUnits = units.map((val) => ({
       ...val,
+      originalPrice: originalPrice * val.exchangeValue,
       price: productPrice * val.exchangeValue,
     }));
 
@@ -391,6 +409,7 @@ export const NewProductView = ({
           name: units![i].unitName,
           exchangeValue: units![i].exchangeValue,
         },
+        originalPrice: units![i].originalPrice,
         productPrice: units![i].price,
       }));
       sameTypeProducts.push(...newProducts);
@@ -477,7 +496,9 @@ export const NewProductView = ({
     if (values.sameTypeProducts.length === 0) {
       data.push({
         ...values,
-        barcode: values.barcode ? values.barcode : faker.number.int({min: 100000000000, max: 999999999999 }),
+        barcode: values.barcode
+          ? values.barcode
+          : faker.number.int({ min: 100000000000, max: 999999999999 }),
         productProperties: values.productProperties?.map((propertyObj) => ({
           propertyName: propertyObj.key,
           propertyValue: propertyObj.values[0],
@@ -489,12 +510,16 @@ export const NewProductView = ({
         },
       });
       if (data[0].units) delete data[0].units;
-      delete data[0].sameTypeProducts
+      delete data[0].sameTypeProducts;
     } else {
       data = values.sameTypeProducts.map((sameProduct) => {
         const newElement: any = {
           ...values,
-          barcode: sameProduct.barcode ? sameProduct.barcode : faker.number.int({min: 100000000000, max: 999999999999 }),
+          originalPrice: sameProduct.originalPrice,
+          productPrice: sameProduct.productPrice,
+          barcode: sameProduct.barcode
+            ? sameProduct.barcode
+            : faker.number.int({ min: 100000000000, max: 999999999999 }),
           productProperties: sameProduct.productProperties
             ? Object.entries(sameProduct.productProperties).map((val) => ({
                 propertyName: val[0],
@@ -522,14 +547,16 @@ export const NewProductView = ({
       chosenImageFiles.filter((file) => file != null)
     );
 
+    console.log(chosenImageFiles.filter((file) => file != null))
+
     setIsCreatingNewProduct(true);
     CatalogService.createNewProduct(dataForm)
       .then((result) => {
         onNewProductsAdded(result.data);
+        onChangeVisibility(false);
       })
       .catch((e) => axiosUIErrorHandler(e, toast))
       .finally(() => {
-        onChangeVisibility(false);
         setIsCreatingNewProduct(false);
       });
   }
@@ -572,7 +599,13 @@ export const NewProductView = ({
                         <FormMessage className="mr-2 text-xs" />
                       </FormLabel>
                       <FormControl>
-                        <Input className="flex-1 !m-0" {...field} onBlur={() => updateSameTypeProducts(form.getValues())} />
+                        <Input
+                          className="flex-1 !m-0"
+                          {...field}
+                          onBlur={() =>
+                            updateSameTypeProducts(form.getValues())
+                          }
+                        />
                       </FormControl>
                     </FormItem>
                   )}
@@ -733,6 +766,7 @@ export const NewProductView = ({
                           <Input
                             type="number"
                             min={0}
+                            step={0.001}
                             className="flex-1 !m-0 text-end"
                             {...field}
                             onChange={(e) => {
@@ -768,19 +802,18 @@ export const NewProductView = ({
                       <FormControl>
                         <Input
                           className="flex-1 !m-0 text-end"
-                          type="number"
-                          min={0}
-                          {...field}
-                          onChange={(e) =>
+                          defaultValue={field.value}
+                          onChange={(e) => {
+                            const number = formatNumberInput(e);
                             form.setValue(
                               "originalPrice",
-                              isNaN(e.target.valueAsNumber)
-                                ? 0
-                                : e.target.valueAsNumber,
+                              isNaN(number) ? 0 : number,
                               { shouldValidate: true }
-                            )
+                            );
+                          }}
+                          onBlur={() =>
+                            updateSameTypeProducts(form.getValues())
                           }
-                          onBlur={() => updateSameTypeProducts(form.getValues())}
                         />
                       </FormControl>
                     </FormItem>
@@ -801,18 +834,15 @@ export const NewProductView = ({
                       <FormControl>
                         <Input
                           className="flex-1 !m-0 text-end"
-                          type="number"
-                          min={0}
-                          {...field}
-                          onChange={(e) =>
+                          defaultValue={field.value}
+                          onChange={(e) => {
+                            const number = formatNumberInput(e);
                             form.setValue(
                               "productPrice",
-                              isNaN(e.target.valueAsNumber)
-                                ? 0
-                                : e.target.valueAsNumber,
+                              isNaN(number) ? 0 : number,
                               { shouldValidate: true }
-                            )
-                          }
+                            );
+                          }}
                           onBlur={updatePriceUnits}
                         />
                       </FormControl>
@@ -834,21 +864,16 @@ export const NewProductView = ({
                       <FormControl>
                         <Input
                           className="flex-1 !m-0 text-end"
-                          type="number"
-                          min={0}
-                          {...field}
-                          onChange={(e) =>
-                            form.setValue(
-                              "stock",
-                              isNaN(e.target.valueAsNumber)
-                                ? 0
-                                : e.target.valueAsNumber,
-                              {
-                                shouldValidate: true,
-                              }
-                            )
+                          defaultValue={field.value}
+                          onChange={(e) => {
+                            const number = formatNumberInput(e);
+                            form.setValue("stock", isNaN(number) ? 0 : number, {
+                              shouldValidate: true,
+                            });
+                          }}
+                          onBlur={() =>
+                            updateSameTypeProducts(form.getValues())
                           }
-                          onBlur={() => updateSameTypeProducts(form.getValues())}
                         />
                       </FormControl>
                     </FormItem>
@@ -869,20 +894,15 @@ export const NewProductView = ({
                       <FormControl>
                         <Input
                           className="flex-1 !m-0 text-end"
-                          type="number"
-                          min={0}
-                          {...field}
-                          onChange={(e) =>
+                          defaultValue={field.value}
+                          onChange={(e) => {
+                            const number = formatNumberInput(e);
                             form.setValue(
                               "minStock",
-                              isNaN(e.target.valueAsNumber)
-                                ? 0
-                                : e.target.valueAsNumber,
-                              {
-                                shouldValidate: true,
-                              }
-                            )
-                          }
+                              isNaN(number) ? 0 : number,
+                              { shouldValidate: true }
+                            );
+                          }}
                         />
                       </FormControl>
                     </FormItem>
@@ -903,20 +923,15 @@ export const NewProductView = ({
                       <FormControl>
                         <Input
                           className="flex-1 !m-0 text-end"
-                          type="number"
-                          min={0}
-                          {...field}
-                          onChange={(e) =>
+                          defaultValue={field.value}
+                          onChange={(e) => {
+                            const number = formatNumberInput(e);
                             form.setValue(
                               "maxStock",
-                              isNaN(e.target.valueAsNumber)
-                                ? 0
-                                : e.target.valueAsNumber,
-                              {
-                                shouldValidate: true,
-                              }
-                            )
-                          }
+                              isNaN(number) ? 0 : number,
+                              { shouldValidate: true }
+                            );
+                          }}
                         />
                       </FormControl>
                     </FormItem>
@@ -1063,7 +1078,12 @@ export const NewProductView = ({
                                               </div>
                                             )}
                                           </PopoverTrigger>
-                                          <PopoverContent className={cn("p-0 max-h-[200px] overflow-auto", scrollbar_style.scrollbar)}>
+                                          <PopoverContent
+                                            className={cn(
+                                              "p-0 max-h-[200px] overflow-auto",
+                                              scrollbar_style.scrollbar
+                                            )}
+                                          >
                                             {productPropertyChoices.map(
                                               (choice, choiceIndex) => {
                                                 return (
@@ -1311,7 +1331,9 @@ export const NewProductView = ({
                                       { shouldValidate: true }
                                     );
                                   }}
-                                  onBlur={() => updateSameTypeProducts(form.getValues())}
+                                  onBlur={() =>
+                                    updateSameTypeProducts(form.getValues())
+                                  }
                                 />
                               </div>
                               {field.value?.otherUnits
@@ -1322,17 +1344,19 @@ export const NewProductView = ({
                                         unitName={value.unitName}
                                         price={value.price}
                                         exchangeValue={value.exchangeValue}
+                                        originalPrice={value.originalPrice}
                                         onUnitNameBlur={() =>
                                           updateSameTypeProducts(
                                             form.getValues()
                                           )
                                         }
-                                        onExchangeValueBlur={() => {
-                                          updatePriceUnits();
-                                        }}
-                                        onPriceBlur={() => {
-                                          updatePriceUnit(value.price, index);
-                                        }}
+                                        onExchangeValueBlur={() =>
+                                          updatePriceUnits()
+                                        }
+                                        onPriceBlur={() => updatePriceUnits()}
+                                        onOriginalPriceBlur={() =>
+                                          updatePriceUnits()
+                                        }
                                         onUnitNameChanged={(val: string) => {
                                           const newObj = {
                                             ...field.value!.otherUnits![index],
@@ -1351,6 +1375,26 @@ export const NewProductView = ({
                                           const newObj = {
                                             ...field.value!.otherUnits![index],
                                             price: val,
+                                          };
+                                          field.value!.otherUnits![index] =
+                                            newObj;
+                                          form.setValue(
+                                            "units",
+                                            {
+                                              baseUnit: field.value!.baseUnit,
+                                              otherUnits: [
+                                                ...field.value!.otherUnits!,
+                                              ],
+                                            },
+                                            { shouldValidate: true }
+                                          );
+                                        }}
+                                        onOriginalPriceChanged={(
+                                          val: number
+                                        ) => {
+                                          const newObj = {
+                                            ...field.value!.otherUnits![index],
+                                            originalPrice: val,
                                           };
                                           field.value!.otherUnits![index] =
                                             newObj;
@@ -1427,6 +1471,8 @@ export const NewProductView = ({
                                 const newUnit = {
                                   unitName: "",
                                   exchangeValue: 1,
+                                  originalPrice:
+                                    form.getValues("originalPrice"),
                                   price: form.getValues("productPrice"),
                                 };
 
@@ -1466,7 +1512,9 @@ export const NewProductView = ({
                       <div className="border rounded-b-sm pb-2">
                         <SameTypeProductView
                           properties={field.value
-                            .filter((val) => val.productProperties !== undefined)
+                            .filter(
+                              (val) => val.productProperties !== undefined
+                            )
                             .map((val) => val.productProperties!)}
                           units={field.value
                             .filter((val) => val.unit !== undefined)
@@ -1589,6 +1637,9 @@ const ProductNewUnitView = ({
   price,
   onUnitNameChanged,
   onUnitNameBlur,
+  originalPrice,
+  onOriginalPriceChanged,
+  onOriginalPriceBlur,
   onExchangeValueChanged,
   onExchangeValueBlur,
   onPriceChanged,
@@ -1598,11 +1649,14 @@ const ProductNewUnitView = ({
   unitName: string;
   exchangeValue: number;
   price: number;
+  originalPrice: number;
   onUnitNameChanged: (val: string) => void;
   onUnitNameBlur: () => void;
   onExchangeValueChanged: (val: number) => void;
   onExchangeValueBlur: () => void;
   onPriceChanged: (val: number) => void;
+  onOriginalPriceChanged: (val: number) => void;
+  onOriginalPriceBlur: () => void;
   onPriceBlur: () => void;
   onRemoveClick: () => void;
 }) => {
@@ -1625,6 +1679,17 @@ const ProductNewUnitView = ({
           value={exchangeValue}
           onChange={(e) => onExchangeValueChanged(e.target.valueAsNumber)}
           onBlur={onExchangeValueBlur}
+          className="border-b border-blue-300 p-1 text-end"
+        />
+      </div>
+      <div className="flex flex-col flex-1">
+        <p className="font-semibold">Original price</p>
+        <input
+          value={originalPrice}
+          type="number"
+          min={0}
+          onChange={(e) => onOriginalPriceChanged(e.target.valueAsNumber)}
+          onBlur={onOriginalPriceBlur}
           className="border-b border-blue-300 p-1 text-end"
         />
       </div>
@@ -1721,9 +1786,7 @@ const SameTypeProductView = ({
                 <input
                   value={barcodes[idx]}
                   placeholder="Generate automatically"
-                  onChange={(e) =>
-                    onBarcodeChanged(e.target.value, idx)
-                  }
+                  onChange={(e) => onBarcodeChanged(e.target.value, idx)}
                   className="border-b border-blue-300 p-1 text-end flex-1 min-w-[0px]"
                 />
               );
@@ -1867,69 +1930,6 @@ const NewProductUnitInputErrorFormMessage = React.forwardRef<
   );
 });
 NewProductUnitInputErrorFormMessage.displayName = "FormMessage";
-
-const AddNewThing = ({
-  title,
-  placeholder,
-  open,
-  onOpenChange,
-  onAddClick,
-}: {
-  title: string;
-  placeholder: string;
-  open: boolean;
-  onOpenChange: (value: boolean) => any;
-  onAddClick: (value: string) => Promise<any>;
-}) => {
-  const [value, setValue] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogTrigger>
-        <PlusCircle size={16} className="mx-2" />
-      </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>{title}</AlertDialogTitle>
-          <div className="flex flex-row items-center text-sm gap-3 !my-4">
-            <label htmlFor="alert_input" className="font-semibold w-36">
-              {placeholder}
-            </label>
-            <input
-              id="alert_input"
-              value={value}
-              onChange={(e) => setValue(e.target.value)}
-              className="flex-1 rounded-sm border p-1"
-            />
-          </div>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <Button
-            variant={"green"}
-            onClick={async (e) => {
-              setIsLoading(true);
-              await onAddClick(value);
-              setIsLoading(false);
-              onOpenChange(false);
-            }}
-            disabled={isLoading}
-          >
-            Done
-            {isLoading ? <LoadingCircle /> : null}
-          </Button>
-          <AlertDialogCancel
-            className={
-              "bg-red-400 hover:bg-red-500 text-white hover:text-white !h-[35px]"
-            }
-            disabled={isLoading}
-          >
-            Cancel
-          </AlertDialogCancel>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-  );
-};
 
 const ButtonAddNewThing = ({
   triggerTitle,
