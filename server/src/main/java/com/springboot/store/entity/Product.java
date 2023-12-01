@@ -24,7 +24,7 @@ public class Product {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "barcode", nullable = false, unique = true)
+    @Column(name = "barcode", nullable = false)
     private String barcode;
 
     @Column(name = "stock")

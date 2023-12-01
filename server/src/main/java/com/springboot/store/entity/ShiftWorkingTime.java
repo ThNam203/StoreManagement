@@ -19,9 +19,7 @@ public class ShiftWorkingTime {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @Column(name = "start_time")
-    @JsonFormat(pattern = "HH:mm:ss")
     private Date startTime;
     @Column(name = "end_time")
-    @JsonFormat(pattern = "HH:mm:ss")
     private Date endTime;
 }

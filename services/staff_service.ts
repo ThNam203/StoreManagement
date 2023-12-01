@@ -4,6 +4,7 @@ import AxiosService from "./axios_service";
 const getAllStaffs = () => {
   return AxiosService.get<Staff[]>("/api/staffs");
 };
+
 const createNewStaff = (data: any) => {
   return AxiosService.post<Staff>("/api/staffs", data, {
     headers: { "Content-Type": "multipart/form-data" },

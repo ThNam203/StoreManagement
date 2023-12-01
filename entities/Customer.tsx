@@ -1,45 +1,23 @@
 export type Customer = {
   id: any;
   name: string;
-  customerType: CustomerType;
   customerGroup: string;
   phoneNumber: string;
   address: string;
-  sex: Sex;
+  sex: "Male" | "Female" | "Not to say";
   email: string;
-  birthday: Date;
+  birthday: string;
   creator: string;
   createdDate: Date;
-  company: string;
-  taxId: string;
-  note: string;
-  lastTransaction: Date; // Ex: "Empty" for no transaction or some Date
-  debt: number;
-  sale: number;
-  finalSale: number;
-  status: Status;
-  image: string;
-};
-
-export const getFinalSale = (customer: Customer): number => {
-  return customer.sale - customer.debt;
+  description: string;
+  image: {
+    id: number,
+    url: string,
+  };
 };
 
 export type CustomerGroup = {
-  id: any;
+  id: number;
   name: string;
   createdDate: string;
 };
-
-export enum CustomerType {
-  SINGLE = "Single",
-  COMPANY = "Company",
-}
-export enum Status {
-  WORKING = "Working",
-  NOT_WORKING = "Not Working",
-}
-export enum Sex {
-  MALE = "Male",
-  FEMALE = "Female",
-}
