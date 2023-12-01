@@ -176,7 +176,7 @@ export function AddStaffDialog({
     console.log(values);
     const newStaff: Staff = {
       avatar: "",
-      id: nanoid(9).toUpperCase(),
+      id: data ? data.id : -1,
       name: values.name,
       phoneNumber: values.phoneNumber,
       cccd: values.cccd,
@@ -254,16 +254,10 @@ export function AddStaffDialog({
       },
     },
   });
-  const [baseBonusViewOption, setBaseBonusViewOption] = useState<
-    Record<string, boolean>
-  >({ Saturday: false, Sunday: false, "Day off": true, Holiday: true });
 
-  const [overtimeBonusViewOption, setOvertimeBonusViewOption] =
-    useState<boolean>(false);
   function handleCancelDialog() {
     setOpen(false);
     form.reset();
-    setOvertimeBonusViewOption(false);
   }
 
   useEffect(() => {
@@ -692,45 +686,6 @@ export function AddStaffDialog({
                                 </FormItem>
                               )}
                             />
-                            <DropdownMenu>
-                              <DropdownMenuTrigger>
-                                <AlignJustify className="w-4 h-4 opacity-50 hover:opacity-100 hover:cursor-pointer ease-linear duration-100" />
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent className="w-auto">
-                                {Object.keys(baseBonusViewOption).map(
-                                  (key, index) => {
-                                    return (
-                                      <div
-                                        className="flex flex-row items-center space-x-2 p-2 rounded-md select-none hover:cursor-pointer hover:bg-[#f5f5f4] ease-linear duration-100"
-                                        key={key + index}
-                                        onClick={() => {
-                                          setBaseBonusViewOption((prev) => ({
-                                            ...prev,
-                                            [key]: !baseBonusViewOption[key],
-                                          }));
-                                        }}
-                                      >
-                                        <Checkbox
-                                          key={key + index}
-                                          id={key + index}
-                                          className="capitalize"
-                                          checked={baseBonusViewOption[key]}
-                                          onCheckedChange={(value) => {
-                                            setBaseBonusViewOption((prev) => ({
-                                              ...prev,
-                                              [key]: !!value,
-                                            }));
-                                          }}
-                                        ></Checkbox>
-                                        <Label className="cursor-pointer">
-                                          {key}
-                                        </Label>
-                                      </div>
-                                    );
-                                  }
-                                )}
-                              </DropdownMenuContent>
-                            </DropdownMenu>
                           </div>
                         </div>
                         <div className="p-4 flex flex-row items-center justify-between bg-sky-100">
@@ -738,44 +693,16 @@ export function AddStaffDialog({
                             <span className="font-semibold">Wage</span>
                           </div>
                           <div className="w-9/12 flex flex-row items-center justify-end text-right">
-                            <div
-                              className={cn(
-                                "w-[200px] px-2 font-semibold",
-                                baseBonusViewOption["Saturday"] === true
-                                  ? "visile"
-                                  : "hidden"
-                              )}
-                            >
+                            <div className={cn("w-[200px] px-2 font-semibold")}>
                               Saturday
                             </div>
-                            <div
-                              className={cn(
-                                "w-[200px] px-2 font-semibold",
-                                baseBonusViewOption["Sunday"] === true
-                                  ? "visile"
-                                  : "hidden"
-                              )}
-                            >
+                            <div className={cn("w-[200px] px-2 font-semibold")}>
                               Sunday
                             </div>
-                            <div
-                              className={cn(
-                                "w-[200px] px-2 font-semibold",
-                                baseBonusViewOption["Day off"] === true
-                                  ? "visile"
-                                  : "hidden"
-                              )}
-                            >
+                            <div className={cn("w-[200px] px-2 font-semibold")}>
                               Day off
                             </div>
-                            <div
-                              className={cn(
-                                "w-[200px] px-2 font-semibold",
-                                baseBonusViewOption["Holiday"] === true
-                                  ? "visile"
-                                  : "hidden"
-                              )}
-                            >
+                            <div className={cn("w-[200px] px-2 font-semibold")}>
                               Holiday
                             </div>
                           </div>
@@ -832,12 +759,6 @@ export function AddStaffDialog({
                                   <FormControl>
                                     <div className="flex flex-row items-center">
                                       <UnitButtonGroup
-                                        className={cn(
-                                          baseBonusViewOption["Saturday"] ===
-                                            true
-                                            ? "visile"
-                                            : "hidden"
-                                        )}
                                         defaultValue={
                                           field.value.saturday.value
                                         }
@@ -854,11 +775,6 @@ export function AddStaffDialog({
                                         }}
                                       />
                                       <UnitButtonGroup
-                                        className={cn(
-                                          baseBonusViewOption["Sunday"] === true
-                                            ? "visile"
-                                            : "hidden"
-                                        )}
                                         defaultValue={field.value.sunday.value}
                                         defaultUnit={field.value.sunday.unit}
                                         onValueChange={(val, unit) => {
@@ -873,12 +789,6 @@ export function AddStaffDialog({
                                         }}
                                       />
                                       <UnitButtonGroup
-                                        className={cn(
-                                          baseBonusViewOption["Day off"] ===
-                                            true
-                                            ? "visile"
-                                            : "hidden"
-                                        )}
                                         defaultValue={field.value.dayOff.value}
                                         defaultUnit={field.value.dayOff.unit}
                                         onValueChange={(val, unit) => {
@@ -893,12 +803,6 @@ export function AddStaffDialog({
                                         }}
                                       />
                                       <UnitButtonGroup
-                                        className={cn(
-                                          baseBonusViewOption["Holiday"] ===
-                                            true
-                                            ? "visile"
-                                            : "hidden"
-                                        )}
                                         defaultValue={field.value.holiday.value}
                                         defaultUnit={field.value.holiday.unit}
                                         onValueChange={(val, unit) => {
@@ -922,135 +826,110 @@ export function AddStaffDialog({
                       </div>
 
                       <div className="w-full rounded shadow-[0px_5px_15px_rgba(0,0,0,.1)] overflow-hidden">
-                        <div className="p-4 flex flex-row items-center justify-between gap-6">
-                          <div className="min-w-[500px] flex flex-row items-center gap-2">
-                            <span className="w-1/3 whitespace-nowrap font-semibold">
-                              Overtime pay
-                            </span>
-                          </div>
-                          <Switch
-                            defaultChecked={false}
-                            checked={overtimeBonusViewOption}
-                            onCheckedChange={(val) =>
-                              setOvertimeBonusViewOption(!!val)
-                            }
-                          />
+                        <div className="min-w-[500px] p-4 flex flex-row items-center gap-2">
+                          <span className="w-1/3 whitespace-nowrap font-semibold">
+                            Overtime pay
+                          </span>
                         </div>
                         <div
                           className={cn(
-                            overtimeBonusViewOption === true
-                              ? "visible"
-                              : "hidden"
+                            "p-4 flex flex-row items-center justify-between bg-sky-100"
                           )}
                         >
-                          <div
-                            className={cn(
-                              "p-4 flex flex-row items-center justify-between bg-sky-100"
-                            )}
-                          >
-                            <div className="w-3/12 flex flex-row items-center justify-between gap-12">
-                              <span className="font-semibold">Wage</span>
-                            </div>
-                            <div className="w-9/12 flex flex-row items-center justify-end text-right">
-                              <span className="w-[200px] px-2 font-semibold">
-                                Saturday
-                              </span>
-                              <span className="w-[200px] px-2 font-semibold">
-                                Sunday
-                              </span>
-                              <span className="w-[200px] px-2 font-semibold">
-                                Day off
-                              </span>
-                              <span className="w-[200px] px-2 font-semibold">
-                                Holiday
-                              </span>
-                            </div>
+                          <div className="w-3/12 flex flex-row items-center justify-between gap-12">
+                            <span className="font-semibold">Wage</span>
                           </div>
-                          <Separator />
-                          <div className="p-4 flex flex-row items-center justify-between">
-                            <div className="w-3/12 flex flex-row items-center justify-between gap-12">
-                              <span className="font-semibold">Default</span>
-                            </div>
-                            <div className="w-9/12 flex flex-row items-center justify-end">
-                              <FormField
-                                control={form.control}
-                                name="overtimeBonus"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormControl>
-                                      <div className="flex flex-row items-center">
-                                        <UnitButtonGroup
-                                          defaultValue={
-                                            field.value.saturday.value
-                                          }
-                                          defaultUnit={
-                                            field.value.saturday.unit
-                                          }
-                                          onValueChange={(val, unit) => {
-                                            form.setValue(
-                                              "overtimeBonus.saturday.value",
-                                              val
-                                            );
-                                            form.setValue(
-                                              "overtimeBonus.saturday.unit",
-                                              unit
-                                            );
-                                          }}
-                                        />
-                                        <UnitButtonGroup
-                                          defaultValue={
-                                            field.value.sunday.value
-                                          }
-                                          defaultUnit={field.value.sunday.unit}
-                                          onValueChange={(val, unit) => {
-                                            form.setValue(
-                                              "overtimeBonus.sunday.value",
-                                              val
-                                            );
-                                            form.setValue(
-                                              "overtimeBonus.sunday.unit",
-                                              unit
-                                            );
-                                          }}
-                                        />
-                                        <UnitButtonGroup
-                                          defaultValue={
-                                            field.value.dayOff.value
-                                          }
-                                          defaultUnit={field.value.dayOff.unit}
-                                          onValueChange={(val, unit) => {
-                                            form.setValue(
-                                              "overtimeBonus.dayOff.value",
-                                              val
-                                            );
-                                            form.setValue(
-                                              "overtimeBonus.dayOff.unit",
-                                              unit
-                                            );
-                                          }}
-                                        />
-                                        <UnitButtonGroup
-                                          defaultValue={
-                                            field.value.holiday.value
-                                          }
-                                          defaultUnit={field.value.holiday.unit}
-                                          onValueChange={(val, unit) => {
-                                            form.setValue(
-                                              "overtimeBonus.holiday.value",
-                                              val
-                                            );
-                                            form.setValue(
-                                              "overtimeBonus.holiday.unit",
-                                              unit
-                                            );
-                                          }}
-                                        />
-                                      </div>
-                                    </FormControl>
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
+                          <div className="w-9/12 flex flex-row items-center justify-end text-right">
+                            <span className="w-[200px] px-2 font-semibold">
+                              Saturday
+                            </span>
+                            <span className="w-[200px] px-2 font-semibold">
+                              Sunday
+                            </span>
+                            <span className="w-[200px] px-2 font-semibold">
+                              Day off
+                            </span>
+                            <span className="w-[200px] px-2 font-semibold">
+                              Holiday
+                            </span>
+                          </div>
+                        </div>
+                        <Separator />
+                        <div className="p-4 flex flex-row items-center justify-between">
+                          <div className="w-3/12 flex flex-row items-center justify-between gap-12">
+                            <span className="font-semibold">Default</span>
+                          </div>
+                          <div className="w-9/12 flex flex-row items-center justify-end">
+                            <FormField
+                              control={form.control}
+                              name="overtimeBonus"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormControl>
+                                    <div className="flex flex-row items-center">
+                                      <UnitButtonGroup
+                                        defaultValue={
+                                          field.value.saturday.value
+                                        }
+                                        defaultUnit={field.value.saturday.unit}
+                                        onValueChange={(val, unit) => {
+                                          form.setValue(
+                                            "overtimeBonus.saturday.value",
+                                            val
+                                          );
+                                          form.setValue(
+                                            "overtimeBonus.saturday.unit",
+                                            unit
+                                          );
+                                        }}
+                                      />
+                                      <UnitButtonGroup
+                                        defaultValue={field.value.sunday.value}
+                                        defaultUnit={field.value.sunday.unit}
+                                        onValueChange={(val, unit) => {
+                                          form.setValue(
+                                            "overtimeBonus.sunday.value",
+                                            val
+                                          );
+                                          form.setValue(
+                                            "overtimeBonus.sunday.unit",
+                                            unit
+                                          );
+                                        }}
+                                      />
+                                      <UnitButtonGroup
+                                        defaultValue={field.value.dayOff.value}
+                                        defaultUnit={field.value.dayOff.unit}
+                                        onValueChange={(val, unit) => {
+                                          form.setValue(
+                                            "overtimeBonus.dayOff.value",
+                                            val
+                                          );
+                                          form.setValue(
+                                            "overtimeBonus.dayOff.unit",
+                                            unit
+                                          );
+                                        }}
+                                      />
+                                      <UnitButtonGroup
+                                        defaultValue={field.value.holiday.value}
+                                        defaultUnit={field.value.holiday.unit}
+                                        onValueChange={(val, unit) => {
+                                          form.setValue(
+                                            "overtimeBonus.holiday.value",
+                                            val
+                                          );
+                                          form.setValue(
+                                            "overtimeBonus.holiday.unit",
+                                            unit
+                                          );
+                                        }}
+                                      />
+                                    </div>
+                                  </FormControl>
+                                </FormItem>
+                              )}
+                            />
                           </div>
                         </div>
                       </div>
@@ -1063,7 +942,7 @@ export function AddStaffDialog({
                 <Button
                   type="submit"
                   onClick={form.handleSubmit(onSubmit)}
-                  variant={"default"}
+                  variant={"green"}
                   className="mr-3"
                 >
                   Save

@@ -10,8 +10,8 @@ const createNewStaff = (data: any) => {
     headers: { "Content-Type": "multipart/form-data" },
   });
 };
-const updateStaff = (data: any) => {
-  return AxiosService.post<Staff>("/api/staffs/" + data.id, data, {
+const updateStaff = (id: any, data: any) => {
+  return AxiosService.put<Staff>("/api/staffs/" + id, data, {
     headers: { "Content-Type": "multipart/form-data" },
   });
 };

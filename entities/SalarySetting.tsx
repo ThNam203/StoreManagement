@@ -42,8 +42,8 @@ export type SalarySetting = {
 };
 
 export enum BonusUnit {
-  "VND",
-  "%",
+  "VND" = "VND",
+  "%" = "%",
 }
 
 export enum SalaryType {

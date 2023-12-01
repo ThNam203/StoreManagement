@@ -18,7 +18,9 @@ export function UnitButtonGroup({
 }) {
   const [value, setValue] = useState<number>(defaultValue);
   const [unit, setUnit] = useState<BonusUnit>(defaultUnit);
+
   useEffect(() => {
+    console.log("unit", unit);
     if (onValueChange) onValueChange(value, unit);
   }, [unit, value]);
 

@@ -79,9 +79,7 @@ export function DataTable({
     setOpenStaffDialog(true);
   };
   const handleSubmit = (values: Staff) => {
-    console.log("submit");
     if (onSubmit) {
-      console.log("form submitted");
       onSubmit(values);
     }
   };
@@ -119,7 +117,7 @@ export function DataTable({
           className="max-w-sm"
         />
         <div className="flex flex-row space-x-2">
-          <Button variant="default" onClick={() => handleOpenStaffDialog(null)}>
+          <Button variant="green" onClick={() => handleOpenStaffDialog(null)}>
             Add new staff
           </Button>
 
@@ -281,7 +279,7 @@ const CustomRow = ({
                   }}
                 >
                   <div className="flex flex-row gap-4">
-                    <div className="flex flex-col grow-[2] shrink-[2] gap-2 max-w-[300px]">
+                    <div className="flex flex-col grow-[5] shrink-[5] gap-2 max-w-[200px] max-h-[300px]">
                       <AspectRatio
                         className="w-full flex items-center justify-center  border-2 border-gray-200 rounded-sm"
                         ratio={1 / 1}
@@ -299,7 +297,7 @@ const CustomRow = ({
                         />
                       </AspectRatio>
                     </div>
-                    <div className="flex flex-row  text-[0.8rem]">
+                    <div className="flex flex-row grow-[5] shrink-[5] text-[0.8rem]">
                       <div className="flex-1 flex flex-col pr-4">
                         <div className="flex flex-row font-medium border-b mb-2">
                           <p className="w-[100px] font-normal">Staff ID:</p>
@@ -353,7 +351,7 @@ const CustomRow = ({
                       </div>
                     </div>
                   </div>
-                  <div className="flex flex-row items-center gap-2">
+                  <div className="flex flex-row items-center gap-2 pr-4">
                     <div className="flex-1" />
                     <Button
                       variant={"green"}
@@ -361,10 +359,6 @@ const CustomRow = ({
                     >
                       <PenLine size={16} fill="white" className="mr-2" />
                       Update
-                    </Button>
-                    <Button variant={"red"}>
-                      <Lock size={16} className="mr-2" />
-                      Disable product
                     </Button>
                     <Button
                       variant={"red"}

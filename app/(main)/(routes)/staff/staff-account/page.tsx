@@ -64,8 +64,11 @@ export default function StaffInfoPage() {
         new Blob([JSON.stringify(staffToSent)], { type: "application/json" })
       );
       dataForm.append("file", null);
-
-      const staffResult = await StaffService.updateStaff(dataForm);
+      console.log("dataForm", dataForm);
+      const staffResult = await StaffService.updateStaff(
+        staffToSent.id,
+        dataForm
+      );
       const staffReceived = convertStaffReceived(staffResult.data);
       dispatch(updateStaff(staffReceived));
       console.log("return", staffResult.data);
@@ -90,7 +93,7 @@ export default function StaffInfoPage() {
   const handleFormSubmit = (value: Staff) => {
     const index = staffList.findIndex((staff) => staff.id === value.id);
     if (index !== -1) {
-      handleUpdateStaff(index);
+      handleUpdateStaff(value);
     } else addNewStaff(value);
   };
   const handleDeleteStaff = (index: number) => {
@@ -98,10 +101,9 @@ export default function StaffInfoPage() {
     deleteAStaff(id);
   };
 
-  const handleUpdateStaff = (index: number) => {
-    const staff: Staff = filterdStaffList[index];
-
-    updateAStaff(staff);
+  const handleUpdateStaff = (value: Staff) => {
+    console.log("update", value);
+    updateAStaff(value);
   };
 
   const updatePositionMultiFilter = (values: string[]) => {
