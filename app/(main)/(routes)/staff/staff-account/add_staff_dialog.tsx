@@ -51,9 +51,9 @@ import {
   PlusCircle,
 } from "lucide-react";
 import { nanoid } from "nanoid";
-import { useRef, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { CustomInput } from "./custom_input";
+import { UnitButtonGroup } from "./unit_btn_group";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { DatePicker } from "@/components/ui/datepicker";
@@ -69,10 +69,10 @@ const formSchema = z.object({
   password: z
     .string()
     .min(8, { message: "Password must be at least 8 characters" }),
-  address: z.string(),
+  address: z.string().min(1, { message: "Address is empty" }),
   note: z.string().optional(),
   baseSalary: z.object({
-    value: z.number().min(1, { message: "Salary must be greator than 0" }),
+    value: z.number(),
     salaryType: z.nativeEnum(SalaryType),
   }),
   baseBonus: z.object({
@@ -114,10 +114,14 @@ const formSchema = z.object({
 });
 
 export function AddStaffDialog({
+  open,
+  setOpen,
   data,
   submit,
 }: {
-  data?: Staff;
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  data: Staff | null;
   submit: (values: Staff) => void;
 }) {
   const form = useForm<z.infer<typeof formSchema>>({
@@ -126,7 +130,7 @@ export function AddStaffDialog({
       birthday: new Date(),
       sex: Sex.MALE,
       baseSalary: {
-        value: 0,
+        value: undefined,
         salaryType: SalaryType.ByShift,
       },
       baseBonus: {
@@ -199,13 +203,6 @@ export function AddStaffDialog({
       setOpen(false);
     }
   }
-  const [open, setOpen] = useState(false);
-  function handleCancelDialog() {
-    setOpen(false);
-    form.reset();
-    setOvertimeBonusViewOption(false);
-  }
-
   const [positionList, setPositionList] = useState([
     "Owner",
     "Cashier",
@@ -215,24 +212,6 @@ export function AddStaffDialog({
   ]);
   const positionInputRef = useRef<HTMLInputElement>(null);
   const [openAddPositionDialog, setOpenAddPositionDialog] = useState(false);
-
-  const handleAddingNewPosition = () => {
-    if (!positionInputRef.current) return;
-    if (positionList.includes(positionInputRef.current?.value)) return;
-    setPositionList((prev) => [...prev, positionInputRef.current?.value!]);
-    setOpenAddPositionDialog(false);
-  };
-
-  const onSalaryTypeChange = (value: string) => {
-    setSalarySetting((prev) => ({
-      ...prev,
-      baseSalary: {
-        value: prev.baseSalary.value,
-        salaryType: value as SalaryType,
-      },
-    }));
-  };
-
   const [salarySetting, setSalarySetting] = useState<SalarySetting>({
     baseSalary: {
       value: 0,
@@ -275,13 +254,67 @@ export function AddStaffDialog({
       },
     },
   });
-
   const [baseBonusViewOption, setBaseBonusViewOption] = useState<
     Record<string, boolean>
   >({ Saturday: false, Sunday: false, "Day off": true, Holiday: true });
 
   const [overtimeBonusViewOption, setOvertimeBonusViewOption] =
     useState<boolean>(false);
+  function handleCancelDialog() {
+    setOpen(false);
+    form.reset();
+    setOvertimeBonusViewOption(false);
+  }
+
+  useEffect(() => {
+    if (open) resetValues(data);
+  }, [open]);
+
+  const resetValues = (staff: Staff | null) => {
+    if (staff) {
+      form.setValue("name", staff.name);
+      form.setValue("birthday", staff.birthday);
+      form.setValue("sex", staff.sex);
+      form.setValue("cccd", staff.cccd);
+      form.setValue("position", staff.position);
+      form.setValue("phoneNumber", staff.phoneNumber);
+      form.setValue("email", staff.email);
+      form.setValue("address", staff.address);
+      form.setValue("note", staff.note);
+      form.setValue("baseSalary", staff.salarySetting.baseSalary);
+      form.setValue("baseBonus", staff.salarySetting.baseBonus);
+      form.setValue("overtimeBonus", staff.salarySetting.overtimeBonus);
+    } else resetToEmptyForm();
+    setSalarySetting({
+      baseBonus: form.getValues("baseBonus"),
+      baseSalary: form.getValues("baseSalary"),
+      overtimeBonus: form.getValues("overtimeBonus"),
+    });
+    //get all form values
+
+    console.log("form values", form.getValues());
+  };
+
+  const resetToEmptyForm = () => {
+    form.reset();
+  };
+
+  const handleAddingNewPosition = () => {
+    if (!positionInputRef.current) return;
+    if (positionList.includes(positionInputRef.current?.value)) return;
+    setPositionList((prev) => [...prev, positionInputRef.current?.value!]);
+    setOpenAddPositionDialog(false);
+  };
+
+  const onSalaryTypeChange = (value: string) => {
+    setSalarySetting((prev) => ({
+      ...prev,
+      baseSalary: {
+        value: prev.baseSalary.value,
+        salaryType: value as SalaryType,
+      },
+    }));
+  };
 
   const addPositionDailog = (
     <Dialog
@@ -320,12 +353,9 @@ export function AddStaffDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="default">Add new staff</Button>
-      </DialogTrigger>
       <DialogContent onInteractOutside={(e) => e.preventDefault()}>
         <DialogHeader>
-          <DialogTitle>Add new staff</DialogTitle>
+          <DialogTitle>{data ? "Update staff" : "Add new staff"}</DialogTitle>
         </DialogHeader>
         <div className="w-full">
           <Form {...form}>
@@ -476,8 +506,6 @@ export function AddStaffDialog({
                           </FormItem>
                         )}
                       />
-                    </div>
-                    <div className="flex flex-col ml-4 w-[450px]">
                       <FormField
                         control={form.control}
                         name="position"
@@ -506,7 +534,8 @@ export function AddStaffDialog({
                           </FormItem>
                         )}
                       />
-
+                    </div>
+                    <div className="flex flex-col ml-4 w-[450px]">
                       <FormField
                         control={form.control}
                         name="phoneNumber"
@@ -587,6 +616,26 @@ export function AddStaffDialog({
                               <FormLabel className="w-1/3">
                                 <div className="flex flex-row items-center space-x-2">
                                   <h5 className="text-sm">Address</h5>
+                                  <Info size={16} />
+                                </div>
+                              </FormLabel>
+
+                              <FormControl className="w-2/3">
+                                <Input {...field} />
+                              </FormControl>
+                            </div>
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="note"
+                        render={({ field }) => (
+                          <FormItem className="mt-2">
+                            <div className="flex flex-row items-center">
+                              <FormLabel className="w-1/3">
+                                <div className="flex flex-row items-center space-x-2">
+                                  <h5 className="text-sm">Note</h5>
                                   <Info size={16} />
                                 </div>
                               </FormLabel>
@@ -749,8 +798,10 @@ export function AddStaffDialog({
                                       <Input
                                         defaultValue={field.value.value}
                                         className="w-[150px] text-right"
+                                        placeholder="0"
                                         onChange={(e) => {
                                           removeCharNotANum(e);
+                                          console.log("change", e.target.value);
                                           form.setValue(
                                             "baseSalary.value",
                                             !Number.isNaN(
@@ -780,7 +831,7 @@ export function AddStaffDialog({
                                 <FormItem>
                                   <FormControl>
                                     <div className="flex flex-row items-center">
-                                      <CustomInput
+                                      <UnitButtonGroup
                                         className={cn(
                                           baseBonusViewOption["Saturday"] ===
                                             true
@@ -802,7 +853,7 @@ export function AddStaffDialog({
                                           );
                                         }}
                                       />
-                                      <CustomInput
+                                      <UnitButtonGroup
                                         className={cn(
                                           baseBonusViewOption["Sunday"] === true
                                             ? "visile"
@@ -821,7 +872,7 @@ export function AddStaffDialog({
                                           );
                                         }}
                                       />
-                                      <CustomInput
+                                      <UnitButtonGroup
                                         className={cn(
                                           baseBonusViewOption["Day off"] ===
                                             true
@@ -841,7 +892,7 @@ export function AddStaffDialog({
                                           );
                                         }}
                                       />
-                                      <CustomInput
+                                      <UnitButtonGroup
                                         className={cn(
                                           baseBonusViewOption["Holiday"] ===
                                             true
@@ -928,7 +979,7 @@ export function AddStaffDialog({
                                   <FormItem>
                                     <FormControl>
                                       <div className="flex flex-row items-center">
-                                        <CustomInput
+                                        <UnitButtonGroup
                                           defaultValue={
                                             field.value.saturday.value
                                           }
@@ -946,7 +997,7 @@ export function AddStaffDialog({
                                             );
                                           }}
                                         />
-                                        <CustomInput
+                                        <UnitButtonGroup
                                           defaultValue={
                                             field.value.sunday.value
                                           }
@@ -962,7 +1013,7 @@ export function AddStaffDialog({
                                             );
                                           }}
                                         />
-                                        <CustomInput
+                                        <UnitButtonGroup
                                           defaultValue={
                                             field.value.dayOff.value
                                           }
@@ -978,7 +1029,7 @@ export function AddStaffDialog({
                                             );
                                           }}
                                         />
-                                        <CustomInput
+                                        <UnitButtonGroup
                                           defaultValue={
                                             field.value.holiday.value
                                           }

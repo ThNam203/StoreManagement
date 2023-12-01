@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { removeCharNotANum } from "@/utils";
 import { useEffect, useState } from "react";
 
-export function CustomInput({
+export function UnitButtonGroup({
   className = "",
   defaultValue = 100,
   defaultUnit = BonusUnit["%"],
@@ -18,10 +18,9 @@ export function CustomInput({
 }) {
   const [value, setValue] = useState<number>(defaultValue);
   const [unit, setUnit] = useState<BonusUnit>(defaultUnit);
-
   useEffect(() => {
     if (onValueChange) onValueChange(value, unit);
-  }, [unit, value, onValueChange]);
+  }, [unit, value]);
 
   return (
     <div

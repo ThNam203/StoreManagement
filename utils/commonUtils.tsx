@@ -343,9 +343,18 @@ const getMinMaxOfListTime = (
   return range;
 };
 
+const isValidInput = (input: string): boolean => {
+  // Kiểm tra xem input có phải là số hợp lệ hay không
+  const regex = /^\d+(\.\d+)?$/;
+  return regex.test(input);
+};
 const removeCharNotANum = (e: any) => {
-  // e.target.value = e.target.value.replace(/\D/g, "");
-  e.target.value = e.target.value.replace(/[^0-9]/g, "");
+  let input = e.target.value;
+  if (!isValidInput(input)) {
+    input = input.slice(0, input.length - 1);
+  }
+
+  e.target.value = input;
 };
 
 const formatID = (id: number, prefix: string) => {
@@ -415,6 +424,7 @@ const convertStaffToSent = (value: Staff) => {
       },
     },
   };
+  console.log("sent", converted);
   return converted;
 };
 
@@ -543,6 +553,7 @@ const convertStaffReceived = (value: any) => {
         }
       : tempSalarySetting,
   };
+  console.log("received", staff);
   return staff;
 };
 

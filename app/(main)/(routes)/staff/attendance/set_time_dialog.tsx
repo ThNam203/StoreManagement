@@ -6,7 +6,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -25,15 +24,16 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { DailyShift, Shift } from "./attendance_table";
+import { ConfirmOverwritingDialog } from "./confirm_dialog";
 import { DataTable } from "./datatable";
 
 const formSchema = z.object({
   date: z.date(),
   isRepeat: z.boolean(),
-  repeatPeriod: z.string().optional(),
-  startRepeat: z.date().optional(),
-  finishRepeat: z.date().optional(),
-  shiftName: z.string(),
+  repeatPeriod: z.string(),
+  startRepeat: z.date(),
+  finishRepeat: z.date(),
+  shiftName: z.string().min(1),
   note: z.string(),
 });
 
@@ -59,15 +59,20 @@ export function SetTimeDialog({
       isRepeat: false,
       repeatPeriod: "daily",
       startRepeat: new Date(),
-      finishRepeat: new Date(),
-      shiftName: "",
+      finishRepeat: new Date(new Date().getFullYear() + 1, 11, 31),
+      shiftName: undefined,
       note: "",
     },
   });
   let attendStaffList: Staff[] = [];
+  const repeatPeriodList = ["daily", "weekly", "monthly"];
+  const [isRepeat, setIsRepeat] = useState(false);
+  const [openConfirmOverwritingDialog, setOpenConfirmOverwritingDialog] =
+    useState(false);
 
   useEffect(() => {
     if (open) resetValues(specificShift);
+    console.log("speccific shift", specificShift);
   }, [open]);
 
   const resetValues = (specificShift: DailyShift | null) => {
@@ -85,13 +90,9 @@ export function SetTimeDialog({
     form.reset();
     attendStaffList = [];
   };
-  useEffect(() => {
-    console.log("change", attendStaffList);
-  }, [attendStaffList]);
-
-  const repeatPeriodList = ["daily", "weekly", "monthly"];
 
   function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!submit) return;
     const updatedDailyShift: DailyShift = {
       shiftId: null,
       shiftName: values.shiftName,
@@ -110,35 +111,86 @@ export function SetTimeDialog({
         note: "",
       });
     });
-    const newShiftList = [...shiftList];
+    let newShiftList: Shift[] = [...shiftList];
+    if (isRepeat) {
+      const { repeatPeriod, startRepeat, finishRepeat } = values;
+      const repeatPeriodIndex = repeatPeriodList.findIndex(
+        (period) => period === repeatPeriod
+      );
+      if (repeatPeriodIndex === -1) return;
 
-    newShiftList.forEach((shift) => {
-      if (shift.name === values.shiftName) {
-        const index = shift.dailyShiftList.findIndex(
-          (dailyShift) =>
-            dailyShift.date.toLocaleDateString() ===
-            values.date.toLocaleDateString()
+      const repeatPeriodValue =
+        repeatPeriodIndex === 0 ? 1 : repeatPeriodIndex === 1 ? 7 : 30;
+      const repeatPeriodCount = Math.floor(
+        (finishRepeat.getTime() - startRepeat.getTime()) /
+          (repeatPeriodValue * 24 * 60 * 60 * 1000)
+      );
+      for (let i = 0; i <= repeatPeriodCount; i++) {
+        const newDate = new Date(
+          startRepeat.getTime() + repeatPeriodValue * i * 24 * 60 * 60 * 1000
         );
-        updatedDailyShift.shiftId = shift.id;
-        if (index !== -1) {
-          shift.dailyShiftList[index] = updatedDailyShift;
-        } else {
-          shift.dailyShiftList.push(updatedDailyShift);
-        }
+        const newDailyShift = { ...updatedDailyShift };
+        newDailyShift.date = newDate;
+        newShiftList = addShiftToList(newDailyShift, newDate, newShiftList);
       }
-    });
-    if (submit) {
-      submit(newShiftList);
-      resetToEmptyForm();
-      setOpen(false);
+      console.log("running", newShiftList);
+    } else {
+      newShiftList = addShiftToList(
+        updatedDailyShift,
+        values.date,
+        newShiftList
+      );
     }
+
+    submit(newShiftList);
+    resetToEmptyForm();
+    setOpen(false);
   }
+
+  const addShiftToList = (
+    shiftToAdd: DailyShift,
+    date: Date,
+    shiftList: Shift[]
+  ) => {
+    const newShiftList = [...shiftList];
+    const shift = newShiftList.find(
+      (shift) => shift.name === shiftToAdd.shiftName
+    );
+    if (shift) {
+      const index = shift.dailyShiftList.findIndex(
+        (dailyShift) =>
+          dailyShift.date.toLocaleDateString() === date.toLocaleDateString()
+      );
+      shiftToAdd.shiftId = shift.id;
+      if (index !== -1) {
+        shift.dailyShiftList[index] = shiftToAdd;
+      } else {
+        shift.dailyShiftList.push(shiftToAdd);
+      }
+    }
+    return newShiftList;
+  };
+
+  const isShiftExisted = (
+    shiftName: string,
+    date: Date,
+    shiftList: Shift[]
+  ): boolean => {
+    const shift = shiftList.find((shift) => shift.name === shiftName);
+    if (!shift) return false;
+    const index = shift.dailyShiftList.findIndex(
+      (dailyShift) =>
+        dailyShift.date.toLocaleDateString() === date.toLocaleDateString()
+    );
+    if (index === -1) return false;
+    return true;
+  };
+
   function handleCancelDialog() {
     setOpen(false);
-    // resetValues(specificShift);
+    resetValues(specificShift);
   }
 
-  const [isRepeat, setIsRepeat] = useState(false);
   const handleDataChange = (data: Staff[]) => {
     attendStaffList = data;
   };
@@ -329,7 +381,9 @@ export function SetTimeDialog({
             <div className="flex flex-row justify-end">
               <Button
                 type="submit"
-                onClick={form.handleSubmit(onSubmit)}
+                onClick={() => {
+                  form.handleSubmit(onSubmit);
+                }}
                 variant={"default"}
                 className="mr-3"
               >
@@ -341,6 +395,10 @@ export function SetTimeDialog({
             </div>
           </form>
         </Form>
+        <ConfirmOverwritingDialog
+          open={openConfirmOverwritingDialog}
+          setOpen={setOpenConfirmOverwritingDialog}
+        />
       </DialogContent>
     </Dialog>
   );

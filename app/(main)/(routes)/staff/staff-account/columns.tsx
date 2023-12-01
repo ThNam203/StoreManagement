@@ -22,5 +22,5 @@ export const columnHeader = {
 
 export const columns: ColumnDef<Staff>[] = getColumns<Staff>(
   columnHeader,
-  true
+  false
 );
