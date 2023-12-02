@@ -16,7 +16,6 @@ public class StaffResponse {
     private String email;
     private String cccd;
     private String address;
-    private String password;
     private String phoneNumber;
     private String avatar;
     private String note;
