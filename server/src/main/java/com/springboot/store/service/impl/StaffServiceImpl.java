@@ -95,7 +95,8 @@ public class StaffServiceImpl implements StaffService {
     @Override
     public List<StaffResponse> getAllStaffs() {
         List<Staff> staffs = staffRepository.findAll();
-
+        Staff thisStaff = getAuthorizedStaff();
+        staffs.removeIf(staff -> staff.getCreator() == null || staff.getCreator() != thisStaff);
         return staffs.stream().map(this::mapToResponse).toList();
     }
 
@@ -210,6 +211,7 @@ public class StaffServiceImpl implements StaffService {
                 // if creator is not null, get name of creator
                 .creator(staff.getCreator() != null ? staff.getCreator().getId() : null)
                 .staffSalary(staff.getStaffSalary() != null ? staff.getStaffSalary() : null)
+                .password(staff.getPassword())
                 .build();
     }
 

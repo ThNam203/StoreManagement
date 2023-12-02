@@ -10,10 +10,19 @@ const createNewStaff = (data: any) => {
     headers: { "Content-Type": "multipart/form-data" },
   });
 };
-
+const updateStaff = (id: any, data: any) => {
+  return AxiosService.put<Staff>("/api/staffs/" + id, data, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+};
+const deleteStaff = (id: any) => {
+  return AxiosService.delete("/api/staffs/" + id);
+};
 const StaffService = {
   getAllStaffs,
   createNewStaff,
+  updateStaff,
+  deleteStaff,
 };
 
 export default StaffService;
