@@ -211,7 +211,6 @@ public class StaffServiceImpl implements StaffService {
                 // if creator is not null, get name of creator
                 .creator(staff.getCreator() != null ? staff.getCreator().getId() : null)
                 .staffSalary(staff.getStaffSalary() != null ? staff.getStaffSalary() : null)
-                .password(staff.getPassword())
                 .build();
     }
 
