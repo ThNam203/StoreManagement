@@ -85,23 +85,6 @@ import SearchView from "@/components/ui/search_view";
 import PropertiesString from "@/components/ui/properties_string_view";
 import { Customer } from "@/entities/Customer";
 import { decode } from "punycode";
-// import { Html5QrcodeScanner } from "html5-qrcode";
-
-// function onScanSuccess(decodedText: string, decodedResult: any) {
-//   console.log(`Code matched = ${decodedText}`, decodedResult);
-// }
-
-// function onScanFailure(error: any) {
-//   // handle scan failure, usually better to ignore and keep scanning.
-//   // for example:
-//   console.warn(`Code scan error = ${error}`);
-// }
-
-// let html5QrcodeScanner = new Html5QrcodeScanner(
-//   "reader",
-//   { fps: 10, qrbox: { width: 250, height: 250 } },
-//   /* verbose= */ false
-// );
 
 const ProductSearchItemView: (product: Product) => React.ReactNode = (
   product: Product
@@ -117,10 +100,13 @@ const ProductSearchItemView: (product: Product) => React.ReactNode = (
         }
       />
       <div className="text-sm flex flex-col flex-1">
-        <div className="flex flex-row gap-2">
-          <p className="font-semibold">{product.name}</p>
-          <PropertiesString propertiesString={product.propertiesString} />
-        </div>
+        <p className="font-semibold">
+          {product.name}
+          <PropertiesString
+            propertiesString={product.propertiesString}
+            className="ml-1"
+          />
+        </p>
         <p>ID: {product.id}</p>
         <p>In stock: {product.stock}</p>
       </div>
@@ -200,37 +186,39 @@ export default function Sale() {
   return (
     <>
       {showScanner ? (
-        <div className="fixed w-screen h-screen z-[9] bg-blue-300 flex items-center justify-center" onClick={(e) => {
-          e.stopPropagation()
-          e.preventDefault()
-          setShowScanner(false)
-        }}>
+        <div
+          className="fixed w-screen h-screen z-[9] flex items-center justify-center"
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            setShowScanner(false);
+          }}
+        >
           <div className="w-[500px] h-[500px]">
-          <QrScanner
-            onDecode={(result) => {
-              setShowScanner(false);
-              const product = products.find(
-                (product) => product.barcode === result
-              );
-              if (product)
-                onProductClick(invoices[chosenInvoicePosition], product);
-              else
-                toast({
-                  description: "Can't find product with barcode " + result,
-                  variant: "destructive",
-                });
-            }}
-            onError={(error) => {
-              if (error)
-                toast({
-                  title: error.name,
-                  description: error.message,
-                  variant: "destructive",
-                });
-            }}
-          />
+            <QrScanner
+              onDecode={(result) => {
+                setShowScanner(false);
+                const product = products.find(
+                  (product) => product.barcode === result
+                );
+                if (product)
+                  onProductClick(invoices[chosenInvoicePosition], product);
+                else
+                  toast({
+                    description: "Can't find product with barcode " + result,
+                    variant: "destructive",
+                  });
+              }}
+              onError={(error) => {
+                if (error)
+                  toast({
+                    title: error.name,
+                    description: error.message,
+                    variant: "destructive",
+                  });
+              }}
+            />
           </div>
-          
         </div>
       ) : null}
       <div className="flex flex-col h-screen w-screen bg-blue-500">
@@ -732,10 +720,13 @@ const ProductView = ({
         alt="product image"
       />
       <div className="flex flex-col gap-2">
-        <div className="flex flex-row gap-1">
-          <p className="text-sm font-semibold">{product.name}</p>
-          <PropertiesString propertiesString={product.propertiesString} />
-        </div>
+        <p className="text-sm font-semibold">
+          {product.name}
+          <PropertiesString
+            propertiesString={product.propertiesString}
+            className="ml-1"
+          />
+        </p>
         <p className="text-xs font-semibold text-sky-700">
           {product.productPrice}/{product.salesUnits.name}
         </p>

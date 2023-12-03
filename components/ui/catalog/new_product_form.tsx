@@ -45,7 +45,7 @@ import {
 } from "@/components/ui/accordion";
 import { useToast } from "@/components/ui/use-toast";
 import { Textarea } from "../textarea";
-import CatalogService from "@/services/product_service";
+import ProductService from "@/services/product_service";
 import { RadioGroup, RadioGroupItem } from "../radio-group";
 import { Label } from "../label";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
@@ -60,15 +60,7 @@ import LoadingCircle from "../loading_circle";
 import { useAppSelector } from "@/hooks";
 import { faker } from "@faker-js/faker";
 import AddNewThing from "../add_new_thing_dialog";
-
-const formatNumberInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-  let rawValue = e.currentTarget.value.replace(/[^\d]/g, "");
-  rawValue = rawValue.replace(/^0+(\d)/, "$1");
-  // Add commas for every 3 digits from the right
-  const formattedValue = rawValue.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-  e.currentTarget.value = formattedValue;
-  return isNaN(Number(rawValue)) ? 0 : Number(rawValue);
-};
+import { formatNumberInput } from "@/utils";
 
 const newProductFormSchema = z.object({
   barcode: z
@@ -537,20 +529,19 @@ export const NewProductView = ({
         return newElement;
       });
     }
+
     const dataForm: any = new FormData();
     dataForm.append(
       "data",
       new Blob([JSON.stringify(data)], { type: "application/json" })
     );
-    dataForm.append(
-      "files",
-      chosenImageFiles.filter((file) => file != null)
-    );
 
-    console.log(chosenImageFiles.filter((file) => file != null))
+    chosenImageFiles
+      .filter((file) => file != null)
+      .forEach((imageFile) => dataForm.append("files", imageFile));
 
     setIsCreatingNewProduct(true);
-    CatalogService.createNewProduct(dataForm)
+    ProductService.createNewProduct(dataForm)
       .then((result) => {
         onNewProductsAdded(result.data);
         onChangeVisibility(false);

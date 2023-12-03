@@ -34,6 +34,12 @@ import Image from "next/image";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { cn } from "@/lib/utils";
 import { ChevronRight, Lock, PenLine, Trash } from "lucide-react";
+import { useAppDispatch } from "@/hooks";
+import { deleteProduct, updateProduct } from "@/reducers/productsReducer";
+import ProductService from "@/services/product_service";
+import LoadingCircle from "@/components/ui/loading_circle";
+import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { useToast } from "@/components/ui/use-toast";
 
 type Props = {
   data: Product[];
@@ -45,7 +51,6 @@ export function CatalogDatatable({
   onProductUpdateButtonClicked,
 }: Props) {
   const tableContainerRef = useRef<HTMLDivElement>(null);
-  const [showUpdateForm, setShowUpdateForm] = useState(false);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -211,6 +216,10 @@ const CustomRow = ({
   const [chosenImagePos, setChosenImagePos] = React.useState<number | null>(
     product.images && product.images.length > 0 ? 0 : null
   );
+  const [disableDisableButton, setDisableDisableButton] = useState(false);
+  const [disableDeleteButton, setDisableDeleteButton] = useState(false);
+  const dispatch = useAppDispatch();
+  const { toast } = useToast();
 
   const borderWidth =
     containerRef && containerRef.current
@@ -392,17 +401,56 @@ const CustomRow = ({
                     <Button
                       variant={"green"}
                       onClick={(e) => onProductUpdateButtonClicked(row.index)}
+                      disabled={disableDeleteButton || disableDisableButton}
                     >
                       <PenLine size={16} fill="white" className="mr-2" />
                       Update
                     </Button>
-                    <Button variant={"red"}>
+                    <Button
+                      variant={product.status === "Active" ? "red" : "green"}
+                      disabled={disableDeleteButton || disableDisableButton}
+                      onClick={(e) => {
+                        setDisableDisableButton(true);
+                        ProductService.updateProduct(
+                          {
+                            ...product,
+                            status:
+                              product.status === "Active"
+                                ? "Disabled"
+                                : "Active",
+                          },
+                          null
+                        )
+                          .then((result) => {
+                            dispatch(updateProduct(result.data));
+                          })
+                          .catch((e) => axiosUIErrorHandler(e, toast))
+                          .finally(() => setDisableDisableButton(false));
+                      }}
+                    >
                       <Lock size={16} className="mr-2" />
-                      Disable product
+                      {product.status === "Active"
+                        ? "Disable product"
+                        : "Activate product"}
+                      {disableDisableButton ? <LoadingCircle /> : null}
                     </Button>
-                    <Button variant={"red"}>
+                    <Button
+                      variant={"red"}
+                      onClick={(e) => {
+                        setDisableDeleteButton(true);
+                        ProductService.deleteProduct(product.id)
+                          .then((result) => {
+                            dispatch(deleteProduct(product.id));
+                            setShowInfoRow(false);
+                          })
+                          .catch((error) => axiosUIErrorHandler(error, toast))
+                          .finally(() => setDisableDeleteButton(false));
+                      }}
+                      disabled={disableDeleteButton || disableDisableButton}
+                    >
                       <Trash size={16} className="mr-2" />
-                      Remove
+                      Delete
+                      {disableDeleteButton ? <LoadingCircle /> : null}
                     </Button>
                   </div>
                 </div>
