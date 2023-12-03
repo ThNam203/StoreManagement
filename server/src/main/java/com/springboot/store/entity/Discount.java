@@ -36,11 +36,11 @@ public class Discount {
     @Column(name = "type", nullable = false)
     private DiscountE type;
 
-    @Column(name = "max_total")
-    private int maxTotal;
+    @Column(name = "max_value")
+    private int maxValue;
 
-    @Column(name = "min_total")
-    private int minTotal;
+    @Column(name = "min_sub_total")
+    private int minSubTotal;
 
     @Column(name = "amount", nullable = false)
     private int amount;

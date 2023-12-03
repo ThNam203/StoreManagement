@@ -20,8 +20,8 @@ public class DiscountDTO {
     private boolean status;
     private double value;
     private DiscountE type;
-    private int maxTotal;
-    private int minTotal;
+    private int maxValue;
+    private int minSubTotal;
     private int amount;
     private int creatorId;
     private Set<String> discountCodes;
