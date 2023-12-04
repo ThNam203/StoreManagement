@@ -34,7 +34,7 @@ export default function StaffInfoPage() {
     setFilteredStaffList([...filteredList]);
   }, [multiFilter, staffList]);
 
-  const addNewStaff = async (value: Staff) => {
+  const addNewStaff = async (value: Staff, avatar: File | null) => {
     try {
       const staffToSent = convertStaffToSent(value);
       const dataForm: any = new FormData();
@@ -42,7 +42,7 @@ export default function StaffInfoPage() {
         "data",
         new Blob([JSON.stringify(staffToSent)], { type: "application/json" })
       );
-      dataForm.append("file", null);
+      dataForm.append("file", avatar);
 
       const staffResult = await StaffService.createNewStaff(dataForm);
       const staffReceived = convertStaffReceived(staffResult.data);
@@ -55,7 +55,7 @@ export default function StaffInfoPage() {
     }
   };
 
-  const updateAStaff = async (value: Staff) => {
+  const updateAStaff = async (value: Staff, avatar: File | null) => {
     try {
       const staffToSent = convertStaffToSent(value);
       const dataForm: any = new FormData();
@@ -63,7 +63,8 @@ export default function StaffInfoPage() {
         "data",
         new Blob([JSON.stringify(staffToSent)], { type: "application/json" })
       );
-      dataForm.append("file", null);
+      console.log("avatar", value.avatar);
+      dataForm.append("file", avatar);
       console.log("dataForm", dataForm);
       const staffResult = await StaffService.updateStaff(
         staffToSent.id,
@@ -90,20 +91,20 @@ export default function StaffInfoPage() {
     }
   };
 
-  const handleFormSubmit = (value: Staff) => {
+  const handleFormSubmit = (value: Staff, avatar: File | null) => {
     const index = staffList.findIndex((staff) => staff.id === value.id);
     if (index !== -1) {
-      handleUpdateStaff(value);
-    } else addNewStaff(value);
+      handleUpdateStaff(value, avatar);
+    } else addNewStaff(value, avatar);
   };
   const handleDeleteStaff = (index: number) => {
     const id = filterdStaffList[index].id;
     deleteAStaff(id);
   };
 
-  const handleUpdateStaff = (value: Staff) => {
+  const handleUpdateStaff = (value: Staff, avatar: File | null) => {
     console.log("update", value);
-    updateAStaff(value);
+    updateAStaff(value, avatar);
   };
 
   const updatePositionMultiFilter = (values: string[]) => {

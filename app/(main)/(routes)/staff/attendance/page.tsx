@@ -19,6 +19,7 @@ import { set } from "date-fns";
 import { el } from "date-fns/locale";
 import { Sex, Staff } from "@/entities/Staff";
 import { BonusUnit, SalaryType } from "@/entities/SalarySetting";
+import { useAppSelector } from "@/hooks";
 
 const dataTable: Shift[] = [
   {
@@ -39,185 +40,185 @@ const dataTable: Shift[] = [
   },
 ];
 
-const originalStaffList: Staff[] = [
-  {
-    avatar: "",
-    id: 1,
-    name: "Henry",
-    email: "henry@gmail.com",
-    password: "123456",
-    address: "address",
-    phoneNumber: "0123456789",
-    note: "",
-    sex: Sex.MALE,
-    cccd: "012301923012",
-    role: "STAFF",
-    birthday: new Date("2003-8-4"),
-    createAt: new Date(),
-    position: "Safe guard",
-    salaryDebt: 0,
-    salarySetting: {
-      baseSalary: {
-        value: 100000,
-        salaryType: SalaryType.ByDay,
-      },
-      baseBonus: {
-        saturday: {
-          value: 0,
-          unit: BonusUnit["%"],
-        },
-        sunday: {
-          value: 0,
-          unit: BonusUnit["%"],
-        },
-        dayOff: {
-          value: 0,
-          unit: BonusUnit["%"],
-        },
-        holiday: {
-          value: 0,
-          unit: BonusUnit["%"],
-        },
-      },
-      overtimeBonus: {
-        saturday: {
-          value: 0,
-          unit: BonusUnit["%"],
-        },
-        sunday: {
-          value: 0,
-          unit: BonusUnit["%"],
-        },
-        dayOff: {
-          value: 0,
-          unit: BonusUnit["%"],
-        },
-        holiday: {
-          value: 0,
-          unit: BonusUnit["%"],
-        },
-      },
-    },
-  },
-  {
-    avatar: "",
-    id: 2,
-    name: "Mary",
-    email: "mary@gmail.com",
-    password: "123456",
-    address: "address Mary",
-    phoneNumber: "0123456769",
-    note: "",
-    sex: Sex.FEMALE,
-    cccd: "012301923011",
-    role: "STAFF",
-    birthday: new Date("2003-4-4"),
-    createAt: new Date(),
-    position: "Cashier",
-    salaryDebt: 0,
-    salarySetting: {
-      baseSalary: {
-        value: 100000,
-        salaryType: SalaryType.ByDay,
-      },
-      baseBonus: {
-        saturday: {
-          value: 0,
-          unit: BonusUnit["%"],
-        },
-        sunday: {
-          value: 0,
-          unit: BonusUnit["%"],
-        },
-        dayOff: {
-          value: 0,
-          unit: BonusUnit["%"],
-        },
-        holiday: {
-          value: 0,
-          unit: BonusUnit["%"],
-        },
-      },
-      overtimeBonus: {
-        saturday: {
-          value: 0,
-          unit: BonusUnit["%"],
-        },
-        sunday: {
-          value: 0,
-          unit: BonusUnit["%"],
-        },
-        dayOff: {
-          value: 0,
-          unit: BonusUnit["%"],
-        },
-        holiday: {
-          value: 0,
-          unit: BonusUnit["%"],
-        },
-      },
-    },
-  },
-  {
-    avatar: "",
-    id: 3,
-    name: "David",
-    email: "david@gmail.com",
-    password: "123456",
-    address: "address David",
-    phoneNumber: "0124456789",
-    note: "",
-    sex: Sex.MALE,
-    cccd: "012301943012",
-    role: "STAFF",
-    birthday: new Date("2003-8-8"),
-    createAt: new Date(),
-    position: "Store Manager",
-    salaryDebt: 0,
-    salarySetting: {
-      baseSalary: {
-        value: 100000,
-        salaryType: SalaryType.ByDay,
-      },
-      baseBonus: {
-        saturday: {
-          value: 0,
-          unit: BonusUnit["%"],
-        },
-        sunday: {
-          value: 0,
-          unit: BonusUnit["%"],
-        },
-        dayOff: {
-          value: 0,
-          unit: BonusUnit["%"],
-        },
-        holiday: {
-          value: 0,
-          unit: BonusUnit["%"],
-        },
-      },
-      overtimeBonus: {
-        saturday: {
-          value: 0,
-          unit: BonusUnit["%"],
-        },
-        sunday: {
-          value: 0,
-          unit: BonusUnit["%"],
-        },
-        dayOff: {
-          value: 0,
-          unit: BonusUnit["%"],
-        },
-        holiday: {
-          value: 0,
-          unit: BonusUnit["%"],
-        },
-      },
-    },
-  },
-];
+// const originalStaffList: Staff[] = [
+//   {
+//     avatar: "",
+//     id: 1,
+//     name: "Henry",
+//     email: "henry@gmail.com",
+//     password: "123456",
+//     address: "address",
+//     phoneNumber: "0123456789",
+//     note: "",
+//     sex: Sex.MALE,
+//     cccd: "012301923012",
+//     role: "STAFF",
+//     birthday: new Date("2003-8-4"),
+//     createAt: new Date(),
+//     position: "Safe guard",
+//     salaryDebt: 0,
+//     salarySetting: {
+//       baseSalary: {
+//         value: 100000,
+//         salaryType: SalaryType.ByDay,
+//       },
+//       baseBonus: {
+//         saturday: {
+//           value: 0,
+//           unit: BonusUnit["%"],
+//         },
+//         sunday: {
+//           value: 0,
+//           unit: BonusUnit["%"],
+//         },
+//         dayOff: {
+//           value: 0,
+//           unit: BonusUnit["%"],
+//         },
+//         holiday: {
+//           value: 0,
+//           unit: BonusUnit["%"],
+//         },
+//       },
+//       overtimeBonus: {
+//         saturday: {
+//           value: 0,
+//           unit: BonusUnit["%"],
+//         },
+//         sunday: {
+//           value: 0,
+//           unit: BonusUnit["%"],
+//         },
+//         dayOff: {
+//           value: 0,
+//           unit: BonusUnit["%"],
+//         },
+//         holiday: {
+//           value: 0,
+//           unit: BonusUnit["%"],
+//         },
+//       },
+//     },
+//   },
+//   {
+//     avatar: "",
+//     id: 2,
+//     name: "Mary",
+//     email: "mary@gmail.com",
+//     password: "123456",
+//     address: "address Mary",
+//     phoneNumber: "0123456769",
+//     note: "",
+//     sex: Sex.FEMALE,
+//     cccd: "012301923011",
+//     role: "STAFF",
+//     birthday: new Date("2003-4-4"),
+//     createAt: new Date(),
+//     position: "Cashier",
+//     salaryDebt: 0,
+//     salarySetting: {
+//       baseSalary: {
+//         value: 100000,
+//         salaryType: SalaryType.ByDay,
+//       },
+//       baseBonus: {
+//         saturday: {
+//           value: 0,
+//           unit: BonusUnit["%"],
+//         },
+//         sunday: {
+//           value: 0,
+//           unit: BonusUnit["%"],
+//         },
+//         dayOff: {
+//           value: 0,
+//           unit: BonusUnit["%"],
+//         },
+//         holiday: {
+//           value: 0,
+//           unit: BonusUnit["%"],
+//         },
+//       },
+//       overtimeBonus: {
+//         saturday: {
+//           value: 0,
+//           unit: BonusUnit["%"],
+//         },
+//         sunday: {
+//           value: 0,
+//           unit: BonusUnit["%"],
+//         },
+//         dayOff: {
+//           value: 0,
+//           unit: BonusUnit["%"],
+//         },
+//         holiday: {
+//           value: 0,
+//           unit: BonusUnit["%"],
+//         },
+//       },
+//     },
+//   },
+//   {
+//     avatar: "",
+//     id: 3,
+//     name: "David",
+//     email: "david@gmail.com",
+//     password: "123456",
+//     address: "address David",
+//     phoneNumber: "0124456789",
+//     note: "",
+//     sex: Sex.MALE,
+//     cccd: "012301943012",
+//     role: "STAFF",
+//     birthday: new Date("2003-8-8"),
+//     createAt: new Date(),
+//     position: "Store Manager",
+//     salaryDebt: 0,
+//     salarySetting: {
+//       baseSalary: {
+//         value: 100000,
+//         salaryType: SalaryType.ByDay,
+//       },
+//       baseBonus: {
+//         saturday: {
+//           value: 0,
+//           unit: BonusUnit["%"],
+//         },
+//         sunday: {
+//           value: 0,
+//           unit: BonusUnit["%"],
+//         },
+//         dayOff: {
+//           value: 0,
+//           unit: BonusUnit["%"],
+//         },
+//         holiday: {
+//           value: 0,
+//           unit: BonusUnit["%"],
+//         },
+//       },
+//       overtimeBonus: {
+//         saturday: {
+//           value: 0,
+//           unit: BonusUnit["%"],
+//         },
+//         sunday: {
+//           value: 0,
+//           unit: BonusUnit["%"],
+//         },
+//         dayOff: {
+//           value: 0,
+//           unit: BonusUnit["%"],
+//         },
+//         holiday: {
+//           value: 0,
+//           unit: BonusUnit["%"],
+//         },
+//       },
+//     },
+//   },
+// ];
 
 export default function Attendance() {
   const [range, setRange] = useState<{ startDate: Date; endDate: Date }>(
@@ -227,16 +228,7 @@ export default function Attendance() {
   const [table, setTable] = useState<Shift[]>([]);
   const [openSetTimeDialog, setOpenSetTimeDialog] = useState(false);
 
-  const [staffList, setStaffList] = useState<Staff[]>([]);
-  useEffect(() => {
-    const res = originalStaffList;
-    const formattedData = res.map((row) => {
-      const newRow = { ...row };
-      newRow.id = formatID(newRow.id, "NV");
-      return newRow;
-    });
-    setStaffList(formattedData);
-  }, []);
+  const staffList = useAppSelector((state) => state.staffs.value);
   useEffect(() => {
     const res = dataTable;
     setTable(res);
@@ -285,24 +277,18 @@ export default function Attendance() {
         </div>
         <div className="flex flex-row items-center gap-4">
           <Button
-            variant={"default"}
-            className="bg-green-500 hover:bg-green-600 gap-2"
+            variant={"green"}
+            className="gap-2"
             onClick={() => setOpenSetTimeDialog(true)}
           >
             <Plus size={16} />
             <span>Set time</span>
           </Button>
-          <Button
-            variant={"default"}
-            className="bg-green-500 hover:bg-green-600 gap-2"
-          >
+          <Button variant={"green"} className="gap-2">
             <FileDown className="h-4 w-4" />
             <span>Export</span>
           </Button>
-          <Button
-            variant={"default"}
-            className="bg-green-500 hover:bg-green-600"
-          >
+          <Button variant={"green"}>
             <AlignJustify className="h-4 w-4" />
           </Button>
         </div>

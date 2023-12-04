@@ -18,6 +18,7 @@ const updateStaff = (id: any, data: any) => {
 const deleteStaff = (id: any) => {
   return AxiosService.delete("/api/staffs/" + id);
 };
+
 const StaffService = {
   getAllStaffs,
   createNewStaff,

@@ -46,7 +46,7 @@ export function DataTable({
   onStaffDeleteButtonClicked,
 }: {
   data: Staff[];
-  onSubmit: (values: Staff) => void;
+  onSubmit: (values: Staff, avatar: File | null) => void;
   onStaffDeleteButtonClicked: (rowIndex: number) => void;
 }) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -78,9 +78,9 @@ export function DataTable({
     setSelectedStaff(staff ? staff : null);
     setOpenStaffDialog(true);
   };
-  const handleSubmit = (values: Staff) => {
+  const handleSubmit = (values: Staff, avatar: File | null) => {
     if (onSubmit) {
-      onSubmit(values);
+      onSubmit(values, avatar);
     }
   };
   const onStaffUpdateButtonClicked = (rowIndex: number) => {
@@ -227,9 +227,6 @@ const CustomRow = ({
 }) => {
   const [showInfoRow, setShowInfoRow] = React.useState(false);
   const staff: Staff = row.original;
-  // const [chosenImagePos, setChosenImagePos] = React.useState<number | null>(
-  //   product.images && product.images.length > 0 ? 0 : null
-  // );
 
   const borderWidth =
     containerRef && containerRef.current
@@ -278,27 +275,33 @@ const CustomRow = ({
                     width: borderWidth,
                   }}
                 >
-                  <div className="flex flex-row gap-4">
-                    <div className="flex flex-col grow-[5] shrink-[5] gap-2 max-w-[200px] max-h-[300px]">
+                  <div className="flex flex-row">
+                    <div className="flex flex-col grow-[5] shrink-[5] max-w-[200px] max-h-[350px]">
                       <AspectRatio
-                        className="w-full flex items-center justify-center  border-2 border-gray-200 rounded-sm"
+                        className={cn(
+                          "w-[150px] h-[200px] rounded-sm",
+                          staff.avatar !== null && staff.avatar !== ""
+                            ? "border-2 border-black"
+                            : ""
+                        )}
                         ratio={1 / 1}
                       >
                         <Image
-                          width={200}
-                          height={200}
-                          alt="product image"
+                          width={0}
+                          height={0}
+                          sizes="100vw"
+                          alt={`${staff.name} avatar`}
                           src={
                             staff.avatar !== null && staff.avatar !== ""
                               ? staff.avatar
-                              : "/default-product-img.jpg"
+                              : "/default-user-avatar.png"
                           }
-                          className="w-full max-h-[300px] max-w-[300px]"
+                          className="w-full h-full border rounded-sm"
                         />
                       </AspectRatio>
                     </div>
-                    <div className="flex flex-row grow-[5] shrink-[5] text-[0.8rem]">
-                      <div className="flex-1 flex flex-col pr-4">
+                    <div className="flex flex-row grow-[5] shrink-[5] text-[0.8rem] gap-2">
+                      <div className="flex-1 flex flex-col">
                         <div className="flex flex-row font-medium border-b mb-2">
                           <p className="w-[100px] font-normal">Staff ID:</p>
                           <p>{staff.id}</p>
@@ -320,7 +323,7 @@ const CustomRow = ({
                           <p>{staff.cccd}</p>
                         </div>
                       </div>
-                      <div className="flex-1 flex flex-col pr-4">
+                      <div className="flex-1 flex flex-col">
                         <div className="flex flex-row font-medium border-b mb-2">
                           <p className="w-[100px] font-normal">Position:</p>
                           <p>{staff.position}</p>

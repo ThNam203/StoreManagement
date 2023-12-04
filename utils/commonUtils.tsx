@@ -500,25 +500,25 @@ const convertStaffReceived = (value: any) => {
               value:
                 value.staffSalary.staffBaseSalaryBonus.staffDayOffBonus.value,
               unit: value.staffSalary.staffBaseSalaryBonus.staffDayOffBonus
-                .bonusUnit as BonusUnit,
+                .bonusUnit,
             },
             holiday: {
               value:
                 value.staffSalary.staffBaseSalaryBonus.staffHolidayBonus.value,
               unit: value.staffSalary.staffBaseSalaryBonus.staffHolidayBonus
-                .bonusUnit as BonusUnit,
+                .bonusUnit,
             },
             saturday: {
               value:
                 value.staffSalary.staffBaseSalaryBonus.staffSaturdayBonus.value,
               unit: value.staffSalary.staffBaseSalaryBonus.staffSaturdayBonus
-                .bonusUnit as BonusUnit,
+                .bonusUnit,
             },
             sunday: {
               value:
                 value.staffSalary.staffBaseSalaryBonus.staffSundayBonus.value,
               unit: value.staffSalary.staffBaseSalaryBonus.staffSundayBonus
-                .bonusUnit as BonusUnit,
+                .bonusUnit,
             },
           },
           overtimeBonus: {
@@ -527,28 +527,28 @@ const convertStaffReceived = (value: any) => {
                 value.staffSalary.staffOvertimeSalaryBonus.staffDayOffBonus
                   .value,
               unit: value.staffSalary.staffOvertimeSalaryBonus.staffDayOffBonus
-                .bonusUnit as BonusUnit,
+                .bonusUnit,
             },
             holiday: {
               value:
                 value.staffSalary.staffOvertimeSalaryBonus.staffHolidayBonus
                   .value,
               unit: value.staffSalary.staffOvertimeSalaryBonus.staffHolidayBonus
-                .bonusUnit as BonusUnit,
+                .bonusUnit,
             },
             saturday: {
               value:
                 value.staffSalary.staffOvertimeSalaryBonus.staffSaturdayBonus
                   .value,
               unit: value.staffSalary.staffOvertimeSalaryBonus
-                .staffSaturdayBonus.bonusUnit as BonusUnit,
+                .staffSaturdayBonus.bonusUnit,
             },
             sunday: {
               value:
                 value.staffSalary.staffOvertimeSalaryBonus.staffSundayBonus
                   .value,
               unit: value.staffSalary.staffOvertimeSalaryBonus.staffSundayBonus
-                .bonusUnit as BonusUnit,
+                .bonusUnit,
             },
           },
         }
