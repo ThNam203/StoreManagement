@@ -9,6 +9,7 @@ import invoicesReducer from "./reducers/invoicesReducer";
 import staffAccountReducer from "./reducers/staffReducer";
 import customersReducer from "./reducers/customersReducer";
 import customerGroupsReducer from "./reducers/customerGroupsReducer";
+import discountsReducer from "./reducers/discountsReducer";
 import shiftReducer from "./reducers/shiftReducer";
 
 const store = configureStore({
@@ -24,6 +25,7 @@ const store = configureStore({
     shift: shiftReducer,
     customers: customersReducer,
     customerGroups: customerGroupsReducer,
+    discounts: discountsReducer,
   },
 });
 

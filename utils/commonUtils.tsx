@@ -558,6 +558,17 @@ const convertStaffReceived = (value: any) => {
   return staff;
 };
 
+const formatNumberInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // remove characters that is not number
+  let rawValue = e.currentTarget.value.replace(/[^\d]/g, "");
+  // remove leading 0s
+  rawValue = rawValue.replace(/^0+(\d)/, "$1");
+  // Add commas for every 3 digits from the right
+  const formattedValue = rawValue.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  e.currentTarget.value = formattedValue;
+  return isNaN(Number(rawValue)) ? 0 : Number(rawValue);
+};
+
 export {
   exportExcel,
   exportTemplateExcelFile,
@@ -577,4 +588,5 @@ export {
   removeCharNotANum,
   convertStaffToSent,
   convertStaffReceived,
+  formatNumberInput
 };

@@ -9,8 +9,13 @@ export default function PropertiesString({
 }) {
   if (!propertiesString) return null;
   return (
-    <div className={cn("rounded-sm bg-blue-300 text-white px-1 max-w-[80px] whitespace-nowrap overflow-hidden", className)}>
-      <p className="text-xs animate-marquee">{propertiesString}</p>
-    </div>
+    <span
+      className={cn(
+        "text-xs animate-marquee rounded-sm bg-blue-300 text-white px-1 max-w-[100px] whitespace-nowrap overflow-hidden",
+        className
+      )}
+    >
+      {propertiesString}
+    </span>
   );
 }

@@ -34,6 +34,7 @@ import {
   PieChart,
   FileBarChart2,
   Percent,
+  PercentCircle,
 } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
@@ -81,7 +82,8 @@ enum IconNames {
   PackageX,
   PieChart,
   FileBarChart2,
-  Percent
+  Percent,
+  PercentCircle
 }
 
 const LucideIcons = (iconName: IconNames, isCollapsed: boolean | null) => {
@@ -159,6 +161,8 @@ const LucideIcons = (iconName: IconNames, isCollapsed: boolean | null) => {
       return <FileBarChart2 size={iconSize} className={iconClasses} />;
     case IconNames.Percent:
       return <Percent size={iconSize} className={iconClasses} />;
+    case IconNames.PercentCircle:
+      return <PercentCircle size={iconSize} className={iconClasses} />;
   }
 };
 
@@ -414,6 +418,14 @@ const SideBar = ({
               className="!w-full"
               isCollapsed={isCollapsed}
               href="/catalog"
+            />,
+            <SideBarButton
+              key={2}
+              iconName={IconNames.PercentCircle}
+              title="Discount"
+              className="!w-full"
+              isCollapsed={isCollapsed}
+              href="/discount"
             />,
             <SideBarButton
               key={3}

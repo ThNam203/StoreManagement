@@ -34,8 +34,6 @@ export default function Catalog() {
   const products = useAppSelector((state) => state.products.value)
   const productGroups = useAppSelector((state) => state.productGroups.value)
   const productLocations = useAppSelector((state) => state.productLocations.value)
-  const productBrands = useAppSelector((state) => state.productBrands.value)
-  const productProperties = useAppSelector((state) => state.productProperties.value)
   const dispatch = useAppDispatch();
 
   const addNewGroup = async (group: string) => {

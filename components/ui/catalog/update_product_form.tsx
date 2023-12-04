@@ -45,7 +45,7 @@ import {
 } from "@/components/ui/accordion";
 import { useToast } from "@/components/ui/use-toast";
 import { Textarea } from "../textarea";
-import CatalogService from "@/services/product_service";
+import ProductService from "@/services/product_service";
 import { Product } from "@/entities/Product";
 import LoadingCircle from "../loading_circle";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
@@ -218,18 +218,9 @@ export const UpdateProductView = ({
   function onSubmit(values: z.infer<typeof productFormSchema>) {
     const data: any = values;
     data.images = newChosenImages.filter((file) => typeof file === "string");
-    const dataForm: any = new FormData();
-    dataForm.append(
-      "data",
-      new Blob([JSON.stringify(data)], { type: "application/json" })
-    );
-    dataForm.append(
-      "files",
-      newChosenImages.filter((file) => typeof file !== "string")
-    );
 
     setIsCreatingNewProduct(true);
-    CatalogService.updateProduct(dataForm, product.id)
+    ProductService.updateProduct(data, newChosenImages.filter((file) => typeof file !== "string") as File[])
       .then((result) => {
         onProductUpdated(result.data);
       })

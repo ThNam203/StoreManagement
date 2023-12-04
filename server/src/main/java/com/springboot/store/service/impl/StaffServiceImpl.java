@@ -95,7 +95,8 @@ public class StaffServiceImpl implements StaffService {
     @Override
     public List<StaffResponse> getAllStaffs() {
         List<Staff> staffs = staffRepository.findAll();
-
+        Staff thisStaff = getAuthorizedStaff();
+        staffs.removeIf(staff -> staff.getCreator() == null || staff.getCreator() != thisStaff);
         return staffs.stream().map(this::mapToResponse).toList();
     }
 
