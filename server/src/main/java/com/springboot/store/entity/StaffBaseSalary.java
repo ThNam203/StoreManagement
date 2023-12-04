@@ -21,4 +21,8 @@ public class StaffBaseSalary {
 
     @Column(name = "salary_type", nullable = false)
     private String salaryType;
+
+    @ManyToOne()
+    @JoinColumn(name = "store_id")
+    private Store store;
 }

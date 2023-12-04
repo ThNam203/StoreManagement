@@ -25,6 +25,10 @@ public class InvoiceDetail {
     @Column(name = "discount")
     private double discount;
 
+    @ManyToOne()
+    @JoinColumn(name = "store_id")
+    private Store store;
+
     @Column(name = "product_id")
     private int productId;
 

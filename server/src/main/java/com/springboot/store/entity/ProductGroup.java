@@ -15,9 +15,7 @@ import java.util.Set;
 @Builder
 
 @Entity
-@Table(name = "product_group", uniqueConstraints =
-    @UniqueConstraint(name = "product_group_name_unique", columnNames = {"name"})
-)
+@Table(name = "product_group")
 public class ProductGroup {
 
     @Id
@@ -40,5 +38,9 @@ public class ProductGroup {
 
     @OneToMany(mappedBy = "productGroup", fetch = FetchType.LAZY)
     private List<Product> products;
+
+    @ManyToOne()
+    @JoinColumn(name = "store_id")
+    private Store store;
 
 }

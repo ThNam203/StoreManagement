@@ -21,4 +21,8 @@ public class StaffSundayBonus {
 
     @Column(name = "bonus_unit", nullable = false)
     private String bonusUnit;
+
+    @ManyToOne()
+    @JoinColumn(name = "store_id")
+    private Store store;
 }

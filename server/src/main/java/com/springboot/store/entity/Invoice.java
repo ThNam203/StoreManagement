@@ -56,4 +56,8 @@ public class Invoice {
 
     @OneToMany(cascade = CascadeType.ALL)
     private Set<InvoiceDetail> invoiceDetails;
+
+    @ManyToOne()
+    @JoinColumn(name = "store_id")
+    private Store store;
 }

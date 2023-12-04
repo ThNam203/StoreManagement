@@ -28,6 +28,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
+// updated store
 @Service
 @RequiredArgsConstructor
 public class StaffServiceImpl implements StaffService {
@@ -57,6 +58,7 @@ public class StaffServiceImpl implements StaffService {
         staff.setPassword(passwordEncoder.encode(newStaff.getPassword()));
         staff.setCreatedAt(new Date());
         staff.setCreator(creator);
+        staff.setStore(creator.getStore());
 
         //check if cccd is duplicate and valid
         if (newStaff.getCccd() != null && newStaff.getCccd().length() == 12 && staffRepository.existsByCccd(newStaff.getCccd())) {
@@ -94,7 +96,8 @@ public class StaffServiceImpl implements StaffService {
 
     @Override
     public List<StaffResponse> getAllStaffs() {
-        List<Staff> staffs = staffRepository.findAll();
+        int storeId = getAuthorizedStaff().getStore().getId();
+        List<Staff> staffs = staffRepository.findByStoreId(storeId);
         Staff thisStaff = getAuthorizedStaff();
         staffs.removeIf(staff -> staff.getCreator() == null || staff.getCreator() != thisStaff);
         return staffs.stream().map(this::mapToResponse).toList();
@@ -108,9 +111,10 @@ public class StaffServiceImpl implements StaffService {
 
     @Override
     public StaffResponse updateStaff(int id, StaffRequest staffRequest, MultipartFile file) {
+        int storeId = getAuthorizedStaff().getStore().getId();
         Staff staff = staffRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Staff", "id", id));
         // check if role is valid
-        if (staffRequest.getRole() != null && !staffRoleRepository.existsByName(staffRequest.getRole())) {
+        if (staffRequest.getRole() != null && staffRoleRepository.findByNameAndStoreId(staffRequest.getRole(), storeId).isEmpty()) {
             throw new CustomException("Role is invalid", HttpStatus.UNPROCESSABLE_ENTITY);
         }
         // check if birthday is valid
@@ -134,7 +138,7 @@ public class StaffServiceImpl implements StaffService {
         staff.setPosition(staffRequest.getPosition());
         staff.setSalaryDebt(staffRequest.getSalaryDebt());
         staff.setStaffRole(staffRequest.getRole() != null
-                ? staffRoleRepository.findByName(staffRequest.getRole()).orElseThrow()
+                ? staffRoleRepository.findByNameAndStoreId(staffRequest.getRole(), storeId).orElseThrow()
                 : null);
 
         if (staff.getCccd() != null && staff.getCccd().equals(staffRequest.getCccd())) {
@@ -215,6 +219,7 @@ public class StaffServiceImpl implements StaffService {
     }
 
     private Staff mapToEntity(StaffRequest staffRequest) {
+
         return Staff.builder()
                 .name(staffRequest.getName())
                 .email(staffRequest.getEmail())
@@ -225,7 +230,7 @@ public class StaffServiceImpl implements StaffService {
                 .sex(staffRequest.getSex())
                 .birthday(staffRequest.getBirthday())
                 .staffRole(staffRequest.getRole() != null
-                        ? staffRoleRepository.findByName(staffRequest.getRole()).orElseThrow()
+                        ? staffRoleRepository.findByNameAndStoreId(staffRequest.getRole(), getAuthorizedStaff().getStore().getId()).orElseThrow()
                         : null)
                 .salaryDebt(staffRequest.getSalaryDebt())
                 .position(staffRequest.getPosition())
@@ -239,7 +244,7 @@ public class StaffServiceImpl implements StaffService {
         }
 
         // check if role is valid
-        if (newStaff.getRole() != null && !staffRoleRepository.existsByName(newStaff.getRole())) {
+        if (newStaff.getRole() != null && staffRoleRepository.findByNameAndStoreId(newStaff.getRole(), getAuthorizedStaff().getStore().getId()).isEmpty()) {
             throw new CustomException("Role is invalid", HttpStatus.UNPROCESSABLE_ENTITY);
         }
 

@@ -32,4 +32,8 @@ public class Token {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "staff_id")
     private Staff staff;
+
+    @ManyToOne()
+    @JoinColumn(name = "store_id")
+    private Store store;
 }

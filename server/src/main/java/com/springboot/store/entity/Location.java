@@ -10,12 +10,14 @@ import lombok.*;
 @NoArgsConstructor
 
 @Entity
-@Table(name = "locations", uniqueConstraints =
-        @UniqueConstraint(name = "location_name_unique", columnNames = {"name"})
-)
+@Table(name = "locations")
 public class Location {
     @Id
     @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
     private int id;
     private String name;
+
+    @ManyToOne()
+    @JoinColumn(name = "store_id")
+    private Store store;
 }

@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.Date;
 import java.util.List;
 
+// updated store
 @Service
 @RequiredArgsConstructor
 public class CustomerServiceImpl implements CustomerService {
@@ -31,7 +32,8 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public List<CustomerDTO> getAllCustomers() {
-        List<Customer> customers = customerRepository.findAll();
+        Staff staff = staffService.getAuthorizedStaff();
+        List<Customer> customers = customerRepository.findByStoreId(staff.getStore().getId());
         return customers.stream()
                 .map(customer -> {
                     CustomerDTO customerDTO = modelMapper.map(customer, CustomerDTO.class);
@@ -44,9 +46,10 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public CustomerDTO createCustomer(CustomerDTO customerDTO, MultipartFile file) {
+        Staff staff = staffService.getAuthorizedStaff();
         customerDTO.setCreator(staffService.getAuthorizedStaff().getName());
         Customer customer = modelMapper.map(customerDTO, Customer.class);
-        CustomerGroup customerGroup = customerGroupRepository.findByName(customerDTO.getCustomerGroup());
+        CustomerGroup customerGroup = customerGroupRepository.findByNameAndStoreId(customerDTO.getCustomerGroup(), staff.getStore().getId());
         if (customerGroup == null) {
             throw new RuntimeException("Customer group not found with name: " + customerDTO.getCustomerGroup());
         }
@@ -57,8 +60,8 @@ public class CustomerServiceImpl implements CustomerService {
             customer.setImage(media);
         }
         customer.setCreatedAt(new Date());
-        Staff staff = staffService.getAuthorizedStaff();
         customer.setCreator(staff);
+        customer.setStore(staff.getStore());
         customer = customerRepository.save(customer);
         customerDTO = modelMapper.map(customer, CustomerDTO.class);
         customerDTO.setCreator(Integer.toString(customer.getCreator().getId()));
@@ -69,8 +72,9 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public CustomerDTO updateCustomer(int id, CustomerDTO customerDTO, MultipartFile file) {
         Customer customer = customerRepository.findById(id).orElseThrow(() -> new RuntimeException("Customer not found with id: " + id));
+        Staff staff = staffService.getAuthorizedStaff();
         if (!customer.getCustomerGroup().getName().equals(customerDTO.getCustomerGroup())) {
-            CustomerGroup customerGroup = customerGroupRepository.findByName(customerDTO.getCustomerGroup());
+            CustomerGroup customerGroup = customerGroupRepository.findByNameAndStoreId(customerDTO.getCustomerGroup(), staff.getStore().getId());
             if (customerGroup == null) {
                 throw new RuntimeException("Customer group not found with name: " + customerDTO.getCustomerGroup());
             }

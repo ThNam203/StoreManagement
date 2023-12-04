@@ -42,4 +42,8 @@ public class Receipt {
     @ManyToOne
     @JoinColumn(name = "receipt_type_id")
     private ReceiptType receiptType;
+
+    @ManyToOne()
+    @JoinColumn(name = "store_id")
+    private Store store;
 }

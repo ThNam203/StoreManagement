@@ -26,7 +26,7 @@ public class Store {
     @Column(name = "phone_number")
     private String phoneNumber;
 
-    @Column(name = "email", nullable = false)
+    @Column(name = "email")
     private String email;
 
     @Column(name = "facebook")

@@ -10,12 +10,14 @@ import lombok.*;
 @Builder
 
 @Entity
-@Table(name = "product_property_name", uniqueConstraints =
-        @UniqueConstraint(name = "product_property_name_name_unique", columnNames = {"name"})
-)
+@Table(name = "product_property_name")
 public class ProductPropertyName {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String name;
+
+    @ManyToOne()
+    @JoinColumn(name = "store_id")
+    private Store store;
 }

@@ -1,9 +1,11 @@
 package com.springboot.store.service.impl;
 
 import com.springboot.store.entity.Location;
+import com.springboot.store.entity.Staff;
 import com.springboot.store.payload.LocationDTO;
 import com.springboot.store.repository.LocationRepository;
 import com.springboot.store.service.LocationService;
+import com.springboot.store.service.StaffService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -11,11 +13,13 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+// updated store
 @Service
 @RequiredArgsConstructor
 public class LocationServiceImpl implements LocationService {
     private final LocationRepository locationRepository;
     private final ModelMapper modelMapper;
+    private final StaffService staffService;
 
     @Override
     public LocationDTO getLocationById(int id) {
@@ -25,7 +29,8 @@ public class LocationServiceImpl implements LocationService {
 
     @Override
     public List<LocationDTO> getAllLocations() {
-        List<Location> locations = locationRepository.findAll();
+        int storeId = staffService.getAuthorizedStaff().getStore().getId();
+        List<Location> locations = locationRepository.findByStoreId(storeId);
         return locations.stream()
                 .map(location -> modelMapper.map(location, LocationDTO.class))
                 .collect(java.util.stream.Collectors.toList());
@@ -33,10 +38,12 @@ public class LocationServiceImpl implements LocationService {
 
     @Override
     public LocationDTO createLocation(LocationDTO locationDTO) {
+        Staff staff = staffService.getAuthorizedStaff();
         Location location = modelMapper.map(locationDTO, Location.class);
-        if (locationRepository.existsByName(location.getName())) {
+        if (locationRepository.findByNameAndStoreId(location.getName(), staff.getStore().getId()).isPresent()) {
             throw new EntityNotFoundException("Location already exists with name: " + location.getName());
         }
+        location.setStore(staff.getStore());
         location = locationRepository.save(location);
         return modelMapper.map(location, LocationDTO.class);
     }
