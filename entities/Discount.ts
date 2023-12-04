@@ -1,0 +1,15 @@
+export type Discount = {
+    id: number,
+    name: string,
+    description: string,
+    status: boolean,
+    value: number,
+    type: "VOUCHER" | "COUPON",
+    amount: number,
+    creatorId: number,
+    productIds: number[] | null,
+    productGroups: string[] | null,
+    startDate: Date,
+    endDate: Date,
+    createdAt: Date,
+}

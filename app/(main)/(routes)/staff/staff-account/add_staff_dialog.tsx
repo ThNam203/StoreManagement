@@ -57,8 +57,10 @@ import { UnitButtonGroup } from "./unit_btn_group";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { DatePicker } from "@/components/ui/datepicker";
+import { ChooseImageButton } from "./choose_image";
 
 const formSchema = z.object({
+  avatar: z.string(),
   name: z.string().min(1, { message: "Name must be at least one character" }),
   birthday: z.date(),
   sex: z.string(),
@@ -122,11 +124,12 @@ export function AddStaffDialog({
   open: boolean;
   setOpen: (open: boolean) => void;
   data: Staff | null;
-  submit: (values: Staff) => void;
+  submit: (values: Staff, avatar: File | null) => void;
 }) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      avatar: undefined,
       birthday: new Date(),
       sex: Sex.MALE,
       baseSalary: {
@@ -175,7 +178,7 @@ export function AddStaffDialog({
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
     const newStaff: Staff = {
-      avatar: "",
+      avatar: values.avatar,
       id: data ? data.id : -1,
       name: values.name,
       phoneNumber: values.phoneNumber,
@@ -198,7 +201,7 @@ export function AddStaffDialog({
     };
 
     if (submit) {
-      submit(newStaff);
+      submit(newStaff, staffAvatar);
       form.reset();
       setOpen(false);
     }
@@ -254,6 +257,7 @@ export function AddStaffDialog({
       },
     },
   });
+  const [staffAvatar, setStaffAvatar] = useState<File | null>(null);
 
   function handleCancelDialog() {
     setOpen(false);
@@ -266,6 +270,7 @@ export function AddStaffDialog({
 
   const resetValues = (staff: Staff | null) => {
     if (staff) {
+      form.setValue("avatar", staff.avatar);
       form.setValue("name", staff.name);
       form.setValue("birthday", staff.birthday);
       form.setValue("sex", staff.sex);
@@ -291,6 +296,7 @@ export function AddStaffDialog({
 
   const resetToEmptyForm = () => {
     form.reset();
+    setStaffAvatar(null);
   };
 
   const handleAddingNewPosition = () => {
@@ -308,6 +314,11 @@ export function AddStaffDialog({
         salaryType: value as SalaryType,
       },
     }));
+  };
+
+  const onImageChange = (image: File | null) => {
+    form.setValue("avatar", image ? URL.createObjectURL(image) : "");
+    setStaffAvatar(image);
   };
 
   const addPositionDailog = (
@@ -370,20 +381,22 @@ export function AddStaffDialog({
                 >
                   <div className="flex flex-row items-start justify-between">
                     <div className="flex flex-col">
-                      <Button
-                        className="w-[150px] h-[150px] border-2 border-dashed"
-                        type="button"
-                        variant={"outline"}
-                      >
-                        <Camera color="grey" />
-                      </Button>
-                      <Button
-                        variant={"default"}
-                        type="button"
-                        className="mt-4"
-                      >
-                        Choose image
-                      </Button>
+                      <FormField
+                        control={form.control}
+                        name="avatar"
+                        render={({ field }) => (
+                          <FormItem className="mt-2">
+                            <div className="">
+                              <FormControl className="w-2/3">
+                                <ChooseImageButton
+                                  fileUrl={field.value}
+                                  onImageChanged={onImageChange}
+                                />
+                              </FormControl>
+                            </div>
+                          </FormItem>
+                        )}
+                      />
                     </div>
                     <div className="flex flex-col ml-4 w-[450px]">
                       <FormField

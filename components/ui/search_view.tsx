@@ -72,7 +72,7 @@ export default function SearchView<T>({
               className="h-10 flex justify-center items-center bg-white"
               onMouseDown={(e) => e.preventDefault()}
             >
-              <p>Nothing to show!</p>
+              <p>No results found!</p>
             </div>
           ) : (
             filteredChoices.map((choice, index) => (

@@ -44,9 +44,12 @@ const createNewProperty = (value: string) => {
 };
 
 const updateProperty = (value: string, id: number) => {
-  return AxiosService.put<ProductProperty>(`/api/product-property-names/${id}`, {
-    name: value,
-  });
+  return AxiosService.put<ProductProperty>(
+    `/api/product-property-names/${id}`,
+    {
+      name: value,
+    }
+  );
 };
 
 const deleteProperty = (id: number) => {
@@ -60,19 +63,40 @@ const getAllProperties = () => {
 const getAllProducts = () => {
   return AxiosService.get<Product[]>("/api/products").then((result) => {
     result.data.forEach((product) => {
-      product.propertiesString = product.productProperties.map((property) => property.propertyValue).join(' - ');
-    })
+      product.propertiesString = product.productProperties
+        .map((property) => property.propertyValue)
+        .join(" - ");
+    });
 
-    return Promise.resolve(result)
+    return Promise.resolve(result);
   });
 };
 
 const createNewProduct = (data: any) => {
-  return AxiosService.post<Product[]>("/api/products", data, {headers: {"Content-Type": "multipart/form-data"}});
+  return AxiosService.post<Product[]>("/api/products", data, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
 };
 
-const updateProduct = (data: any, id: number) => {
-  return AxiosService.put<Product>(`/api/products/${id}`, data, {headers: {"Content-Type": "multipart/form-data"}});
+const updateProduct = (productData: any, imageFiles: File[] | null) => {
+  const formData = new FormData()
+  formData.append(
+    "data",
+    new Blob([JSON.stringify(productData)], { type: "application/json" })
+  );
+  if (imageFiles && imageFiles.length > 0) imageFiles.forEach(imageFile => formData.append("files", imageFile));
+
+  return AxiosService.put<Product>(
+    `/api/products/${productData.id}`,
+    formData,
+    {
+      headers: { "Content-Type": "multipart/form-data" },
+    }
+  );
+};
+
+const deleteProduct = (id: number) => {
+  return AxiosService.delete<Product>(`/api/products/${id}`);
 };
 
 const ProductService = {
@@ -88,7 +112,8 @@ const ProductService = {
   getAllGroups,
   createNewProduct,
   getAllProducts,
-  updateProduct
+  updateProduct,
+  deleteProduct,
 };
 
 export default ProductService;

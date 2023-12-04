@@ -51,8 +51,8 @@ export const ChooseImageButton = ({
           color="white"
           className="absolute top-[-8px] right-[-8px] hover:cursor-pointer"
           onClick={(e) => {
-            e.stopPropagation()
-            onImageChanged(null)
+            e.stopPropagation();
+            onImageChanged(null);
           }}
         />
       )}
