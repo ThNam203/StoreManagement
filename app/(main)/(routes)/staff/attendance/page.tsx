@@ -21,24 +21,24 @@ import { Sex, Staff } from "@/entities/Staff";
 import { BonusUnit, SalaryType } from "@/entities/SalarySetting";
 import { useAppSelector } from "@/hooks";
 
-const dataTable: Shift[] = [
-  {
-    id: 1,
-    name: "Ca sang",
-    status: Status.Working,
-    workingTime: { start: new Date(), end: new Date() },
-    editingTime: { start: new Date(), end: new Date() },
-    dailyShiftList: [],
-  },
-  {
-    id: 2,
-    name: "Ca chieu",
-    status: Status.Working,
-    workingTime: { start: new Date(), end: new Date() },
-    editingTime: { start: new Date(), end: new Date() },
-    dailyShiftList: [],
-  },
-];
+// const dataTable: Shift[] = [
+//   {
+//     id: 1,
+//     name: "Ca sang",
+//     status: Status.Working,
+//     workingTime: { start: new Date(), end: new Date() },
+//     editingTime: { start: new Date(), end: new Date() },
+//     dailyShiftList: [],
+//   },
+//   {
+//     id: 2,
+//     name: "Ca chieu",
+//     status: Status.Working,
+//     workingTime: { start: new Date(), end: new Date() },
+//     editingTime: { start: new Date(), end: new Date() },
+//     dailyShiftList: [],
+//   },
+// ];
 
 // const originalStaffList: Staff[] = [
 //   {
@@ -225,14 +225,10 @@ export default function Attendance() {
     getStaticRangeFilterTime(FilterWeek.ThisWeek)
   );
   const [displayType, setDisplayType] = useState<DisplayType>("Week");
-  const [table, setTable] = useState<Shift[]>([]);
   const [openSetTimeDialog, setOpenSetTimeDialog] = useState(false);
 
+  const table = useAppSelector((state) => state.shift.value);
   const staffList = useAppSelector((state) => state.staffs.value);
-  useEffect(() => {
-    const res = dataTable;
-    setTable(res);
-  }, []);
 
   const handleRangeTimeFilterChange = (range: {
     startDate: Date;
@@ -248,17 +244,19 @@ export default function Attendance() {
     else setRange(getStaticRangeFilterTime(FilterMonth.ThisMonth));
     setDisplayType(value as DisplayType);
   };
-  const handleSubmitOrUpdateShift = (value: Shift) => {
+  const handleUpdateShift = (value: Shift) => {
     const index = table.findIndex((shift) => shift.id === value.id);
     if (index !== -1) {
       const newTable = [...table];
       newTable[index] = value;
-      setTable(newTable);
+      // setTable(newTable);
     } else {
       value.id = table.length + 1;
-      setTable((prev) => [...prev, value]);
+      // setTable((prev) => [...prev, value]);
     }
   };
+
+  const handleUpdateShiftList = (value: Shift[]) => {};
 
   return (
     <div className="text-sm flex flex-col gap-4">
@@ -299,8 +297,8 @@ export default function Attendance() {
         rangeDate={range}
         data={table}
         displayType={displayType}
-        onUpdateShift={handleSubmitOrUpdateShift}
-        onSetTime={setTable}
+        onUpdateShift={handleUpdateShift}
+        onSetTime={handleUpdateShiftList}
       />
       <SetTimeDialog
         open={openSetTimeDialog}
@@ -308,7 +306,7 @@ export default function Attendance() {
         shiftList={table}
         staffList={staffList}
         specificShift={null}
-        submit={setTable}
+        submit={handleUpdateShiftList}
       />
     </div>
   );

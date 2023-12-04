@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, ChevronDown, PlusCircle } from "lucide-react";
+import { Check, ChevronDown } from "lucide-react";
 import * as React from "react";
 
 import { Button } from "@/components/ui/button";
@@ -17,18 +17,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import Image from "next/image";
 
 export function MyCombobox({
   placeholder,
@@ -166,6 +155,8 @@ export function MyObjectCombobox({
                   onSelect={() => {
                     if (!values.includes(choice)) {
                       setValues([...values, choice]);
+                    } else {
+                      setValues(values.filter((v) => v !== choice));
                     }
                   }}
                 >
@@ -175,20 +166,40 @@ export function MyObjectCombobox({
                       values.includes(choice) ? "opacity-100" : "opacity-0"
                     )}
                   />
-                  <div key={index} className="flex flex-col gap-1">
-                    {propToShow.map((prop, i) => {
-                      return (
-                        <span
-                          key={i}
-                          className={cn(
-                            "text-xs",
-                            prop === "name" ? "font-semibold" : ""
-                          )}
-                        >
-                          {choice[prop as keyof object]}
-                        </span>
-                      );
-                    })}
+                  <div
+                    key={index}
+                    className="flex flex-row gap-1 items-center justify-between"
+                  >
+                    <Image
+                      width={0}
+                      height={0}
+                      sizes="100vw"
+                      src={
+                        choice["avatar" as keyof object] ||
+                        "/default-user-avatar.png"
+                      }
+                      alt="image"
+                      className="w-[30px] h-[40px] border rounded-sm"
+                    />
+                    <div key={index} className="flex flex-col gap-1">
+                      {propToShow.map((prop, i) => {
+                        if (prop === "avatar") return null;
+                        return (
+                          <span
+                            key={i}
+                            className={cn(
+                              "text-xs",
+                              prop === "name" ? "font-semibold" : ""
+                            )}
+                          >
+                            {prop !== "name"
+                              ? `${(prop as string).toUpperCase()}:`
+                              : null}{" "}
+                            {choice[prop as keyof object]}
+                          </span>
+                        );
+                      })}
+                    </div>
                   </div>
                 </CommandItem>
               ))}
@@ -199,3 +210,5 @@ export function MyObjectCombobox({
     </div>
   );
 }
+
+const StaffItem = ({}: { data: object }) => {};

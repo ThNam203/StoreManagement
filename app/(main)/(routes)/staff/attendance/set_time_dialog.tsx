@@ -89,6 +89,7 @@ export function SetTimeDialog({
   const resetToEmptyForm = () => {
     form.reset();
     attendStaffList = [];
+    setIsRepeat(false);
   };
 
   function onSubmit(values: z.infer<typeof formSchema>) {
@@ -112,6 +113,7 @@ export function SetTimeDialog({
       });
     });
     let newShiftList: Shift[] = [...shiftList];
+    console.log("new shift list init", newShiftList);
     if (isRepeat) {
       const { repeatPeriod, startRepeat, finishRepeat } = values;
       const repeatPeriodIndex = repeatPeriodList.findIndex(
@@ -141,6 +143,7 @@ export function SetTimeDialog({
         newShiftList
       );
     }
+    console.log("new shift list", newShiftList);
 
     submit(newShiftList);
     resetToEmptyForm();

@@ -81,21 +81,9 @@ export function DataTable({
           choices={staffList}
           defaultValues={data}
           className="w-64"
-          propToShow={["name", "id"]}
+          propToShow={["name", "id", "avatar"]}
           onValuesChange={handleComboboxValuesChange}
         />
-        <Button
-          variant={"outline"}
-          className="flex flex-row items-center gap-2"
-          onClick={() => {
-            if (data.length === 0) return;
-            const removeLast = [...data].slice(0, data.length - 1);
-            setData(removeLast);
-          }}
-        >
-          <Undo2 size={16} />
-          Undo
-        </Button>
       </div>
       <DataTableContent
         columns={columns}

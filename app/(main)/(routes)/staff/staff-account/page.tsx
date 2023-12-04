@@ -15,6 +15,7 @@ import { addStaff, deleteStaff, updateStaff } from "@/reducers/staffReducer";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
 import { add } from "date-fns";
 import { useToast } from "@/components/ui/use-toast";
+import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
 
 export default function StaffInfoPage() {
   const dispatch = useAppDispatch();
@@ -36,6 +37,7 @@ export default function StaffInfoPage() {
 
   const addNewStaff = async (value: Staff, avatar: File | null) => {
     try {
+      dispatch(showPreloader());
       const staffToSent = convertStaffToSent(value);
       const dataForm: any = new FormData();
       dataForm.append(
@@ -47,6 +49,7 @@ export default function StaffInfoPage() {
       const staffResult = await StaffService.createNewStaff(dataForm);
       const staffReceived = convertStaffReceived(staffResult.data);
       dispatch(addStaff(staffReceived));
+      dispatch(disablePreloader());
       console.log("return", staffResult.data);
       return Promise.resolve();
     } catch (e) {
@@ -57,6 +60,7 @@ export default function StaffInfoPage() {
 
   const updateAStaff = async (value: Staff, avatar: File | null) => {
     try {
+      dispatch(showPreloader());
       const staffToSent = convertStaffToSent(value);
       const dataForm: any = new FormData();
       dataForm.append(
@@ -73,6 +77,7 @@ export default function StaffInfoPage() {
       const staffReceived = convertStaffReceived(staffResult.data);
       dispatch(updateStaff(staffReceived));
       console.log("return", staffResult.data);
+      dispatch(disablePreloader());
       return Promise.resolve();
     } catch (e) {
       axiosUIErrorHandler(e, toast);
@@ -82,8 +87,10 @@ export default function StaffInfoPage() {
 
   const deleteAStaff = async (id: number) => {
     try {
+      dispatch(showPreloader());
       await StaffService.deleteStaff(id);
       dispatch(deleteStaff(id));
+      dispatch(disablePreloader());
       return Promise.resolve();
     } catch (e) {
       axiosUIErrorHandler(e, toast);
