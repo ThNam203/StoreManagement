@@ -6,23 +6,21 @@ import { Staff } from "@/entities/Staff";
 import {
   ColumnDef,
   ColumnFiltersState,
-  RowSelectionState,
+  Table as ReactTable,
   SortingState,
   VisibilityState,
+  flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-  Table as ReactTable,
-  flexRender,
 } from "@tanstack/react-table";
 import { AddStaffDialog } from "./add_staff_dialog";
-import { columnHeader, columns } from "./columns";
-import scrollbar_style from "@/styles/scrollbar.module.css";
 
-import { Product } from "@/entities/Product";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Button } from "@/components/ui/button";
+import { DataTablePagination } from "@/components/ui/my_table_pagination";
 import {
   Table,
   TableBody,
@@ -31,14 +29,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import React, { Ref, RefObject, useEffect, useRef, useState } from "react";
-import { DataTablePagination } from "@/components/ui/my_table_pagination";
-import Image from "next/image";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SalaryUnitTable } from "@/entities/SalarySetting";
 import { cn } from "@/lib/utils";
-import { ChevronRight, Lock, PenLine, Trash } from "lucide-react";
+import { formatPrice } from "@/utils";
 import { format } from "date-fns";
-import { Shift } from "../attendance/attendance_table";
+import { PenLine, Trash } from "lucide-react";
+import Image from "next/image";
+import React, { RefObject, useRef, useState } from "react";
+import { columnHeader, getStaffColumns } from "./columns";
 
 export function DataTable({
   data,
@@ -55,7 +54,7 @@ export function DataTable({
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({
-      avatar: false,
+      avatar: true,
       id: true,
       name: true,
       phoneNumber: true,
@@ -86,6 +85,7 @@ export function DataTable({
   const onStaffUpdateButtonClicked = (rowIndex: number) => {
     handleOpenStaffDialog(data[rowIndex]);
   };
+  const columns: ColumnDef<Staff>[] = getStaffColumns();
   const table = useReactTable({
     data,
     columns,
@@ -269,109 +269,190 @@ const CustomRow = ({
           <tr>
             <td colSpan={row.getVisibleCells().length} className="p-0">
               <div className={cn("border-b-2 border-green-400")}>
-                <div
-                  className="p-2 flex flex-col gap-4 "
+                <Tabs
+                  defaultValue="info"
                   style={{
                     width: borderWidth,
                   }}
                 >
-                  <div className="flex flex-row">
-                    <div className="flex flex-col grow-[5] shrink-[5] max-w-[200px] max-h-[350px]">
-                      <AspectRatio
-                        className={cn(
-                          "w-[150px] h-[200px] rounded-sm",
-                          staff.avatar !== null && staff.avatar !== ""
-                            ? "border-2 border-black"
-                            : ""
-                        )}
-                        ratio={1 / 1}
-                      >
-                        <Image
-                          width={0}
-                          height={0}
-                          sizes="100vw"
-                          alt={`${staff.name} avatar`}
-                          src={
-                            staff.avatar !== null && staff.avatar !== ""
-                              ? staff.avatar
-                              : "/default-user-avatar.png"
-                          }
-                          className="w-full h-full border rounded-sm"
-                        />
-                      </AspectRatio>
-                    </div>
-                    <div className="flex flex-row grow-[5] shrink-[5] text-[0.8rem] gap-2">
-                      <div className="flex-1 flex flex-col">
-                        <div className="flex flex-row font-medium border-b mb-2">
-                          <p className="w-[100px] font-normal">Staff ID:</p>
-                          <p>{staff.id}</p>
-                        </div>
-                        <div className="flex flex-row font-medium border-b mb-2">
-                          <p className="w-[100px] font-normal">Staff name:</p>
-                          <p>{staff.name}</p>
-                        </div>
-                        <div className="flex flex-row font-medium border-b mb-2">
-                          <p className="w-[100px] font-normal">Birthday:</p>
-                          <p>{format(staff.birthday, "dd/MM/yyyy")}</p>
-                        </div>
-                        <div className="flex flex-row font-medium border-b mb-2">
-                          <p className="w-[100px] font-normal">Sex:</p>
-                          <p>{staff.sex}</p>
-                        </div>
-                        <div className="flex flex-row font-medium border-b mb-2">
-                          <p className="w-[100px] font-normal">CCCD:</p>
-                          <p>{staff.cccd}</p>
-                        </div>
-                      </div>
-                      <div className="flex-1 flex flex-col">
-                        <div className="flex flex-row font-medium border-b mb-2">
-                          <p className="w-[100px] font-normal">Position:</p>
-                          <p>{staff.position}</p>
-                        </div>
-                        <div className="flex flex-row font-medium border-b mb-2">
-                          <p className="w-[100px] font-normal">Phone number:</p>
-                          <p>{staff.phoneNumber}</p>
-                        </div>
-                        <div className="flex flex-row font-medium border-b mb-2">
-                          <p className="w-[100px] font-normal">Email:</p>
-                          <p>{staff.email}</p>
-                        </div>
-                        <div className="flex flex-row font-medium border-b mb-2">
-                          <p className="w-[100px] font-normal">Address:</p>
-                          <p>{staff.address}</p>
-                        </div>
-                        <div>
-                          <p className="mb-2">Note: </p>
-                          <textarea
-                            readOnly
-                            disabled
+                  <TabsList className="w-full py-2 px-4 flex flex-row items-center justify-start">
+                    <TabsTrigger value="info">Infomation</TabsTrigger>
+                    <TabsTrigger value="work-schedule">
+                      Work schedule
+                    </TabsTrigger>
+                    <TabsTrigger value="salary-setting">
+                      Salary setting
+                    </TabsTrigger>
+                    <TabsTrigger value="salary-debt">Salary Debt</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="info">
+                    <div className="h-[300px] py-2 px-4 flex flex-col gap-4">
+                      <div className="flex flex-row">
+                        <div className="flex flex-col grow-[5] shrink-[5] max-w-[200px] max-h-[350px]">
+                          <AspectRatio
                             className={cn(
-                              "resize-none border-2 p-1 h-[80px] w-full"
+                              "w-[150px] h-[200px] rounded-sm",
+                              staff.avatar !== null && staff.avatar !== ""
+                                ? "border-2 border-black"
+                                : ""
                             )}
-                            defaultValue={staff.note}
-                          ></textarea>
+                            ratio={1 / 1}
+                          >
+                            <Image
+                              width={0}
+                              height={0}
+                              sizes="100vw"
+                              alt={`${staff.name} avatar`}
+                              src={
+                                staff.avatar !== null && staff.avatar !== ""
+                                  ? staff.avatar
+                                  : "/default-user-avatar.png"
+                              }
+                              className="w-full h-full border rounded-sm"
+                            />
+                          </AspectRatio>
+                        </div>
+                        <div className="flex flex-row grow-[5] shrink-[5] text-[0.8rem] gap-2">
+                          <div className="flex-1 flex flex-col">
+                            <div className="flex flex-row font-medium border-b mb-2">
+                              <p className="w-[100px] font-normal">Staff ID:</p>
+                              <p>{staff.id}</p>
+                            </div>
+                            <div className="flex flex-row font-medium border-b mb-2">
+                              <p className="w-[100px] font-normal">
+                                Staff name:
+                              </p>
+                              <p>{staff.name}</p>
+                            </div>
+                            <div className="flex flex-row font-medium border-b mb-2">
+                              <p className="w-[100px] font-normal">Birthday:</p>
+                              <p>{format(staff.birthday, "dd/MM/yyyy")}</p>
+                            </div>
+                            <div className="flex flex-row font-medium border-b mb-2">
+                              <p className="w-[100px] font-normal">Sex:</p>
+                              <p>{staff.sex}</p>
+                            </div>
+                            <div className="flex flex-row font-medium border-b mb-2">
+                              <p className="w-[100px] font-normal">CCCD:</p>
+                              <p>{staff.cccd}</p>
+                            </div>
+                          </div>
+                          <div className="flex-1 flex flex-col">
+                            <div className="flex flex-row font-medium border-b mb-2">
+                              <p className="w-[100px] font-normal">Position:</p>
+                              <p>{staff.position}</p>
+                            </div>
+                            <div className="flex flex-row font-medium border-b mb-2">
+                              <p className="w-[100px] font-normal">
+                                Phone number:
+                              </p>
+                              <p>{staff.phoneNumber}</p>
+                            </div>
+                            <div className="flex flex-row font-medium border-b mb-2">
+                              <p className="w-[100px] font-normal">Email:</p>
+                              <p>{staff.email}</p>
+                            </div>
+                            <div className="flex flex-row font-medium border-b mb-2">
+                              <p className="w-[100px] font-normal">Address:</p>
+                              <p>{staff.address}</p>
+                            </div>
+                            <div>
+                              <p className="mb-2">Note: </p>
+                              <textarea
+                                readOnly
+                                disabled
+                                className={cn(
+                                  "resize-none border-2 p-1 h-[80px] w-full"
+                                )}
+                                defaultValue={staff.note}
+                              ></textarea>
+                            </div>
+                          </div>
                         </div>
                       </div>
+                      <div className="flex flex-row items-center gap-2">
+                        <div className="flex-1" />
+                        <Button
+                          variant={"green"}
+                          onClick={(e) => onStaffUpdateButtonClicked(row.index)}
+                        >
+                          <PenLine size={16} fill="white" className="mr-2" />
+                          Update
+                        </Button>
+                        <Button
+                          variant={"red"}
+                          onClick={() => onStaffDeleteButtonClicked(row.index)}
+                        >
+                          <Trash size={16} className="mr-2" />
+                          Remove
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex flex-row items-center gap-2 pr-4">
-                    <div className="flex-1" />
-                    <Button
-                      variant={"green"}
-                      onClick={(e) => onStaffUpdateButtonClicked(row.index)}
-                    >
-                      <PenLine size={16} fill="white" className="mr-2" />
-                      Update
-                    </Button>
-                    <Button
-                      variant={"red"}
-                      onClick={() => onStaffDeleteButtonClicked(row.index)}
-                    >
-                      <Trash size={16} className="mr-2" />
-                      Remove
-                    </Button>
-                  </div>
-                </div>
+                  </TabsContent>
+                  <TabsContent value="work-schedule">
+                    work-schedule tab
+                  </TabsContent>
+                  <TabsContent value="salary-setting">
+                    <div className="h-[300px] py-2 pr-4 pl-8 flex flex-col gap-4 justify-between">
+                      <div className="flex flex-col gap-1">
+                        <div className="flex flex-row font-medium text-xs border-b mb-2">
+                          <p className="w-[100px] font-normal">
+                            Payroll period:
+                          </p>
+                          <p>Monthly</p>
+                        </div>
+                        <div className="flex flex-row font-medium text-xs border-b mb-2">
+                          <p className="w-[100px] font-normal">Salary type:</p>
+                          <p>{`${
+                            staff.salarySetting.baseSalary.salaryType
+                          } (${formatPrice(
+                            staff.salarySetting.baseSalary.value
+                          )} VND / ${
+                            SalaryUnitTable[
+                              staff.salarySetting.baseSalary.salaryType
+                            ]
+                          })`}</p>
+                        </div>
+                        <div className="py-1 flex flex-row items-center font-medium text-xs border-b mb-2">
+                          <p className="w-[100px] font-normal">Overtime pay:</p>
+                          <table className="rounded-md overflow-hidden">
+                            <tr className="h-auto py-1 flex flex-row items-center justify-end bg-blue-100">
+                              <th className="w-[100px]">Saturday</th>
+                              <th className="w-[100px]">Sunday</th>
+                              <th className="w-[100px]">Day off</th>
+                              <th className="w-[100px]">Holiday</th>
+                            </tr>
+                            <tr className="h-auto py-1 flex flex-row items-center justify-end text-center bg-gray-100">
+                              <td className="w-[100px]">{`${staff.salarySetting.overtimeBonus.saturday.value} ${staff.salarySetting.overtimeBonus.saturday.unit}`}</td>
+                              <td className="w-[100px]">{`${staff.salarySetting.overtimeBonus.sunday.value} ${staff.salarySetting.overtimeBonus.sunday.unit}`}</td>
+                              <td className="w-[100px]">{`${staff.salarySetting.overtimeBonus.dayOff.value} ${staff.salarySetting.overtimeBonus.dayOff.unit}`}</td>
+                              <td className="w-[100px]">{`${staff.salarySetting.overtimeBonus.holiday.value} ${staff.salarySetting.overtimeBonus.holiday.unit}`}</td>
+                            </tr>
+                          </table>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-row items-center gap-2">
+                        <div className="flex-1" />
+                        <Button
+                          variant={"green"}
+                          onClick={(e) => onStaffUpdateButtonClicked(row.index)}
+                        >
+                          <PenLine size={16} fill="white" className="mr-2" />
+                          Update
+                        </Button>
+                        <Button
+                          variant={"red"}
+                          onClick={() => onStaffDeleteButtonClicked(row.index)}
+                        >
+                          <Trash size={16} className="mr-2" />
+                          Remove
+                        </Button>
+                      </div>
+                    </div>
+                  </TabsContent>
+                  <TabsContent value="salary-debt">Salary debt tab</TabsContent>
+                </Tabs>
               </div>
             </td>
           </tr>

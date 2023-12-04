@@ -59,7 +59,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { DatePicker } from "@/components/ui/datepicker";
 import { ChooseImageButton } from "./choose_image";
 
-const formSchema = z.object({
+const createSchema = z.object({
   avatar: z.string(),
   name: z.string().min(1, { message: "Name must be at least one character" }),
   birthday: z.date(),
@@ -71,6 +71,62 @@ const formSchema = z.object({
   password: z
     .string()
     .min(8, { message: "Password must be at least 8 characters" }),
+  address: z.string().min(1, { message: "Address is empty" }),
+  note: z.string().optional(),
+  baseSalary: z.object({
+    value: z.number(),
+    salaryType: z.nativeEnum(SalaryType),
+  }),
+  baseBonus: z.object({
+    saturday: z.object({
+      value: z.number(),
+      unit: z.nativeEnum(BonusUnit),
+    }),
+    sunday: z.object({
+      value: z.number(),
+      unit: z.nativeEnum(BonusUnit),
+    }),
+    dayOff: z.object({
+      value: z.number(),
+      unit: z.nativeEnum(BonusUnit),
+    }),
+    holiday: z.object({
+      value: z.number(),
+      unit: z.nativeEnum(BonusUnit),
+    }),
+  }),
+  overtimeBonus: z.object({
+    saturday: z.object({
+      value: z.number(),
+      unit: z.nativeEnum(BonusUnit),
+    }),
+    sunday: z.object({
+      value: z.number(),
+      unit: z.nativeEnum(BonusUnit),
+    }),
+    dayOff: z.object({
+      value: z.number(),
+      unit: z.nativeEnum(BonusUnit),
+    }),
+    holiday: z.object({
+      value: z.number(),
+      unit: z.nativeEnum(BonusUnit),
+    }),
+  }),
+});
+const updateSchema = z.object({
+  avatar: z.string(),
+  name: z.string().min(1, { message: "Name must be at least one character" }),
+  birthday: z.date(),
+  sex: z.string(),
+  cccd: z.string().min(1, { message: "CCCD is empty" }),
+  position: z.string().min(1, { message: "Position is empty" }),
+  phoneNumber: z.string().min(1, { message: "Phone number is empty" }),
+  email: z.string().email({ message: "Please enter a valid email" }),
+  password: z
+    .string()
+    .min(8, { message: "Password must be at least 8 characters" })
+    .optional(),
   address: z.string().min(1, { message: "Address is empty" }),
   note: z.string().optional(),
   baseSalary: z.object({
@@ -126,8 +182,8 @@ export function AddStaffDialog({
   data: Staff | null;
   submit: (values: Staff, avatar: File | null) => void;
 }) {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof createSchema>>({
+    resolver: zodResolver(data ? updateSchema : createSchema),
     defaultValues: {
       avatar: undefined,
       birthday: new Date(),
@@ -175,7 +231,7 @@ export function AddStaffDialog({
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  function onSubmit(values: z.infer<typeof createSchema>) {
     console.log(values);
     const newStaff: Staff = {
       avatar: values.avatar,
@@ -207,7 +263,6 @@ export function AddStaffDialog({
     }
   }
   const [positionList, setPositionList] = useState([
-    "Owner",
     "Cashier",
     "Safe Guard",
     "Manager",
@@ -601,7 +656,9 @@ export function AddStaffDialog({
                             <div className="flex flex-row items-center">
                               <FormLabel className="w-1/3">
                                 <div className="flex flex-row items-center space-x-2">
-                                  <h5 className="text-sm">Password</h5>
+                                  <h5 className="text-sm">
+                                    {data ? "Update password" : "Password"}
+                                  </h5>
                                   <Info size={16} />
                                 </div>
                               </FormLabel>

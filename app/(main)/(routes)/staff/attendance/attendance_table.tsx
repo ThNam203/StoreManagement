@@ -9,6 +9,7 @@ import dynamic from "next/dynamic";
 import { useState } from "react";
 import { AddShiftDialog } from "./add_shift_dialog";
 import { SetTimeDialog } from "./set_time_dialog";
+import Image from "next/image";
 
 const HeaderCellStyleWeek =
   "w-[calc(100%/8)] h-10 border border-gray-100 border-[1px]";
@@ -63,6 +64,17 @@ const AttendanceTable = ({
             handleOpenShiftDialog={handleOpenAddShiftDialog}
           />
         </tr>
+        {data.length === 0 && (
+          <tr>
+            <Image
+              alt="No shift found"
+              width={200}
+              height={150}
+              src={"/no-shift-found.png"}
+              className="object-contain mx-auto"
+            />
+          </tr>
+        )}
         {data.map((shift, index) => {
           return (
             <tr key={shift.name + index}>
