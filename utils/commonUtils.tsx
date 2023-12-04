@@ -343,9 +343,18 @@ const getMinMaxOfListTime = (
   return range;
 };
 
+const isValidInput = (input: string): boolean => {
+  // Kiểm tra xem input có phải là số hợp lệ hay không
+  const regex = /^\d+(\.\d+)?$/;
+  return regex.test(input);
+};
 const removeCharNotANum = (e: any) => {
-  // e.target.value = e.target.value.replace(/\D/g, "");
-  e.target.value = e.target.value.replace(/[^0-9]/g, "");
+  let input = e.target.value;
+  if (!isValidInput(input)) {
+    input = input.slice(0, input.length - 1);
+  }
+
+  e.target.value = input;
 };
 
 const formatID = (id: number, prefix: string) => {
@@ -359,6 +368,7 @@ const formatPrice = (price: number) => {
 
 const convertStaffToSent = (value: Staff) => {
   const converted = {
+    id: value.id,
     avatar: value.avatar,
     name: value.name,
     email: value.email,
@@ -415,6 +425,7 @@ const convertStaffToSent = (value: Staff) => {
       },
     },
   };
+  console.log("sent", converted);
   return converted;
 };
 
@@ -427,37 +438,37 @@ const convertStaffReceived = (value: any) => {
     baseBonus: {
       saturday: {
         value: 0,
-        unit: "%",
+        unit: BonusUnit["%"],
       },
       sunday: {
         value: 0,
-        unit: "%",
+        unit: BonusUnit["%"],
       },
       dayOff: {
         value: 0,
-        unit: "%",
+        unit: BonusUnit["%"],
       },
       holiday: {
         value: 0,
-        unit: "%",
+        unit: BonusUnit["%"],
       },
     },
     overtimeBonus: {
       saturday: {
         value: 0,
-        unit: "%",
+        unit: BonusUnit["%"],
       },
       sunday: {
         value: 0,
-        unit: "%",
+        unit: BonusUnit["%"],
       },
       dayOff: {
         value: 0,
-        unit: "%",
+        unit: BonusUnit["%"],
       },
       holiday: {
         value: 0,
-        unit: "%",
+        unit: BonusUnit["%"],
       },
     },
   };
@@ -543,7 +554,19 @@ const convertStaffReceived = (value: any) => {
         }
       : tempSalarySetting,
   };
+  console.log("received", staff);
   return staff;
+};
+
+const formatNumberInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // remove characters that is not number
+  let rawValue = e.currentTarget.value.replace(/[^\d]/g, "");
+  // remove leading 0s
+  rawValue = rawValue.replace(/^0+(\d)/, "$1");
+  // Add commas for every 3 digits from the right
+  const formattedValue = rawValue.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  e.currentTarget.value = formattedValue;
+  return isNaN(Number(rawValue)) ? 0 : Number(rawValue);
 };
 
 export {
@@ -565,4 +588,5 @@ export {
   removeCharNotANum,
   convertStaffToSent,
   convertStaffReceived,
+  formatNumberInput
 };

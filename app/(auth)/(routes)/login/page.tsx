@@ -55,12 +55,12 @@ export default function LogIn() {
   function onSubmit(values: z.infer<typeof loginFormSchema>) {
     setIsLoggingIn(true);
     AuthService.Login(values)
-      .then()
       .then((response) => {
         router.push("/overview");
       })
       .catch((error) => {
         if (error.response) {
+          console.log('why')
           toast({
             variant: "destructive",
             title: "Login failed",

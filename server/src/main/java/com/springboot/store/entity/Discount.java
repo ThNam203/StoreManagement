@@ -36,6 +36,12 @@ public class Discount {
     @Column(name = "type", nullable = false)
     private DiscountE type;
 
+    @Column(name = "max_value")
+    private int maxValue;
+
+    @Column(name = "min_sub_total")
+    private int minSubTotal;
+
     @Column(name = "amount", nullable = false)
     private int amount;
 
@@ -73,4 +79,8 @@ public class Discount {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creator_id", nullable = false)
     private Staff creator;
+
+    @ManyToOne()
+    @JoinColumn(name = "store_id")
+    private Store store;
 }

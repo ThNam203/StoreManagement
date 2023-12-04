@@ -21,4 +21,8 @@ public class DiscountCode {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "discount_id")
     private Discount discount;
+
+    @ManyToOne()
+    @JoinColumn(name = "store_id")
+    private Store store;
 }

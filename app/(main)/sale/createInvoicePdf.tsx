@@ -1,5 +1,9 @@
 import { Invoice } from "@/entities/Invoice";
 import { format, parseISO } from "date-fns";
+import OpenSansLight from "@/public/fonts/OpenSans-Light.ttf";
+import OpenSansSemiBold from "@/public/fonts/OpenSans-SemiBold.ttf";
+import OpenSansMedium from "@/public/fonts/OpenSans-Medium.ttf";
+
 import {
   Page,
   Text,
@@ -7,8 +11,23 @@ import {
   Document,
   StyleSheet,
   pdf,
+  Font,
 } from "@react-pdf/renderer";
-import { create } from "domain";
+import { Product } from "@/entities/Product";
+
+Font.register({
+  family: "OpenSansv2",
+  fonts: [
+    {
+      src: OpenSansLight,
+      fontWeight: 400,
+    },
+    {
+      src: OpenSansMedium,
+      fontWeight: 700,
+    },
+  ],
+});
 
 const pdfStyleSheet = StyleSheet.create({
   page: {
@@ -17,12 +36,12 @@ const pdfStyleSheet = StyleSheet.create({
     flexDirection: "column",
     alignItems: "center",
     backgroundColor: "#E4E4E4",
+    fontFamily: "OpenSansv2",
   },
   invoiceTitle: {
     fontSize: 24,
     textTransform: "uppercase",
-    fontWeight: "bold",
-    marginBottom: 20,
+    fontWeight: 700,
   },
   description: {
     width: "100%",
@@ -40,8 +59,7 @@ const pdfStyleSheet = StyleSheet.create({
     flex: "100 1 1",
   },
   descriptionTitle: {
-    fontWeight: "bold",
-    marginBottom: 10,
+    fontWeight: 700,
   },
   flexJustifyBetween: {
     display: "flex",
@@ -51,51 +69,104 @@ const pdfStyleSheet = StyleSheet.create({
   },
 });
 
-const createInvoicePdf = async (invoice: Invoice) => {
+const createInvoicePdf = async (invoice: Invoice, products: Product[]) => {
   const InvoiceView = () => (
     <Document>
       <Page size="A4" style={pdfStyleSheet.page}>
         <Text style={pdfStyleSheet.invoiceTitle}>Invoice</Text>
         <View style={pdfStyleSheet.description}>
           <View style={pdfStyleSheet.firstDescription}>
-            <Text style={pdfStyleSheet.descriptionTitle}>
-              Invoice&apos;s id: {invoice.id}
-            </Text>
-            <Text style={pdfStyleSheet.descriptionTitle}>Staff: Nam Huynh</Text>
+            <View style={{ display: "flex", flexDirection: "row" }}>
+              <Text style={pdfStyleSheet.descriptionTitle}>
+                Invoice&apos;s id:{" "}
+              </Text>
+              <Text>123123123</Text>
+            </View>
+            <View style={{ display: "flex", flexDirection: "row" }}>
+              <Text style={pdfStyleSheet.descriptionTitle}>Staff: </Text>
+              <Text>Nam Huynh</Text>
+            </View>
           </View>
           <View style={pdfStyleSheet.secondDescription}>
-            <Text style={pdfStyleSheet.descriptionTitle}>
-              Issued date: {format(parseISO(invoice.createdAt), "dd/MM/yyyy")}
-            </Text>
-            <Text style={pdfStyleSheet.descriptionTitle}>
-              Issued hours: {format(parseISO(invoice.createdAt), "mm:hh")}
-            </Text>
+            <View style={{ display: "flex", flexDirection: "row" }}>
+              <Text style={pdfStyleSheet.descriptionTitle}>Issued date: </Text>
+              <Text>{format(parseISO(invoice.createdAt), "dd/MM/yyyy")}</Text>
+            </View>
+            <View style={{ display: "flex", flexDirection: "row" }}>
+              <Text style={pdfStyleSheet.descriptionTitle}>Issued time: </Text>
+              <Text>{format(parseISO(invoice.createdAt), "hh:mm:ss")}</Text>
+            </View>
           </View>
         </View>
-        <View style={pdfStyleSheet.flexJustifyBetween}>
-          <Text style={{ fontWeight: "bold" }}>Sub total:</Text>
-          <Text style={{ fontWeight: "normal" }}>{invoice.subTotal}</Text>
-        </View>
-        {invoice.discountCode ? (
-          <View style={{ ...pdfStyleSheet.flexJustifyBetween, marginTop: 10 }}>
-            <Text style={{ fontWeight: "bold" }}>Discount applied:</Text>
-            <Text style={{ fontWeight: "normal" }}>{invoice.discountCode}</Text>
-          </View>
-        ) : null}
+        <Text style={{ width: "100%", fontWeight: 700 }}>Description</Text>
         <View
           style={{
             width: "100%",
             height: 0,
-            borderBottom: "1 solid #aaaaaa",
-            marginVertical: 10,
+            borderBottom: "1 dashed #aaaaaa",
+          }}
+        />
+        {invoice.invoiceDetails.map((detail, idx) => {
+          const detailProduct = products.find(
+            (product) => product.id === detail.productId
+          )!;
+          return (
+            <View key={idx} style={{ width: "100%" }}>
+              <Text>
+                {detailProduct.name}{" "}
+                {detailProduct.propertiesString
+                  ? `(${detailProduct.propertiesString})`
+                  : ""}
+              </Text>
+              <View
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  paddingLeft: 20,
+                  width: "100%",
+                }}
+              >
+                <View
+                  style={{ display: "flex", flexDirection: "row", gap: 20 }}
+                >
+                  <Text>{detail.quantity}</Text>
+                  <Text>{detailProduct.salesUnits.name}</Text>
+                  <Text>x</Text>
+                  <Text>{detail.price}</Text>
+                </View>
+                <Text>{detail.price * detail.quantity}</Text>
+              </View>
+            </View>
+          );
+        })}
+        <View
+          style={{
+            width: "100%",
+            height: 0,
+            borderBottom: "1 dashed #aaaaaa",
           }}
         />
         <View style={pdfStyleSheet.flexJustifyBetween}>
-          <Text style={{ fontWeight: "bold" }}>
+          <Text style={{ fontWeight: 700 }}>Sub total:</Text>
+          <Text style={{ fontWeight: 400 }}>{invoice.subTotal}</Text>
+        </View>
+        {invoice.discountCode ? (
+          <View style={{ ...pdfStyleSheet.flexJustifyBetween }}>
+            <Text style={{ fontWeight: 700 }}>Discount applied:</Text>
+            <Text style={{ fontWeight: 400 }}>{invoice.discountCode}</Text>
+          </View>
+        ) : null}
+        <View style={pdfStyleSheet.flexJustifyBetween}>
+          <Text style={{ fontWeight: 700 }}>
             Total &#40;Pay by {invoice.paymentMethod}&#41;:
           </Text>
-          <Text style={{ fontWeight: "normal" }}>{invoice.total}</Text>
+          <Text style={{ fontWeight: 400 }}>{invoice.total}</Text>
         </View>
+        <Text>Limited Liability Company 4 Members@Inc</Text>
+        <Text>Thank you customer!</Text>
+        <Text>See you soon!</Text>
       </Page>
     </Document>
   );

@@ -14,9 +14,7 @@ import java.util.Set;
 @Builder
 
 @Entity
-@Table(name = "customer_group", uniqueConstraints =
-            @UniqueConstraint(name = "customer_group_name_unique", columnNames = {"name"})
-)
+@Table(name = "customer_group")
 public class CustomerGroup {
 
     @Id
@@ -39,4 +37,8 @@ public class CustomerGroup {
 
     @OneToMany(mappedBy = "customerGroup")
     private Set<Customer> customers;
+
+    @ManyToOne()
+    @JoinColumn(name = "store_id")
+    private Store store;
 }

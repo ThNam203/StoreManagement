@@ -54,7 +54,7 @@ const AttendanceTable = ({
     else return 0;
   });
   return (
-    <ScrollArea className="w-full rounded-md shadow">
+    <ScrollArea className={cn("w-full rounded-md shadow pb-2")}>
       <table className="w-full bg-white">
         <tr>
           <AttendanceHeaderRow
@@ -91,7 +91,7 @@ const AttendanceTable = ({
         specificShift={selectedDailyShift}
         submit={onSetTime}
       />
-      <ScrollBar orientation="horizontal" className="bg-slate-300" />
+      <ScrollBar orientation="horizontal" className="bg-red-300" />
     </ScrollArea>
   );
 };

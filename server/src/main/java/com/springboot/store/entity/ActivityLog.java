@@ -25,4 +25,7 @@ public class ActivityLog {
     private String actor;
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date time;
+    @ManyToOne()
+    @JoinColumn(name = "store_id")
+    private Store store;
 }

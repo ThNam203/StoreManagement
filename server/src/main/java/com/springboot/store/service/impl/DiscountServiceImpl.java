@@ -2,6 +2,7 @@ package com.springboot.store.service.impl;
 
 import com.springboot.store.entity.Discount;
 import com.springboot.store.entity.DiscountCode;
+import com.springboot.store.entity.Staff;
 import com.springboot.store.exception.CustomException;
 import com.springboot.store.mapper.DiscountMapper;
 import com.springboot.store.payload.DiscountDTO;
@@ -20,6 +21,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+// updated store
 @Service
 @RequiredArgsConstructor
 public class DiscountServiceImpl implements DiscountService {
@@ -31,6 +33,7 @@ public class DiscountServiceImpl implements DiscountService {
 
     @Override
     public DiscountDTO createDiscount(DiscountDTO discountDTO) {
+        Staff staff = staffService.getAuthorizedStaff();
         Discount discount = DiscountMapper.toDiscount(discountDTO);
         discount.setCreatedAt(new Date());
         discount.setCreator(staffService.getAuthorizedStaff());
@@ -45,16 +48,18 @@ public class DiscountServiceImpl implements DiscountService {
                 discountDTO.getProductGroups()
                         .stream()
                         .map(name ->
-                                productGroupRepository.findByName(name)
+                                productGroupRepository.findByNameAndStoreId(name, staff.getStore().getId())
                                         .orElseThrow(() -> new CustomException("Product group not found", HttpStatus.NOT_FOUND)))
                         .collect(Collectors.toSet()));
+        discount.setStore(staff.getStore());
         Discount newDiscount = discountRepository.save(discount);
         return DiscountMapper.toDiscountDTO(newDiscount);
     }
 
     @Override
     public List<DiscountDTO> getAllDiscounts() {
-        return discountRepository.findAll().stream().map(DiscountMapper::toDiscountDTO).collect(Collectors.toList());
+        Staff staff = staffService.getAuthorizedStaff();
+        return discountRepository.findByStoreId(staff.getStore().getId()).stream().map(DiscountMapper::toDiscountDTO).collect(Collectors.toList());
     }
 
     @Override
@@ -66,7 +71,8 @@ public class DiscountServiceImpl implements DiscountService {
 
     @Override
     public DiscountDTO getDiscountByCode(String code) {
-        DiscountCode discountCode = discountCodeRepository.findByCode(code)
+        Staff staff = staffService.getAuthorizedStaff();
+        DiscountCode discountCode = discountCodeRepository.findByCodeAndStoreId(code, staff.getStore().getId())
                 .orElseThrow(() -> new CustomException("Discount code not found", HttpStatus.NOT_FOUND));
         if (discountCode.isUsed())
             throw new CustomException("Discount code has been used", HttpStatus.BAD_REQUEST);
@@ -75,6 +81,7 @@ public class DiscountServiceImpl implements DiscountService {
 
     @Override
     public DiscountDTO updateDiscount(int id, DiscountDTO discountDTO) {
+        Staff staff = staffService.getAuthorizedStaff();
         Discount discount = discountRepository.findById(id)
                 .orElseThrow(() -> new CustomException("Discount not found", HttpStatus.NOT_FOUND));
         discount.setName(discountDTO.getName());
@@ -94,7 +101,7 @@ public class DiscountServiceImpl implements DiscountService {
         discount.setProductGroups(discountDTO.getProductGroups() == null ? null :
                 discountDTO.getProductGroups()
                         .stream()
-                        .map(productGroupName -> productGroupRepository.findByName(productGroupName)
+                        .map(productGroupName -> productGroupRepository.findByNameAndStoreId(productGroupName, staff.getStore().getId())
                                         .orElseThrow(() -> new CustomException("Product group not found", HttpStatus.NOT_FOUND)))
                         .collect(Collectors.toSet()));
         Discount newDiscount = discountRepository.save(discount);
@@ -116,7 +123,7 @@ public class DiscountServiceImpl implements DiscountService {
         String code = "";
         do {
             code = generateRandomCode();
-        } while (discountCodeRepository.existsByCode(code));
+        } while (discountCodeRepository.findByCodeAndStoreId(code, staffService.getAuthorizedStaff().getStore().getId()).isPresent());
         discount.getDiscountCodes().add(DiscountCode.builder()
                 .code(code)
                 .discount(discount)
@@ -128,7 +135,7 @@ public class DiscountServiceImpl implements DiscountService {
 
     @Override
     public DiscountCode useDiscountCode(String code) {
-        DiscountCode discountCode = discountCodeRepository.findByCode(code)
+        DiscountCode discountCode = discountCodeRepository.findByCodeAndStoreId(code, staffService.getAuthorizedStaff().getStore().getId())
                 .orElseThrow(() -> new CustomException("Discount code not found", HttpStatus.NOT_FOUND));
         if (discountCode.isUsed())
             throw new CustomException("Discount code has been used", HttpStatus.BAD_REQUEST);

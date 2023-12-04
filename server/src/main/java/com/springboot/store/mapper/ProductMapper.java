@@ -53,6 +53,7 @@ public class ProductMapper {
                 .barcode(productDTO.getBarcode())
                 .description(productDTO.getDescription())
                 .note(productDTO.getNote())
+                .weight(productDTO.getWeight())
                 .minStock(productDTO.getMinStock())
                 .maxStock(productDTO.getMaxStock())
                 .stock(productDTO.getStock())

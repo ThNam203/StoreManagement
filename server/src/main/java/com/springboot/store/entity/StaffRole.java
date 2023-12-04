@@ -18,9 +18,7 @@ import java.util.Set;
 @Builder
 
 @Entity
-@Table(name = "staff_role" , uniqueConstraints = {
-        @UniqueConstraint(name = "staff_role_name_unique", columnNames = {"name"})
-})
+@Table(name = "staff_role")
 public class StaffRole {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,6 +40,10 @@ public class StaffRole {
 
     @OneToMany(mappedBy = "staffRole", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Staff> staffs;
+
+    @ManyToOne()
+    @JoinColumn(name = "store_id")
+    private Store store;
 
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + this.name));

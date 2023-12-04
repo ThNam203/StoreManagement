@@ -1,6 +1,7 @@
 package com.springboot.store.service.impl;
 
 import com.springboot.store.entity.CustomerGroup;
+import com.springboot.store.entity.Staff;
 import com.springboot.store.payload.CustomerGroupDTO;
 import com.springboot.store.repository.CustomerGroupRepository;
 import com.springboot.store.service.CustomerGroupService;
@@ -12,6 +13,8 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.List;
 
+// updated store
+
 @Service
 @RequiredArgsConstructor
 public class CustomerGroupServiceImpl implements CustomerGroupService {
@@ -21,10 +24,11 @@ public class CustomerGroupServiceImpl implements CustomerGroupService {
 
     @Override
     public CustomerGroupDTO createCustomerGroup(CustomerGroupDTO customerGroupDTO) {
-        customerGroupDTO.setCreator(Integer.toString(staffService.getAuthorizedStaff().getId()));
+        customerGroupDTO.setCreator(staffService.getAuthorizedStaff().getId());
         CustomerGroup customerGroup = modelMapper.map(customerGroupDTO, CustomerGroup.class);
         customerGroup.setCreatedAt(new Date());
         customerGroup.setCreator(staffService.getAuthorizedStaff());
+        customerGroup.setStore(staffService.getAuthorizedStaff().getStore());
         customerGroup = customerGroupRepository.save(customerGroup);
         return modelMapper.map(customerGroup, CustomerGroupDTO.class);
     }
@@ -36,17 +40,19 @@ public class CustomerGroupServiceImpl implements CustomerGroupService {
         existingCustomerGroup.setDescription(customerGroupDTO.getDescription());
         existingCustomerGroup = customerGroupRepository.save(existingCustomerGroup);
         customerGroupDTO = modelMapper.map(existingCustomerGroup, CustomerGroupDTO.class);
-        customerGroupDTO.setCreator(Integer.toString(existingCustomerGroup.getCreator().getId()));
+        customerGroupDTO.setCreator(existingCustomerGroup.getCreator().getId());
         return customerGroupDTO;
     }
 
     @Override
     public List<CustomerGroupDTO> getAllCustomerGroups() {
-        List<CustomerGroup> customerGroups = customerGroupRepository.findAll();
+        Staff staff = staffService.getAuthorizedStaff();
+        List<CustomerGroup> customerGroups = customerGroupRepository.findByStoreId(staff.getStore().getId());
         return customerGroups.stream()
                 .map(customerGroup -> {
                     CustomerGroupDTO customerGroupDTO = modelMapper.map(customerGroup, CustomerGroupDTO.class);
-                    customerGroupDTO.setCreator(Integer.toString(customerGroup.getCreator().getId()));
+                    // check if creator is null
+                    customerGroupDTO.setCreator(customerGroup.getCreator() == null ? null : customerGroup.getCreator().getId());
                     return customerGroupDTO;
                 })
                 .collect(java.util.stream.Collectors.toList());
@@ -56,7 +62,7 @@ public class CustomerGroupServiceImpl implements CustomerGroupService {
     public CustomerGroupDTO getCustomerGroupById(int id) {
         CustomerGroup customerGroup = customerGroupRepository.findById(id).orElseThrow(() -> new RuntimeException("Customer group not found with id: " + id));
         CustomerGroupDTO customerGroupDTO = modelMapper.map(customerGroup, CustomerGroupDTO.class);
-        customerGroupDTO.setCreator(Integer.toString(customerGroup.getCreator().getId()));
+        customerGroupDTO.setCreator(customerGroup == null ? null : customerGroup.getCreator().getId());
         return customerGroupDTO;
     }
 

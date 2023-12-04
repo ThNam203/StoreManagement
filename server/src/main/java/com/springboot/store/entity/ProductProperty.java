@@ -24,4 +24,8 @@ public class ProductProperty {
     private ProductPropertyName propertyName;
 
     private String propertyValue;
+
+    @ManyToOne()
+    @JoinColumn(name = "store_id")
+    private Store store;
 }

@@ -3,16 +3,19 @@ package com.springboot.store.service.impl;
 import com.springboot.store.entity.StaffRole;
 import com.springboot.store.repository.StaffRoleRepository;
 import com.springboot.store.service.StaffRoleService;
+import com.springboot.store.service.StaffService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+// updated store
 @Service
 @RequiredArgsConstructor
 public class StaffRoleServiceImpl implements StaffRoleService {
     private final StaffRoleRepository staffRoleRepository;
-
+    private StaffService staffService;
     @Override
     public StaffRole createStaffRole(StaffRole staffRole) {
+        staffRole.setStore(staffService.getAuthorizedStaff().getStore());
         return staffRoleRepository.save(staffRole);
     }
 

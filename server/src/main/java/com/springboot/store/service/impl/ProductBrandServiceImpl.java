@@ -1,11 +1,14 @@
 package com.springboot.store.service.impl;
 
 import com.springboot.store.entity.ProductBrand;
+import com.springboot.store.entity.Staff;
 import com.springboot.store.payload.ProductBrandDTO;
 import com.springboot.store.payload.ProductDTO;
 import com.springboot.store.repository.ProductBrandRepository;
 import com.springboot.store.service.ProductBrandService;
+import com.springboot.store.service.StaffService;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,16 +16,13 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+// updated store
 @Service
+@RequiredArgsConstructor
 public class ProductBrandServiceImpl implements ProductBrandService {
     private final ProductBrandRepository productBrandRepository;
     private final ModelMapper modelMapper;
-
-    @Autowired
-    public ProductBrandServiceImpl(ProductBrandRepository productBrandRepository, ModelMapper modelMapper) {
-        this.productBrandRepository = productBrandRepository;
-        this.modelMapper = modelMapper;
-    }
+    private final StaffService staffService;
 
     @Override
     public ProductBrandDTO getProductBrandById(int id) {
@@ -33,7 +33,8 @@ public class ProductBrandServiceImpl implements ProductBrandService {
 
     @Override
     public List<ProductBrandDTO> getAllProductBrands() {
-        List<ProductBrand> productBrands = productBrandRepository.findAll();
+        int storeId = staffService.getAuthorizedStaff().getStore().getId();
+        List<ProductBrand> productBrands = productBrandRepository.findByStoreId(storeId);
         return productBrands.stream()
                 .map(productBrand -> modelMapper.map(productBrand, ProductBrandDTO.class))
                 .collect(Collectors.toList());
@@ -50,10 +51,12 @@ public class ProductBrandServiceImpl implements ProductBrandService {
 
     @Override
     public ProductBrandDTO createProductBrand(ProductBrandDTO productBrandDTO) {
-        if (productBrandRepository.existsByName(productBrandDTO.getName())) {
+        Staff staff = staffService.getAuthorizedStaff();
+        if (productBrandRepository.findByNameAndStoreId(productBrandDTO.getName(), staff.getStore().getId()).isPresent()) {
             throw new RuntimeException("ProductBrand already exists");
         }
         ProductBrand productBrand = modelMapper.map(productBrandDTO, ProductBrand.class);
+        productBrand.setStore(staff.getStore());
         productBrand = productBrandRepository.save(productBrand);
         return modelMapper.map(productBrand, ProductBrandDTO.class);
     }

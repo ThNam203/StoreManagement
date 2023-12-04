@@ -24,7 +24,7 @@ public class Product {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "barcode", nullable = false, unique = true)
+    @Column(name = "barcode", nullable = false)
     private String barcode;
 
     @Column(name = "stock")
@@ -74,4 +74,8 @@ public class Product {
     @ManyToOne()
     @JoinColumn(name = "location_id")
     private Location location;
+
+    @ManyToOne()
+    @JoinColumn(name = "store_id")
+    private Store store;
 }

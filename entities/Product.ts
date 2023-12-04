@@ -6,7 +6,7 @@ type Product = {
   originalPrice: number; // originalPrice
   productPrice: number;
   stock: number;
-  status: string;
+  status: "Active" | "Disabled";
   weight: number;
   description: string;
   propertiesString?: string;

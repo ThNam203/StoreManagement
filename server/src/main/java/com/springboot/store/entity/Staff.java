@@ -17,12 +17,7 @@ import java.util.List;
 @Builder
 
 @Entity
-@Table(
-        name = "staff", uniqueConstraints = {
-        @UniqueConstraint(name = "staff_email_unique", columnNames = {"email"}),
-        @UniqueConstraint(name = "staff_cccd_unique", columnNames = {"cccd"})
-}
-)
+@Table(name = "staff")
 public class Staff implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,7 +26,7 @@ public class Staff implements UserDetails {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "email", nullable = false)
+    @Column(name = "email", nullable = false, unique=true)
     private String email;
 
     @Column(name = "password", nullable = false)
@@ -85,6 +80,10 @@ public class Staff implements UserDetails {
     @ManyToOne()
     @JoinColumn(name = "staff_role_id")
     private StaffRole staffRole;
+
+    @ManyToOne()
+    @JoinColumn(name = "store_id")
+    private Store store;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

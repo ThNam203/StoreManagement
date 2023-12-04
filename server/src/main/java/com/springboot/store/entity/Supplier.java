@@ -13,9 +13,7 @@ import java.util.Set;
 @Builder
 
 @Entity
-@Table(name = "suppliers", uniqueConstraints = {
-    @UniqueConstraint(columnNames = "email")
-})
+@Table(name = "suppliers")
 public class Supplier {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -55,4 +53,8 @@ public class Supplier {
 
     @OneToOne(cascade = CascadeType.ALL)
     private Media image;
+
+    @ManyToOne()
+    @JoinColumn(name = "store_id")
+    private Store store;
 }

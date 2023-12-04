@@ -33,6 +33,8 @@ import {
   PackageX,
   PieChart,
   FileBarChart2,
+  Percent,
+  PercentCircle,
 } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
@@ -79,7 +81,9 @@ enum IconNames {
   ArrowUpSquare,
   PackageX,
   PieChart,
-  FileBarChart2
+  FileBarChart2,
+  Percent,
+  PercentCircle
 }
 
 const LucideIcons = (iconName: IconNames, isCollapsed: boolean | null) => {
@@ -153,8 +157,12 @@ const LucideIcons = (iconName: IconNames, isCollapsed: boolean | null) => {
       return <Undo size={iconSize} className={iconClasses} />;
     case IconNames.PieChart:
       return <PieChart size={iconSize} className={iconClasses} />;
-      case IconNames.FileBarChart2:
-        return <FileBarChart2 size={iconSize} className={iconClasses} />;
+    case IconNames.FileBarChart2:
+      return <FileBarChart2 size={iconSize} className={iconClasses} />;
+    case IconNames.Percent:
+      return <Percent size={iconSize} className={iconClasses} />;
+    case IconNames.PercentCircle:
+      return <PercentCircle size={iconSize} className={iconClasses} />;
   }
 };
 
@@ -384,6 +392,14 @@ const SideBar = ({
         </Accordion>
 
         <SideBarButton
+          iconName={IconNames.Percent}
+          title="Sale in-store"
+          className="border border-blue-400"
+          isCollapsed={isCollapsed}
+          href="/sale"
+        />
+
+        <SideBarButton
           iconName={IconNames.Eye}
           title="Overview"
           className=""
@@ -402,6 +418,14 @@ const SideBar = ({
               className="!w-full"
               isCollapsed={isCollapsed}
               href="/catalog"
+            />,
+            <SideBarButton
+              key={2}
+              iconName={IconNames.PercentCircle}
+              title="Discount"
+              className="!w-full"
+              isCollapsed={isCollapsed}
+              href="/discount"
             />,
             <SideBarButton
               key={3}

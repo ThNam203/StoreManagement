@@ -45,7 +45,7 @@ import {
 } from "@/components/ui/accordion";
 import { useToast } from "@/components/ui/use-toast";
 import { Textarea } from "../textarea";
-import CatalogService from "@/services/product_service";
+import ProductService from "@/services/product_service";
 import { Product } from "@/entities/Product";
 import LoadingCircle from "../loading_circle";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
@@ -182,13 +182,13 @@ export const UpdateProductView = ({
     defaultValues: {
       ...product,
       images: [
-        ...product.images,
-        ...new Array(Math.max(0, 5 - product.images.length)).fill(null),
+        ...(product.images ? product.images : []),
+        ...new Array(Math.max(0, 5 - (product.images ? product.images.length : 0))).fill(null),
       ],
       productBrand: product.productBrand ?? "",
       weight: product.weight ?? 0,
       unit: product.salesUnits,
-      properties: product.productProperties.map((property) => {
+      properties: product.productProperties ? product.productProperties.map((property) => {
         return {
           id: productPropertyChoices.find(
             (v) => v.name === property.propertyName
@@ -196,7 +196,7 @@ export const UpdateProductView = ({
           key: property.propertyName,
           value: property.propertyValue,
         };
-      }),
+      }) : null,
     },
   });
 
@@ -218,18 +218,9 @@ export const UpdateProductView = ({
   function onSubmit(values: z.infer<typeof productFormSchema>) {
     const data: any = values;
     data.images = newChosenImages.filter((file) => typeof file === "string");
-    const dataForm: any = new FormData();
-    dataForm.append(
-      "data",
-      new Blob([JSON.stringify(data)], { type: "application/json" })
-    );
-    dataForm.append(
-      "files",
-      newChosenImages.filter((file) => typeof file !== "string")
-    );
 
     setIsCreatingNewProduct(true);
-    CatalogService.updateProduct(dataForm, product.id)
+    ProductService.updateProduct(data, newChosenImages.filter((file) => typeof file !== "string") as File[])
       .then((result) => {
         onProductUpdated(result.data);
       })
@@ -662,7 +653,7 @@ export const UpdateProductView = ({
                         {field.value.map((imageLink, index) => (
                           <ChooseImageButton
                             key={index}
-                            file={imageLink}
+                            fileUrl={imageLink}
                             onImageChanged={(newFileUrl) => {
                               handleImageChosen(newFileUrl, index);
                             }}
