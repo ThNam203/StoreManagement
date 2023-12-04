@@ -74,4 +74,8 @@ public class Product {
     @ManyToOne()
     @JoinColumn(name = "location_id")
     private Location location;
+
+    @ManyToOne()
+    @JoinColumn(name = "store_id")
+    private Store store;
 }

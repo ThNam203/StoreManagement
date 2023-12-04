@@ -1,10 +1,7 @@
 package com.springboot.store.entity;
 
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Getter
@@ -22,4 +19,8 @@ public class SalesUnits {
     private String basicUnit;
     private String name;
     private double exchangeValue;
+
+    @ManyToOne()
+    @JoinColumn(name = "store_id")
+    private Store store;
 }

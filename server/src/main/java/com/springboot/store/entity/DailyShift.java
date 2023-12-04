@@ -29,4 +29,8 @@ public class DailyShift {
 
     @OneToMany(cascade = CascadeType.ALL)
     private List<ShiftAttendanceRecord> attendanceList;
+
+    @ManyToOne()
+    @JoinColumn(name = "store_id")
+    private Store store;
 }

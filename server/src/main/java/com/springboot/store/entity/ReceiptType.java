@@ -22,4 +22,8 @@ public class ReceiptType {
 
     @Column(name = "description")
     private String description;
+
+    @ManyToOne()
+    @JoinColumn(name = "store_id")
+    private Store store;
 }

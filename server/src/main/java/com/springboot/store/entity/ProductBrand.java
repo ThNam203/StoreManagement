@@ -13,9 +13,7 @@ import java.util.Set;
 @Builder
 
 @Entity
-@Table(name = "product_brand", uniqueConstraints =
-        @UniqueConstraint(name = "product_brand_name_unique", columnNames = {"name"})
-)
+@Table(name = "product_brand")
 public class ProductBrand {
 
     @Id
@@ -28,4 +26,7 @@ public class ProductBrand {
     @OneToMany(mappedBy = "productBrand", fetch = FetchType.LAZY)
     private List<Product> products;
 
+    @ManyToOne()
+    @JoinColumn(name = "store_id")
+    private Store store;
 }

@@ -25,7 +25,7 @@ public class StaffController {
 
     // create a new staff
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<StaffResponse> createStaff(@Valid @RequestPart("data") StaffRequest newStaff, @RequestPart(value = "file", required = false) MultipartFile file) {
         StaffResponse staffResponse = staffService.createStaff(newStaff, file);
         return new ResponseEntity<>(staffResponse, null, HttpStatus.CREATED);

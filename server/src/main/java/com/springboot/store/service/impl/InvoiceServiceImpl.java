@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+// updated store
 @Service
 @RequiredArgsConstructor
 public class InvoiceServiceImpl implements InvoiceService {
@@ -37,7 +38,8 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     public List<InvoiceDTO> getAllInvoices() {
-        List<Invoice> invoices = invoiceRepository.findAll();
+        int storeId = staffService.getAuthorizedStaff().getStore().getId();
+        List<Invoice> invoices = invoiceRepository.findByStoreId(storeId);
         return invoices.stream().map(InvoiceMapper::toInvoiceDTO).toList();
     }
 
@@ -53,6 +55,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
         Staff staff = staffService.getAuthorizedStaff();
         invoice.setStaff(staff);
+        invoice.setStore(staff.getStore());
 
         // check code is valid
         if (invoiceDTO.getCode() != null) {

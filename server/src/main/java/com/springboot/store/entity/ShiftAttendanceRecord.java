@@ -36,4 +36,8 @@ public class ShiftAttendanceRecord {
 
     @Column(name = "note")
     private String note;
+
+    @ManyToOne()
+    @JoinColumn(name = "store_id")
+    private Store store;
 }

@@ -4,6 +4,7 @@ import com.springboot.store.entity.ProductPropertyName;
 import com.springboot.store.payload.ProductPropertyNameDTO;
 import com.springboot.store.repository.ProductPropertyNameRepository;
 import com.springboot.store.service.ProductPropertyNameService;
+import com.springboot.store.service.StaffService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -12,15 +13,18 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+// updated store
 @Service
 @RequiredArgsConstructor
 public class ProductPropertyNameServiceImpl implements ProductPropertyNameService {
     private final ProductPropertyNameRepository productPropertyNameRepository;
     private final ModelMapper modelMapper;
+    private final StaffService staffService;
 
     @Override
     public List<ProductPropertyNameDTO> getAllProductPropertyNames() {
-        List<ProductPropertyName> productPropertyNameList = productPropertyNameRepository.findAll();
+        int storeId = staffService.getAuthorizedStaff().getStore().getId();
+        List<ProductPropertyName> productPropertyNameList = productPropertyNameRepository.findByStoreId(storeId);
         return productPropertyNameList.stream().map(productPropertyName -> modelMapper.map(productPropertyName, ProductPropertyNameDTO.class)).collect(Collectors.toList());
     }
 
@@ -32,10 +36,11 @@ public class ProductPropertyNameServiceImpl implements ProductPropertyNameServic
 
     @Override
     public ProductPropertyNameDTO createProductPropertyName(ProductPropertyNameDTO productPropertyNameDTO) {
-        if (productPropertyNameRepository.existsByName(productPropertyNameDTO.getName())) {
+        if (productPropertyNameRepository.findByNameAndStoreId(productPropertyNameDTO.getName(), staffService.getAuthorizedStaff().getStore().getId()).isPresent()) {
             throw new RuntimeException("ProductPropertyName already exists");
         }
         ProductPropertyName productPropertyName = modelMapper.map(productPropertyNameDTO, ProductPropertyName.class);
+        productPropertyName.setStore(staffService.getAuthorizedStaff().getStore());
         productPropertyName = productPropertyNameRepository.save(productPropertyName);
         return modelMapper.map(productPropertyName, ProductPropertyNameDTO.class);
     }

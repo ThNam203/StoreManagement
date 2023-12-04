@@ -19,4 +19,8 @@ public class ProductPrice {
     private int id;
     private double value;
     private Date createdAt;
+
+    @ManyToOne()
+    @JoinColumn(name = "store_id")
+    private Store store;
 }

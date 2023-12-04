@@ -1,6 +1,7 @@
 package com.springboot.store.service.impl;
 
 import com.springboot.store.entity.CustomerGroup;
+import com.springboot.store.entity.Staff;
 import com.springboot.store.payload.CustomerGroupDTO;
 import com.springboot.store.repository.CustomerGroupRepository;
 import com.springboot.store.service.CustomerGroupService;
@@ -11,6 +12,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+
+// updated store
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +28,7 @@ public class CustomerGroupServiceImpl implements CustomerGroupService {
         CustomerGroup customerGroup = modelMapper.map(customerGroupDTO, CustomerGroup.class);
         customerGroup.setCreatedAt(new Date());
         customerGroup.setCreator(staffService.getAuthorizedStaff());
+        customerGroup.setStore(staffService.getAuthorizedStaff().getStore());
         customerGroup = customerGroupRepository.save(customerGroup);
         return modelMapper.map(customerGroup, CustomerGroupDTO.class);
     }
@@ -42,7 +46,8 @@ public class CustomerGroupServiceImpl implements CustomerGroupService {
 
     @Override
     public List<CustomerGroupDTO> getAllCustomerGroups() {
-        List<CustomerGroup> customerGroups = customerGroupRepository.findAll();
+        Staff staff = staffService.getAuthorizedStaff();
+        List<CustomerGroup> customerGroups = customerGroupRepository.findByStoreId(staff.getStore().getId());
         return customerGroups.stream()
                 .map(customerGroup -> {
                     CustomerGroupDTO customerGroupDTO = modelMapper.map(customerGroup, CustomerGroupDTO.class);

@@ -24,4 +24,8 @@ public class StaffSalary {
 
     @OneToOne(cascade = CascadeType.ALL)
     private StaffOvertimeSalaryBonus staffOvertimeSalaryBonus;
+
+    @ManyToOne()
+    @JoinColumn(name = "store_id")
+    private Store store;
 }
