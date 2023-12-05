@@ -89,6 +89,8 @@ public class DiscountServiceImpl implements DiscountService {
         discount.setStatus(discountDTO.isStatus());
         discount.setValue(discountDTO.getValue());
         discount.setType(discountDTO.getType());
+        discount.setMaxValue(discountDTO.getMaxValue());
+        discount.setMinSubTotal(discountDTO.getMinSubTotal());
         discount.setAmount(discountDTO.getAmount());
         discount.setStartDate(discountDTO.getStartDate());
         discount.setEndDate(discountDTO.getEndDate());
