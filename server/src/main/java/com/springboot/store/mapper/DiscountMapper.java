@@ -25,7 +25,7 @@ public class DiscountMapper {
                 .endDate(discount.getEndDate())
                 .creatorId(discount.getCreator() == null ? 0 : discount.getCreator().getId())
                 .discountCodes(discount.getDiscountCodes() == null ? null :
-                        discount.getDiscountCodes().stream().map(DiscountCode::getCode).collect(Collectors.toSet()))
+                        discount.getDiscountCodes().stream().map(DiscountCodeMapper::toDiscountCodeDTO).collect(Collectors.toSet()))
                 .productIds(discount.getProducts() == null ? null :
                         discount.getProducts().stream().map(Product::getId).collect(Collectors.toSet()))
                 .productGroups(discount.getProductGroups() == null ? null :

@@ -1,6 +1,7 @@
 package com.springboot.store.service;
 
 import com.springboot.store.entity.DiscountCode;
+import com.springboot.store.payload.DiscountCodeDTO;
 import com.springboot.store.payload.DiscountDTO;
 
 import java.util.List;
@@ -12,7 +13,7 @@ public interface DiscountService {
     DiscountDTO getDiscountByCode(String code);
     DiscountDTO updateDiscount(int id, DiscountDTO discountDTO);
     void deleteDiscount(int id);
-    String generateDiscountCode(int id);
+    DiscountCodeDTO generateDiscountCode(int id);
     DiscountCode useDiscountCode(String code);
-    void deleteDiscountCode(int id, String code);
+    void deleteDiscountCode(int id, List<Integer> ids);
 }

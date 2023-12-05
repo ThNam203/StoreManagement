@@ -23,7 +23,7 @@ public class InvoiceMapper {
                         .stream()
                         .map(InvoiceDetailMapper::toInvoiceDetailDTO)
                         .collect(Collectors.toSet()))
-                .code(invoice.getDiscountCode() == null ? null : invoice.getDiscountCode().getCode())
+                .code(invoice.getDiscountCode() == null ? null : invoice.getDiscountCode().getValue())
                 .build();
     }
 

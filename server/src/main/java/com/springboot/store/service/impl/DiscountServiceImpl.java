@@ -4,7 +4,9 @@ import com.springboot.store.entity.Discount;
 import com.springboot.store.entity.DiscountCode;
 import com.springboot.store.entity.Staff;
 import com.springboot.store.exception.CustomException;
+import com.springboot.store.mapper.DiscountCodeMapper;
 import com.springboot.store.mapper.DiscountMapper;
+import com.springboot.store.payload.DiscountCodeDTO;
 import com.springboot.store.payload.DiscountDTO;
 import com.springboot.store.repository.DiscountCodeRepository;
 import com.springboot.store.repository.DiscountRepository;
@@ -72,9 +74,9 @@ public class DiscountServiceImpl implements DiscountService {
     @Override
     public DiscountDTO getDiscountByCode(String code) {
         Staff staff = staffService.getAuthorizedStaff();
-        DiscountCode discountCode = discountCodeRepository.findByCodeAndStoreId(code, staff.getStore().getId())
+        DiscountCode discountCode = discountCodeRepository.findByValueAndStoreId(code, staff.getStore().getId())
                 .orElseThrow(() -> new CustomException("Discount code not found", HttpStatus.NOT_FOUND));
-        if (discountCode.isUsed())
+        if (discountCode.isStatus())
             throw new CustomException("Discount code has been used", HttpStatus.BAD_REQUEST);
         return DiscountMapper.toDiscountDTO(discountCode.getDiscount());
     }
@@ -118,38 +120,47 @@ public class DiscountServiceImpl implements DiscountService {
     }
 
     @Override
-    public String generateDiscountCode(int id) {
+    public DiscountCodeDTO generateDiscountCode(int id) {
         Discount discount = discountRepository.findById(id)
                 .orElseThrow(() -> new CustomException("Discount not found", HttpStatus.NOT_FOUND));
 
         String code = "";
         do {
             code = generateRandomCode();
-        } while (discountCodeRepository.findByCodeAndStoreId(code, staffService.getAuthorizedStaff().getStore().getId()).isPresent());
-        discount.getDiscountCodes().add(DiscountCode.builder()
-                .code(code)
+        } while (discountCodeRepository.findByValueAndStoreId(code, staffService.getAuthorizedStaff().getStore().getId()).isPresent());
+        DiscountCode discountCode = DiscountCode.builder()
+                .value(code)
+                .status(false)
+                .issuedDate(new Date())
+                .store(staffService.getAuthorizedStaff().getStore())
                 .discount(discount)
-                .build());
+                .build();
+        discount.getDiscountCodes().add(discountCode);
         discount.setAmount(discount.getAmount() + 1);
         discountRepository.save(discount);
-        return code;
+        return DiscountCodeMapper.toDiscountCodeDTO(discountCode);
     }
 
     @Override
     public DiscountCode useDiscountCode(String code) {
-        DiscountCode discountCode = discountCodeRepository.findByCodeAndStoreId(code, staffService.getAuthorizedStaff().getStore().getId())
+        DiscountCode discountCode = discountCodeRepository.findByValueAndStoreId(code, staffService.getAuthorizedStaff().getStore().getId())
                 .orElseThrow(() -> new CustomException("Discount code not found", HttpStatus.NOT_FOUND));
-        if (discountCode.isUsed())
+        if (discountCode.isStatus())
             throw new CustomException("Discount code has been used", HttpStatus.BAD_REQUEST);
         discountCode.getDiscount().setAmount(discountCode.getDiscount().getAmount() - 1);
-        discountCode.setUsed(true);
+        discountCode.setStatus(true);
+        discountCode.setUsedDate(new Date());
         discountCodeRepository.save(discountCode);
         return discountCode;
     }
 
     @Override
-    public void deleteDiscountCode(int id, String code) {
-
+    public void deleteDiscountCode(int id, List<Integer> ids) {
+        Discount discount = discountRepository.findById(id)
+                .orElseThrow(() -> new CustomException("Discount not found", HttpStatus.NOT_FOUND));
+        discount.setAmount(discount.getAmount() - ids.size());
+        discount.getDiscountCodes().removeIf(discountCode -> ids.contains(discountCode.getId()));
+        discountRepository.save(discount);
     }
 
 //    random code with 8 characters including uppercase letters and numbers

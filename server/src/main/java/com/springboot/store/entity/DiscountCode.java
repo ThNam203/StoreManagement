@@ -3,6 +3,8 @@ package com.springboot.store.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Date;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -15,8 +17,10 @@ public class DiscountCode {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    private String code;
-    private boolean isUsed;
+    private String value;
+    private Date issuedDate;
+    private Date usedDate;
+    private boolean status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "discount_id")

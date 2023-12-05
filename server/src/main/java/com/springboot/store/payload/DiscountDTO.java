@@ -24,7 +24,7 @@ public class DiscountDTO {
     private int minSubTotal;
     private int amount;
     private int creatorId;
-    private Set<String> discountCodes;
+    private Set<DiscountCodeDTO> discountCodes;
     private Set<Integer> productIds;
     private Set<String> productGroups;
     @JsonFormat(pattern = "yyyy-MM-dd")

@@ -57,7 +57,7 @@ public class Discount {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date endDate;
 
-    @OneToMany(mappedBy = "discount", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "discount", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<DiscountCode> discountCodes;
 
     @ManyToMany

@@ -1,6 +1,7 @@
 package com.springboot.store.controller;
 
 import com.springboot.store.exception.CustomException;
+import com.springboot.store.payload.DiscountCodeDTO;
 import com.springboot.store.payload.DiscountDTO;
 import com.springboot.store.service.DiscountService;
 import lombok.RequiredArgsConstructor;
@@ -45,13 +46,13 @@ public class DiscountController {
     @PostMapping("/{id}/generate")
     public ResponseEntity<?> generateDiscountCodes(@PathVariable int id, @RequestParam int amount) {
         try {
-            List<String> codes = new ArrayList<>();
+            List<DiscountCodeDTO> codes = new ArrayList<>();
             for (int i = 0; i < amount; i++) {
                 codes.add(discountService.generateDiscountCode(id));
             }
-            Map<String, List<String>> responseBody = new HashMap<>();
-            responseBody.put("codes", codes);
-            return ResponseEntity.status(201).body(responseBody);
+//            Map<String, List<String>> responseBody = new HashMap<>();
+//            responseBody.put("codes", codes);
+            return ResponseEntity.status(201).body(codes);
         } catch (Exception e) {
             throw new CustomException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -61,6 +62,15 @@ public class DiscountController {
     @GetMapping("/code")
     public ResponseEntity<DiscountDTO> getDiscountByCode(@RequestParam String value) {
         return ResponseEntity.ok(discountService.getDiscountByCode(value));
+    }
+
+    // delete discount code
+    @DeleteMapping("/{id}/code")
+    public ResponseEntity<?> deleteDiscountCode(@PathVariable int id, @RequestBody List<Integer> codeIds) {
+        discountService.deleteDiscountCode(id, codeIds);
+        Map<String, String> body = new HashMap<>();
+        body.put("message", "Discount code deleted successfully with id: " + codeIds.toString());
+        return ResponseEntity.ok(body);
     }
 
 }
