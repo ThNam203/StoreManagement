@@ -26,7 +26,7 @@ public class Staff implements UserDetails {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "email", nullable = false, unique=true)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
     @Column(name = "password", nullable = false)
@@ -40,9 +40,6 @@ public class Staff implements UserDetails {
 
     @Column(name = "phone_number")
     private String phoneNumber;
-
-    @Column(name = "facebook")
-    private String facebook;
 
     @Column(name = "note")
     private String note;
