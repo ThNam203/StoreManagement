@@ -38,6 +38,10 @@ public class ShiftAttendanceRecord {
     private String note;
 
     @ManyToOne()
+    @JoinColumn(name = "daily_shift_id")
+    private DailyShift dailyShift;
+
+    @ManyToOne()
     @JoinColumn(name = "store_id")
     private Store store;
 }

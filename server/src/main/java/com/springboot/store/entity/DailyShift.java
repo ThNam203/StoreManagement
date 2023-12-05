@@ -27,8 +27,12 @@ public class DailyShift {
     @Column(name = "note")
     private String note;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ShiftAttendanceRecord> attendanceList;
+
+    @ManyToOne()
+    @JoinColumn(name = "shift_id")
+    private Shift shift;
 
     @ManyToOne()
     @JoinColumn(name = "store_id")
