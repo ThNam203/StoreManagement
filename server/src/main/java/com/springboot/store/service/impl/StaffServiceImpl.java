@@ -49,7 +49,7 @@ public class StaffServiceImpl implements StaffService {
         Staff creator = getAuthorizedStaff();
 
         // check if creator is admin
-        if (creator.getStaffRole().getName() != Role.ADMIN) {
+        if (creator.getStaffRole().getName() != Role.ADMIN && creator.getStaffRole().getName() != Role.OWNER) {
             throw new CustomException("Only admin can create staff", HttpStatus.UNPROCESSABLE_ENTITY);
         }
 
