@@ -9,28 +9,26 @@ import {
   SearchFilter,
   TimeFilter,
 } from "@/components/ui/filter";
-import { DiscountType, Invoice } from "@/entities/Invoice";
+import { Invoice } from "@/entities/Invoice";
 import { TransactionType } from "@/entities/Transaction";
 import { TimeFilterType, formatID, handleTimeFilter } from "@/utils";
 import { useEffect, useState } from "react";
 import { DataTable } from "./datatable";
 
 const originalInvoiceList: Invoice[] = [];
-for (let i = 0; i < 500; i++) {
-  originalInvoiceList.push({
-    id: i,
-    discountType: DiscountType.MONEY,
-    discount: 80000,
-    subTotal: 300000,
-    total: 300000 - 10000 - 80000,
-    moneyGiven: 250000,
-    change: 40000,
-    transactionType: TransactionType.CASH,
-    createdDate: new Date(new Date().setDate(i - 400)),
-    creator: "NGUYEN VAN A",
-    VAT: 10000,
-  });
-}
+// for (let i = 0; i < 500; i++) {
+//   originalInvoiceList.push({
+//     id: i,
+//     discount: 80000,
+//     subTotal: 300000,
+//     total: 300000 - 10000 - 80000,
+//     changed: 40000,
+//     transactionType: TransactionType.CASH,
+//     createdDate: new Date(new Date().setDate(i - 400)),
+//     creator: "NGUYEN VAN A",
+//     VAT: 10000,
+//   });
+// }
 
 export default function InvoicePage() {
   const [invoiceList, setInvoiceList] = useState<Invoice[]>([]);
@@ -54,7 +52,7 @@ export default function InvoicePage() {
       const res = originalInvoiceList;
       const formatedData: Invoice[] = res.map((row) => {
         const newRow = { ...row };
-        newRow.id = formatID(newRow.id, "HD");
+        // newRow.id = formatID(newRow.id, "HD");
         return newRow;
       });
       setInvoiceList(formatedData);

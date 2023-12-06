@@ -11,6 +11,7 @@ import customersReducer from "./reducers/customersReducer";
 import customerGroupsReducer from "./reducers/customerGroupsReducer";
 import discountsReducer from "./reducers/discountsReducer";
 import shiftReducer from "./reducers/shiftReducer";
+import stockChecksReducer from "./reducers/stockChecksReducer";
 
 const store = configureStore({
   reducer: {
@@ -26,6 +27,7 @@ const store = configureStore({
     customers: customersReducer,
     customerGroups: customerGroupsReducer,
     discounts: discountsReducer,
+    stockChecks: stockChecksReducer,
   },
 });
 
