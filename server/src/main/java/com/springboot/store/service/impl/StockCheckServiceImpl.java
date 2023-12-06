@@ -27,14 +27,31 @@ public class StockCheckServiceImpl implements StockCheckService {
     @Override
     public List<StockCheckDTO> getAllStockChecks() {
         int storeId = staffService.getAuthorizedStaff().getStore().getId();
-        List<StockCheck> stockChecks = stockCheckRepository.findByStoreId(storeId);
+        List<StockCheck> stockChecks = updatePropertyName(stockCheckRepository.findByStoreId(storeId));
+        stockCheckRepository.saveAll(stockChecks);
         return stockChecks.stream().map(StockCheckMapper::toStockCheckDTO).toList();
     }
 
     @Override
     public StockCheckDTO getStockCheckById(int id) {
         StockCheck stockCheck = stockCheckRepository.findById(id).orElseThrow(() -> new CustomException("Stock check not found", HttpStatus.NOT_FOUND));
+        stockCheck = updatePropertyName(List.of(stockCheck)).get(0);
+        stockCheckRepository.save(stockCheck);
         return StockCheckMapper.toStockCheckDTO(stockCheck);
+    }
+
+    private List<StockCheck> updatePropertyName(List<StockCheck> stockChecks) {
+        stockChecks.forEach(stockCheck -> {
+            if (stockCheck.getProducts() != null) {
+                stockCheck.getProducts().forEach(stockCheckDetail -> {
+                    if (stockCheckDetail.getProduct() != null) {
+                        stockCheckDetail.setProductName(stockCheckDetail.getProduct().getName());
+                        stockCheckDetail.setProductProperties(stockCheckDetail.getProduct().propertiesToString());
+                    }
+                });
+            }
+        });
+        return stockChecks;
     }
 
     @Override
