@@ -3,6 +3,8 @@ package com.springboot.store.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -18,6 +20,9 @@ public class StockCheckDetail {
     @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
+    private String productName;
+    private String productProperties;
+
     private int countedStock;
     private int realStock;
     private int price;

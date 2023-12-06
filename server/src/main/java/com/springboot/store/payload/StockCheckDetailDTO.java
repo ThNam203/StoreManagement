@@ -12,6 +12,8 @@ import lombok.*;
 public class StockCheckDetailDTO {
     private int id;
     private int productId;
+    private String productName;
+    private String productProperties;
     private int countedStock;
     private int realStock;
     private int price;

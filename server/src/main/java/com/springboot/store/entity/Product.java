@@ -78,4 +78,12 @@ public class Product {
     @ManyToOne()
     @JoinColumn(name = "store_id")
     private Store store;
+
+    public String propertiesToString() {
+        StringBuilder result = new StringBuilder();
+        for (ProductProperty property : properties) {
+            result.append(property.toString()).append(", ");
+        }
+        return result.substring(0, result.length() - 2);
+    }
 }
