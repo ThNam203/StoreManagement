@@ -249,7 +249,7 @@ const CustomRow = ({
             key={cell.id}
             className={cn(
               "whitespace-nowrap",
-              showInfoRow ? "font-semibold" : ""
+              showInfoRow ? "font-semibold bg-green-200" : ""
             )}
           >
             {flexRender(cell.column.columnDef.cell, cell.getContext())}

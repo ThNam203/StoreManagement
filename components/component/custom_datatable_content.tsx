@@ -1,21 +1,16 @@
-"use client";
-
-import * as React from "react";
 import {
-  ColumnDef,
   ColumnFiltersState,
+  ColumnDef,
   RowSelectionState,
   SortingState,
   VisibilityState,
-  flexRender,
   getCoreRowModel,
-  getFacetedRowModel,
-  getFacetedUniqueValues,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
   Table as ReactTable,
+  flexRender,
 } from "@tanstack/react-table";
 import {
   Table,
@@ -24,23 +19,24 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "./table";
-import { DataTablePagination } from "./my_table_pagination";
-import { cn } from "@/lib/utils";
+} from "@/components/ui/table";
+import { RefObject } from "react";
+import CustomDatatableRow, { TabProps } from "./custom_datatable_row";
+import { DataTablePagination } from "../ui/my_table_pagination";
 
-function DataTableContent<TData, TValue>({
+interface CustomDataTableProps<TData> {
+  columns: ColumnDef<TData, any>[];
+  table: ReactTable<TData>;
+  tableContainerRef: RefObject<HTMLDivElement>;
+  infoTabs: TabProps<TData>[],
+}
+
+export default function CustomDataTableContent<TData>({
   columns,
   table,
-  onRowClick,
-  rowClassname,
-  hasPagination = true,
-}: {
-  columns: ColumnDef<TData, TValue>[];
-  table: ReactTable<TData>;
-  onRowClick?: (data: TData, index: number) => void;
-  rowClassname?: string;
-  hasPagination?: boolean;
-}) {
+  tableContainerRef,
+  infoTabs
+}: CustomDataTableProps<TData>) {
   return (
     <div className="space-y-4">
       <div className="rounded-md border">
@@ -65,25 +61,16 @@ function DataTableContent<TData, TValue>({
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row, idx) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                  onClick={(e) =>
-                    onRowClick ? onRowClick(row.original, idx) : null
-                  }
-                  className={rowClassname}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="whitespace-nowrap">
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
+              table
+                .getRowModel()
+                .rows.map((row, idx) => (
+                  <CustomDatatableRow
+                    key={row.id}
+                    row={row}
+                    containerRef={tableContainerRef}
+                    tabs={infoTabs}
+                  />
+                ))
             ) : (
               <TableRow>
                 <TableCell
@@ -97,11 +84,7 @@ function DataTableContent<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className={cn(hasPagination ? "visible" : "hidden")}>
-        <DataTablePagination table={table} />
-      </div>
+      <DataTablePagination table={table} />
     </div>
   );
 }
-
-export { DataTableContent };
