@@ -10,7 +10,6 @@ import lombok.*;
 @Builder
 public class StaffSalaryDTO {
     private int id;
-    private StaffBaseSalaryDTO staffBaseSalary;
-    private StaffBaseSalaryBonusDTO staffBaseSalaryBonus;
-    private StaffOvertimeSalaryBonusDTO staffOvertimeSalaryBonus;
+    private int salary;
+    private String salaryType;
 }

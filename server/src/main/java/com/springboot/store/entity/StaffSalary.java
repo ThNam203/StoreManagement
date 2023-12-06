@@ -3,6 +3,8 @@ package com.springboot.store.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -15,15 +17,12 @@ public class StaffSalary {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    
-    @OneToOne(cascade = CascadeType.ALL)
-    private StaffBaseSalary staffBaseSalary;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    private StaffBaseSalaryBonus staffBaseSalaryBonus;
+    @Column(name = "salary", nullable = false)
+    private int salary = 0;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    private StaffOvertimeSalaryBonus staffOvertimeSalaryBonus;
+    @Column(name = "salary_type", nullable = false)
+    private String salaryType;
 
     @ManyToOne()
     @JoinColumn(name = "store_id")

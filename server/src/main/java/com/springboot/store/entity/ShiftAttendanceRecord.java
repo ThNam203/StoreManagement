@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -28,14 +29,13 @@ public class ShiftAttendanceRecord {
     @Column(name = "date")
     private Date date;
 
-    @Column(name = "time_in")
-    private Date timeIn;
-
-    @Column(name = "time_out")
-    private Date timeOut;
-
     @Column(name = "note")
     private String note;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<StaffBonusSalary> bonusSalaryList;
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<StaffPunishSalary> punishSalaryList;
 
     @ManyToOne()
     @JoinColumn(name = "daily_shift_id")

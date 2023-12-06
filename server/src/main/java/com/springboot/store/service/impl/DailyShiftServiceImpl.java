@@ -9,6 +9,7 @@ import com.springboot.store.payload.ShiftAttendanceRecordDTO;
 import com.springboot.store.repository.DailyShiftRepository;
 import com.springboot.store.repository.ShiftAttendanceRecordRepository;
 import com.springboot.store.repository.ShiftRepository;
+import com.springboot.store.repository.StaffRepository;
 import com.springboot.store.service.DailyShiftService;
 import com.springboot.store.service.StaffService;
 import jakarta.persistence.EntityNotFoundException;
@@ -26,6 +27,7 @@ public class DailyShiftServiceImpl implements DailyShiftService {
     private final ShiftRepository shiftRepository;
     private final ModelMapper modelMapper;
     private final StaffService staffService;
+    private final StaffRepository staffRepository;
 
     @Override
     public DailyShiftDTO getDailyShift(int dailyShiftId) {
@@ -66,7 +68,11 @@ public class DailyShiftServiceImpl implements DailyShiftService {
         }
         existingDailyShift.setAttendanceList(attendanceRecordList);
         existingDailyShift = dailyShiftRepository.save(existingDailyShift);
-        return modelMapper.map(existingDailyShift, DailyShiftDTO.class);
+        dailyShiftDTO = modelMapper.map(existingDailyShift, DailyShiftDTO.class);
+        for (ShiftAttendanceRecordDTO shiftAttendanceRecordDTO : dailyShiftDTO.getAttendanceList()) {
+            shiftAttendanceRecordDTO.setStaffName(staffRepository.findById(shiftAttendanceRecordDTO.getStaffId()).orElseThrow().getName());
+        }
+        return dailyShiftDTO;
     }
 
     @Override
@@ -88,7 +94,42 @@ public class DailyShiftServiceImpl implements DailyShiftService {
         Shift shift = dailyShift.getShift();
         shift.getDailyShifts().add(dailyShift);
         shiftRepository.save(shift);
-        return modelMapper.map(dailyShift, DailyShiftDTO.class);
+        dailyShiftDTO = modelMapper.map(dailyShift, DailyShiftDTO.class);
+        for (ShiftAttendanceRecordDTO shiftAttendanceRecordDTO : dailyShiftDTO.getAttendanceList()) {
+            shiftAttendanceRecordDTO.setStaffName(staffRepository.findById(shiftAttendanceRecordDTO.getStaffId()).orElseThrow().getName());
+        }
+        return dailyShiftDTO;
+    }
+
+    @Override
+    public List<DailyShiftDTO> createDailyShifts(List<DailyShiftDTO> dailyShiftDTOList) {
+        Staff staff = staffService.getAuthorizedStaff();
+        List<DailyShift> dailyShiftList = new ArrayList<>();
+        for (DailyShiftDTO dailyShiftDTO : dailyShiftDTOList) {
+            DailyShift dailyShift = DailyShift.builder()
+                    .date(dailyShiftDTO.getDate())
+                    .note(dailyShiftDTO.getNote())
+                    .build();
+            List<ShiftAttendanceRecord> attendanceRecordList = new ArrayList<>();
+            for (ShiftAttendanceRecordDTO shiftAttendanceRecordDTO : dailyShiftDTO.getAttendanceList()) {
+                ShiftAttendanceRecord shiftAttendanceRecord = modelMapper.map(shiftAttendanceRecordDTO, ShiftAttendanceRecord.class);
+                attendanceRecordList.add(shiftAttendanceRecord);
+            }
+            dailyShift.setStore(staff.getStore());
+            dailyShift.setShift(shiftRepository.findById(dailyShiftDTO.getShiftId()).orElseThrow());
+            dailyShift.setAttendanceList(attendanceRecordList);
+            dailyShiftList.add(dailyShift);
+        }
+        dailyShiftList = dailyShiftRepository.saveAll(dailyShiftList);
+        List<DailyShiftDTO> dailyShiftDTOList1 = new ArrayList<>();
+        for (DailyShift dailyShift : dailyShiftList) {
+            DailyShiftDTO dailyShiftDTO = modelMapper.map(dailyShift, DailyShiftDTO.class);
+            for (ShiftAttendanceRecordDTO shiftAttendanceRecordDTO : dailyShiftDTO.getAttendanceList()) {
+                shiftAttendanceRecordDTO.setStaffName(staffRepository.findById(shiftAttendanceRecordDTO.getStaffId()).orElseThrow().getName());
+            }
+            dailyShiftDTOList1.add(dailyShiftDTO);
+        }
+        return dailyShiftDTOList1;
     }
 
     @Override

@@ -8,8 +8,9 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class StaffHolidayBonusDTO {
+public class StaffBonusSalaryDTO {
     private int id;
-    private Double value;
-    private String bonusUnit;
+    private int value;
+    private String name;
+    private int multiply;
 }

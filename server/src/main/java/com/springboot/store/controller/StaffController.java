@@ -11,6 +11,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/staffs")
 @RequiredArgsConstructor
@@ -60,4 +63,14 @@ public class StaffController {
         return new ResponseEntity<>("Staff entity deleted successfully.", null, HttpStatus.OK);
     }
 
+    // get staff salary by id
+    @GetMapping("/{id}/calculate-salary")
+    public ResponseEntity<Map<String, Integer>> getStaffSalary(@PathVariable(name = "id") int id) {
+        int salary = staffService.getStaffSalary(id);
+
+        Map<String, Integer> response = new HashMap<>();
+        response.put("salaryDebt", salary);
+
+        return ResponseEntity.ok().body(response);
+    }
 }
