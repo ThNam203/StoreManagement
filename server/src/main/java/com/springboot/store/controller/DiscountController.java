@@ -4,6 +4,7 @@ import com.springboot.store.exception.CustomException;
 import com.springboot.store.payload.DiscountCodeDTO;
 import com.springboot.store.payload.DiscountDTO;
 import com.springboot.store.service.DiscountService;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -66,8 +67,8 @@ public class DiscountController {
 
     // delete discount code
     @DeleteMapping("/{id}/code")
-    public ResponseEntity<?> deleteDiscountCode(@PathVariable int id, @RequestBody List<Integer> codeIds) {
-        discountService.deleteDiscountCode(id, codeIds);
+    public ResponseEntity<?> deleteDiscountCode(@PathVariable int id, @RequestBody Map<String, List<Integer>> codeIds) {
+        discountService.deleteDiscountCode(id, codeIds.get("codeIds"));
         Map<String, String> body = new HashMap<>();
         body.put("message", "Discount code deleted successfully with id: " + codeIds.toString());
         return ResponseEntity.ok(body);
