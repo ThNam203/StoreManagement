@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @Setter
@@ -17,8 +18,8 @@ public class ShiftAttendanceRecordDTO {
     private String staffName;
     private boolean hasAttend;
     private Date date;
-    private Date timeIn;
-    private Date timeOut;
+    private List<StaffBonusSalaryDTO> bonusSalaryList;
+    private List<StaffPunishSalaryDTO> punishSalaryList;
     private String note;
 
 }

@@ -1,13 +1,12 @@
 package com.springboot.store.service.impl;
 
-import com.springboot.store.entity.Media;
-import com.springboot.store.entity.Staff;
-import com.springboot.store.entity.StaffSalary;
+import com.springboot.store.entity.*;
 import com.springboot.store.exception.CustomException;
 import com.springboot.store.exception.ResourceNotFoundException;
 import com.springboot.store.payload.StaffRequest;
 import com.springboot.store.payload.StaffResponse;
 import com.springboot.store.repository.MediaRepository;
+import com.springboot.store.repository.ShiftAttendanceRecordRepository;
 import com.springboot.store.repository.StaffRepository;
 import com.springboot.store.repository.StaffRoleRepository;
 import com.springboot.store.service.ActivityLogService;
@@ -40,6 +39,7 @@ public class StaffServiceImpl implements StaffService {
     private final StaffSalaryService staffSalaryService;
     private final FileService fileService;
     private final ModelMapper modelMapper;
+    private final ShiftAttendanceRecordRepository shiftAttendanceRecordRepository;
 
     @Override
     public StaffResponse createStaff(StaffRequest newStaff, MultipartFile file) {
@@ -187,6 +187,60 @@ public class StaffServiceImpl implements StaffService {
 
         // save activity log
         activityLogService.save("DELETE", "Delete staff with id " + id, creator.getName());
+    }
+
+    @Override
+    public int getStaffSalary(int id) {
+        Staff staff = staffRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Staff", "id", id));
+        int salaryDebt = 0;
+        if (staff.getStaffSalary().getSalaryType().equals("Shift-based pay")) {
+            int dayWorking = 0;
+            List<ShiftAttendanceRecord> shiftAttendanceRecords = shiftAttendanceRecordRepository.findByStaffIdAndDateInThisMonth(id);
+            for (ShiftAttendanceRecord shiftAttendanceRecord : shiftAttendanceRecords) {
+                if (shiftAttendanceRecord.isHasAttend()) {
+                    dayWorking++;
+                }
+                for (StaffBonusSalary staffBonusSalary : shiftAttendanceRecord.getBonusSalaryList()) {
+                    salaryDebt += staffBonusSalary.getValue() * staffBonusSalary.getMultiply();
+                }
+                for (StaffPunishSalary staffPunishSalary : shiftAttendanceRecord.getPunishSalaryList()) {
+                    salaryDebt -= staffPunishSalary.getValue() * staffPunishSalary.getMultiply();
+                }
+            }
+            salaryDebt += staff.getStaffSalary().getSalary() * dayWorking;
+            staff.setSalaryDebt(salaryDebt);
+            staffRepository.save(staff);
+            return salaryDebt;
+        } else if (staff.getStaffSalary().getSalaryType().equals("Internship salary")) {
+            List<ShiftAttendanceRecord> shiftAttendanceRecords = shiftAttendanceRecordRepository.findByStaffIdAndDateInThisMonth(id);
+            for (ShiftAttendanceRecord shiftAttendanceRecord : shiftAttendanceRecords) {
+                for (StaffBonusSalary staffBonusSalary : shiftAttendanceRecord.getBonusSalaryList()) {
+                    salaryDebt += staffBonusSalary.getValue() * staffBonusSalary.getMultiply();
+                }
+                for (StaffPunishSalary staffPunishSalary : shiftAttendanceRecord.getPunishSalaryList()) {
+                    salaryDebt -= staffPunishSalary.getValue() * staffPunishSalary.getMultiply();
+                }
+            }
+            salaryDebt += staff.getStaffSalary().getSalary();
+            staff.setSalaryDebt(salaryDebt);
+            staffRepository.save(staff);
+            return salaryDebt;
+        } else if (staff.getStaffSalary().getSalaryType().equals("Fixed salary")) {
+            List<ShiftAttendanceRecord> shiftAttendanceRecords = shiftAttendanceRecordRepository.findByStaffIdAndDateInThisMonth(id);
+            for (ShiftAttendanceRecord shiftAttendanceRecord : shiftAttendanceRecords) {
+                for (StaffBonusSalary staffBonusSalary : shiftAttendanceRecord.getBonusSalaryList()) {
+                    salaryDebt += staffBonusSalary.getValue() * staffBonusSalary.getMultiply();
+                }
+                for (StaffPunishSalary staffPunishSalary : shiftAttendanceRecord.getPunishSalaryList()) {
+                    salaryDebt -= staffPunishSalary.getValue() * staffPunishSalary.getMultiply();
+                }
+            }
+            salaryDebt += staff.getStaffSalary().getSalary();
+            staff.setSalaryDebt(salaryDebt);
+            staffRepository.save(staff);
+            return salaryDebt;
+        }
+        return 0;
     }
 
     @Override

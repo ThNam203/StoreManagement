@@ -10,18 +10,21 @@ import lombok.*;
 @Builder
 
 @Entity
-@Table(name = "staff_saturday_bonus")
-public class StaffSaturdayBonus {
+@Table(name = "staff_bonus_salary")
+public class StaffBonusSalary {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     @Column(name = "value", nullable = false)
-    private Double value = 0.0;
-
-    @Column(name = "bonus_unit", nullable = false)
-    private String bonusUnit;
-
+    private int value = 0;
+    @Column(name = "name")
+    private String name;
+    @Column(name = "multiply")
+    private int multiply;
+    @ManyToOne()
+    @JoinColumn(name = "shift_attendance_record_id")
+    private ShiftAttendanceRecord shiftAttendanceRecord;
     @ManyToOne()
     @JoinColumn(name = "store_id")
     private Store store;

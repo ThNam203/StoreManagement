@@ -13,5 +13,7 @@ public interface DailyShiftService {
 
     DailyShiftDTO createDailyShift(DailyShiftDTO dailyShiftDTO);
 
+    List<DailyShiftDTO> createDailyShifts(List<DailyShiftDTO> dailyShiftDTOList);
+
     void deleteDailyShift(int dailyShiftId);
 }
