@@ -72,6 +72,10 @@ public class DailyShiftServiceImpl implements DailyShiftService {
         for (ShiftAttendanceRecordDTO shiftAttendanceRecordDTO : dailyShiftDTO.getAttendanceList()) {
             shiftAttendanceRecordDTO.setStaffName(staffRepository.findById(shiftAttendanceRecordDTO.getStaffId()).orElseThrow().getName());
         }
+        Shift shift = shiftRepository.findById(dailyShiftDTO.getShiftId()).orElseThrow();
+        List<DailyShift> dailyShiftList = dailyShiftRepository.findByStoreIdAndShiftId(shift.getStore().getId(), shift.getId());
+        shift.setDailyShifts(dailyShiftList);
+        shiftRepository.save(shift);
         return dailyShiftDTO;
     }
 
@@ -98,6 +102,7 @@ public class DailyShiftServiceImpl implements DailyShiftService {
         for (ShiftAttendanceRecordDTO shiftAttendanceRecordDTO : dailyShiftDTO.getAttendanceList()) {
             shiftAttendanceRecordDTO.setStaffName(staffRepository.findById(shiftAttendanceRecordDTO.getStaffId()).orElseThrow().getName());
         }
+
         return dailyShiftDTO;
     }
 
@@ -128,6 +133,13 @@ public class DailyShiftServiceImpl implements DailyShiftService {
                 shiftAttendanceRecordDTO.setStaffName(staffRepository.findById(shiftAttendanceRecordDTO.getStaffId()).orElseThrow().getName());
             }
             dailyShiftDTOList1.add(dailyShiftDTO);
+        }
+        List<Integer> listShiftId = shiftRepository.getAllById();
+        for (Integer shiftId : listShiftId) {
+            Shift shift = shiftRepository.findById(shiftId).orElseThrow();
+            List<DailyShift> dailyShiftList1 = dailyShiftRepository.findByStoreIdAndShiftId(shift.getStore().getId(), shift.getId());
+            shift.setDailyShifts(dailyShiftList1);
+            shiftRepository.save(shift);
         }
         return dailyShiftDTOList1;
     }

@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface DailyShiftRepository extends JpaRepository<DailyShift, Integer> {
     List<DailyShift> findByStoreId(Integer storeId);
+
+    List<DailyShift> findByStoreIdAndShiftId(Integer storeId, Integer shiftId);
 }
