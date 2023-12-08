@@ -57,6 +57,8 @@ public class DailyShiftServiceImpl implements DailyShiftService {
 
     @Override
     public DailyShiftDTO updateDailyShift(int dailyShiftId, DailyShiftDTO dailyShiftDTO) {
+        //check if attendance record list is empty then delete daily shift
+
         DailyShift existingDailyShift = dailyShiftRepository.findById(dailyShiftId).orElseThrow(() -> new EntityNotFoundException("DailyShift not found with id: " + dailyShiftId));
         existingDailyShift.setDate(dailyShiftDTO.getDate());
         existingDailyShift.setNote(dailyShiftDTO.getNote());
@@ -68,6 +70,10 @@ public class DailyShiftServiceImpl implements DailyShiftService {
         }
         existingDailyShift.setAttendanceList(attendanceRecordList);
         existingDailyShift = dailyShiftRepository.save(existingDailyShift);
+        if (dailyShiftDTO.getAttendanceList().isEmpty()) {
+            deleteDailyShift(dailyShiftId);
+            return null;
+        }
         dailyShiftDTO = modelMapper.map(existingDailyShift, DailyShiftDTO.class);
         for (ShiftAttendanceRecordDTO shiftAttendanceRecordDTO : dailyShiftDTO.getAttendanceList()) {
             shiftAttendanceRecordDTO.setStaffName(staffRepository.findById(shiftAttendanceRecordDTO.getStaffId()).orElseThrow().getName());
@@ -145,6 +151,16 @@ public class DailyShiftServiceImpl implements DailyShiftService {
 
     @Override
     public void deleteDailyShift(int dailyShiftId) {
+        List<ShiftAttendanceRecord> attendanceRecords = dailyShiftRepository.findById(dailyShiftId).orElseThrow().getAttendanceList();
+        for (ShiftAttendanceRecord attendanceRecord : attendanceRecords) {
+            dailyShiftRepository.deleteById(attendanceRecord.getId());
+        }
+        DailyShift dailyShift = dailyShiftRepository.findById(dailyShiftId).orElseThrow();
+        List<Shift> listShift = shiftRepository.findByDailyShiftsContains(dailyShift);
+        for (Shift shift : listShift) {
+            shift.getDailyShifts().remove(dailyShift);
+            shiftRepository.save(shift);
+        }
         dailyShiftRepository.deleteById(dailyShiftId);
     }
 }
