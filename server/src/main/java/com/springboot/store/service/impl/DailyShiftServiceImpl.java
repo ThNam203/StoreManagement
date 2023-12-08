@@ -134,9 +134,8 @@ public class DailyShiftServiceImpl implements DailyShiftService {
             }
             dailyShiftDTOList1.add(dailyShiftDTO);
         }
-        List<Integer> listShiftId = shiftRepository.getAllById();
-        for (Integer shiftId : listShiftId) {
-            Shift shift = shiftRepository.findById(shiftId).orElseThrow();
+        List<Shift> listShift = shiftRepository.findByStoreId(staff.getStore().getId());
+        for (Shift shift : listShift) {
             List<DailyShift> dailyShiftList1 = dailyShiftRepository.findByStoreIdAndShiftId(shift.getStore().getId(), shift.getId());
             shift.setDailyShifts(dailyShiftList1);
             shiftRepository.save(shift);

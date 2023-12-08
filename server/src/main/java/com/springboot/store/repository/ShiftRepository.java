@@ -8,5 +8,4 @@ import java.util.List;
 public interface ShiftRepository extends JpaRepository<Shift, Integer> {
     List<Shift> findByStoreId(Integer storeId);
 
-    List<Integer> getAllById();
 }
