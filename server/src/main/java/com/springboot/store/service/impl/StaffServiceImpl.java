@@ -67,9 +67,10 @@ public class StaffServiceImpl implements StaffService {
         staff.setCccd(newStaff.getCccd());
 
         //check if phone number is duplicate and valid
-        if (newStaff.getPhoneNumber() != null && newStaff.getPhoneNumber().length() == 10 && staffRepository.existsByPhoneNumber(newStaff.getPhoneNumber())) {
+        if (newStaff.getPhoneNumber() != null && staffRepository.existsByPhoneNumber(newStaff.getPhoneNumber())) {
             throw new CustomException("Phone number already in use", HttpStatus.UNPROCESSABLE_ENTITY);
         }
+
         staff.setPhoneNumber(newStaff.getPhoneNumber());
 
         if (file != null && !file.isEmpty()) {
@@ -310,6 +311,12 @@ public class StaffServiceImpl implements StaffService {
         // check if birthday is valid
         if (newStaff.getBirthday() != null && newStaff.getBirthday().after(new Date())) {
             throw new CustomException("Birthday is invalid", HttpStatus.UNPROCESSABLE_ENTITY);
+        }
+        if (newStaff.getCccd().length() != 12) {
+            throw new CustomException("CCCD is invalid", HttpStatus.UNPROCESSABLE_ENTITY);
+        }
+        if (newStaff.getPhoneNumber().length() != 10) {
+            throw new CustomException("Phone number is invalid", HttpStatus.UNPROCESSABLE_ENTITY);
         }
     }
 
