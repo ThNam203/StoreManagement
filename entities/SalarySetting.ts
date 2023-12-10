@@ -1,44 +1,6 @@
 export type SalarySetting = {
-  baseSalary: {
-    value: number;
-    salaryType: SalaryType;
-  };
-  baseBonus: {
-    saturday: {
-      value: number;
-      unit: BonusUnit;
-    };
-    sunday: {
-      value: number;
-      unit: BonusUnit;
-    };
-    dayOff: {
-      value: number;
-      unit: BonusUnit;
-    };
-    holiday: {
-      value: number;
-      unit: BonusUnit;
-    };
-  };
-  overtimeBonus: {
-    saturday: {
-      value: number;
-      unit: BonusUnit;
-    };
-    sunday: {
-      value: number;
-      unit: BonusUnit;
-    };
-    dayOff: {
-      value: number;
-      unit: BonusUnit;
-    };
-    holiday: {
-      value: number;
-      unit: BonusUnit;
-    };
-  };
+  salary: number;
+  salaryType: SalaryType;
 };
 
 export enum BonusUnit {
@@ -48,14 +10,12 @@ export enum BonusUnit {
 
 export enum SalaryType {
   ByShift = "Shift-based pay",
-  ByHour = "Hourly wage",
-  ByDay = "Salary based on standard working days",
+  Internship = "Internship salary",
   Fixed = "Fixed salary",
 }
 
 export const SalaryUnitTable: Record<SalaryType, string> = {
   "Shift-based pay": "shift",
-  "Hourly wage": "hour",
-  "Salary based on standard working days": "day",
+  "Internship salary": "period",
   "Fixed salary": "period",
 };

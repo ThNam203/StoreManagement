@@ -83,7 +83,7 @@ enum IconNames {
   PieChart,
   FileBarChart2,
   Percent,
-  PercentCircle
+  PercentCircle,
 }
 
 const LucideIcons = (iconName: IconNames, isCollapsed: boolean | null) => {
@@ -578,7 +578,7 @@ const SideBar = ({
               title="Work Manage"
               className="!w-full"
               isCollapsed={isCollapsed}
-              href="/"
+              href="/staff/attendance"
             />,
           ]}
           isCollapsed={isCollapsed}

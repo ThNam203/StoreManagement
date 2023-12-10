@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import { de } from "date-fns/locale";
 
 export function MyCombobox({
   placeholder,
@@ -38,6 +39,9 @@ export function MyCombobox({
   const [value, setValue] = React.useState(defaultValue);
 
   React.useEffect(() => {
+    setValue(defaultValue);
+  }, [defaultValue]);
+  React.useEffect(() => {
     if (onValueChange) onValueChange(value);
   }, [value]);
 
@@ -48,12 +52,12 @@ export function MyCombobox({
           type="button"
           variant="outline"
           role="combobox"
-          className="w-full flex flex-row items-center justify-between gap-2"
+          className="w-full flex flex-row items-center justify-between p-0"
         >
           <PopoverTrigger asChild>
             <div
               className={cn(
-                "w-full flex flex-row items-center justify-between",
+                "w-full flex flex-row items-center justify-between p-2",
                 value ? "text-black" : "text-muted-foreground"
               )}
             >
@@ -62,7 +66,7 @@ export function MyCombobox({
               <ChevronDown className="w-4 h-4 text-muted-foreground ease-linear duration-200" />
             </div>
           </PopoverTrigger>
-          {endIcon}
+          <div className="mr-2">{endIcon}</div>
         </Button>
 
         <PopoverContent className="w-full p-0">
@@ -118,7 +122,10 @@ export function MyObjectCombobox({
   const [values, setValues] = React.useState<Array<object>>(defaultValues);
 
   React.useEffect(() => {
-    if (onValuesChange) onValuesChange(values);
+    setValues(defaultValues);
+  }, [defaultValues]);
+  React.useEffect(() => {
+    if (onValuesChange && values !== defaultValues) onValuesChange(values);
   }, [values]);
 
   return (

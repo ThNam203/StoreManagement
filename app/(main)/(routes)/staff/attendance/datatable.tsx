@@ -18,7 +18,9 @@ import {
 import * as React from "react";
 import { columns } from "./columns";
 import { Button } from "@/components/ui/button";
-import { Undo2 } from "lucide-react";
+import { Trash, Undo2 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { set } from "date-fns";
 
 export function DataTable({
   defaultData,
@@ -67,6 +69,17 @@ export function DataTable({
   });
 
   React.useEffect(() => {
+    let selectedRows: Staff[] = [];
+    table.getSelectedRowModel().rows.forEach((row) => {
+      const staff = row.original as Staff;
+      selectedRows.push(staff);
+    });
+    setSelectedStaff(selectedRows);
+  }, [table.getSelectedRowModel()]);
+
+  const [selectedStaff, setSelectedStaff] = React.useState<Staff[]>([]);
+
+  React.useEffect(() => {
     if (onDataChange) onDataChange(data);
   }, [data]);
 
@@ -84,12 +97,30 @@ export function DataTable({
           propToShow={["name", "id", "avatar"]}
           onValuesChange={handleComboboxValuesChange}
         />
+        <div className="flex items-center space-x-2">
+          <Button
+            type="button"
+            className={cn(
+              "flex items-center space-x-1",
+              selectedStaff.length > 0 ? "visible" : "hidden"
+            )}
+            onClick={() => {
+              const newData = data.filter(
+                (staff) => !selectedStaff.includes(staff)
+              );
+              setData(newData);
+              table.setRowSelection({});
+            }}
+          >
+            <Trash size={16} />
+            <span>Remove</span>
+          </Button>
+        </div>
       </div>
       <DataTableContent
         columns={columns}
-        data={data}
         table={table}
-        hasPagination={false}
+        hasPagination={data.length > 10}
       />
     </div>
   );

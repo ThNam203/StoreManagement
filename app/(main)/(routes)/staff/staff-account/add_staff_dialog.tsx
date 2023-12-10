@@ -13,12 +13,7 @@ import {
 } from "@/components/ui/dialog";
 
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DatePicker } from "@/components/ui/datepicker";
 import {
   Form,
   FormControl,
@@ -30,34 +25,22 @@ import { Input, PasswordInput } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MyCombobox } from "@/components/ui/my_combobox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  BonusUnit,
   SalarySetting,
   SalaryType,
   SalaryUnitTable,
 } from "@/entities/SalarySetting";
 import { Sex, Staff } from "@/entities/Staff";
 import { removeCharNotANum } from "@/utils";
-import {
-  AlignJustify,
-  Camera,
-  CircleDollarSign,
-  Eye,
-  EyeOff,
-  Info,
-  PlusCircle,
-} from "lucide-react";
-import { nanoid } from "nanoid";
-import { use, useEffect, useRef, useState } from "react";
+import { CircleDollarSign, Info, PlusCircle } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { UnitButtonGroup } from "./unit_btn_group";
-import { cn } from "@/lib/utils";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { DatePicker } from "@/components/ui/datepicker";
 import { ChooseImageButton } from "./choose_image";
+import { fi } from "date-fns/locale";
+import LoadingCircle from "@/components/ui/loading_circle";
 
 const createSchema = z.object({
   avatar: z.string(),
@@ -73,46 +56,8 @@ const createSchema = z.object({
     .min(8, { message: "Password must be at least 8 characters" }),
   address: z.string().min(1, { message: "Address is empty" }),
   note: z.string().optional(),
-  baseSalary: z.object({
-    value: z.number(),
-    salaryType: z.nativeEnum(SalaryType),
-  }),
-  baseBonus: z.object({
-    saturday: z.object({
-      value: z.number(),
-      unit: z.nativeEnum(BonusUnit),
-    }),
-    sunday: z.object({
-      value: z.number(),
-      unit: z.nativeEnum(BonusUnit),
-    }),
-    dayOff: z.object({
-      value: z.number(),
-      unit: z.nativeEnum(BonusUnit),
-    }),
-    holiday: z.object({
-      value: z.number(),
-      unit: z.nativeEnum(BonusUnit),
-    }),
-  }),
-  overtimeBonus: z.object({
-    saturday: z.object({
-      value: z.number(),
-      unit: z.nativeEnum(BonusUnit),
-    }),
-    sunday: z.object({
-      value: z.number(),
-      unit: z.nativeEnum(BonusUnit),
-    }),
-    dayOff: z.object({
-      value: z.number(),
-      unit: z.nativeEnum(BonusUnit),
-    }),
-    holiday: z.object({
-      value: z.number(),
-      unit: z.nativeEnum(BonusUnit),
-    }),
-  }),
+  salary: z.number(),
+  salaryType: z.nativeEnum(SalaryType),
 });
 const updateSchema = z.object({
   avatar: z.string(),
@@ -129,46 +74,8 @@ const updateSchema = z.object({
     .optional(),
   address: z.string().min(1, { message: "Address is empty" }),
   note: z.string().optional(),
-  baseSalary: z.object({
-    value: z.number(),
-    salaryType: z.nativeEnum(SalaryType),
-  }),
-  baseBonus: z.object({
-    saturday: z.object({
-      value: z.number(),
-      unit: z.nativeEnum(BonusUnit),
-    }),
-    sunday: z.object({
-      value: z.number(),
-      unit: z.nativeEnum(BonusUnit),
-    }),
-    dayOff: z.object({
-      value: z.number(),
-      unit: z.nativeEnum(BonusUnit),
-    }),
-    holiday: z.object({
-      value: z.number(),
-      unit: z.nativeEnum(BonusUnit),
-    }),
-  }),
-  overtimeBonus: z.object({
-    saturday: z.object({
-      value: z.number(),
-      unit: z.nativeEnum(BonusUnit),
-    }),
-    sunday: z.object({
-      value: z.number(),
-      unit: z.nativeEnum(BonusUnit),
-    }),
-    dayOff: z.object({
-      value: z.number(),
-      unit: z.nativeEnum(BonusUnit),
-    }),
-    holiday: z.object({
-      value: z.number(),
-      unit: z.nativeEnum(BonusUnit),
-    }),
-  }),
+  salary: z.number(),
+  salaryType: z.nativeEnum(SalaryType),
 });
 
 export function AddStaffDialog({
@@ -180,7 +87,7 @@ export function AddStaffDialog({
   open: boolean;
   setOpen: (open: boolean) => void;
   data: Staff | null;
-  submit: (values: Staff, avatar: File | null) => void;
+  submit: (values: Staff, avatar: File | null) => any;
 }) {
   const form = useForm<z.infer<typeof createSchema>>({
     resolver: zodResolver(data ? updateSchema : createSchema),
@@ -188,51 +95,12 @@ export function AddStaffDialog({
       avatar: undefined,
       birthday: new Date(),
       sex: Sex.MALE,
-      baseSalary: {
-        value: undefined,
-        salaryType: SalaryType.ByShift,
-      },
-      baseBonus: {
-        saturday: {
-          value: 0,
-          unit: BonusUnit["%"],
-        },
-        sunday: {
-          value: 0,
-          unit: BonusUnit["%"],
-        },
-        dayOff: {
-          value: 0,
-          unit: BonusUnit["%"],
-        },
-        holiday: {
-          value: 0,
-          unit: BonusUnit["%"],
-        },
-      },
-      overtimeBonus: {
-        saturday: {
-          value: 0,
-          unit: BonusUnit["%"],
-        },
-        sunday: {
-          value: 0,
-          unit: BonusUnit["%"],
-        },
-        dayOff: {
-          value: 0,
-          unit: BonusUnit["%"],
-        },
-        holiday: {
-          value: 0,
-          unit: BonusUnit["%"],
-        },
-      },
+      salary: undefined,
+      salaryType: SalaryType.ByShift,
     },
   });
 
-  function onSubmit(values: z.infer<typeof createSchema>) {
-    console.log(values);
+  const onSubmit = async (values: z.infer<typeof createSchema>) => {
     const newStaff: Staff = {
       avatar: values.avatar,
       id: data ? data.id : -1,
@@ -250,18 +118,25 @@ export function AddStaffDialog({
       createAt: new Date(),
       role: "STAFF",
       salarySetting: {
-        baseSalary: values.baseSalary,
-        baseBonus: values.baseBonus,
-        overtimeBonus: values.overtimeBonus,
+        salary: values.salary,
+        salaryType: SalaryType.ByShift,
       },
     };
 
     if (submit) {
-      submit(newStaff, staffAvatar);
-      form.reset();
-      setOpen(false);
+      setIsLoading(true);
+      try {
+        await submit(newStaff, staffAvatar).then(() => {
+          form.reset();
+          setOpen(false);
+        });
+      } catch (e) {
+        console.log(e);
+      } finally {
+        setIsLoading(false);
+      }
     }
-  }
+  };
   const [positionList, setPositionList] = useState([
     "Cashier",
     "Safe Guard",
@@ -271,48 +146,11 @@ export function AddStaffDialog({
   const positionInputRef = useRef<HTMLInputElement>(null);
   const [openAddPositionDialog, setOpenAddPositionDialog] = useState(false);
   const [salarySetting, setSalarySetting] = useState<SalarySetting>({
-    baseSalary: {
-      value: 0,
-      salaryType: SalaryType.ByShift,
-    },
-    baseBonus: {
-      saturday: {
-        value: 0,
-        unit: BonusUnit["%"],
-      },
-      sunday: {
-        value: 0,
-        unit: BonusUnit["%"],
-      },
-      dayOff: {
-        value: 0,
-        unit: BonusUnit["%"],
-      },
-      holiday: {
-        value: 0,
-        unit: BonusUnit["%"],
-      },
-    },
-    overtimeBonus: {
-      saturday: {
-        value: 0,
-        unit: BonusUnit["%"],
-      },
-      sunday: {
-        value: 0,
-        unit: BonusUnit["%"],
-      },
-      dayOff: {
-        value: 0,
-        unit: BonusUnit["%"],
-      },
-      holiday: {
-        value: 0,
-        unit: BonusUnit["%"],
-      },
-    },
+    salary: 0,
+    salaryType: SalaryType.ByShift,
   });
   const [staffAvatar, setStaffAvatar] = useState<File | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   function handleCancelDialog() {
     setOpen(false);
@@ -324,6 +162,7 @@ export function AddStaffDialog({
   }, [open]);
 
   const resetValues = (staff: Staff | null) => {
+    setIsLoading(false);
     if (staff) {
       form.setValue("avatar", staff.avatar);
       form.setValue("name", staff.name);
@@ -335,18 +174,13 @@ export function AddStaffDialog({
       form.setValue("email", staff.email);
       form.setValue("address", staff.address);
       form.setValue("note", staff.note);
-      form.setValue("baseSalary", staff.salarySetting.baseSalary);
-      form.setValue("baseBonus", staff.salarySetting.baseBonus);
-      form.setValue("overtimeBonus", staff.salarySetting.overtimeBonus);
+      form.setValue("salary", staff.salarySetting.salary);
+      form.setValue("salaryType", staff.salarySetting.salaryType);
     } else resetToEmptyForm();
     setSalarySetting({
-      baseBonus: form.getValues("baseBonus"),
-      baseSalary: form.getValues("baseSalary"),
-      overtimeBonus: form.getValues("overtimeBonus"),
+      salary: form.getValues("salary"),
+      salaryType: form.getValues("salaryType"),
     });
-    //get all form values
-
-    console.log("form values", form.getValues());
   };
 
   const resetToEmptyForm = () => {
@@ -364,10 +198,7 @@ export function AddStaffDialog({
   const onSalaryTypeChange = (value: string) => {
     setSalarySetting((prev) => ({
       ...prev,
-      baseSalary: {
-        value: prev.baseSalary.value,
-        salaryType: value as SalaryType,
-      },
+      salaryType: value as SalaryType,
     }));
   };
 
@@ -417,6 +248,7 @@ export function AddStaffDialog({
         <DialogHeader>
           <DialogTitle>{data ? "Update staff" : "Add new staff"}</DialogTitle>
         </DialogHeader>
+
         <div className="w-full">
           <Form {...form}>
             <form
@@ -617,10 +449,7 @@ export function AddStaffDialog({
                                   maxLength={11}
                                   minLength={10}
                                   className="w-2/3"
-                                  onKeyUp={(e: any) => {
-                                    removeCharNotANum(e);
-                                    field.onChange(e);
-                                  }}
+                                  type="tel"
                                 />
                               </FormControl>
                             </div>
@@ -726,25 +555,25 @@ export function AddStaffDialog({
                           <span className="font-semibold">Staff salary</span>
                         </div>
                         <Separator />
-                        <div className="p-4 flex flex-row items-center justify-between">
-                          <span className="w-1/12 whitespace-nowrap font-semibold">
-                            Salary type
-                          </span>
-                          <div className="w-11/12 flex flex-row items-center justify-between">
+                        <div className="flex flex-row items-center justify-between">
+                          <div className="p-4 flex flex-row items-center justify-between">
+                            <span className="w-[100px] whitespace-nowrap font-semibold">
+                              Salary type
+                            </span>
                             <FormField
                               control={form.control}
-                              name="baseSalary"
+                              name="salaryType"
                               render={({ field }) => (
                                 <FormItem>
                                   <FormControl>
-                                    <div className="min-w-[500px] flex flex-row items-center gap-2">
+                                    <div className="min-w-[400px] flex flex-row items-center gap-2">
                                       <MyCombobox
                                         className="w-full"
-                                        defaultValue={field.value.salaryType}
+                                        defaultValue={field.value}
                                         choices={Object.values(SalaryType)}
                                         onValueChange={(val) => {
                                           form.setValue(
-                                            "baseSalary.salaryType",
+                                            "salaryType",
                                             val as SalaryType
                                           );
                                           onSalaryTypeChange(val);
@@ -757,246 +586,46 @@ export function AddStaffDialog({
                               )}
                             />
                           </div>
-                        </div>
-                        <div className="p-4 flex flex-row items-center justify-between bg-sky-100">
-                          <div className="w-3/12 flex flex-row items-center justify-between gap-12">
-                            <span className="font-semibold">Wage</span>
-                          </div>
-                          <div className="w-9/12 flex flex-row items-center justify-end text-right">
-                            <div className={cn("w-[200px] px-2 font-semibold")}>
-                              Saturday
-                            </div>
-                            <div className={cn("w-[200px] px-2 font-semibold")}>
-                              Sunday
-                            </div>
-                            <div className={cn("w-[200px] px-2 font-semibold")}>
-                              Day off
-                            </div>
-                            <div className={cn("w-[200px] px-2 font-semibold")}>
-                              Holiday
-                            </div>
-                          </div>
-                        </div>
-                        <Separator />
-                        <div className="p-4 flex flex-row items-center justify-between">
-                          <FormField
-                            control={form.control}
-                            name="baseSalary"
-                            render={({ field }) => (
-                              <FormItem>
-                                <div className="w-3/12 flex flex-row items-center justify-between gap-12">
-                                  <FormLabel>
-                                    <span className="font-semibold">
-                                      Default
-                                    </span>
-                                  </FormLabel>
-                                  <FormControl>
-                                    <div className="w-[250px] flex flex-row items-center gap-2 whitespace-nowrap">
-                                      <Input
-                                        defaultValue={field.value.value}
-                                        className="w-[150px] text-right"
-                                        placeholder="0"
-                                        onChange={(e) => {
-                                          removeCharNotANum(e);
-                                          console.log("change", e.target.value);
-                                          form.setValue(
-                                            "baseSalary.value",
-                                            !Number.isNaN(
-                                              Number.parseInt(e.target.value)
-                                            )
-                                              ? Number.parseInt(e.target.value)
-                                              : 0
-                                          );
-                                        }}
-                                      />
-                                      <span>{`/ ${
-                                        SalaryUnitTable[
-                                          salarySetting.baseSalary.salaryType
-                                        ]
-                                      }`}</span>
-                                    </div>
-                                  </FormControl>
-                                </div>
-                              </FormItem>
-                            )}
-                          />
-                          <div className="w-9/12 flex flex-row items-center justify-end">
+                          <div className="p-4 flex flex-row items-center justify-between">
                             <FormField
                               control={form.control}
-                              name="baseBonus"
+                              name="salary"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormControl>
-                                    <div className="flex flex-row items-center">
-                                      <UnitButtonGroup
-                                        defaultValue={
-                                          field.value.saturday.value
-                                        }
-                                        defaultUnit={field.value.saturday.unit}
-                                        onValueChange={(val, unit) => {
-                                          form.setValue(
-                                            "baseBonus.saturday.value",
-                                            val
-                                          );
-                                          form.setValue(
-                                            "baseBonus.saturday.unit",
-                                            unit
-                                          );
-                                        }}
-                                      />
-                                      <UnitButtonGroup
-                                        defaultValue={field.value.sunday.value}
-                                        defaultUnit={field.value.sunday.unit}
-                                        onValueChange={(val, unit) => {
-                                          form.setValue(
-                                            "baseBonus.sunday.value",
-                                            val
-                                          );
-                                          form.setValue(
-                                            "baseBonus.sunday.unit",
-                                            unit
-                                          );
-                                        }}
-                                      />
-                                      <UnitButtonGroup
-                                        defaultValue={field.value.dayOff.value}
-                                        defaultUnit={field.value.dayOff.unit}
-                                        onValueChange={(val, unit) => {
-                                          form.setValue(
-                                            "baseBonus.dayOff.value",
-                                            val
-                                          );
-                                          form.setValue(
-                                            "baseBonus.dayOff.unit",
-                                            unit
-                                          );
-                                        }}
-                                      />
-                                      <UnitButtonGroup
-                                        defaultValue={field.value.holiday.value}
-                                        defaultUnit={field.value.holiday.unit}
-                                        onValueChange={(val, unit) => {
-                                          form.setValue(
-                                            "baseBonus.holiday.value",
-                                            val
-                                          );
-                                          form.setValue(
-                                            "baseBonus.holiday.unit",
-                                            unit
-                                          );
-                                        }}
-                                      />
-                                    </div>
-                                  </FormControl>
-                                </FormItem>
-                              )}
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="w-full rounded shadow-[0px_5px_15px_rgba(0,0,0,.1)] overflow-hidden">
-                        <div className="min-w-[500px] p-4 flex flex-row items-center gap-2">
-                          <span className="w-1/3 whitespace-nowrap font-semibold">
-                            Overtime pay
-                          </span>
-                        </div>
-                        <div
-                          className={cn(
-                            "p-4 flex flex-row items-center justify-between bg-sky-100"
-                          )}
-                        >
-                          <div className="w-3/12 flex flex-row items-center justify-between gap-12">
-                            <span className="font-semibold">Wage</span>
-                          </div>
-                          <div className="w-9/12 flex flex-row items-center justify-end text-right">
-                            <span className="w-[200px] px-2 font-semibold">
-                              Saturday
-                            </span>
-                            <span className="w-[200px] px-2 font-semibold">
-                              Sunday
-                            </span>
-                            <span className="w-[200px] px-2 font-semibold">
-                              Day off
-                            </span>
-                            <span className="w-[200px] px-2 font-semibold">
-                              Holiday
-                            </span>
-                          </div>
-                        </div>
-                        <Separator />
-                        <div className="p-4 flex flex-row items-center justify-between">
-                          <div className="w-3/12 flex flex-row items-center justify-between gap-12">
-                            <span className="font-semibold">Default</span>
-                          </div>
-                          <div className="w-9/12 flex flex-row items-center justify-end">
-                            <FormField
-                              control={form.control}
-                              name="overtimeBonus"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormControl>
-                                    <div className="flex flex-row items-center">
-                                      <UnitButtonGroup
-                                        defaultValue={
-                                          field.value.saturday.value
-                                        }
-                                        defaultUnit={field.value.saturday.unit}
-                                        onValueChange={(val, unit) => {
-                                          form.setValue(
-                                            "overtimeBonus.saturday.value",
-                                            val
-                                          );
-                                          form.setValue(
-                                            "overtimeBonus.saturday.unit",
-                                            unit
-                                          );
-                                        }}
-                                      />
-                                      <UnitButtonGroup
-                                        defaultValue={field.value.sunday.value}
-                                        defaultUnit={field.value.sunday.unit}
-                                        onValueChange={(val, unit) => {
-                                          form.setValue(
-                                            "overtimeBonus.sunday.value",
-                                            val
-                                          );
-                                          form.setValue(
-                                            "overtimeBonus.sunday.unit",
-                                            unit
-                                          );
-                                        }}
-                                      />
-                                      <UnitButtonGroup
-                                        defaultValue={field.value.dayOff.value}
-                                        defaultUnit={field.value.dayOff.unit}
-                                        onValueChange={(val, unit) => {
-                                          form.setValue(
-                                            "overtimeBonus.dayOff.value",
-                                            val
-                                          );
-                                          form.setValue(
-                                            "overtimeBonus.dayOff.unit",
-                                            unit
-                                          );
-                                        }}
-                                      />
-                                      <UnitButtonGroup
-                                        defaultValue={field.value.holiday.value}
-                                        defaultUnit={field.value.holiday.unit}
-                                        onValueChange={(val, unit) => {
-                                          form.setValue(
-                                            "overtimeBonus.holiday.value",
-                                            val
-                                          );
-                                          form.setValue(
-                                            "overtimeBonus.holiday.unit",
-                                            unit
-                                          );
-                                        }}
-                                      />
-                                    </div>
-                                  </FormControl>
+                                  <div className="flex flex-row items-center justify-between gap-10">
+                                    <FormLabel>
+                                      <span className="w-[100px] whitespace-nowrap font-semibold">
+                                        Default
+                                      </span>
+                                    </FormLabel>
+                                    <FormControl>
+                                      <div className="w-[250px] flex flex-row items-center gap-2 whitespace-nowrap">
+                                        <Input
+                                          defaultValue={field.value}
+                                          className="w-[150px] text-right"
+                                          placeholder="0"
+                                          onChange={(e) => {
+                                            removeCharNotANum(e);
+                                            form.setValue(
+                                              "salary",
+                                              !Number.isNaN(
+                                                Number.parseInt(e.target.value)
+                                              )
+                                                ? Number.parseInt(
+                                                    e.target.value
+                                                  )
+                                                : 0
+                                            );
+                                          }}
+                                        />
+                                        <span>{`/ ${
+                                          SalaryUnitTable[
+                                            salarySetting.salaryType
+                                          ]
+                                        }`}</span>
+                                      </div>
+                                    </FormControl>
+                                  </div>
                                 </FormItem>
                               )}
                             />
@@ -1011,13 +640,21 @@ export function AddStaffDialog({
               <div className="flex flex-row justify-end">
                 <Button
                   type="submit"
-                  onClick={form.handleSubmit(onSubmit)}
+                  onClick={() => {
+                    form.handleSubmit(onSubmit);
+                  }}
                   variant={"green"}
                   className="mr-3"
+                  disabled={isLoading}
                 >
                   Save
+                  {isLoading && <LoadingCircle></LoadingCircle>}
                 </Button>
-                <Button type="button" onClick={handleCancelDialog}>
+                <Button
+                  type="button"
+                  onClick={handleCancelDialog}
+                  disabled={isLoading}
+                >
                   Cancel
                 </Button>
               </div>

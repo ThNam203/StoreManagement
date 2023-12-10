@@ -23,9 +23,12 @@ import { Info } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { DailyShift, Shift } from "./attendance_table";
 import { ConfirmOverwritingDialog } from "./confirm_dialog";
 import { DataTable } from "./datatable";
+import { DailyShift, Shift } from "@/entities/Attendance";
+import { ca, da } from "date-fns/locale";
+import LoadingCircle from "@/components/ui/loading_circle";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const formSchema = z.object({
   date: z.date(),
@@ -44,11 +47,13 @@ export function SetTimeDialog({
   submit,
   open,
   setOpen,
+  onUpdateDailyShift,
 }: {
   shiftList: Shift[];
   specificShift: DailyShift | null;
   staffList: Staff[];
-  submit?: (values: Shift[]) => void;
+  submit?: (values: DailyShift[]) => any;
+  onUpdateDailyShift?: (dailyShift: DailyShift) => any;
   open: boolean;
   setOpen: (open: boolean) => void;
 }) {
@@ -69,13 +74,14 @@ export function SetTimeDialog({
   const [isRepeat, setIsRepeat] = useState(false);
   const [openConfirmOverwritingDialog, setOpenConfirmOverwritingDialog] =
     useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (open) resetValues(specificShift);
-    console.log("speccific shift", specificShift);
   }, [open]);
 
   const resetValues = (specificShift: DailyShift | null) => {
+    setIsLoading(false);
     if (specificShift) {
       form.setValue("date", specificShift.date);
       form.setValue("shiftName", specificShift.shiftName);
@@ -92,10 +98,12 @@ export function SetTimeDialog({
     setIsRepeat(false);
   };
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    if (!submit) return;
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    if (!specificShift) return;
+    setIsLoading(true);
     const updatedDailyShift: DailyShift = {
-      shiftId: null,
+      id: specificShift.id,
+      shiftId: specificShift ? specificShift.shiftId : -1,
       shiftName: values.shiftName,
       date: values.date,
       note: values.note,
@@ -103,17 +111,18 @@ export function SetTimeDialog({
     };
     attendStaffList.forEach((staff) => {
       updatedDailyShift.attendList.push({
+        id: -1,
         staffId: staff.id,
         staffName: staff.name,
         hasAttend: false,
         date: values.date,
-        timeIn: new Date(),
-        timeOut: new Date(),
         note: "",
+        bonus: [],
+        punish: [],
       });
     });
-    let newShiftList: Shift[] = [...shiftList];
-    console.log("new shift list init", newShiftList);
+
+    let dailyShiftList: DailyShift[] = [];
     if (isRepeat) {
       const { repeatPeriod, startRepeat, finishRepeat } = values;
       const repeatPeriodIndex = repeatPeriodList.findIndex(
@@ -133,45 +142,39 @@ export function SetTimeDialog({
         );
         const newDailyShift = { ...updatedDailyShift };
         newDailyShift.date = newDate;
-        newShiftList = addShiftToList(newDailyShift, newDate, newShiftList);
+        dailyShiftList.push(newDailyShift);
       }
-      console.log("running", newShiftList);
     } else {
-      newShiftList = addShiftToList(
-        updatedDailyShift,
-        values.date,
-        newShiftList
-      );
+      dailyShiftList.push(updatedDailyShift);
     }
-    console.log("new shift list", newShiftList);
 
-    submit(newShiftList);
-    resetToEmptyForm();
-    setOpen(false);
-  }
-
-  const addShiftToList = (
-    shiftToAdd: DailyShift,
-    date: Date,
-    shiftList: Shift[]
-  ) => {
-    const newShiftList = [...shiftList];
-    const shift = newShiftList.find(
-      (shift) => shift.name === shiftToAdd.shiftName
-    );
-    if (shift) {
-      const index = shift.dailyShiftList.findIndex(
-        (dailyShift) =>
-          dailyShift.date.toLocaleDateString() === date.toLocaleDateString()
-      );
-      shiftToAdd.shiftId = shift.id;
-      if (index !== -1) {
-        shift.dailyShiftList[index] = shiftToAdd;
-      } else {
-        shift.dailyShiftList.push(shiftToAdd);
+    if (specificShift.attendList.length > 0) {
+      console.log("update specific shift", specificShift);
+      if (onUpdateDailyShift) {
+        try {
+          await onUpdateDailyShift(updatedDailyShift);
+        } catch (error) {
+          console.log(error);
+        } finally {
+          resetToEmptyForm();
+          setOpen(false);
+          setIsLoading(false);
+        }
+      }
+    } else {
+      console.log("submit new shift");
+      if (submit) {
+        try {
+          await submit(dailyShiftList);
+        } catch (error) {
+          console.log(error);
+        } finally {
+          resetToEmptyForm();
+          setOpen(false);
+          setIsLoading(false);
+        }
       }
     }
-    return newShiftList;
   };
 
   const isShiftExisted = (
@@ -206,193 +209,203 @@ export function SetTimeDialog({
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            <div className="w-[1000px] h-[500px] flex flex-col justify-start gap-2">
-              <div className="w-full flex flex-row items-center justify-between">
-                <div className="flex flex-row items-center gap-4">
+            <ScrollArea className="w-[1000px] h-[500px] pr-2">
+              <div className="h-full w-full flex flex-col justify-start gap-2">
+                <div className="w-full flex flex-row items-center justify-between">
+                  <div className="flex flex-row items-center gap-4">
+                    <FormField
+                      control={form.control}
+                      name="date"
+                      render={({ field }) => (
+                        <FormItem>
+                          <div className="flex flex-row items-center gap-2">
+                            <FormLabel>
+                              <div className="w-[100px] flex flex-row items-center space-x-2">
+                                <h5 className="text-sm">
+                                  {isRepeat ? "Start date" : "Date"}
+                                </h5>
+                                <Info size={16} />
+                              </div>
+                            </FormLabel>
+
+                            <FormControl>
+                              <div className="w-[220px]">
+                                <DatePicker
+                                  value={field.value}
+                                  onChange={(date) =>
+                                    form.setValue("date", date)
+                                  }
+                                />
+                              </div>
+                            </FormControl>
+                          </div>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="isRepeat"
+                      render={({ field }) => (
+                        <FormItem>
+                          <div className="flex flex-row items-center gap-2">
+                            <FormControl>
+                              <Checkbox
+                                checked={field.value}
+                                onCheckedChange={(isChecked) => {
+                                  form.setValue("isRepeat", !!isChecked);
+                                  setIsRepeat(!!isChecked);
+                                }}
+                              />
+                            </FormControl>
+                            <FormLabel>
+                              <h5 className="text-sm cursor-pointer">Repeat</h5>
+                            </FormLabel>
+                          </div>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="repeatPeriod"
+                      render={({ field }) => (
+                        <FormItem>
+                          <div className="flex flex-row items-center gap-2">
+                            <FormControl>
+                              <MyCombobox
+                                choices={repeatPeriodList}
+                                defaultValue={repeatPeriodList[0]}
+                                onValueChange={(val) =>
+                                  form.setValue("repeatPeriod", val)
+                                }
+                                className="w-[100px]"
+                              />
+                            </FormControl>
+                          </div>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="flex flex-row items-center gap-2">
+                    <FormField
+                      control={form.control}
+                      name="finishRepeat"
+                      render={({ field }) => (
+                        <FormItem>
+                          <div
+                            className={cn(
+                              "w-full flex flex-row items-center gap-2",
+                              isRepeat ? "visible" : "hidden"
+                            )}
+                          >
+                            <FormLabel>
+                              <div
+                                className={cn(
+                                  "w-[100px] flex flex-row items-center space-x-2"
+                                )}
+                              >
+                                <h5 className="text-sm">Finish date</h5>
+                                <Info size={16} />
+                              </div>
+                            </FormLabel>
+                            <FormControl>
+                              <div className={cn("w-[220px]")}>
+                                <DatePicker
+                                  value={field.value}
+                                  onChange={(date) =>
+                                    form.setValue("finishRepeat", date)
+                                  }
+                                />
+                              </div>
+                            </FormControl>
+                          </div>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+                <div>
                   <FormField
                     control={form.control}
-                    name="date"
+                    name="shiftName"
                     render={({ field }) => (
                       <FormItem>
-                        <div className="flex flex-row items-center gap-2">
+                        <div className="w-full flex flex-row items-center gap-2">
                           <FormLabel>
                             <div className="w-[100px] flex flex-row items-center space-x-2">
-                              <h5 className="text-sm">
-                                {isRepeat ? "Start date" : "Date"}
-                              </h5>
+                              <h5 className="text-sm">Shift</h5>
                               <Info size={16} />
                             </div>
                           </FormLabel>
-
                           <FormControl>
-                            <div className="w-[220px]">
-                              <DatePicker
-                                value={field.value}
-                                onChange={(date) => form.setValue("date", date)}
-                              />
-                            </div>
+                            <MyCombobox
+                              defaultValue={field.value}
+                              onValueChange={(val) => {
+                                form.setValue("shiftName", val);
+                              }}
+                              className="w-[200px]"
+                              placeholder="Find shift.."
+                              choices={shiftList.map((shift) => shift.name)}
+                            />
                           </FormControl>
                         </div>
                       </FormItem>
                     )}
                   />
+                </div>
+                <div>
                   <FormField
                     control={form.control}
-                    name="isRepeat"
+                    name="note"
                     render={({ field }) => (
                       <FormItem>
-                        <div className="flex flex-row items-center gap-2">
+                        <div className="w-full flex flex-row items-center gap-2">
+                          <FormLabel>
+                            <div className="w-[100px] flex flex-row items-center space-x-2">
+                              <h5 className="text-sm">Note</h5>
+                              <Info size={16} />
+                            </div>
+                          </FormLabel>
                           <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={(isChecked) => {
-                                form.setValue("isRepeat", !!isChecked);
-                                setIsRepeat(!!isChecked);
+                            <Textarea
+                              defaultValue={field.value}
+                              className="resize-none"
+                              placeholder="Take note"
+                              onChange={(e) => {
+                                form.setValue("note", e.target.value);
                               }}
                             />
                           </FormControl>
-                          <FormLabel>
-                            <h5 className="text-sm cursor-pointer">Repeat</h5>
-                          </FormLabel>
-                        </div>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="repeatPeriod"
-                    render={({ field }) => (
-                      <FormItem>
-                        <div className="flex flex-row items-center gap-2">
-                          <FormControl>
-                            <MyCombobox
-                              choices={repeatPeriodList}
-                              defaultValue={repeatPeriodList[0]}
-                              onValueChange={(val) =>
-                                form.setValue("repeatPeriod", val)
-                              }
-                              className="w-[100px]"
-                            />
-                          </FormControl>
                         </div>
                       </FormItem>
                     )}
                   />
                 </div>
-                <div className="flex flex-row items-center gap-2">
-                  <FormField
-                    control={form.control}
-                    name="finishRepeat"
-                    render={({ field }) => (
-                      <FormItem>
-                        <div
-                          className={cn(
-                            "w-full flex flex-row items-center gap-2",
-                            isRepeat ? "visible" : "hidden"
-                          )}
-                        >
-                          <FormLabel>
-                            <div
-                              className={cn(
-                                "w-[100px] flex flex-row items-center space-x-2"
-                              )}
-                            >
-                              <h5 className="text-sm">Finish date</h5>
-                              <Info size={16} />
-                            </div>
-                          </FormLabel>
-                          <FormControl>
-                            <div className={cn("w-[220px]")}>
-                              <DatePicker
-                                value={field.value}
-                                onChange={(date) =>
-                                  form.setValue("finishRepeat", date)
-                                }
-                              />
-                            </div>
-                          </FormControl>
-                        </div>
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-              <div>
-                <FormField
-                  control={form.control}
-                  name="shiftName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <div className="w-full flex flex-row items-center gap-2">
-                        <FormLabel>
-                          <div className="w-[100px] flex flex-row items-center space-x-2">
-                            <h5 className="text-sm">Shift</h5>
-                            <Info size={16} />
-                          </div>
-                        </FormLabel>
-                        <FormControl>
-                          <MyCombobox
-                            defaultValue={field.value}
-                            onValueChange={(val) => {
-                              form.setValue("shiftName", val);
-                            }}
-                            className="w-[200px]"
-                            placeholder="Find shift.."
-                            choices={shiftList.map((shift) => shift.name)}
-                          />
-                        </FormControl>
-                      </div>
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div>
-                <FormField
-                  control={form.control}
-                  name="note"
-                  render={({ field }) => (
-                    <FormItem>
-                      <div className="w-full flex flex-row items-center gap-2">
-                        <FormLabel>
-                          <div className="w-[100px] flex flex-row items-center space-x-2">
-                            <h5 className="text-sm">Note</h5>
-                            <Info size={16} />
-                          </div>
-                        </FormLabel>
-                        <FormControl>
-                          <Textarea
-                            defaultValue={field.value}
-                            className="resize-none"
-                            placeholder="Take note"
-                            onChange={(e) => {
-                              form.setValue("note", e.target.value);
-                            }}
-                          />
-                        </FormControl>
-                      </div>
-                    </FormItem>
-                  )}
-                />
-              </div>
 
-              <DataTable
-                defaultData={attendStaffList}
-                staffList={staffList}
-                onDataChange={handleDataChange}
-              />
-            </div>
-            <div className="flex flex-row justify-end">
+                <DataTable
+                  defaultData={attendStaffList}
+                  staffList={staffList}
+                  onDataChange={handleDataChange}
+                />
+              </div>
+            </ScrollArea>
+            <div className="flex flex-row justify-end mt-2">
               <Button
                 type="submit"
                 onClick={() => {
                   form.handleSubmit(onSubmit);
                 }}
-                variant={"default"}
+                variant={"green"}
                 className="mr-3"
+                disabled={isLoading}
               >
                 Save
+                {isLoading && <LoadingCircle></LoadingCircle>}
               </Button>
-              <Button type="button" onClick={handleCancelDialog}>
+              <Button
+                type="button"
+                onClick={handleCancelDialog}
+                disabled={isLoading}
+              >
                 Cancel
               </Button>
             </div>

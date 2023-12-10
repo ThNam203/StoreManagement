@@ -15,14 +15,17 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import LoadingCircle from "@/components/ui/loading_circle";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Shift, Status } from "@/entities/Attendance";
+import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { format } from "date-fns";
-import { Info } from "lucide-react";
+import { format, set } from "date-fns";
+import { ca, fi, is } from "date-fns/locale";
+import { Info, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Shift, Status } from "./attendance_table";
 
 const formSchema = z.object({
   name: z.string().min(1),
@@ -43,12 +46,14 @@ export function AddShiftDialog({
   submit,
   open,
   setOpen,
+  handleRemoveShift,
 }: {
   title?: string;
   shift: Shift | null;
-  submit?: (value: Shift) => void;
+  submit?: (value: Shift) => any;
   open: boolean;
   setOpen: (value: boolean) => void;
+  handleRemoveShift?: (id: any) => any;
 }) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -65,9 +70,13 @@ export function AddShiftDialog({
       status: Status.Working,
     },
   });
-
+  const [isAdding, setIsAdding] = useState(false);
+  const [isRemoving, setIsRemoving] = useState(false);
   const resetValues = (shift: Shift | null) => {
+    setIsAdding(false);
+    setIsRemoving(false);
     if (shift) {
+      title = "Edit shift";
       form.setValue("name", shift.name);
       form.setValue(
         "workingTime.start",
@@ -105,7 +114,8 @@ export function AddShiftDialog({
     return time;
   };
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    setIsAdding(true);
     const newShift: Shift = {
       id: shift ? shift.id : null,
       name: values.name,
@@ -122,16 +132,22 @@ export function AddShiftDialog({
     };
 
     if (submit) {
-      submit(newShift);
-      form.reset();
-      setOpen(false);
+      try {
+        await submit(newShift);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setIsAdding(false);
+        setOpen(false);
+        resetToEmptyForm();
+      }
     }
-  }
+  };
 
-  function handleCancelDialog() {
+  const handleCancelDialog = () => {
     setOpen(false);
     resetValues(shift);
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -301,16 +317,48 @@ export function AddShiftDialog({
                 )}
               />
             </div>
-            <div className="flex flex-row justify-end">
+            <div className={cn("flex flex-row justify-end")}>
+              <Button
+                type="button"
+                onClick={async () => {
+                  if (handleRemoveShift && shift) {
+                    setIsRemoving(true);
+                    try {
+                      await handleRemoveShift(shift.id);
+                    } catch (error) {
+                      console.log(error);
+                    } finally {
+                      setOpen(false);
+                      resetToEmptyForm();
+                      setIsRemoving(false);
+                    }
+                  }
+                }}
+                variant={"red"}
+                className={cn("mr-3 gap-1", shift ? "visible" : "hidden")}
+                disabled={isAdding || isRemoving}
+              >
+                <Trash size={16}></Trash>
+                Remove
+                {isRemoving ? <LoadingCircle></LoadingCircle> : null}
+              </Button>
               <Button
                 type="submit"
-                onClick={form.handleSubmit(onSubmit)}
-                variant={"default"}
+                onClick={async () => {
+                  form.handleSubmit(onSubmit);
+                }}
+                variant={"green"}
                 className="mr-3"
+                disabled={isAdding || isRemoving}
               >
-                Save
+                {shift ? "Update" : "Add"}
+                {isAdding ? <LoadingCircle></LoadingCircle> : null}
               </Button>
-              <Button type="button" onClick={handleCancelDialog}>
+              <Button
+                type="button"
+                onClick={handleCancelDialog}
+                disabled={isAdding || isRemoving}
+              >
                 Cancel
               </Button>
             </div>

@@ -69,9 +69,9 @@ function DataTableContent<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  onClick={(e) =>
-                    onRowClick ? onRowClick(row.original, idx) : null
-                  }
+                  onClick={(e) => {
+                    if (onRowClick) onRowClick(row.original, idx);
+                  }}
                   className={rowClassname}
                 >
                   {row.getVisibleCells().map((cell) => (

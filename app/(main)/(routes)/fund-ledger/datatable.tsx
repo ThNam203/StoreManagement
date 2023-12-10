@@ -215,7 +215,7 @@ export function DataTable({ data, onSubmit }: Props) {
           </span>
         </div>
       </div>
-      <DataTableContent columns={columns} data={data} table={table} />
+      <DataTableContent columns={columns} table={table} />
     </div>
   );
 }

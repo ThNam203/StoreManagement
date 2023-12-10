@@ -11,216 +11,43 @@ import { Input } from "@/components/ui/input";
 import { TimeFilterType, formatID, getStaticRangeFilterTime } from "@/utils";
 import { AlignJustify, FileDown, Filter, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
-import { DisplayType, Shift, Status, Table } from "./attendance_table";
+import { DisplayType, Table } from "./attendance_table";
 import { ButtonGroup } from "./button_group";
 import { MyDateRangePicker } from "./my_date_range_picker";
 import { SetTimeDialog } from "./set_time_dialog";
 import { set } from "date-fns";
-import { el } from "date-fns/locale";
+import { el, fi } from "date-fns/locale";
 import { Sex, Staff } from "@/entities/Staff";
 import { BonusUnit, SalaryType } from "@/entities/SalarySetting";
-import { useAppSelector } from "@/hooks";
-
-// const dataTable: Shift[] = [
-//   {
-//     id: 1,
-//     name: "Ca sang",
-//     status: Status.Working,
-//     workingTime: { start: new Date(), end: new Date() },
-//     editingTime: { start: new Date(), end: new Date() },
-//     dailyShiftList: [],
-//   },
-//   {
-//     id: 2,
-//     name: "Ca chieu",
-//     status: Status.Working,
-//     workingTime: { start: new Date(), end: new Date() },
-//     editingTime: { start: new Date(), end: new Date() },
-//     dailyShiftList: [],
-//   },
-// ];
-
-// const originalStaffList: Staff[] = [
-//   {
-//     avatar: "",
-//     id: 1,
-//     name: "Henry",
-//     email: "henry@gmail.com",
-//     password: "123456",
-//     address: "address",
-//     phoneNumber: "0123456789",
-//     note: "",
-//     sex: Sex.MALE,
-//     cccd: "012301923012",
-//     role: "STAFF",
-//     birthday: new Date("2003-8-4"),
-//     createAt: new Date(),
-//     position: "Safe guard",
-//     salaryDebt: 0,
-//     salarySetting: {
-//       baseSalary: {
-//         value: 100000,
-//         salaryType: SalaryType.ByDay,
-//       },
-//       baseBonus: {
-//         saturday: {
-//           value: 0,
-//           unit: BonusUnit["%"],
-//         },
-//         sunday: {
-//           value: 0,
-//           unit: BonusUnit["%"],
-//         },
-//         dayOff: {
-//           value: 0,
-//           unit: BonusUnit["%"],
-//         },
-//         holiday: {
-//           value: 0,
-//           unit: BonusUnit["%"],
-//         },
-//       },
-//       overtimeBonus: {
-//         saturday: {
-//           value: 0,
-//           unit: BonusUnit["%"],
-//         },
-//         sunday: {
-//           value: 0,
-//           unit: BonusUnit["%"],
-//         },
-//         dayOff: {
-//           value: 0,
-//           unit: BonusUnit["%"],
-//         },
-//         holiday: {
-//           value: 0,
-//           unit: BonusUnit["%"],
-//         },
-//       },
-//     },
-//   },
-//   {
-//     avatar: "",
-//     id: 2,
-//     name: "Mary",
-//     email: "mary@gmail.com",
-//     password: "123456",
-//     address: "address Mary",
-//     phoneNumber: "0123456769",
-//     note: "",
-//     sex: Sex.FEMALE,
-//     cccd: "012301923011",
-//     role: "STAFF",
-//     birthday: new Date("2003-4-4"),
-//     createAt: new Date(),
-//     position: "Cashier",
-//     salaryDebt: 0,
-//     salarySetting: {
-//       baseSalary: {
-//         value: 100000,
-//         salaryType: SalaryType.ByDay,
-//       },
-//       baseBonus: {
-//         saturday: {
-//           value: 0,
-//           unit: BonusUnit["%"],
-//         },
-//         sunday: {
-//           value: 0,
-//           unit: BonusUnit["%"],
-//         },
-//         dayOff: {
-//           value: 0,
-//           unit: BonusUnit["%"],
-//         },
-//         holiday: {
-//           value: 0,
-//           unit: BonusUnit["%"],
-//         },
-//       },
-//       overtimeBonus: {
-//         saturday: {
-//           value: 0,
-//           unit: BonusUnit["%"],
-//         },
-//         sunday: {
-//           value: 0,
-//           unit: BonusUnit["%"],
-//         },
-//         dayOff: {
-//           value: 0,
-//           unit: BonusUnit["%"],
-//         },
-//         holiday: {
-//           value: 0,
-//           unit: BonusUnit["%"],
-//         },
-//       },
-//     },
-//   },
-//   {
-//     avatar: "",
-//     id: 3,
-//     name: "David",
-//     email: "david@gmail.com",
-//     password: "123456",
-//     address: "address David",
-//     phoneNumber: "0124456789",
-//     note: "",
-//     sex: Sex.MALE,
-//     cccd: "012301943012",
-//     role: "STAFF",
-//     birthday: new Date("2003-8-8"),
-//     createAt: new Date(),
-//     position: "Store Manager",
-//     salaryDebt: 0,
-//     salarySetting: {
-//       baseSalary: {
-//         value: 100000,
-//         salaryType: SalaryType.ByDay,
-//       },
-//       baseBonus: {
-//         saturday: {
-//           value: 0,
-//           unit: BonusUnit["%"],
-//         },
-//         sunday: {
-//           value: 0,
-//           unit: BonusUnit["%"],
-//         },
-//         dayOff: {
-//           value: 0,
-//           unit: BonusUnit["%"],
-//         },
-//         holiday: {
-//           value: 0,
-//           unit: BonusUnit["%"],
-//         },
-//       },
-//       overtimeBonus: {
-//         saturday: {
-//           value: 0,
-//           unit: BonusUnit["%"],
-//         },
-//         sunday: {
-//           value: 0,
-//           unit: BonusUnit["%"],
-//         },
-//         dayOff: {
-//           value: 0,
-//           unit: BonusUnit["%"],
-//         },
-//         holiday: {
-//           value: 0,
-//           unit: BonusUnit["%"],
-//         },
-//       },
-//     },
-//   },
-// ];
+import { useAppDispatch, useAppSelector } from "@/hooks";
+import { DailyShift, Shift } from "@/entities/Attendance";
+import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
+import ShiftService from "@/services/shift_service";
+import {
+  addDailyShift,
+  addDailyShifts,
+  addShift,
+  deleteDailyShift,
+  deleteShift,
+  setShifts,
+  updateDailyShift,
+  updateShift,
+} from "@/reducers/shiftReducer";
+import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { useToast } from "@/components/ui/use-toast";
+import {
+  convertDailyShiftReceived,
+  convertDailyShiftToSent,
+  convertShiftReceived,
+  convertShiftToSent,
+} from "@/utils/shiftApiUtils";
+import { off } from "process";
+import LoadingCircle from "@/components/ui/loading_circle";
+import { cn } from "@/lib/utils";
 
 export default function Attendance() {
+  const dispatch = useAppDispatch();
+  const { toast } = useToast();
   const [range, setRange] = useState<{ startDate: Date; endDate: Date }>(
     getStaticRangeFilterTime(FilterWeek.ThisWeek)
   );
@@ -229,13 +56,50 @@ export default function Attendance() {
 
   const table = useAppSelector((state) => state.shift.value);
   const staffList = useAppSelector((state) => state.staffs.value);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const getShiftsByRange = async (range: {
+    startDate: Date;
+    endDate: Date;
+  }) => {
+    setIsLoading(true);
+    try {
+      const resShiftList = await ShiftService.getShiftsByRange(range);
+      let shiftList: Shift[] = [];
+      resShiftList.data.forEach((shift) => {
+        shiftList.push(convertShiftReceived(shift));
+      });
+      dispatch(setShifts(shiftList));
+    } catch (e) {
+      axiosUIErrorHandler(e, toast);
+      return Promise.reject();
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  const getShiftsThisMonth = async () => {
+    try {
+      const resShiftList = await ShiftService.getShiftsThisMonth();
+      let shiftList: Shift[] = [];
+      resShiftList.data.forEach((shift) => {
+        shiftList.push(convertShiftReceived(shift));
+      });
+      dispatch(setShifts(shiftList));
+    } catch (e) {
+      axiosUIErrorHandler(e, toast);
+      return Promise.reject();
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleRangeTimeFilterChange = (range: {
     startDate: Date;
     endDate: Date;
   }) => {
     setRange(range);
-    setDisplayType("Month");
+    setDisplayType("Custom");
+    getShiftsByRange(range);
   };
   const handleStaticRangeFilterChange = (value: string) => {
     if (value === "Day") setRange(getStaticRangeFilterTime(FilterDay.Today));
@@ -243,26 +107,102 @@ export default function Attendance() {
       setRange(getStaticRangeFilterTime(FilterWeek.ThisWeek));
     else setRange(getStaticRangeFilterTime(FilterMonth.ThisMonth));
     setDisplayType(value as DisplayType);
+    if (displayType === "Custom") getShiftsThisMonth();
+  };
+  const AddShift = async (shift: Shift) => {
+    try {
+      const newShift = convertShiftToSent(shift);
+      console.log("to sent", newShift);
+      const res = await ShiftService.createShift(newShift);
+      const result = convertShiftReceived(res.data);
+      console.log("received", result);
+      dispatch(addShift(result));
+      return Promise.resolve();
+    } catch (e) {
+      axiosUIErrorHandler(e, toast);
+      return Promise.reject();
+    }
+  };
+  const UpdateShift = async (id: any, shift: Shift) => {
+    try {
+      const newShift = convertShiftToSent(shift);
+      const res = await ShiftService.updateShift(id, newShift);
+      const result = convertShiftReceived(res.data);
+      dispatch(updateShift(result));
+      return Promise.resolve();
+    } catch (e) {
+      axiosUIErrorHandler(e, toast);
+      return Promise.reject();
+    }
+  };
+
+  const AddDailyShifts = async (dailyShiftList: DailyShift[]) => {
+    try {
+      const newDailyShiftList = dailyShiftList.map((dailyShift) =>
+        convertDailyShiftToSent(dailyShift)
+      );
+      console.log("to sent", newDailyShiftList);
+      const res = await ShiftService.createDailyShifts(newDailyShiftList);
+      console.log("received", res.data);
+      const result = res.data.map((dailyShift: any) =>
+        convertDailyShiftReceived(dailyShift)
+      );
+      dispatch(addDailyShifts(result));
+      return Promise.resolve();
+    } catch (e) {
+      axiosUIErrorHandler(e, toast);
+      return Promise.reject();
+    }
+  };
+  const UpdateDailyShift = async (dailyShift: DailyShift) => {
+    try {
+      const newDailyShift = convertDailyShiftToSent(dailyShift);
+      const res = await ShiftService.updateDailyShift(
+        dailyShift.id,
+        newDailyShift
+      );
+      if (res.data) {
+        const result = convertDailyShiftReceived(res.data);
+        dispatch(updateDailyShift(result));
+      } else {
+        dispatch(deleteDailyShift(dailyShift));
+      }
+      return Promise.resolve();
+    } catch (e) {
+      axiosUIErrorHandler(e, toast);
+      return Promise.reject();
+    }
   };
   const handleUpdateShift = (value: Shift) => {
     const index = table.findIndex((shift) => shift.id === value.id);
     if (index !== -1) {
-      const newTable = [...table];
-      newTable[index] = value;
-      // setTable(newTable);
+      return UpdateShift(value.id, value);
     } else {
-      value.id = table.length + 1;
-      // setTable((prev) => [...prev, value]);
+      return AddShift(value);
+    }
+  };
+  const handleRemoveShift = async (id: any) => {
+    try {
+      await ShiftService.deleteShift(id);
+      dispatch(deleteShift(id));
+      return Promise.resolve();
+    } catch (e) {
+      axiosUIErrorHandler(e, toast);
+      return Promise.reject();
     }
   };
 
-  const handleUpdateShiftList = (value: Shift[]) => {};
+  const handleAddDailyShift = (value: DailyShift[]) => {
+    return AddDailyShifts(value);
+  };
+  const handleUpdateDailyShift = (value: DailyShift) => {
+    return UpdateDailyShift(value);
+  };
 
   return (
     <div className="text-sm flex flex-col gap-4">
       <div className="flex flex-row items-center justify-between">
         <div className="flex flex-row items-center gap-4">
-          <Input placeholder="Search anything..." className="max-w-sm" />
           <MyDateRangePicker
             rangeTimeValue={range}
             onRangeTimeFilterChanged={handleRangeTimeFilterChange}
@@ -272,6 +212,8 @@ export default function Attendance() {
             defaultValue="Week"
             onValueChange={handleStaticRangeFilterChange}
           />
+          <div className={cn(isLoading ? "visible" : "hidden")}>Loading</div>
+          {isLoading ? <LoadingCircle className="bg-red-500" /> : null}
         </div>
         <div className="flex flex-row items-center gap-4">
           <Button
@@ -286,19 +228,18 @@ export default function Attendance() {
             <FileDown className="h-4 w-4" />
             <span>Export</span>
           </Button>
-          <Button variant={"green"}>
-            <AlignJustify className="h-4 w-4" />
-          </Button>
         </div>
       </div>
 
       <Table
         staffList={staffList}
         rangeDate={range}
-        data={table}
+        shiftList={table}
         displayType={displayType}
         onUpdateShift={handleUpdateShift}
-        onSetTime={handleUpdateShiftList}
+        onSetTime={handleAddDailyShift}
+        onRemoveShift={handleRemoveShift}
+        onUpdateDailyShift={handleUpdateDailyShift}
       />
       <SetTimeDialog
         open={openSetTimeDialog}
@@ -306,7 +247,7 @@ export default function Attendance() {
         shiftList={table}
         staffList={staffList}
         specificShift={null}
-        submit={handleUpdateShiftList}
+        submit={handleAddDailyShift}
       />
     </div>
   );
