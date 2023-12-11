@@ -40,4 +40,9 @@ public class DailyShiftController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/update")
+    public ResponseEntity<List<DailyShiftDTO>> updateDailyShifts(@RequestBody List<DailyShiftDTO> dailyShiftDTOList) {
+        return ResponseEntity.ok(dailyShiftService.updateDailyShifts(dailyShiftDTOList));
+    }
+
 }
