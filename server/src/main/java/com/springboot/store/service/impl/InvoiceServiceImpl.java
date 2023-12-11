@@ -58,8 +58,8 @@ public class InvoiceServiceImpl implements InvoiceService {
         invoice.setStore(staff.getStore());
 
         // check code is valid
-        if (invoiceDTO.getCode() != null) {
-            DiscountCode discountCode = discountService.useDiscountCode(invoiceDTO.getCode());
+        if (invoiceDTO.getDiscountCode() != null) {
+            DiscountCode discountCode = discountService.useDiscountCode(invoiceDTO.getDiscountCode());
             invoice.setDiscountCode(discountCode);
         }
 
