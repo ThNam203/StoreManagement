@@ -77,11 +77,11 @@ const newProductFormSchema = z.object({
     .string({ required_error: "Group is missing" })
     .trim()
     .min(1, { message: "Group is missing" }),
-  productBrand: z.string().trim().optional(),
+  productBrand: z.string().trim().nullable(),
   location: z
     .string()
     .max(100, "Location must be at most 100 characters")
-    .optional(),
+    .nullable(),
   originalPrice: z
     .number()
     .min(0, { message: "Original price must be at least 0" })
@@ -641,7 +641,7 @@ export const NewProductView = ({
                               onValueChanged={(val) => {
                                 form.setValue(
                                   "productGroup",
-                                  val === undefined ? "" : val,
+                                  val === null ? "" : val,
                                   { shouldValidate: true }
                                 );
                               }}
@@ -1075,83 +1075,92 @@ export const NewProductView = ({
                                               scrollbar_style.scrollbar
                                             )}
                                           >
-                                            {productPropertyChoices.map(
-                                              (choice, choiceIndex) => {
-                                                return (
-                                                  <div
-                                                    key={choiceIndex}
-                                                    className="p-2 hover:bg-slate-300 rounded-sm hover:cursor-pointer flex flex-row justify-between items-center"
-                                                    onClick={() => {
-                                                      let newFormProperties: any;
-                                                      if (
-                                                        field.value![index]
-                                                          .key === choice.name
-                                                      ) {
-                                                        field.value![
-                                                          index
-                                                        ].key = "";
-                                                        newFormProperties = [
-                                                          ...field.value!,
-                                                        ];
+                                            {productPropertyChoices.length ===
+                                            0 ? (
+                                              <div className="p-2 hover:bg-slate-300 rounded-sm flex flex-row justify-between items-center">
+                                                <p className="text-sm select-none">
+                                                  No properties!
+                                                </p>
+                                              </div>
+                                            ) : (
+                                              productPropertyChoices.map(
+                                                (choice, choiceIndex) => {
+                                                  return (
+                                                    <div
+                                                      key={choiceIndex}
+                                                      className="p-2 hover:bg-slate-300 rounded-sm hover:cursor-pointer flex flex-row justify-between items-center"
+                                                      onClick={() => {
+                                                        let newFormProperties: any;
+                                                        if (
+                                                          field.value![index]
+                                                            .key === choice.name
+                                                        ) {
+                                                          field.value![
+                                                            index
+                                                          ].key = "";
+                                                          newFormProperties = [
+                                                            ...field.value!,
+                                                          ];
 
-                                                        form.setValue(
-                                                          "productProperties",
-                                                          newFormProperties
-                                                        );
-                                                      } else if (
-                                                        !field.value!.every(
-                                                          (
-                                                            fieldVal,
-                                                            fieldIdx
-                                                          ) => {
-                                                            return (
-                                                              fieldVal.key !==
-                                                              choice.name
-                                                            );
-                                                          }
-                                                        )
-                                                      ) {
-                                                        toast({
-                                                          description:
-                                                            "Property has already been chosen",
-                                                          variant:
-                                                            "destructive",
-                                                        });
-                                                        return;
-                                                      } else {
-                                                        field.value![
-                                                          index
-                                                        ].key = choice.name;
-                                                        newFormProperties = [
-                                                          ...field.value!,
-                                                        ];
+                                                          form.setValue(
+                                                            "productProperties",
+                                                            newFormProperties
+                                                          );
+                                                        } else if (
+                                                          !field.value!.every(
+                                                            (
+                                                              fieldVal,
+                                                              fieldIdx
+                                                            ) => {
+                                                              return (
+                                                                fieldVal.key !==
+                                                                choice.name
+                                                              );
+                                                            }
+                                                          )
+                                                        ) {
+                                                          toast({
+                                                            description:
+                                                              "Property has already been chosen",
+                                                            variant:
+                                                              "destructive",
+                                                          });
+                                                          return;
+                                                        } else {
+                                                          field.value![
+                                                            index
+                                                          ].key = choice.name;
+                                                          newFormProperties = [
+                                                            ...field.value!,
+                                                          ];
 
-                                                        form.setValue(
-                                                          "productProperties",
-                                                          newFormProperties
+                                                          form.setValue(
+                                                            "productProperties",
+                                                            newFormProperties
+                                                          );
+                                                        }
+                                                        // important
+                                                        const newFormData = {
+                                                          ...form.getValues(),
+                                                          productProperties:
+                                                            newFormProperties,
+                                                        };
+                                                        updateSameTypeProducts(
+                                                          newFormData
                                                         );
-                                                      }
-                                                      // important
-                                                      const newFormData = {
-                                                        ...form.getValues(),
-                                                        productProperties:
-                                                          newFormProperties,
-                                                      };
-                                                      updateSameTypeProducts(
-                                                        newFormData
-                                                      );
-                                                    }}
-                                                  >
-                                                    <p className="text-sm">
-                                                      {choice.name}
-                                                    </p>
-                                                    {value.key ===
-                                                    choice.name ? (
-                                                      <Check size={16} />
-                                                    ) : null}
-                                                  </div>
-                                                );
-                                              }
+                                                      }}
+                                                    >
+                                                      <p className="text-sm">
+                                                        {choice.name}
+                                                      </p>
+                                                      {value.key ===
+                                                      choice.name ? (
+                                                        <Check size={16} />
+                                                      ) : null}
+                                                    </div>
+                                                  );
+                                                }
+                                              )
                                             )}
                                           </PopoverContent>
                                         </Popover>
@@ -1970,11 +1979,14 @@ const ButtonAddNewThing = ({
             variant={"green"}
             onClick={async (e) => {
               setIsLoading(true);
-              await onAddClick(value);
-              setIsLoading(false);
-              onOpenChange(false);
+              onAddClick(value).then((e) => {
+                onOpenChange(false);
+              })
+              .finally(() => setIsLoading(false))
+              
             }}
             disabled={isLoading}
+            className="!h-[35px]"
           >
             Done
             {isLoading ? <LoadingCircle /> : null}

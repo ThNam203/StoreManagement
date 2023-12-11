@@ -19,12 +19,12 @@ export default function SearchAndChooseButton({
   choices,
   onValueChanged,
 }: {
-  value: string | undefined;
+  value: string | null;
   placeholder?: string;
   searchPlaceholder?: string;
   className?: string;
   choices: string[];
-  onValueChanged: (val: string | undefined) => void;
+  onValueChanged: (val: string | null) => void;
 }) {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [searchInput, setSearchInput] = useState("");
@@ -37,7 +37,7 @@ export default function SearchAndChooseButton({
         key={idx}
         className="p-2 bg-white hover:cursor-pointer hover:bg-slate-300 flex flex-row items-center"
         onClick={(e) => {
-          if (choice === value) onValueChanged(undefined);
+          if (choice === value) onValueChanged(null);
           else onValueChanged(choice);
           e.stopPropagation();
           setIsPopoverOpen(false);
@@ -57,7 +57,7 @@ export default function SearchAndChooseButton({
         key={results.length + 1}
         className="p-2 bg-white hover:cursor-pointer hover:bg-slate-300 flex flex-row items-center"
         onClick={(e) => {
-          if (value !== undefined) onValueChanged(undefined);
+          if (value !== undefined) onValueChanged(null);
           setIsPopoverOpen(false);
           e.stopPropagation();
         }}

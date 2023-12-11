@@ -8,7 +8,12 @@ export const discountsSlice = createSlice({
   },
   reducers: {
     setDiscounts: (state, action: PayloadAction<Discount[]>) => {
-      state.value = action.payload;
+      const payload = action.payload;
+      payload.forEach((discount) => {
+        discount.startDate += "T00:00:00"
+        discount.endDate += "T23:59:59"
+      })
+      state.value = payload
     },
     addDiscount: (state, action: PayloadAction<Discount>) => {
       state.value.push(action.payload);

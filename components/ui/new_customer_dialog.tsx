@@ -59,7 +59,7 @@ const newCustomerFormSchema = z.object({
   sex: z.enum(["Male", "Female", "Not to say"]),
   description: z.string(),
   birthday: z.string(),
-  customerGroup: z.string().min(1, "Missing group!"),
+  customerGroup: z.string().min(1, "Missing group!").nullable(),
 });
 
 export default function NewCustomerDialog({
@@ -329,7 +329,7 @@ const FormContent = ({
                       onValueChanged={(val) => {
                         form.setValue(
                           "customerGroup",
-                          val === undefined ? "" : val,
+                          val,
                           { shouldValidate: true }
                         );
                       }}

@@ -1,11 +1,8 @@
-import { Product } from "./Product";
-import { TransactionType } from "./Transaction";
-
 export type PaymentMethod = "Cash" | "Bank transfer" | "Card";
 
 export type Invoice = {
   id: number;
-  discount: number;
+  discountValue: number;
   discountCode: string;
   cash: number;
   changed: number;
@@ -13,7 +10,7 @@ export type Invoice = {
   total: number;
   paymentMethod: PaymentMethod;
   createdAt: string;
-  // Customer customer;
+  customerId: number | null;
   // Staff staff;
   // Coupon coupon;
   invoiceDetails: InvoiceDetail[];

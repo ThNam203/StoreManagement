@@ -14,7 +14,7 @@ export interface TabProps<TData> {
 export interface CustomeDatatableRowProps<TData, TValue> {
   row: Row<TData>;
   containerRef: RefObject<HTMLDivElement>;
-  tabs: TabProps<TData>[];
+  tabs?: TabProps<TData>[];
 }
 
 export default function CustomDatatableRow<TData, TValue>({
@@ -49,7 +49,7 @@ export default function CustomDatatableRow<TData, TValue>({
             key={cell.id}
             className={cn(
               "whitespace-nowrap",
-              showInfoRow ? "font-semibold bg-green-200" : ""
+              showInfoRow && tabs ? "bg-green-200 font-semibold" : "",
             )}
           >
             {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -58,11 +58,11 @@ export default function CustomDatatableRow<TData, TValue>({
         <td
           className={cn(
             "absolute left-0 right-0 bottom-0 top-0",
-            showInfoRow ? "border-t-2 border-green-400" : "hidden"
+            showInfoRow && tabs ? "border-t-2 border-green-400" : "hidden"
           )}
         ></td>
       </TableRow>
-      {showInfoRow ? (
+      {tabs && showInfoRow ? (
         <>
           <tr className="hidden" />
           {/* maintain odd - even row */}

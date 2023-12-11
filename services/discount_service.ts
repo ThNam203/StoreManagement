@@ -41,6 +41,10 @@ const deleteDiscountCodes = (discountId: number, codeIds: number[]) => {
   return AxiosService.delete(`/api/discounts/${discountId}/code`, { data: codeIds });
 };
 
+const getDiscountCodeInformation = (discountCode: string) => {
+  return AxiosService.get<Discount>(`/api/discounts/code?value=${discountCode}`)
+}
+
 const DiscountService = {
   uploadNewDiscount,
   getAllDiscounts,
@@ -48,6 +52,7 @@ const DiscountService = {
   deleteDiscount,
   generateDiscountCodes,
   deleteDiscountCodes,
+  getDiscountCodeInformation
 };
 
 export default DiscountService;

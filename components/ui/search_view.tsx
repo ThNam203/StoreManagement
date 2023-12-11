@@ -16,6 +16,7 @@ export default function SearchView<T>({
   iconColor,
   inputColor,
   endIcon,
+  zIndex,
 }: {
   placeholder: string;
   choices: T[];
@@ -28,6 +29,7 @@ export default function SearchView<T>({
   iconColor?: string;
   inputColor?: string;
   endIcon?: JSX.Element;
+  zIndex?: number;
 }) {
   const filteredChoices = filter ? choices.filter(filter) : choices;
   const [showSearchResult, setShowSearchResult] = useState(false);
@@ -38,7 +40,7 @@ export default function SearchView<T>({
         className={cn(
           "flex flex-row items-center bg-white",
           showSearchResult
-            ? "rounded-t-sm"
+            ? "rounded-t-sm !border-b-0"
             : "rounded-sm",
           triggerClassname
         )}
@@ -66,6 +68,7 @@ export default function SearchView<T>({
             scrollbar_style.scrollbar,
             showSearchResult ? "rounded-t-none" : ""
           )}
+          style={{zIndex: zIndex}}
         >
           {filteredChoices.length === 0 ? (
             <div

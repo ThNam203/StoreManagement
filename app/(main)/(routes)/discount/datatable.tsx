@@ -33,7 +33,7 @@ import Image from "next/image";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { cn } from "@/lib/utils";
 import { ChevronRight, Code, Lock, PenLine, Trash } from "lucide-react";
-import { useAppDispatch } from "@/hooks";
+import { useAppDispatch, useAppSelector } from "@/hooks";
 import { deleteProduct, updateProduct } from "@/reducers/productsReducer";
 import ProductService from "@/services/product_service";
 import LoadingCircle from "@/components/ui/loading_circle";
@@ -73,7 +73,6 @@ export function DiscountDatatable({ data, onUpdateButtonClick }: Props) {
   return (
     <CustomDatatable
       data={data}
-      visibilityConfig={visibilityConfig}
       columns={discountTableColumns()}
       columnTitles={columnTitles}
       infoTabs={[
@@ -82,17 +81,20 @@ export function DiscountDatatable({ data, onUpdateButtonClick }: Props) {
             <DetailTab
               row={row}
               setShowInfoRow={setShowTabs}
-              onUpdateButtonClick={() => {}}
+              onUpdateButtonClick={onUpdateButtonClick}
             />
           ),
           tabName: "Detail",
         },
         {
           render: (row, setShowTabs) => <CodeEditTab discount={row.original} />,
-          tabName: "Detail",
+          tabName: "Codes",
         },
       ]}
-      onDeleteRowsBtnClick={(dataToDelete) => true}
+      config={{
+        defaultVisibilityState: visibilityConfig,
+        onDeleteRowsBtnClick: (dataToDelete) => Promise.resolve(),
+      }}
     />
   );
 }
@@ -106,6 +108,7 @@ const DetailTab = ({
   onUpdateButtonClick: (discountPosition: number) => any;
   setShowInfoRow: (value: boolean) => any;
 }) => {
+  const products = useAppSelector((state) => state.products.value);
   const discount: Discount = row.original;
   const [disableDisableButton, setDisableDisableButton] = useState(false);
   const [disableDeleteButton, setDisableDeleteButton] = useState(false);
@@ -116,77 +119,80 @@ const DetailTab = ({
     <>
       <h4 className="text-lg font-bold text-blue-800">{discount.name}</h4>
       <div className="flex flex-row gap-4">
-        <div className="flex flex-row flex-1 text-[0.8rem]">
-          <div className="flex-1 flex flex-col pr-4">
-            <div className="flex flex-row font-medium border-b mb-2">
+        <div className="flex flex-1 flex-row text-[0.8rem]">
+          <div className="flex flex-1 flex-col pr-4">
+            <div className="mb-2 flex flex-row border-b font-medium">
               <p className="w-[100px] font-normal">Discount id:</p>
               <p>{discount.id}</p>
             </div>
-            <div className="flex flex-row font-medium border-b mb-2">
+            <div className="mb-2 flex flex-row border-b font-medium">
               <p className="w-[100px] font-normal">Value:</p>
               {discount.value}
               {discount.type === "COUPON" ? " %" : null}
             </div>
-            <div className="flex flex-row font-medium border-b mb-2">
+            <div className="mb-2 flex flex-row border-b font-medium">
               <p className="w-[100px] font-normal">Type:</p>
               {discount.type}
             </div>
-            <div className="flex flex-row font-medium border-b mb-2">
+            <div className="mb-2 flex flex-row border-b font-medium">
               <p className="w-[100px] font-normal">Amount:</p>
               <p>{discount.amount}</p>
             </div>
-            <div className="flex flex-row font-medium border-b mb-2">
+            <div className="mb-2 flex flex-row border-b font-medium">
               <p className="w-[100px] font-normal">Status:</p>
               <p>{discount.status ? "Activating" : "Disabled"}</p>
             </div>
-            <div className="flex-1 flex flex-col pr-4">
+            <div className="flex flex-1 flex-col pr-4">
               <p className="mb-2">Description</p>
               <textarea
                 readOnly
                 className={cn(
-                  "resize-none border-2 rounded-sm p-1 h-[80px] w-full",
-                  scrollbar_style.scrollbar
+                  "h-[80px] w-full resize-none rounded-sm border-2 p-1",
+                  scrollbar_style.scrollbar,
                 )}
                 defaultValue={discount.description}
               ></textarea>
             </div>
           </div>
         </div>
-        <div className="flex flex-col flex-1">
-          <div className="flex flex-row font-medium border-b mb-2">
-            <p className="min-w-[100px] w-[100px] font-normal">P.Groups:</p>
+        <div className="flex flex-1 flex-col">
+          <div className="mb-2 flex flex-row border-b font-medium">
+            <p className="w-[100px] min-w-[100px] font-normal">P.Groups:</p>
             <div
               className={cn(
-                "flex flex-row flex-wrap max-h-[100px] overflow-y-auto",
-                scrollbar_style.scrollbar
+                "flex max-h-[100px] flex-row flex-wrap overflow-y-auto",
+                scrollbar_style.scrollbar,
               )}
             >
               {discount.productGroups?.map((group, groupIdx) => (
                 <p
                   key={groupIdx}
-                  className="p-1 mb-1 bg-blue-400 text-white text-xs rounded-md mr-1"
+                  className="mb-1 mr-1 rounded-md bg-blue-400 p-1 text-xs text-white"
                 >
                   {group}
                 </p>
               ))}
             </div>
           </div>
-          <div className="flex flex-row font-medium border-b mb-2">
-            <p className="min-w-[100px] w-[100px] font-normal">Products:</p>
+          <div className="mb-2 flex flex-row border-b font-medium">
+            <p className="w-[100px] min-w-[100px] font-normal">Products:</p>
             <div
               className={cn(
-                "flex flex-row flex-wrap max-h-[100px] overflow-y-auto",
-                scrollbar_style.scrollbar
+                "flex max-h-[100px] flex-row flex-wrap overflow-y-auto",
+                scrollbar_style.scrollbar,
               )}
             >
-              {discount.productIds?.map((product, productIdx) => (
-                <p
-                  key={productIdx}
-                  className="p-1 mb-1 bg-blue-400 text-white text-xs rounded-md mr-1"
-                >
-                  {product}
-                </p>
-              ))}
+              {discount.productIds?.map((productId, productIdx) => {
+                const product = products.find((product) => product.id === productId)!
+                return (
+                  <p
+                    key={productIdx}
+                    className="mb-1 mr-1 rounded-md bg-blue-400 p-1 text-xs text-white"
+                  >
+                    {product.name}{product.propertiesString ? ` (${product.propertiesString})` : ""}
+                  </p>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -262,7 +268,7 @@ const codeTabColumns = (): ColumnDef<DiscountCode>[] => {
 const CodeEditTab = ({ discount }: { discount: Discount }) => {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+    [],
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -296,7 +302,7 @@ const CodeEditTab = ({ discount }: { discount: Discount }) => {
 
   return (
     <div className="w-full">
-      <div className="flex flex-row gap-2 items-center py-4">
+      <div className="flex flex-row items-center gap-2 py-4">
         <Input
           placeholder="Find code"
           value={(table.getColumn("value")?.getFilterValue() as string) ?? ""}
@@ -321,9 +327,9 @@ const CodeEditTab = ({ discount }: { discount: Discount }) => {
                     updateDiscount({
                       ...discount,
                       discountCodes: discount.discountCodes!.filter(
-                        (code) => !codeIds.includes(code.id)
+                        (code) => !codeIds.includes(code.id),
                       ),
-                    })
+                    }),
                   );
                   table.toggleAllRowsSelected(false);
                 })
@@ -340,7 +346,7 @@ const CodeEditTab = ({ discount }: { discount: Discount }) => {
         <div className="flex flex-row gap-2">
           <input
             type="number"
-            className="w-[50px] px-1 border text-end rounded-md"
+            className="w-[50px] rounded-md border px-1 text-end"
             min={0}
             value={codeAmountInput}
             onChange={(e) => setCodeAmountInput(e.currentTarget.valueAsNumber)}
@@ -349,12 +355,16 @@ const CodeEditTab = ({ discount }: { discount: Discount }) => {
             variant={"green"}
             disabled={isGeneratingCodes}
             onClick={(e) => {
-              if (isNaN(codeAmountInput) || !codeAmountInput) return;
+              if (isNaN(codeAmountInput)) return;
+              if ((discount.discountCodes?.length ?? 0) + codeAmountInput > discount.amount) return toast({
+                variant: "destructive",
+                description: "The amount of discount codes exceeds the allowed limit"
+              })
 
               setIsGeneratingCodes(true);
               DiscountService.generateDiscountCodes(
                 discount.id,
-                codeAmountInput
+                codeAmountInput,
               )
                 .then((result) => {
                   dispatch(
@@ -366,7 +376,7 @@ const CodeEditTab = ({ discount }: { discount: Discount }) => {
                           ? discount.discountCodes
                           : []),
                       ],
-                    })
+                    }),
                   );
                 })
                 .catch((e) => axiosUIErrorHandler(e, toast))
@@ -391,7 +401,7 @@ const CodeEditTab = ({ discount }: { discount: Discount }) => {
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                     </TableHead>
                   );
@@ -410,7 +420,7 @@ const CodeEditTab = ({ discount }: { discount: Discount }) => {
                     <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </TableCell>
                   ))}

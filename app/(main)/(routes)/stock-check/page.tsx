@@ -8,8 +8,10 @@ import {
   TimeFilter,
 } from "@/components/ui/filter";
 import { useState } from "react";
-import { ProductPriceTablesDatatable } from "./datatable";
+import { StockCheckDatatable } from "./datatable";
 import { TimeFilterType } from "@/utils";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 const creatorChoices = ["Nam", "Dat", "Son", "Khoi"];
 
@@ -110,9 +112,19 @@ export default function StockCheck() {
     />,
   ];
 
+  const router = useRouter();
+
   return (
-    <PageWithFilters title="Stock check" filters={filters}>
-      <ProductPriceTablesDatatable />
+    <PageWithFilters
+      title="Stock check"
+      filters={filters}
+      headerButtons={[
+        <Button key={1} variant={"green"} onClick={() => router.push("/stock-check/new")}>
+          New stock check
+        </Button>,
+      ]}
+    >
+      <StockCheckDatatable />
     </PageWithFilters>
   );
 }
