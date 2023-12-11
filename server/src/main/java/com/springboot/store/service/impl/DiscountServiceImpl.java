@@ -147,7 +147,7 @@ public class DiscountServiceImpl implements DiscountService {
                 .orElseThrow(() -> new CustomException("Discount code not found", HttpStatus.NOT_FOUND));
         if (discountCode.isStatus())
             throw new CustomException("Discount code has been used", HttpStatus.BAD_REQUEST);
-        discountCode.getDiscount().setAmount(discountCode.getDiscount().getAmount() - 1);
+//        discountCode.getDiscount().setAmount(discountCode.getDiscount().getAmount() - 1);
         discountCode.setStatus(true);
         discountCode.setUsedDate(new Date());
         discountCodeRepository.save(discountCode);
