@@ -8,7 +8,6 @@ public class InvoiceDetailMapper {
         return InvoiceDetailDTO.builder()
                 .id(invoiceDetail.getId())
                 .quantity(invoiceDetail.getQuantity())
-                .discountPercent(invoiceDetail.getDiscountPercent())
                 .price(invoiceDetail.getPrice())
                 .discount(invoiceDetail.getDiscount())
                 .description(invoiceDetail.getDescription())
@@ -19,7 +18,6 @@ public class InvoiceDetailMapper {
     public static InvoiceDetail toInvoiceDetail(InvoiceDetailDTO invoiceDetailDTO) {
         return InvoiceDetail.builder()
                 .quantity(invoiceDetailDTO.getQuantity())
-                .discountPercent(invoiceDetailDTO.getDiscountPercent())
                 .price(invoiceDetailDTO.getPrice())
                 .discount(invoiceDetailDTO.getDiscount())
                 .description(invoiceDetailDTO.getDescription())

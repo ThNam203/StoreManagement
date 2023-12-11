@@ -19,9 +19,6 @@ public class InvoiceDetail {
     @Column(name = "quantity")
     private int quantity;
 
-    @Column(name = "discount_percent")
-    private double discountPercent;
-
     @Column(name = "price")
     private double price;
 

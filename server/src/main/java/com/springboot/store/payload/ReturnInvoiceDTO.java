@@ -18,8 +18,8 @@ public class ReturnInvoiceDTO {
     private String note;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdAt;
-    private int staffId;
-    private int invoiceId;
-    private int customerId;
+    private Integer staffId;
+    private Integer invoiceId;
+    private Integer customerId;
     private List<ReturnDetailDTO> returnDetails;
 }

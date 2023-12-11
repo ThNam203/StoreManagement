@@ -17,13 +17,14 @@ public class InvoiceDTO {
     private double cash;
     private double changed;
     private double subTotal;
+    private double discount;
     private double total;
     private Boolean status;
     private String paymentMethod;
     private String discountCode;
     private Set<InvoiceDetailDTO> invoiceDetails;
-    private int customerId;
-    private int staffId;
+    private Integer customerId;
+    private Integer staffId;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdAt;
 }

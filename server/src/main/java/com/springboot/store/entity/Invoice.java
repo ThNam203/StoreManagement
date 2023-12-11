@@ -30,6 +30,9 @@ public class Invoice {
     @Column(name ="sub_total")
     private double subTotal;
 
+    @Column(name ="discount")
+    private double discount;
+
     @Column(name ="total")
     private double total;
 

@@ -12,5 +12,5 @@ public class ReturnDetailDTO {
     private int quantity;
     private int price;
     private String description;
-    private int productId;
+    private Integer productId;
 }

@@ -20,7 +20,7 @@ public class StockCheckDTO {
     private int id;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdDate;
-    private int creatorId;
+    private Integer creatorId;
     private List<StockCheckDetailDTO> products;
     private String note;
 }
