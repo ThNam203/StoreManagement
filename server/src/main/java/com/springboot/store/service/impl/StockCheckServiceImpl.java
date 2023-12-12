@@ -1,5 +1,6 @@
 package com.springboot.store.service.impl;
 
+import com.springboot.store.entity.Product;
 import com.springboot.store.entity.StockCheck;
 import com.springboot.store.entity.StockCheckDetail;
 import com.springboot.store.exception.CustomException;
@@ -66,8 +67,11 @@ public class StockCheckServiceImpl implements StockCheckService {
                     .stream()
                     .map(stockCheckDetailDTO -> {
                         StockCheckDetail stockCheckDetail = StockCheckDetailMapper.toStockCheckDetail(stockCheckDetailDTO);
-                        stockCheckDetail.setProduct(productRepository.findById(stockCheckDetailDTO.getProductId())
-                                .orElseThrow(() -> new CustomException("Product not found with id" + stockCheckDetailDTO.getProductId(), HttpStatus.NOT_FOUND)));
+                        Product product = productRepository.findById(stockCheckDetailDTO.getProductId())
+                                .orElseThrow(() -> new CustomException("Product not found with id" + stockCheckDetailDTO.getProductId(), HttpStatus.NOT_FOUND));
+                        product.setStock(stockCheckDetail.getRealStock());
+                        productRepository.save(product);
+                        stockCheckDetail.setProduct(product);
                         stockCheckDetail.setStockCheck(stockCheck);
                         return stockCheckDetail;
                     })
