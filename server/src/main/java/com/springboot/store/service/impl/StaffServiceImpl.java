@@ -184,8 +184,9 @@ public class StaffServiceImpl implements StaffService {
     public void deleteStaff(int id) {
         Staff creator = getAuthorizedStaff();
         Staff staff = staffRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Staff", "id", id));
+        List<ShiftAttendanceRecord> shiftAttendanceRecords = shiftAttendanceRecordRepository.findByStaffId(id);
+        shiftAttendanceRecordRepository.deleteAll(shiftAttendanceRecords);
         staffRepository.delete(staff);
-
         // save activity log
         activityLogService.save("DELETE", "Delete staff with id " + id, creator.getName());
     }
