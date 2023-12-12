@@ -55,10 +55,6 @@ public class ReturnInvoiceServiceImpl implements ReturnInvoiceService {
         returnInvoice.setStore(staff.getStore());
         returnInvoice.setCreatedAt(new Date());
 
-        if (returnInvoiceDTO.getCustomerId() != null) {
-            returnInvoice.setCustomer(customerRepository.findById(returnInvoiceDTO.getCustomerId()).orElseThrow(() ->
-                    new CustomException("Customer not found", HttpStatus.NOT_FOUND)));
-        }
         if (returnInvoiceDTO.getInvoiceId() != null) {
             returnInvoice.setInvoice(invoiceRepository.findById(returnInvoiceDTO.getInvoiceId()).orElseThrow(() ->
                     new CustomException("Invoice not found", HttpStatus.NOT_FOUND)));
@@ -91,10 +87,6 @@ public class ReturnInvoiceServiceImpl implements ReturnInvoiceService {
         returnInvoice.setStaff(staffService.getAuthorizedStaff());
         returnInvoice.setStore(staffService.getAuthorizedStaff().getStore());
 
-        if (returnInvoiceDTO.getCustomerId() != null) {
-            returnInvoice.setCustomer(customerRepository.findById(returnInvoiceDTO.getCustomerId()).orElseThrow(() ->
-                    new CustomException("Customer not found", HttpStatus.NOT_FOUND)));
-        }
         if (returnInvoiceDTO.getInvoiceId() != null) {
             returnInvoice.setInvoice(invoiceRepository.findById(returnInvoiceDTO.getInvoiceId()).orElseThrow(() ->
                     new CustomException("Invoice not found", HttpStatus.NOT_FOUND)));

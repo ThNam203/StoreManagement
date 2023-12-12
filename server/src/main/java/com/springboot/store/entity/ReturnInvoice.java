@@ -20,6 +20,7 @@ public class ReturnInvoice {
     private int id;
     private int total;
     private int returnFee;
+    private double discountValue;
     private String note;
     private Date createdAt;
 
@@ -30,10 +31,6 @@ public class ReturnInvoice {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "invoice_id")
     private Invoice invoice;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "customer_id")
-    private Customer customer;
 
     @OneToMany(mappedBy = "returnInvoice", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReturnDetail> returnDetails;

@@ -17,9 +17,8 @@ public class InvoiceDTO {
     private double cash;
     private double changed;
     private double subTotal;
-    private double discount;
+    private double discountValue;
     private double total;
-    private Boolean status;
     private String paymentMethod;
     private String discountCode;
     private Set<InvoiceDetailDTO> invoiceDetails;
