@@ -4,11 +4,11 @@ import {
   PageWithFilters,
   SearchFilter,
 } from "@/components/ui/filter";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { CatalogDatatable } from "./datatable";
 import { NewProductView } from "@/components/ui/catalog/new_product_form";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { ChevronRight, Lock, PenLine, Plus, Trash } from "lucide-react";
 import ProductService from "@/services/product_service";
 import { useToast } from "@/components/ui/use-toast";
 import { UpdateProductView } from "@/components/ui/catalog/update_product_form";
@@ -18,7 +18,10 @@ import { addGroup } from "@/reducers/productGroupsReducer";
 import { addBrand } from "@/reducers/productBrandsReducer";
 import { addLocation } from "@/reducers/productLocationsReducer";
 import * as productPropertiesActions from "@/reducers/productPropertiesReducer";
-import { addProducts, updateProduct } from "@/reducers/productsReducer";
+import {
+  addProducts,
+  updateProduct,
+} from "@/reducers/productsReducer";
 
 const productInventoryThresholds = [
   "All",
@@ -31,9 +34,11 @@ const productStatuses = ["Active", "Disabled", "All"];
 
 export default function Catalog() {
   const { toast } = useToast();
-  const products = useAppSelector((state) => state.products.value)
-  const productGroups = useAppSelector((state) => state.productGroups.value)
-  const productLocations = useAppSelector((state) => state.productLocations.value)
+  const products = useAppSelector((state) => state.products.value);
+  const productGroups = useAppSelector((state) => state.productGroups.value);
+  const productLocations = useAppSelector(
+    (state) => state.productLocations.value
+  );
   const dispatch = useAppDispatch();
 
   const addNewGroup = async (group: string) => {
@@ -50,7 +55,7 @@ export default function Catalog() {
   const addNewBrand = async (brandName: string) => {
     try {
       const data = await ProductService.createNewBrand(brandName);
-      dispatch(addBrand(data.data))
+      dispatch(addBrand(data.data));
       return Promise.resolve();
     } catch (e) {
       axiosUIErrorHandler(e, toast);
@@ -61,7 +66,7 @@ export default function Catalog() {
   const addNewLocation = async (location: string) => {
     try {
       const data = await ProductService.createNewLocation(location);
-      dispatch(addLocation(data.data))
+      dispatch(addLocation(data.data));
       return Promise.resolve();
     } catch (e) {
       axiosUIErrorHandler(e, toast);
@@ -72,7 +77,7 @@ export default function Catalog() {
   const addNewProperty = async (property: string) => {
     try {
       const data = await ProductService.createNewProperty(property);
-      dispatch(productPropertiesActions.addProperty(data.data))
+      dispatch(productPropertiesActions.addProperty(data.data));
       return Promise.resolve();
     } catch (e) {
       axiosUIErrorHandler(e, toast);
@@ -83,7 +88,7 @@ export default function Catalog() {
   const updateProperty = async (newValue: string, propertyId: number) => {
     try {
       const data = await ProductService.updateProperty(newValue, propertyId);
-      dispatch(productPropertiesActions.updateProperty(data.data))
+      dispatch(productPropertiesActions.updateProperty(data.data));
       return Promise.resolve();
     } catch (e) {
       axiosUIErrorHandler(e, toast);
@@ -93,8 +98,8 @@ export default function Catalog() {
 
   const deleteProperty = async (propertyId: number) => {
     try {
-      await ProductService.deleteProperty(propertyId)
-      dispatch(productPropertiesActions.deleteProperty(propertyId))
+      await ProductService.deleteProperty(propertyId);
+      dispatch(productPropertiesActions.deleteProperty(propertyId));
       return Promise.resolve();
     } catch (e) {
       axiosUIErrorHandler(e, toast);
@@ -196,10 +201,7 @@ export default function Catalog() {
       filters={filters}
       headerButtons={[<NewProductButton key={1} />]}
     >
-      <CatalogDatatable
-        data={products}
-        onProductUpdateButtonClicked={onProductUpdateButtonClicked}
-      />
+      <CatalogDatatable data={products} onProductUpdateButtonClicked={onProductUpdateButtonClicked}/>
       {showNewProductView ? (
         <NewProductView
           onChangeVisibility={setShowNewProductView}

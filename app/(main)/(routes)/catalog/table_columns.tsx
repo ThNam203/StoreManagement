@@ -10,7 +10,28 @@ import {Product} from "@/entities/Product";
 import { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
 
-export const columnTitles = {
+export const catalogDefaultVisibilityState = {
+  id: true,
+  name: true,
+  barcode: false,
+  location: false,
+  originalPrice: true,
+  productPrice: true,
+  stock: true,
+  status: true,
+  description: true,
+  note: true,
+  minStock: false,
+  maxStock: false,
+  productGroup: false,
+  productBrand: false,
+  productProperties: false,
+  images: true,
+  salesUnits: false,
+  weight: false,
+}
+
+export const catalogColumnTitles = {
   id: "Product ID",
   name: "Product Name",
   images: "Image",
@@ -31,18 +52,18 @@ export const columnTitles = {
   salesUnits: "Unit",
 };
 
-export const productTableColumns = (): ColumnDef<Product>[] => {
+export const catalogTableColumns = (): ColumnDef<Product>[] => {
   const columns: ColumnDef<Product>[] = [
     defaultSelectColumn<Product>(),
     defaultIndexColumn<Product>(),
   ];
 
-  for (let key in columnTitles) {
+  for (let key in catalogColumnTitles) {
     let col: ColumnDef<Product>;
-    if (key === "images") col = imageColumn(key, columnTitles[key])
-    else if (key === "productProperties") col = propertiesColumn(key, columnTitles[key])
-    else if (key === 'salesUnits') col = unitColumn(key, columnTitles[key])
-    else col = defaultColumn<Product>(key, columnTitles);
+    if (key === "images") col = imageColumn(key, catalogColumnTitles[key])
+    else if (key === "productProperties") col = propertiesColumn(key, catalogColumnTitles[key])
+    else if (key === 'salesUnits') col = unitColumn(key, catalogColumnTitles[key])
+    else col = defaultColumn<Product>(key, catalogColumnTitles);
     columns.push(col);
   }
 

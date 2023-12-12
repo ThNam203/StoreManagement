@@ -65,12 +65,13 @@ const productFormSchema = z.object({
   productGroup: z
     .string({ required_error: "Group is missing" })
     .trim()
-    .min(1, { message: "Group is missing" }),
-  productBrand: z.string().trim().optional(),
+    .min(1, { message: "Group is missing" })
+    .nullable(),
+  productBrand: z.string().trim().nullable(),
   location: z
     .string()
     .max(100, "Location must be at most 100 characters")
-    .optional(),
+    .nullable(),
   originalPrice: z
     .number()
     .min(0, { message: "Original price must be at least 0" })
@@ -216,9 +217,12 @@ export const UpdateProductView = ({
   };
 
   function onSubmit(values: z.infer<typeof productFormSchema>) {
-    const data: any = values;
-    data.images = newChosenImages.filter((file) => typeof file === "string");
-
+    const data: any = {
+      ...product,
+      ...values,
+      images: newChosenImages.filter((file) => typeof file === "string")
+    };
+    
     setIsCreatingNewProduct(true);
     ProductService.updateProduct(data, newChosenImages.filter((file) => typeof file !== "string") as File[])
       .then((result) => {
@@ -315,7 +319,7 @@ export const UpdateProductView = ({
                               onValueChanged={(val) => {
                                 form.setValue(
                                   "productGroup",
-                                  val === undefined ? "" : val,
+                                  val,
                                   { shouldValidate: true }
                                 );
                               }}

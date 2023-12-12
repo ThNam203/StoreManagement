@@ -28,7 +28,7 @@ interface CustomDataTableProps<TData> {
   columns: ColumnDef<TData, any>[];
   table: ReactTable<TData>;
   tableContainerRef: RefObject<HTMLDivElement>;
-  infoTabs: TabProps<TData>[],
+  infoTabs?: TabProps<TData>[],
 }
 
 export default function CustomDataTableContent<TData>({

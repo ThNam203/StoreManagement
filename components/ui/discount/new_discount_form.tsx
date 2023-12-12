@@ -82,7 +82,7 @@ export default function NewDiscountForm({
     defaultValues: {
       name: "",
       value: 0,
-      maxValue: 0,
+      maxValue: null,
       status: true,
       type: "COUPON",
       amount: 0,
@@ -226,11 +226,11 @@ export default function NewDiscountForm({
                                 <Input
                                   className="flex-1 !m-0 text-end w-[100px] lg:w-[140px] xl:w-[180px]"
                                   type="number"
-                                  value={field.value ? field.value : 0}
+                                  value={field.value ?? NaN}
                                   min={0}
                                   onChange={(e) => {
                                     if (isNaN(e.currentTarget.valueAsNumber))
-                                      form.setValue("maxValue", 0);
+                                      form.setValue("maxValue", null);
                                     else
                                       form.setValue(
                                         "maxValue",

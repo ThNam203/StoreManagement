@@ -15,11 +15,11 @@ type Product = {
   maxStock: number; // maxstock
   productGroup: string;
   productBrand: string;
-  productProperties: {
+  productProperties: ({
     id: number;
     propertyName: string;
     propertyValue: string;
-  }[];
+  }[]) | null;
   images: string[];
   salesUnits: {
     /// why does it have "s"

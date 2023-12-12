@@ -10,6 +10,7 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
+  TableMeta,
 } from "@tanstack/react-table";
 import React, { RefObject, useRef, useState } from "react";
 import { Input } from "../ui/input";
@@ -18,33 +19,53 @@ import { DataTableViewOptions } from "../ui/my_table_column_visibility_toggle";
 import CustomDataTableContent from "./custom_datatable_content";
 import { TabProps } from "./custom_datatable_row";
 import LoadingCircle from "../ui/loading_circle";
-
-type CustomDatatableProps<TData> = {
-  data: TData[];
-  visibilityConfig: {
+export type DatatableConfig<TData> = {
+  showExportButton?: boolean;
+  showDefaultSearchInput?: boolean;
+  alternativeSearchInput?: JSX.Element;
+  onDeleteRowsBtnClick?: (dataToDelete: TData[]) => Promise<any>; // if null, remove button
+  defaultVisibilityState?: {
     [key: string]: boolean;
   };
+};
+
+export type CustomDatatableProps<TData> = {
+  data: TData[];
   columns: ColumnDef<TData>[];
   columnTitles: {
     [key: string]: string;
   };
-  infoTabs: TabProps<TData>[];
-  onDeleteRowsBtnClick: (dataToDelete: TData[]) => boolean;
+  infoTabs?: TabProps<TData>[];
+  buttons?: JSX.Element[];
+  config?: DatatableConfig<TData>;
+  meta?: TableMeta<TData>;
+};
+
+const defaultConfig: DatatableConfig<any> = {
+  showExportButton: true,
+  showDefaultSearchInput: true,
+  alternativeSearchInput: undefined,
+  defaultVisibilityState: {},
+  onDeleteRowsBtnClick: undefined,
 };
 
 export function CustomDatatable<TData>({
   data,
-  visibilityConfig,
   columns,
   columnTitles,
   infoTabs,
-  onDeleteRowsBtnClick,
+  buttons,
+  config,
+  meta
 }: CustomDatatableProps<TData>) {
+  config = { ...defaultConfig, ...config };
+
   const tableContainerRef = useRef<HTMLDivElement>(null);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] =
-    useState<VisibilityState>(visibilityConfig);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
+    config?.defaultVisibilityState ?? {}
+  );
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [filterInput, setFilterInput] = useState("");
 
@@ -67,45 +88,50 @@ export function CustomDatatable<TData>({
       rowSelection,
       globalFilter: filterInput,
     },
+    meta: meta,
   });
 
   const [isDeletingCodes, setIsDeletingCodes] = useState(false);
 
   return (
     <div ref={tableContainerRef} className="w-full space-y-2">
-      <div className="flex items-center justify-between py-4">
-        <Input
-          placeholder="Search anything..."
-          value={filterInput}
-          onChange={(event) => setFilterInput(event.target.value)}
-          className="max-w-sm"
-        />
-        <div className="flex flex-row">
-          {table.getSelectedRowModel().rows.length > 0 ? (
+      <div className="flex py-4 flex-col gap-2 md:flex-row md:gap-0 md:items-center md:justify-between">
+        {!config.showDefaultSearchInput ||
+        config.alternativeSearchInput ? null : (
+          <Input
+            placeholder="Search anything..."
+            value={filterInput}
+            onChange={(event) => setFilterInput(event.target.value)}
+            className="max-w-sm"
+          />
+        )}
+        {config.alternativeSearchInput}
+        <div className="flex flex-row gap-1">
+          {config.onDeleteRowsBtnClick !== undefined &&
+          table.getSelectedRowModel().rows.length > 0 ? (
             <Button
               variant={"red"}
               disabled={isDeletingCodes}
               onClick={() => {
                 setIsDeletingCodes(true);
-                if (
-                  onDeleteRowsBtnClick(
-                    table.getSelectedRowModel().rows.map((row) => row.original)
-                  )
-                ) {
-                  table.toggleAllRowsSelected(false);
-                }
-                setIsDeletingCodes(false);
+                config!.onDeleteRowsBtnClick!(
+                  table.getSelectedRowModel().rows.map((row) => row.original)
+                )
+                  .then(() => table.toggleAllRowsSelected(false))
+                  .finally(() => setIsDeletingCodes(false));
               }}
             >
               Delete{isDeletingCodes ? <LoadingCircle /> : null}
             </Button>
           ) : null}
-          <div className="flex-1" />
-          <div className="mr-2">
-            <Button variant={"default"} onClick={() => {}}>
+          {buttons}
+          {!config ||
+          config.showExportButton === undefined ||
+          config.showExportButton ? (
+            <Button variant={"blue"} onClick={() => {}}>
               Export Excel
             </Button>
-          </div>
+          ) : null}
           <DataTableViewOptions
             title="Columns"
             table={table}
@@ -121,11 +147,4 @@ export function CustomDatatable<TData>({
       />
     </div>
   );
-}
-
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
-  table: ReactTable<TData>;
-  tableContainerRef: RefObject<HTMLDivElement>;
 }

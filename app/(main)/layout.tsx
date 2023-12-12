@@ -59,42 +59,42 @@ const GlobalPreloader = () => {
     const fetchData = async () => {
       dispatch(showPreloader());
       try {
-        // const products = await ProductService.getAllProducts();
-        // dispatch(setProducts(products.data));
+        const products = await ProductService.getAllProducts();
+        dispatch(setProducts(products.data));
 
-        // const brandsResult = await ProductService.getAllBrands();
-        // dispatch(setBrands(brandsResult.data));
+        const brandsResult = await ProductService.getAllBrands();
+        dispatch(setBrands(brandsResult.data));
 
-        // const locationsResult = await ProductService.getAllLocations();
-        // dispatch(setLocations(locationsResult.data));
+        const locationsResult = await ProductService.getAllLocations();
+        dispatch(setLocations(locationsResult.data));
 
-        // const propertiesResult = await ProductService.getAllProperties();
-        // dispatch(setProperties(propertiesResult.data));
+        const propertiesResult = await ProductService.getAllProperties();
+        dispatch(setProperties(propertiesResult.data));
 
-        // const groupsResult = await ProductService.getAllGroups();
-        // dispatch(setGroups(groupsResult.data));
+        const groupsResult = await ProductService.getAllGroups();
+        dispatch(setGroups(groupsResult.data));
 
-        // const customers = await CustomerService.getAllCustomers();
-        // dispatch(setCustomers(customers.data));
+        const customers = await CustomerService.getAllCustomers();
+        dispatch(setCustomers(customers.data));
 
-        // const customerGroups = await CustomerService.getAllCustomerGroups();
-        // dispatch(setCustomerGroup(customerGroups.data));
+        const customerGroups = await CustomerService.getAllCustomerGroups();
+        dispatch(setCustomerGroup(customerGroups.data));
 
-        // const discount = await DiscountService.getAllDiscounts();
-        // dispatch(setDiscounts(discount.data));
+        const discount = await DiscountService.getAllDiscounts();
+        dispatch(setDiscounts(discount.data));
 
-        const staffResult = await StaffService.getAllStaffs();
-        const convertedStaffs = staffResult.data.map((staff) =>
-          convertStaffReceived(staff)
-        );
-        dispatch(setStaffs(convertedStaffs));
+        // const staffResult = await StaffService.getAllStaffs();
+        // const convertedStaffs = staffResult.data.map((staff) =>
+        //   convertStaffReceived(staff)
+        // );
+        // dispatch(setStaffs(convertedStaffs));
 
-        const resShiftList = await ShiftService.getShiftsThisMonth();
-        let shiftList: Shift[] = [];
-        resShiftList.data.forEach((shift) => {
-          shiftList.push(convertShiftReceived(shift));
-        });
-        dispatch(setShifts(shiftList));
+        // const resShiftList = await ShiftService.getShiftsThisMonth();
+        // let shiftList: Shift[] = [];
+        // resShiftList.data.forEach((shift) => {
+        //   shiftList.push(convertShiftReceived(shift));
+        // });
+        // dispatch(setShifts(shiftList));
       } catch (error) {
         // router.push("/login")
         axiosUIErrorHandler(error, toast);

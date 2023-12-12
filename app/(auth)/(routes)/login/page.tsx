@@ -60,7 +60,6 @@ export default function LogIn() {
       })
       .catch((error) => {
         if (error.response) {
-          console.log('why')
           toast({
             variant: "destructive",
             title: "Login failed",

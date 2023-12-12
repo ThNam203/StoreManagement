@@ -826,7 +826,7 @@ const PageWithFilters = ({
         )}
       >
         <div className="flex flex-row items-center">
-          <h2 className="flex-1 text-start font-semibold text-2xl my-4">
+          <h2 className="flex-1 text-start font-bold text-2xl my-4">
             {title}
           </h2>
           <div className="flex-1 min-w-[8px]" />
