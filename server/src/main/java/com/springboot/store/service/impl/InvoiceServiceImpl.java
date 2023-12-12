@@ -48,7 +48,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         Invoice invoice = InvoiceMapper.toInvoice(invoiceDTO);
         invoice.setCreatedAt(new Date());
         // TODO: set customer and staff
-        if (invoiceDTO.getCustomerId() != 0) {
+        if (invoiceDTO.getCustomerId() != null) {
             Customer customer = customerRepository.findById(invoiceDTO.getCustomerId()).orElseThrow(() -> new CustomException("Customer with id " + invoiceDTO.getCustomerId() + " does not exist", HttpStatus.NOT_FOUND));
             invoice.setCustomer(customer);
         }
