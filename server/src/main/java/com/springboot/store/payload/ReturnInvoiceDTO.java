@@ -15,11 +15,11 @@ public class ReturnInvoiceDTO {
     private int id;
     private int total;
     private int returnFee;
+    private double discountValue;
     private String note;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdAt;
     private Integer staffId;
     private Integer invoiceId;
-    private Integer customerId;
     private List<ReturnDetailDTO> returnDetails;
 }

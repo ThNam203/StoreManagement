@@ -30,14 +30,11 @@ public class Invoice {
     @Column(name ="sub_total")
     private double subTotal;
 
-    @Column(name ="discount")
-    private double discount;
+    @Column(name ="discount_value")
+    private double discountValue;
 
     @Column(name ="total")
     private double total;
-
-    @Column(name ="status")
-    private Boolean status;
 
     @Column(name ="payment_method")
     private String paymentMethod;
