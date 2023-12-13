@@ -27,7 +27,7 @@ public class DailyShift {
     @Column(name = "note")
     private String note;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "dailyShift")
     private List<ShiftAttendanceRecord> attendanceList;
 
     @ManyToOne()
