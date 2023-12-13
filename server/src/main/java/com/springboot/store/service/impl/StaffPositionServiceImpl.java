@@ -22,11 +22,6 @@ public class StaffPositionServiceImpl implements StaffPositionService {
     private final StaffService staffService;
     private final StoreRepository storeRepository;
 
-    @PostConstruct
-    public void init() {
-        insertDefaultStaffPosition();
-    }
-
     @Override
     public List<StaffPositionDTO> getAllStaffPositions() {
         int id = staffService.getAuthorizedStaff().getStore().getId();
@@ -53,19 +48,5 @@ public class StaffPositionServiceImpl implements StaffPositionService {
     @Override
     public void deleteStaffPosition(int staffPositionId) {
         staffPositionRepository.deleteById(staffPositionId);
-    }
-
-    @Override
-    public void insertDefaultStaffPosition() {
-        List<Store> stores = storeRepository.findAll();
-        for (Store store : stores) {
-            List<StaffPosition> defaultStaffPositions = List.of(
-                    new StaffPosition("Manager", store),
-                    new StaffPosition("Cashier", store),
-                    new StaffPosition("Guard", store),
-                    new StaffPosition("Cleaner", store)
-            );
-            staffPositionRepository.saveAll(defaultStaffPositions);
-        }
     }
 }

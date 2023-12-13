@@ -29,9 +29,9 @@ public class Store {
     @Column(name = "email")
     private String email;
 
-    @Column(name = "facebook")
+    @Column(name = "description")
     private String description;
-
+    
     @OneToOne
     @JoinColumn(name = "Owner_id")
     private Staff Owner;

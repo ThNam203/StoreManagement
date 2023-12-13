@@ -12,6 +12,4 @@ public interface StaffPositionService {
     StaffPositionDTO updateStaffPosition(int staffPositionId, StaffPositionDTO staffPositionDTO);
 
     void deleteStaffPosition(int staffPositionId);
-
-    void insertDefaultStaffPosition();
 }
