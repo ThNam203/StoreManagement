@@ -1,0 +1,71 @@
+package com.springboot.store.service.impl;
+
+import com.springboot.store.entity.StaffPosition;
+import com.springboot.store.entity.Store;
+import com.springboot.store.payload.StaffPositionDTO;
+import com.springboot.store.repository.StaffPositionRepository;
+import com.springboot.store.repository.StoreRepository;
+import com.springboot.store.service.StaffPositionService;
+import com.springboot.store.service.StaffService;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class StaffPositionServiceImpl implements StaffPositionService {
+    private final StaffPositionRepository staffPositionRepository;
+    private final ModelMapper modelMapper;
+    private final StaffService staffService;
+    private final StoreRepository storeRepository;
+
+    @PostConstruct
+    public void init() {
+        insertDefaultStaffPosition();
+    }
+
+    @Override
+    public List<StaffPositionDTO> getAllStaffPositions() {
+        int id = staffService.getAuthorizedStaff().getStore().getId();
+        List<StaffPosition> staffPositions = staffPositionRepository.findByStoreId(id);
+        return staffPositions.stream().map(staffPosition -> modelMapper.map(staffPosition, StaffPositionDTO.class)).toList();
+    }
+
+    @Override
+    public StaffPositionDTO createStaffPosition(StaffPositionDTO staffPositionDTO) {
+        StaffPosition staffPosition = modelMapper.map(staffPositionDTO, StaffPosition.class);
+        staffPosition.setStore(staffService.getAuthorizedStaff().getStore());
+        staffPosition = staffPositionRepository.save(staffPosition);
+        return modelMapper.map(staffPosition, StaffPositionDTO.class);
+    }
+
+    @Override
+    public StaffPositionDTO updateStaffPosition(int staffPositionId, StaffPositionDTO staffPositionDTO) {
+        StaffPosition existingStaffPosition = staffPositionRepository.findById(staffPositionId).orElseThrow();
+        existingStaffPosition.setName(staffPositionDTO.getName());
+        existingStaffPosition = staffPositionRepository.save(existingStaffPosition);
+        return modelMapper.map(existingStaffPosition, StaffPositionDTO.class);
+    }
+
+    @Override
+    public void deleteStaffPosition(int staffPositionId) {
+        staffPositionRepository.deleteById(staffPositionId);
+    }
+
+    @Override
+    public void insertDefaultStaffPosition() {
+        List<Store> stores = storeRepository.findAll();
+        for (Store store : stores) {
+            List<StaffPosition> defaultStaffPositions = List.of(
+                    new StaffPosition("Manager", store),
+                    new StaffPosition("Cashier", store),
+                    new StaffPosition("Guard", store),
+                    new StaffPosition("Cleaner", store)
+            );
+            staffPositionRepository.saveAll(defaultStaffPositions);
+        }
+    }
+}
