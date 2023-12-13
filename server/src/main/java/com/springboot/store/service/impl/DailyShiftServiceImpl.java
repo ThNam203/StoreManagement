@@ -28,6 +28,7 @@ public class DailyShiftServiceImpl implements DailyShiftService {
     private final ModelMapper modelMapper;
     private final StaffService staffService;
     private final StaffRepository staffRepository;
+    private final ShiftAttendanceRecordRepository shiftAttendanceRecordRepository;
 
     @Override
     public DailyShiftDTO getDailyShift(int dailyShiftId) {
@@ -95,6 +96,7 @@ public class DailyShiftServiceImpl implements DailyShiftService {
         for (ShiftAttendanceRecordDTO shiftAttendanceRecordDTO : dailyShiftDTO.getAttendanceList()) {
             ShiftAttendanceRecord shiftAttendanceRecord = modelMapper.map(shiftAttendanceRecordDTO, ShiftAttendanceRecord.class);
             attendanceRecordList.add(shiftAttendanceRecord);
+            shiftAttendanceRecordRepository.save(shiftAttendanceRecord);
         }
         dailyShift.setStore(staff.getStore());
         dailyShift.setShift(shiftRepository.findById(dailyShiftDTO.getShiftId()).orElseThrow());
