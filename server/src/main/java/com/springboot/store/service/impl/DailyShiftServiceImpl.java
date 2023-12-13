@@ -1,15 +1,11 @@
 package com.springboot.store.service.impl;
 
-import com.springboot.store.entity.DailyShift;
-import com.springboot.store.entity.Shift;
-import com.springboot.store.entity.ShiftAttendanceRecord;
-import com.springboot.store.entity.Staff;
+import com.springboot.store.entity.*;
 import com.springboot.store.payload.DailyShiftDTO;
 import com.springboot.store.payload.ShiftAttendanceRecordDTO;
-import com.springboot.store.repository.DailyShiftRepository;
-import com.springboot.store.repository.ShiftAttendanceRecordRepository;
-import com.springboot.store.repository.ShiftRepository;
-import com.springboot.store.repository.StaffRepository;
+import com.springboot.store.payload.StaffBonusSalaryDTO;
+import com.springboot.store.payload.StaffPunishSalaryDTO;
+import com.springboot.store.repository.*;
 import com.springboot.store.service.DailyShiftService;
 import com.springboot.store.service.StaffService;
 import jakarta.persistence.EntityNotFoundException;
@@ -29,6 +25,8 @@ public class DailyShiftServiceImpl implements DailyShiftService {
     private final StaffService staffService;
     private final StaffRepository staffRepository;
     private final ShiftAttendanceRecordRepository shiftAttendanceRecordRepository;
+    private final StaffBonusSalaryRepository staffBonusSalaryRepository;
+    private final StaffPunishSalaryRepository staffPunishSalaryRepository;
 
     @Override
     public DailyShiftDTO getDailyShift(int dailyShiftId) {
@@ -94,9 +92,43 @@ public class DailyShiftServiceImpl implements DailyShiftService {
                 .build();
         List<ShiftAttendanceRecord> attendanceRecordList = new ArrayList<>();
         for (ShiftAttendanceRecordDTO shiftAttendanceRecordDTO : dailyShiftDTO.getAttendanceList()) {
-            ShiftAttendanceRecord shiftAttendanceRecord = modelMapper.map(shiftAttendanceRecordDTO, ShiftAttendanceRecord.class);
+            ShiftAttendanceRecord shiftAttendanceRecord = ShiftAttendanceRecord.builder()
+                    .staffId(shiftAttendanceRecordDTO.getStaffId())
+                    .hasAttend(shiftAttendanceRecordDTO.isHasAttend())
+                    .date(shiftAttendanceRecordDTO.getDate())
+                    .note(shiftAttendanceRecordDTO.getNote())
+                    .build();
+            if (shiftAttendanceRecordDTO.getBonusSalaryList() != null) {
+                List<StaffBonusSalary> bonusSalaryList = new ArrayList<>();
+                for (StaffBonusSalaryDTO staffBonusSalaryDTO : shiftAttendanceRecordDTO.getBonusSalaryList()) {
+                    StaffBonusSalary staffBonusSalary = StaffBonusSalary.builder()
+                            .value(staffBonusSalaryDTO.getValue())
+                            .name(staffBonusSalaryDTO.getName())
+                            .multiply(staffBonusSalaryDTO.getMultiply())
+                            .build();
+                    staffBonusSalary.setShiftAttendanceRecord(shiftAttendanceRecord);
+                    staffBonusSalary.setStore(staff.getStore());
+                    bonusSalaryList.add(staffBonusSalary);
+                }
+                shiftAttendanceRecord.setBonusSalaryList(bonusSalaryList);
+            }
+            if (shiftAttendanceRecordDTO.getPunishSalaryList() != null) {
+                List<StaffPunishSalary> punishSalaryList = new ArrayList<>();
+                for (StaffPunishSalaryDTO staffPunishSalaryDTO : shiftAttendanceRecordDTO.getPunishSalaryList()) {
+                    StaffPunishSalary staffPunishSalary = StaffPunishSalary.builder()
+                            .value(staffPunishSalaryDTO.getValue())
+                            .name(staffPunishSalaryDTO.getName())
+                            .multiply(staffPunishSalaryDTO.getMultiply())
+                            .build();
+                    staffPunishSalary.setShiftAttendanceRecord(shiftAttendanceRecord);
+                    staffPunishSalary.setStore(staff.getStore());
+                    punishSalaryList.add(staffPunishSalary);
+                }
+                shiftAttendanceRecord.setPunishSalaryList(punishSalaryList);
+            }
+            shiftAttendanceRecord.setStore(staff.getStore());
+            shiftAttendanceRecord.setDailyShift(dailyShift);
             attendanceRecordList.add(shiftAttendanceRecord);
-            shiftAttendanceRecordRepository.save(shiftAttendanceRecord);
         }
         dailyShift.setStore(staff.getStore());
         dailyShift.setShift(shiftRepository.findById(dailyShiftDTO.getShiftId()).orElseThrow());
@@ -119,7 +151,42 @@ public class DailyShiftServiceImpl implements DailyShiftService {
                     .build();
             List<ShiftAttendanceRecord> attendanceRecordList = new ArrayList<>();
             for (ShiftAttendanceRecordDTO shiftAttendanceRecordDTO : dailyShiftDTO.getAttendanceList()) {
-                ShiftAttendanceRecord shiftAttendanceRecord = modelMapper.map(shiftAttendanceRecordDTO, ShiftAttendanceRecord.class);
+                ShiftAttendanceRecord shiftAttendanceRecord = ShiftAttendanceRecord.builder()
+                        .staffId(shiftAttendanceRecordDTO.getStaffId())
+                        .hasAttend(shiftAttendanceRecordDTO.isHasAttend())
+                        .date(shiftAttendanceRecordDTO.getDate())
+                        .note(shiftAttendanceRecordDTO.getNote())
+                        .build();
+                if (shiftAttendanceRecordDTO.getBonusSalaryList() != null) {
+                    List<StaffBonusSalary> bonusSalaryList = new ArrayList<>();
+                    for (StaffBonusSalaryDTO staffBonusSalaryDTO : shiftAttendanceRecordDTO.getBonusSalaryList()) {
+                        StaffBonusSalary staffBonusSalary = StaffBonusSalary.builder()
+                                .value(staffBonusSalaryDTO.getValue())
+                                .name(staffBonusSalaryDTO.getName())
+                                .multiply(staffBonusSalaryDTO.getMultiply())
+                                .build();
+                        staffBonusSalary.setShiftAttendanceRecord(shiftAttendanceRecord);
+                        staffBonusSalary.setStore(staff.getStore());
+                        bonusSalaryList.add(staffBonusSalary);
+                    }
+                    shiftAttendanceRecord.setBonusSalaryList(bonusSalaryList);
+                }
+                if (shiftAttendanceRecordDTO.getPunishSalaryList() != null) {
+                    List<StaffPunishSalary> punishSalaryList = new ArrayList<>();
+                    for (StaffPunishSalaryDTO staffPunishSalaryDTO : shiftAttendanceRecordDTO.getPunishSalaryList()) {
+                        StaffPunishSalary staffPunishSalary = StaffPunishSalary.builder()
+                                .value(staffPunishSalaryDTO.getValue())
+                                .name(staffPunishSalaryDTO.getName())
+                                .multiply(staffPunishSalaryDTO.getMultiply())
+                                .build();
+                        staffPunishSalary.setShiftAttendanceRecord(shiftAttendanceRecord);
+                        staffPunishSalary.setStore(staff.getStore());
+                        punishSalaryList.add(staffPunishSalary);
+                    }
+                    shiftAttendanceRecord.setPunishSalaryList(punishSalaryList);
+                }
+                shiftAttendanceRecord.setStore(staff.getStore());
+                shiftAttendanceRecord.setDailyShift(dailyShift);
                 attendanceRecordList.add(shiftAttendanceRecord);
             }
             dailyShift.setStore(staff.getStore());
@@ -128,6 +195,7 @@ public class DailyShiftServiceImpl implements DailyShiftService {
             dailyShiftList.add(dailyShift);
         }
         dailyShiftList = dailyShiftRepository.saveAll(dailyShiftList);
+
         List<DailyShiftDTO> dailyShiftDTOList1 = new ArrayList<>();
         for (DailyShift dailyShift : dailyShiftList) {
             DailyShiftDTO dailyShiftDTO = modelMapper.map(dailyShift, DailyShiftDTO.class);
@@ -161,6 +229,24 @@ public class DailyShiftServiceImpl implements DailyShiftService {
                 List<ShiftAttendanceRecord> attendanceRecordList = new ArrayList<>();
                 for (ShiftAttendanceRecordDTO shiftAttendanceRecordDTO : dailyShiftDTO.getAttendanceList()) {
                     ShiftAttendanceRecord shiftAttendanceRecord = modelMapper.map(shiftAttendanceRecordDTO, ShiftAttendanceRecord.class);
+                    List<StaffBonusSalary> bonusSalaryList = new ArrayList<>();
+                    for (StaffBonusSalaryDTO staffBonusSalaryDTO : shiftAttendanceRecordDTO.getBonusSalaryList()) {
+                        StaffBonusSalary staffBonusSalary = modelMapper.map(staffBonusSalaryDTO, StaffBonusSalary.class);
+                        staffBonusSalary.setShiftAttendanceRecord(shiftAttendanceRecord);
+                        staffBonusSalary.setStore(staffService.getAuthorizedStaff().getStore());
+                        bonusSalaryList.add(staffBonusSalary);
+                    }
+                    shiftAttendanceRecord.setBonusSalaryList(bonusSalaryList);
+                    List<StaffPunishSalary> punishSalaryList = new ArrayList<>();
+                    for (StaffPunishSalaryDTO staffPunishSalaryDTO : shiftAttendanceRecordDTO.getPunishSalaryList()) {
+                        StaffPunishSalary staffPunishSalary = modelMapper.map(staffPunishSalaryDTO, StaffPunishSalary.class);
+                        staffPunishSalary.setShiftAttendanceRecord(shiftAttendanceRecord);
+                        staffPunishSalary.setStore(staffService.getAuthorizedStaff().getStore());
+                        punishSalaryList.add(staffPunishSalary);
+                    }
+                    shiftAttendanceRecord.setPunishSalaryList(punishSalaryList);
+                    shiftAttendanceRecord.setStore(staffService.getAuthorizedStaff().getStore());
+                    shiftAttendanceRecord.setDailyShift(existingDailyShift);
                     attendanceRecordList.add(shiftAttendanceRecord);
                 }
                 existingDailyShift.setAttendanceList(attendanceRecordList);
