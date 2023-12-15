@@ -47,7 +47,7 @@ public class Staff implements UserDetails {
     @Column(name = "sex")
     private String sex;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @ManyToOne()
     private StaffPosition staffPosition;
 
     @Column(name = "salary_debt")

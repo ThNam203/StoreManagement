@@ -32,6 +32,9 @@ public class StaffPositionServiceImpl implements StaffPositionService {
 
     @Override
     public StaffPositionDTO createStaffPosition(StaffPositionDTO staffPositionDTO) {
+        if (staffPositionRepository.existsByName(staffPositionDTO.getName())) {
+            throw new RuntimeException("Staff position already exists");
+        }
         StaffPosition staffPosition = modelMapper.map(staffPositionDTO, StaffPosition.class);
         staffPosition.setStore(staffService.getAuthorizedStaff().getStore());
         staffPosition = staffPositionRepository.save(staffPosition);

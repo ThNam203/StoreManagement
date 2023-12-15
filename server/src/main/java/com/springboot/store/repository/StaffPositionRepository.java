@@ -12,4 +12,6 @@ public interface StaffPositionRepository extends JpaRepository<StaffPosition, In
     void deleteByName(String name);
 
     Optional<StaffPosition> findByName(String name);
+
+    boolean existsByName(String name);
 }

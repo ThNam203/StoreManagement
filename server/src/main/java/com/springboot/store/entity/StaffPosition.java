@@ -20,9 +20,4 @@ public class StaffPosition {
     @ManyToOne()
     @JoinColumn(name = "store_id")
     private Store store;
-
-    public StaffPosition(String name, Store store) {
-        this.name = name;
-        this.store = store;
-    }
 }
