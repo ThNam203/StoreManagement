@@ -32,9 +32,9 @@ public class ShiftAttendanceRecord {
     @Column(name = "note")
     private String note;
 
-    @OneToMany(mappedBy = "shiftAttendanceRecord")
+    @OneToMany(mappedBy = "shiftAttendanceRecord", cascade = CascadeType.ALL)
     private List<StaffBonusSalary> bonusSalaryList;
-    @OneToMany(mappedBy = "shiftAttendanceRecord")
+    @OneToMany(mappedBy = "shiftAttendanceRecord", cascade = CascadeType.ALL)
     private List<StaffPunishSalary> punishSalaryList;
 
     @ManyToOne()

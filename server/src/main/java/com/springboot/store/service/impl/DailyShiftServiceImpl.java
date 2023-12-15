@@ -255,14 +255,6 @@ public class DailyShiftServiceImpl implements DailyShiftService {
                     deleteDailyShift(id);
                     return null;
                 }
-                dailyShiftDTO = modelMapper.map(existingDailyShift, DailyShiftDTO.class);
-                for (ShiftAttendanceRecordDTO shiftAttendanceRecordDTO : dailyShiftDTO.getAttendanceList()) {
-                    shiftAttendanceRecordDTO.setStaffName(staffRepository.findById(shiftAttendanceRecordDTO.getStaffId()).orElseThrow().getName());
-                }
-                Shift shift = shiftRepository.findById(dailyShiftDTO.getShiftId()).orElseThrow();
-                List<DailyShift> dailyShiftList1 = dailyShiftRepository.findByStoreIdAndShiftId(shift.getStore().getId(), shift.getId());
-                shift.setDailyShifts(dailyShiftList1);
-                shiftRepository.save(shift);
                 dailyShiftList.add(existingDailyShift);
             }
 
