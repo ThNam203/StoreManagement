@@ -21,6 +21,7 @@ public class ReturnInvoice {
     private int total;
     private int returnFee;
     private double discountValue;
+    private String paymentMethod;
     private String note;
     private Date createdAt;
 

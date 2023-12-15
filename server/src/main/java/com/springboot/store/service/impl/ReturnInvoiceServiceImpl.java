@@ -82,6 +82,8 @@ public class ReturnInvoiceServiceImpl implements ReturnInvoiceService {
                 new CustomException("Return invoice not found", HttpStatus.NOT_FOUND));
         returnInvoice.setTotal(returnInvoiceDTO.getTotal());
         returnInvoice.setReturnFee(returnInvoiceDTO.getReturnFee());
+        returnInvoice.setDiscountValue(returnInvoiceDTO.getDiscountValue());
+        returnInvoice.setPaymentMethod(returnInvoiceDTO.getPaymentMethod());
         returnInvoice.setNote(returnInvoiceDTO.getNote());
         returnInvoice.setCreatedAt(returnInvoiceDTO.getCreatedAt());
         returnInvoice.setStaff(staffService.getAuthorizedStaff());
