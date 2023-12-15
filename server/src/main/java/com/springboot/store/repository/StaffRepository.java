@@ -1,6 +1,7 @@
 package com.springboot.store.repository;
 
 import com.springboot.store.entity.Staff;
+import com.springboot.store.entity.StaffPosition;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -15,6 +16,8 @@ public interface StaffRepository extends JpaRepository<Staff, Integer> {
     Boolean existsByEmail(String email);
 
     Boolean existsByCccd(String cccd);
+
+    Boolean existsByStaffPosition(StaffPosition staffPosition);
 
     Boolean existsByPhoneNumber(String phoneNumber);
 

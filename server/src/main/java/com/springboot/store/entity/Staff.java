@@ -47,8 +47,8 @@ public class Staff implements UserDetails {
     @Column(name = "sex")
     private String sex;
 
-    @Column(name = "position")
-    private String position;
+    @ManyToOne()
+    private StaffPosition staffPosition;
 
     @Column(name = "salary_debt")
     private int salaryDebt = 0;

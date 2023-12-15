@@ -5,6 +5,7 @@ import com.springboot.store.entity.*;
 import com.springboot.store.exception.CustomException;
 import com.springboot.store.repository.*;
 import com.springboot.store.service.JwtService;
+import com.springboot.store.service.StaffPositionService;
 import com.springboot.store.utils.Role;
 import com.springboot.store.utils.TokenType;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,6 +36,7 @@ public class AuthenticationService {
     private final ProductGroupRepository productGroupRepository;
     private final ProductPropertyNameRepository productPropertyNameRepository;
     private final CustomerGroupRepository customerGroupRepository;
+    private final StaffPositionRepository staffPositionRepository;
 
     public AuthenticationResponse register(RegisterRequest request) {
 
@@ -63,7 +65,7 @@ public class AuthenticationService {
 
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
-                    .refreshToken(refreshToken)
+                .refreshToken(refreshToken)
                 .build();
     }
 
@@ -161,7 +163,7 @@ public class AuthenticationService {
 
     private void createDefaultData(Store store) {
         // TODO: create default staff roles
-        List <StaffRole> staffRoles = List.of(
+        List<StaffRole> staffRoles = List.of(
                 StaffRole.builder()
                         .name(Role.OWNER)
                         .store(store)
@@ -182,7 +184,7 @@ public class AuthenticationService {
         staffRoleRepository.saveAll(staffRoles);
 
         // TODO: create default location (store)
-        List <Location> locations = List.of(
+        List<Location> locations = List.of(
                 Location.builder().name("Produce Section").store(store).build(),
                 Location.builder().name("Dairy Aisle").store(store).build(),
                 Location.builder().name("Meat Department").store(store).build(),
@@ -303,5 +305,13 @@ public class AuthenticationService {
                 CustomerGroup.builder().name("Inactive").store(store).build()
         );
         customerGroupRepository.saveAll(customerGroups);
+        // TODO: create default staff positions
+        List<StaffPosition> staffPositions = List.of(
+                StaffPosition.builder().name("Manager").store(store).build(),
+                StaffPosition.builder().name("Cashier").store(store).build(),
+                StaffPosition.builder().name("Guard").store(store).build(),
+                StaffPosition.builder().name("Cleaner").store(store).build()
+        );
+        staffPositionRepository.saveAll(staffPositions);
     }
 }

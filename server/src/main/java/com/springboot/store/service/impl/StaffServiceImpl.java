@@ -5,10 +5,7 @@ import com.springboot.store.exception.CustomException;
 import com.springboot.store.exception.ResourceNotFoundException;
 import com.springboot.store.payload.StaffRequest;
 import com.springboot.store.payload.StaffResponse;
-import com.springboot.store.repository.MediaRepository;
-import com.springboot.store.repository.ShiftAttendanceRecordRepository;
-import com.springboot.store.repository.StaffRepository;
-import com.springboot.store.repository.StaffRoleRepository;
+import com.springboot.store.repository.*;
 import com.springboot.store.service.ActivityLogService;
 import com.springboot.store.service.FileService;
 import com.springboot.store.service.StaffSalaryService;
@@ -40,6 +37,7 @@ public class StaffServiceImpl implements StaffService {
     private final FileService fileService;
     private final ModelMapper modelMapper;
     private final ShiftAttendanceRecordRepository shiftAttendanceRecordRepository;
+    private final StaffPositionRepository staffPositionRepository;
 
     @Override
     public StaffResponse createStaff(StaffRequest newStaff, MultipartFile file) {
@@ -59,6 +57,7 @@ public class StaffServiceImpl implements StaffService {
         staff.setCreatedAt(new Date());
         staff.setCreator(creator);
         staff.setStore(creator.getStore());
+        staff.setStaffPosition(staffPositionRepository.findByName(newStaff.getPosition()).orElseThrow());
 
         //check if cccd is duplicate and valid
         if (newStaff.getCccd() != null && newStaff.getCccd().length() == 12 && staffRepository.existsByCccd(newStaff.getCccd())) {
@@ -136,7 +135,7 @@ public class StaffServiceImpl implements StaffService {
         staff.setNote(staffRequest.getNote());
         staff.setSex(staffRequest.getSex());
         staff.setBirthday(staffRequest.getBirthday());
-        staff.setPosition(staffRequest.getPosition());
+        staff.setStaffPosition(staffPositionRepository.findByName(staffRequest.getPosition()).orElseThrow());
         staff.setSalaryDebt(staffRequest.getSalaryDebt());
         staff.setStaffRole(staffRequest.getRole() != null
                 ? staffRoleRepository.findByNameAndStoreId(staffRequest.getRole(), storeId).orElseThrow()
@@ -258,7 +257,7 @@ public class StaffServiceImpl implements StaffService {
                 .email(staff.getEmail())
                 .cccd(staff.getCccd())
                 .phoneNumber(staff.getPhoneNumber())
-                .position(staff.getPosition())
+                .position(staff.getStaffPosition().getName())
                 .salaryDebt(staff.getSalaryDebt())
                 .sex(staff.getSex())
                 .address(staff.getAddress())
@@ -289,7 +288,6 @@ public class StaffServiceImpl implements StaffService {
                         ? staffRoleRepository.findByNameAndStoreId(staffRequest.getRole(), getAuthorizedStaff().getStore().getId()).orElseThrow()
                         : null)
                 .salaryDebt(staffRequest.getSalaryDebt())
-                .position(staffRequest.getPosition())
                 .build();
     }
 
