@@ -1,18 +1,17 @@
-export type PaymentMethod = "Cash" | "Bank transfer" | "Card";
+export type InvoicePaymentMethod = "Cash" | "Bank transfer" | "Card";
 
 export type Invoice = {
   id: number;
   discountValue: number;
-  discountCode: string;
+  discountCode: string | null;
   cash: number;
   changed: number;
   subTotal: number;
   total: number;
-  paymentMethod: PaymentMethod;
+  paymentMethod: InvoicePaymentMethod;
   createdAt: string;
   customerId: number | null;
-  // Staff staff;
-  // Coupon coupon;
+  staffId: number;
   invoiceDetails: InvoiceDetail[];
   note: string;
 };

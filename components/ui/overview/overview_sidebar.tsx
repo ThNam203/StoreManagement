@@ -449,7 +449,7 @@ const SideBar = ({
               title="Invoices"
               className="!w-full"
               isCollapsed={isCollapsed}
-              href="/transaction/invoice"
+              href="/invoice"
             />,
             <SideBarButton
               key={2}
@@ -457,7 +457,7 @@ const SideBar = ({
               title="Return"
               className="!w-full"
               isCollapsed={isCollapsed}
-              href="/product-return"
+              href="/invoice-return"
             />,
             <SideBarButton
               key={3}

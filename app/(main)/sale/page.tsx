@@ -45,13 +45,11 @@ import {
 import Image from "next/image";
 import { Product } from "@/entities/Product";
 import { useAppDispatch, useAppSelector } from "@/hooks";
-import { Invoice, InvoiceDetail } from "@/entities/Invoice";
 import {
-  addInvoice,
-  createNewInvoice,
-  deleteInvoice,
-  updateInvoice,
-} from "@/reducers/invoicesReducer";
+  Invoice,
+  InvoiceDetail,
+  InvoicePaymentMethod,
+} from "@/entities/Invoice";
 import { faker } from "@faker-js/faker";
 import {
   Sheet,
@@ -87,7 +85,35 @@ import { Customer } from "@/entities/Customer";
 import { decode } from "punycode";
 import DiscountService from "@/services/discount_service";
 import { Discount, DiscountCode } from "@/entities/Discount";
-import { isAfter, isBefore } from "date-fns";
+import { format, isAfter, isBefore } from "date-fns";
+import { addInvoice } from "@/reducers/invoicesReducer";
+import * as invoiceReducer from "@/reducers/invoicesReducer";
+import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
+import ProductService from "@/services/product_service";
+import CustomerService from "@/services/customer_service";
+import { setProducts } from "@/reducers/productsReducer";
+import { setCustomers } from "@/reducers/customersReducer";
+import { setDiscounts } from "@/reducers/discountsReducer";
+import ChooseInvoiceToReturnDialog from "@/components/component/choose_invoice_to_return_dialog";
+
+// TODO: add the staffId
+function getNewInvoice(): Invoice {
+  return {
+    id: faker.number.int(),
+    discountValue: 0,
+    customerId: null,
+    cash: 0,
+    changed: 0,
+    subTotal: 0,
+    total: 0,
+    discountCode: null,
+    note: "",
+    staffId: 1,
+    paymentMethod: "Cash",
+    createdAt: format(new Date(), "yyyy-MM-dd HH:mm:ss"),
+    invoiceDetails: [],
+  };
+}
 
 const ProductSearchItemView: (product: Product) => React.ReactNode = (
   product: Product,
@@ -139,7 +165,6 @@ const CustomerSearchItemView: (customer: Customer) => React.ReactNode = (
 
 export default function Sale() {
   const invoicesContainerRef = useRef<HTMLDivElement>(null);
-  const dispatch = useAppDispatch();
   const { toast } = useToast();
   const [chosenInvoicePosition, setChosenInvoicePosition] = useState(0);
   const [isCompletingInvoice, setIsCompletingInvoice] = useState(false);
@@ -147,7 +172,68 @@ export default function Sale() {
   const [showScanner, setShowScanner] = useState(false);
   const products = useAppSelector((state) => state.products.value);
   const customers = useAppSelector((state) => state.customers.value);
-  const invoices = useAppSelector((state) => state.invoices.value);
+  const discounts = useAppSelector((state) => state.discounts.value);
+  const dispatch = useAppDispatch();
+  const [invoices, setInvoices] = useState<Invoice[]>([getNewInvoice()]); // invoices that are selling
+
+  React.useEffect(() => {
+    dispatch(showPreloader());
+
+    const fetchData = async () => {
+      const products = await ProductService.getAllProducts();
+      const customers = await CustomerService.getAllCustomers();
+      const discounts = await DiscountService.getAllDiscounts();
+      const invoices = await InvoiceService.getAllInvoices();
+      dispatch(setProducts(products.data));
+      dispatch(setCustomers(customers.data));
+      dispatch(setDiscounts(discounts.data));
+      dispatch(invoiceReducer.setInvoices(invoices.data));
+    };
+
+    fetchData()
+      .catch((e) => axiosUIErrorHandler(e, toast))
+      .finally(() => dispatch(disablePreloader()));
+  }, []);
+
+  const updateInvoice = (updateInvoice: Invoice) => {
+    updateInvoice.subTotal = updateInvoice.invoiceDetails
+      .map((v) => v.price * v.quantity)
+      .reduce((prev, cur) => prev + cur, 0);
+    updateInvoice.total = updateInvoice.subTotal - updateInvoice.discountValue;
+    updateInvoice.cash = updateInvoice.total;
+
+    setInvoices((invoices) => {
+      return invoices.map((invoice) => {
+        if (invoice.id === updateInvoice.id) return updateInvoice;
+        else return invoice;
+      });
+    });
+  };
+
+  const deleteInvoice = (invoiceId: number) => {
+    const invoicePosition = invoices.findIndex(
+      (invoice) => invoice.id === invoiceId,
+    );
+    if (invoicePosition === -1)
+      return toast({
+        variant: "destructive",
+        description: "Can't delete invoice, something went wrong!",
+      });
+    if (chosenInvoicePosition >= invoicePosition && chosenInvoicePosition > 0)
+      setChosenInvoicePosition((prev) => prev - 1);
+
+    setInvoices((invoices) => {
+      const modifiedInvoices = invoices.filter(
+        (invoice) => invoice.id !== invoiceId,
+      );
+      if (modifiedInvoices.length === 0) modifiedInvoices.push(getNewInvoice());
+      return modifiedInvoices;
+    });
+  };
+
+  const addNewInvoice = () => {
+    setInvoices((invoices) => [...invoices, getNewInvoice()]);
+  };
 
   const onProductClick = (currentInvoice: Invoice, product: Product) => {
     let modifiedInvoice = { ...currentInvoice };
@@ -183,9 +269,10 @@ export default function Sale() {
       };
     }
 
-    dispatch(updateInvoice(modifiedInvoice));
+    updateInvoice(modifiedInvoice);
     return modifiedInvoice;
   };
+
   return (
     <>
       {showScanner ? (
@@ -306,12 +393,7 @@ export default function Sale() {
                         onClick={(e) => {
                           e.stopPropagation();
                           if (isCompletingInvoice) return;
-                          if (
-                            chosenInvoicePosition >= idx &&
-                            chosenInvoicePosition > 0
-                          )
-                            setChosenInvoicePosition((prev) => prev - 1);
-                          dispatch(deleteInvoice(invoices[idx].id));
+                          deleteInvoice(invoices[idx].id);
                         }}
                       >
                         Delete
@@ -335,41 +417,18 @@ export default function Sale() {
             size={26}
             color="white"
             className="rounded-full p-1 hover:cursor-pointer hover:bg-black hover:bg-opacity-50"
-            onClick={() => dispatch(createNewInvoice())}
+            onClick={() => addNewInvoice()}
           />
           <div className="min-w-[16px] flex-1" />
-          <Popover>
-            <PopoverTrigger className="mr-2">
-              <AlignJustify size={24} color="white" className="end" />
-            </PopoverTrigger>
-            <PopoverContent className="mr-2 flex flex-col rounded-sm bg-white p-2">
-              <div className="flex flex-row items-center gap-4 p-2 hover:cursor-pointer hover:bg-slate-200">
-                <PieChart size={16} />
-                <p className="text-sm font-medium">End of day report</p>
-              </div>
-              <div className="flex flex-row items-center gap-4 p-2 hover:cursor-pointer hover:bg-slate-200">
-                <Undo size={16} />
-                <p className="text-sm font-medium">Return</p>
-              </div>
-              <div className="flex flex-row items-center gap-4 p-2 hover:cursor-pointer hover:bg-slate-200">
-                <FileDown size={16} />
-                <p className="text-sm font-medium">New Receipt</p>
-              </div>
-              <div className="flex flex-row items-center gap-4 p-2 hover:cursor-pointer hover:bg-slate-200">
-                <FilePlus size={16} />
-                <p className="text-sm font-medium">Import</p>
-              </div>
-              <div className="flex flex-row items-center gap-4 p-2 hover:cursor-pointer hover:bg-slate-200">
-                <Info size={16} />
-                <p className="text-sm font-medium">Shortcuts</p>
-              </div>
-            </PopoverContent>
-          </Popover>
+          <ActionMenu />
         </div>
         <InvoiceView
-          isCompletingInvoice={isCompletingInvoice}
-          setIsCompletingInvoice={setIsCompletingInvoice}
+          isSubmittingInvoice={isCompletingInvoice}
+          setIsSubmittingInvoice={setIsCompletingInvoice}
           onProductClick={onProductClick}
+          updateInvoice={updateInvoice}
+          deleteInvoice={deleteInvoice}
+          discounts={discounts}
           products={products}
           invoice={invoices[chosenInvoicePosition]}
           customers={customers}
@@ -380,23 +439,28 @@ export default function Sale() {
 }
 
 const InvoiceView = ({
-  isCompletingInvoice,
-  setIsCompletingInvoice,
+  isSubmittingInvoice,
+  setIsSubmittingInvoice,
   onProductClick,
+  updateInvoice,
+  deleteInvoice,
   invoice,
+  discounts,
   products,
   customers,
 }: {
-  isCompletingInvoice: boolean;
-  setIsCompletingInvoice: (value: boolean) => any;
+  isSubmittingInvoice: boolean;
+  setIsSubmittingInvoice: (value: boolean) => any;
   onProductClick: (currentInvoice: Invoice, product: Product) => Invoice;
+  updateInvoice: (invoice: Invoice) => any;
+  deleteInvoice: (invoiceId: number) => any;
   invoice: Invoice;
+  discounts: Discount[];
   products: Product[];
   customers: Customer[];
 }) => {
   const { toast } = useToast();
   const dispatch = useAppDispatch();
-  const discounts = useAppSelector((state) => state.discounts.value);
   const [discountCode, setDiscountCode] = useState("");
   const [isGettingDiscountData, setIsGettingDiscountData] = useState(false);
   const [exceedStockDetailIds, setExceedStockDetailIds] = useState<number[]>(
@@ -404,6 +468,7 @@ const InvoiceView = ({
   );
   const [customerSearch, setCustomerSearch] = useState("");
   const [chosenCustomer, setChosenCustomer] = useState<Customer | null>(null);
+  const [openCompleteSheet, setOpenCompleteSheet] = useState(false);
 
   const onSubmitInvoice = async () => {
     if (exceedStockDetailIds.length > 0)
@@ -417,17 +482,19 @@ const InvoiceView = ({
     if (submitInvoice.invoiceDetails)
       submitInvoice.invoiceDetails.forEach((v: any) => delete v.id);
 
-    setIsCompletingInvoice(true);
+    setIsSubmittingInvoice(true);
     await InvoiceService.uploadInvoice(submitInvoice)
       .then((response) => {
-        dispatch(deleteInvoice(invoice.id));
+        deleteInvoice(invoice.id);
+        dispatch(addInvoice(response.data)); // add to sold invoices
         createInvoicePdf(submitInvoice, products);
       })
       .catch((e) => {
         axiosUIErrorHandler(e, toast);
       })
       .finally(() => {
-        setIsCompletingInvoice(false);
+        setIsSubmittingInvoice(false);
+        setOpenCompleteSheet(false);
       });
   };
 
@@ -454,17 +521,15 @@ const InvoiceView = ({
   };
 
   const resetDiscountState = () => {
-    dispatch(
-      updateInvoice({
-        ...invoice,
-        discountValue: 0,
-        discountCode: "",
-      }),
-    );
+    updateInvoice({
+      ...invoice,
+      discountValue: 0,
+      discountCode: null,
+    });
   };
 
   const updateDiscountState = () => {
-    if (invoice.discountCode.length === 0) return resetDiscountState();
+    if (!invoice.discountCode) return resetDiscountState();
     const discountInfo = discounts.find(
       (discount) =>
         discount.discountCodes?.find(
@@ -500,13 +565,10 @@ const InvoiceView = ({
 
     if (discountValue > totalDiscountableValue)
       discountValue = totalDiscountableValue;
-    console.log(invoice.subTotal - discountValue);
-    dispatch(
-      updateInvoice({
-        ...invoice,
-        discountValue: discountValue,
-      }),
-    );
+    updateInvoice({
+      ...invoice,
+      discountValue: discountValue,
+    });
   };
 
   function onDiscountCodeEnter(e: React.KeyboardEvent<HTMLInputElement>): void {
@@ -552,12 +614,10 @@ const InvoiceView = ({
               description: "Discount code is expired",
             });
 
-          dispatch(
-            updateInvoice({
-              ...invoice,
-              discountCode: discountCode,
-            }),
-          );
+          updateInvoice({
+            ...invoice,
+            discountCode: discountCode,
+          });
         })
         .catch((e) => {
           axiosUIErrorHandler(e, toast);
@@ -569,12 +629,10 @@ const InvoiceView = ({
   }
 
   const onDiscountCodeRemove = (e: React.MouseEvent<SVGSVGElement>) => {
-    dispatch(
-      updateInvoice({
-        ...invoice,
-        discountCode: "",
-      }),
-    );
+    updateInvoice({
+      ...invoice,
+      discountCode: null,
+    });
     setDiscountCode("");
   };
 
@@ -593,6 +651,7 @@ const InvoiceView = ({
               products={products}
               invoice={invoice}
               detailIndex={detailIdx}
+              updateInvoice={updateInvoice}
               showExceedError={exceedStockDetailIds.includes(detail.id)}
               onDeleteDetail={() => {
                 const idx = exceedStockDetailIds.indexOf(detail.id);
@@ -610,12 +669,10 @@ const InvoiceView = ({
             placeholder="Invoice's note"
             value={invoice.note}
             onChange={(e) => {
-              dispatch(
-                updateInvoice({
-                  ...invoice,
-                  note: e.currentTarget.value,
-                }),
-              );
+              updateInvoice({
+                ...invoice,
+                note: e.currentTarget.value,
+              });
             }}
             className={cn(
               scrollbar_style.scrollbar,
@@ -659,12 +716,10 @@ const InvoiceView = ({
               itemView={CustomerSearchItemView}
               inputColor="bg-slate-200"
               onItemClick={(customer) => {
-                dispatch(
-                  updateInvoice({
-                    ...invoice,
-                    customerId: customer.id,
-                  }),
-                );
+                updateInvoice({
+                  ...invoice,
+                  customerId: customer.id,
+                });
                 setChosenCustomer(customer);
               }}
               filter={(customer) =>
@@ -684,20 +739,21 @@ const InvoiceView = ({
             />
           </div>
           {chosenCustomer ? (
-            <div className="flex flex-row items-center gap-2 text-sm bg-blue-400 p-2 rounded-md h-[35px]">
-              <p>Customer:{" "}<span className="font-bold">{chosenCustomer.name}</span></p>
+            <div className="flex h-[35px] flex-row items-center gap-2 rounded-md bg-blue-400 p-2 text-sm">
+              <p>
+                Customer:{" "}
+                <span className="font-bold">{chosenCustomer.name}</span>
+              </p>
               <X
                 size={16}
                 onClick={() => {
-                  dispatch(
-                    updateInvoice({
-                      ...invoice,
-                      customerId: null,
-                    }),
-                  );
+                  updateInvoice({
+                    ...invoice,
+                    customerId: null,
+                  });
                   setChosenCustomer(null);
                 }}
-                className="hover:bg-white hover:bg-opacity-60 rounded-full cursor-pointer"
+                className="cursor-pointer rounded-full hover:bg-white hover:bg-opacity-60"
               />
             </div>
           ) : null}
@@ -712,7 +768,7 @@ const InvoiceView = ({
             />
           ))}
         </div>
-        <Sheet>
+        <Sheet open={openCompleteSheet} onOpenChange={setOpenCompleteSheet}>
           <SheetTrigger asChild>
             <Button variant={"blue"} className="uppercase text-white">
               Make Payment
@@ -770,29 +826,29 @@ const InvoiceView = ({
                   type="number"
                   value={invoice.cash}
                   onChange={(e) => {
-                    console.log(
-                      "e.currentTarget.valueAsNumber",
-                      e.currentTarget.valueAsNumber,
-                    );
-                    dispatch(
-                      updateInvoice({
-                        ...invoice,
-                        cash: e.currentTarget.valueAsNumber,
-                      }),
-                    );
+                    updateInvoice({
+                      ...invoice,
+                      cash: e.currentTarget.valueAsNumber,
+                    });
                   }}
                   className="text-md h-[24px] rounded-none border-0 border-b border-black p-0 text-right focus-visible:ring-0 focus-visible:ring-offset-0"
                 />
               </div>
               <div className="flex flex-row items-center justify-between">
                 <RadioGroup
-                  defaultValue="cash"
-                  className="flex flex-row gap-8  "
+                  defaultValue="Cash"
+                  className="flex flex-row gap-8"
+                  onValueChange={(e) => {
+                    updateInvoice({
+                      ...invoice,
+                      paymentMethod: e as InvoicePaymentMethod,
+                    });
+                  }}
                 >
                   <div className="flex flex-row items-center">
                     <RadioGroupItem
                       id="cash_payment"
-                      value="cash"
+                      value={"Cash"}
                       className="mr-3"
                     ></RadioGroupItem>
                     <Label htmlFor="cash_payment">Cash</Label>
@@ -800,7 +856,7 @@ const InvoiceView = ({
                   <div className="m-1 flex flex-row items-center">
                     <RadioGroupItem
                       id="bank_transfer_payment"
-                      value="bank_transfer"
+                      value="Bank Transfer"
                       className="mr-3"
                     ></RadioGroupItem>
                     <Label htmlFor="bank_transfer_payment">Bank transfer</Label>
@@ -808,7 +864,7 @@ const InvoiceView = ({
                   <div className="flex flex-row items-center">
                     <RadioGroupItem
                       id="card_payment"
-                      value="card"
+                      value="Card"
                       className="mr-3"
                     ></RadioGroupItem>
                     <Label htmlFor="card_payment">Card</Label>
@@ -828,10 +884,10 @@ const InvoiceView = ({
                 type="submit"
                 className="h-[50px] w-full"
                 onClick={onSubmitInvoice}
-                disabled={isCompletingInvoice}
+                disabled={isSubmittingInvoice}
               >
                 COMPLETE
-                {isCompletingInvoice ? <LoadingCircle /> : null}
+                {isSubmittingInvoice ? <LoadingCircle /> : null}
               </Button>
             </SheetFooter>
           </SheetContent>
@@ -885,15 +941,16 @@ const InvoiceDetailView = ({
   invoice,
   detailIndex,
   onDeleteDetail,
+  updateInvoice,
   showExceedError,
 }: {
   products: Product[];
   invoice: Invoice;
   detailIndex: number;
   onDeleteDetail: () => any;
+  updateInvoice: (invoice: Invoice) => any;
   showExceedError: boolean;
 }) => {
-  const dispatch = useAppDispatch();
   const detail = invoice.invoiceDetails[detailIndex];
   const detailProduct = products.find(
     (product) => product.id === detail.productId,
@@ -902,7 +959,6 @@ const InvoiceDetailView = ({
   const [showPopover, setShowPopover] = useState(false);
 
   const updateQuantity = (value: number) => {
-    console.log(invoice);
     if (isNaN(value) || value <= 0) value = 1;
     const updatedInvoice: Invoice = {
       ...invoice,
@@ -911,7 +967,7 @@ const InvoiceDetailView = ({
       ),
     };
 
-    dispatch(updateInvoice(updatedInvoice));
+    updateInvoice(updatedInvoice);
   };
 
   const deleteDetail = () => {
@@ -920,7 +976,7 @@ const InvoiceDetailView = ({
       ...invoice,
       invoiceDetails: invoice.invoiceDetails.filter((v) => v.id !== detail.id),
     };
-    dispatch(updateInvoice(updatedInvoice));
+    updateInvoice(updatedInvoice);
   };
 
   const updateDetailDescription = (newDescription: string) => {
@@ -930,7 +986,7 @@ const InvoiceDetailView = ({
         v.id === detail.id ? { ...detail, description: newDescription } : v,
       ),
     };
-    dispatch(updateInvoice(updatedInvoice));
+    updateInvoice(updatedInvoice);
   };
 
   return (
@@ -1019,81 +1075,43 @@ const InvoiceDetailView = ({
   );
 };
 
-const IconDiscountTag = (
-  <svg
-    version="1.1"
-    xmlns="http://www.w3.org/2000/svg"
-    xmlnsXlink="http://www.w3.org/1999/xlink"
-    x="0px"
-    y="0px"
-    fill="white"
-    width={16}
-    height={16}
-    viewBox="0 0 512.001 512.001"
-    enableBackground="new 0 0 512.001 512.001"
-    xmlSpace="preserve"
-    className="mr-[2px] inline-block p-[1px]"
-  >
-    <g>
-      <g>
-        <path
-          d="M507.606,4.394c-5.857-5.858-15.356-5.858-21.214,0l-43.69,43.69c-2.686-1.28-5.52-2.311-8.479-3.05L298.452,11.491
-   c-15.246-3.811-31.622,0.724-42.735,11.837L13.16,265.486c-17.545,17.546-17.545,46.096,0,63.643l169.713,169.712
-   c17.546,17.546,46.096,17.547,63.643,0l242.158-242.558c11.113-11.113,15.649-27.489,11.836-42.736l-33.542-135.77
-   c-0.74-2.958-1.77-5.793-3.05-8.479l43.69-43.69C513.464,19.75,513.464,10.252,507.606,4.394z M471.403,220.825
-   c1.271,5.082-0.241,10.54-3.945,14.245L225.3,477.627c-5.849,5.849-15.366,5.849-21.215,0L34.373,307.914
-   c-5.849-5.849-5.849-15.366,0-21.215L276.931,44.542c2.837-2.837,6.703-4.388,10.641-4.388c1.204,0,2.415,0.145,3.604,0.442
-   l127.53,31.483l-36.125,36.125c-16.725-7.966-37.384-5.044-51.21,8.782c-17.547,17.547-17.547,46.096,0,63.643
-   c8.772,8.773,20.297,13.16,31.821,13.16c11.523,0,23.048-4.386,31.82-13.16c13.829-13.828,16.75-34.486,8.782-51.211
-   l36.125-36.125L471.403,220.825z M373.799,159.416c-5.848,5.848-15.365,5.849-21.214,0c-5.848-5.848-5.848-15.366,0-21.214
-   c2.925-2.925,6.765-4.386,10.607-4.386c3.84,0,7.682,1.462,10.605,4.385l0.001,0.001l0.001,0.001
-   C379.648,144.051,379.647,153.568,373.799,159.416z"
-        />
-      </g>
-    </g>
-    <g>
-      <g>
-        <path
-          d="M246.514,180.63c-17.546-17.546-46.096-17.546-63.643,0c-17.545,17.546-17.545,46.096,0,63.643
-   c17.546,17.546,46.097,17.546,63.643,0C264.061,226.726,264.061,198.177,246.514,180.63z M225.301,223.058
-   c-5.849,5.849-15.366,5.849-21.214,0c-5.848-5.849-5.85-15.366-0.001-21.214c5.849-5.848,15.365-5.849,21.215,0
-   C231.149,207.692,231.149,217.209,225.301,223.058z"
-        />
-      </g>
-    </g>
-    <g>
-      <g>
-        <path
-          d="M267.728,329.128c-17.587-17.587-46.052-17.589-63.642,0c-17.547,17.547-17.547,46.096,0,63.643
-   c17.588,17.587,46.053,17.59,63.642,0C285.275,375.224,285.275,346.675,267.728,329.128z M246.514,371.557
-   c-5.861,5.862-15.352,5.863-21.214,0c-5.848-5.848-5.848-15.366,0-21.214c5.862-5.862,15.352-5.863,21.214,0
-   C252.362,356.191,252.362,365.707,246.514,371.557z"
-        />
-      </g>
-    </g>
-    <g>
-      <g>
-        <path
-          d="M335.673,274.437c-0.915-8.234-8.333-14.168-16.566-13.253l-190.926,21.214c-8.234,0.915-14.168,8.331-13.253,16.566
-   c0.853,7.671,7.347,13.346,14.891,13.346c0.553,0,1.113-0.031,1.675-0.093l190.927-21.214
-   C330.655,290.087,336.589,282.671,335.673,274.437z"
-        />
-      </g>
-    </g>
-    <g></g>
-    <g></g>
-    <g></g>
-    <g></g>
-    <g></g>
-    <g></g>
-    <g></g>
-    <g></g>
-    <g></g>
-    <g></g>
-    <g></g>
-    <g></g>
-    <g></g>
-    <g></g>
-    <g></g>
-  </svg>
-);
+const ActionMenu = () => {
+  const invoices = useAppSelector(state => state.invoices.value)
+  const [showMenu, setShowMenu] = useState(false)
+  const [showReturnDialog, setShowReturnDialog] = useState(false);
+  return (
+    <>
+    <Popover open={showMenu} onOpenChange={setShowMenu}>
+      <PopoverTrigger className="mr-2">
+        <AlignJustify size={24} color="white" className="end" />
+      </PopoverTrigger>
+      <PopoverContent className="mr-2 flex flex-col rounded-sm bg-white p-2">
+        <div className="flex flex-row items-center gap-4 p-2 hover:cursor-pointer hover:bg-slate-200">
+          <PieChart size={16} />
+          <p className="text-sm font-medium">End of day report</p>
+        </div>
+        <div className="flex flex-row items-center gap-4 p-2 hover:cursor-pointer hover:bg-slate-200">
+          <Undo size={16} />
+          <p className="text-sm font-medium" onClick={() => {
+            setShowReturnDialog(true);
+            setShowMenu(false);
+          }}>Return</p>
+        </div>
+        <div className="flex flex-row items-center gap-4 p-2 hover:cursor-pointer hover:bg-slate-200">
+          <FileDown size={16} />
+          <p className="text-sm font-medium">New Receipt</p>
+        </div>
+        <div className="flex flex-row items-center gap-4 p-2 hover:cursor-pointer hover:bg-slate-200">
+          <FilePlus size={16} />
+          <p className="text-sm font-medium">Import</p>
+        </div>
+        <div className="flex flex-row items-center gap-4 p-2 hover:cursor-pointer hover:bg-slate-200">
+          <Info size={16} />
+          <p className="text-sm font-medium">Shortcuts</p>
+        </div>
+      </PopoverContent>
+    </Popover>
+    <ChooseInvoiceToReturnDialog invoices={invoices} open={showReturnDialog} onOpenChange={setShowReturnDialog}/>
+    </>
+  );
+};
