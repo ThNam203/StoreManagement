@@ -16,6 +16,8 @@ public interface StaffRepository extends JpaRepository<Staff, Integer> {
 
     Boolean existsByCccd(String cccd);
 
+    Boolean existsByStaffPosition(String staffPosition);
+
     Boolean existsByPhoneNumber(String phoneNumber);
 
     @Query("SELECT s FROM Staff s WHERE s.staffRole.name != 'Owner'")

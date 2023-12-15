@@ -4,6 +4,7 @@ import com.springboot.store.entity.StaffPosition;
 import com.springboot.store.entity.Store;
 import com.springboot.store.payload.StaffPositionDTO;
 import com.springboot.store.repository.StaffPositionRepository;
+import com.springboot.store.repository.StaffRepository;
 import com.springboot.store.repository.StoreRepository;
 import com.springboot.store.service.StaffPositionService;
 import com.springboot.store.service.StaffService;
@@ -20,7 +21,7 @@ public class StaffPositionServiceImpl implements StaffPositionService {
     private final StaffPositionRepository staffPositionRepository;
     private final ModelMapper modelMapper;
     private final StaffService staffService;
-    private final StoreRepository storeRepository;
+    private final StaffRepository staffRepository;
 
     @Override
     public List<StaffPositionDTO> getAllStaffPositions() {
@@ -47,6 +48,10 @@ public class StaffPositionServiceImpl implements StaffPositionService {
 
     @Override
     public void deleteStaffPosition(int staffPositionId) {
+        StaffPosition staffPosition = staffPositionRepository.findById(staffPositionId).orElseThrow();
+        if (staffRepository.existsByStaffPosition(staffPosition.getName())) {
+            throw new RuntimeException("Cannot delete staff position because there are staffs with this position");
+        }
         staffPositionRepository.deleteById(staffPositionId);
     }
 }
