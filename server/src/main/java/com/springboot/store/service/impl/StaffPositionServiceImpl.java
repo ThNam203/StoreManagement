@@ -48,9 +48,9 @@ public class StaffPositionServiceImpl implements StaffPositionService {
 
     @Override
     public void deleteStaffPosition(int staffPositionId) {
-        StaffPosition staffPosition = staffPositionRepository.findById(staffPositionId).orElseThrow();
-        if (staffRepository.existsByStaffPosition(staffPosition.getName())) {
-            throw new RuntimeException("Cannot delete staff position because there are staffs with this position");
+        StaffPosition existingStaffPosition = staffPositionRepository.findById(staffPositionId).orElseThrow();
+        if (staffRepository.existsByStaffPosition(existingStaffPosition)) {
+            throw new RuntimeException("Cannot delete staff position that is being used by staff");
         }
         staffPositionRepository.deleteById(staffPositionId);
     }
