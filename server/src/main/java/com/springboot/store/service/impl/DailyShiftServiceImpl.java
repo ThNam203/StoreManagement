@@ -222,10 +222,41 @@ public class DailyShiftServiceImpl implements DailyShiftService {
                 dailyShiftList.add(dailyShift);
             } else {
                 int id = dailyShiftDTO.getId();
+                if (dailyShiftDTO.getAttendanceList().isEmpty()) {
+                    deleteDailyShift(id);
+                    return null;
+                }
                 DailyShift existingDailyShift = dailyShiftRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("DailyShift not found with id: " + id));
                 existingDailyShift.setDate(dailyShiftDTO.getDate());
                 existingDailyShift.setNote(dailyShiftDTO.getNote());
                 existingDailyShift.setShift(shiftRepository.findById(dailyShiftDTO.getShiftId()).orElseThrow());
+                List<ShiftAttendanceRecord> attendanceRecordListToDelete = existingDailyShift.getAttendanceList();
+                for (ShiftAttendanceRecord attendanceRecord : attendanceRecordListToDelete) {
+                    // Remove the association with the daily shift
+                    attendanceRecord.setDailyShift(null);
+                    attendanceRecord.setStore(null);
+                    // Get all bonus salary records of this attendance record
+                    List<StaffBonusSalary> bonusSalaryList = attendanceRecord.getBonusSalaryList();
+                    attendanceRecord.setBonusSalaryList(null);
+                    List<StaffPunishSalary> punishSalaryList = attendanceRecord.getPunishSalaryList();
+                    attendanceRecord.setPunishSalaryList(null);
+
+                    for (StaffBonusSalary bonusSalary : bonusSalaryList) {
+                        // Remove the association with the attendance record
+                        bonusSalary.setShiftAttendanceRecord(null);
+                        bonusSalary.setStore(null);
+                        staffBonusSalaryRepository.deleteById(bonusSalary.getId());
+                    }
+                    // Get all punish salary records of this attendance record
+                    for (StaffPunishSalary punishSalary : punishSalaryList) {
+                        // Remove the association with the attendance record
+                        punishSalary.setShiftAttendanceRecord(null);
+                        punishSalary.setStore(null);
+                        staffPunishSalaryRepository.deleteById(punishSalary.getId());
+                    }
+                    shiftAttendanceRecordRepository.deleteById(attendanceRecord.getId());
+                }
+
                 List<ShiftAttendanceRecord> attendanceRecordList = new ArrayList<>();
                 for (ShiftAttendanceRecordDTO shiftAttendanceRecordDTO : dailyShiftDTO.getAttendanceList()) {
                     ShiftAttendanceRecord shiftAttendanceRecord = modelMapper.map(shiftAttendanceRecordDTO, ShiftAttendanceRecord.class);
@@ -251,10 +282,7 @@ public class DailyShiftServiceImpl implements DailyShiftService {
                 }
                 existingDailyShift.setAttendanceList(attendanceRecordList);
                 existingDailyShift = dailyShiftRepository.save(existingDailyShift);
-                if (dailyShiftDTO.getAttendanceList().isEmpty()) {
-                    deleteDailyShift(id);
-                    return null;
-                }
+
                 dailyShiftList.add(existingDailyShift);
             }
 
@@ -279,16 +307,36 @@ public class DailyShiftServiceImpl implements DailyShiftService {
 
     @Override
     public void deleteDailyShift(int dailyShiftId) {
-        List<ShiftAttendanceRecord> attendanceRecords = dailyShiftRepository.findById(dailyShiftId).orElseThrow().getAttendanceList();
-        for (ShiftAttendanceRecord attendanceRecord : attendanceRecords) {
-            dailyShiftRepository.deleteById(attendanceRecord.getId());
+        DailyShift existingDailyShift = dailyShiftRepository.findById(dailyShiftId).orElseThrow(() -> new EntityNotFoundException("DailyShift not found with id: " + dailyShiftId));
+        List<ShiftAttendanceRecord> attendanceRecordListToDelete = existingDailyShift.getAttendanceList();
+        for (ShiftAttendanceRecord attendanceRecord : attendanceRecordListToDelete) {
+            // Remove the association with the daily shift
+            attendanceRecord.setDailyShift(null);
+            attendanceRecord.setStore(null);
+            // Get all bonus salary records of this attendance record
+            List<StaffBonusSalary> bonusSalaryList = attendanceRecord.getBonusSalaryList();
+            attendanceRecord.setBonusSalaryList(null);
+            List<StaffPunishSalary> punishSalaryList = attendanceRecord.getPunishSalaryList();
+            attendanceRecord.setPunishSalaryList(null);
+
+            for (StaffBonusSalary bonusSalary : bonusSalaryList) {
+                // Remove the association with the attendance record
+                bonusSalary.setShiftAttendanceRecord(null);
+                bonusSalary.setStore(null);
+                staffBonusSalaryRepository.deleteById(bonusSalary.getId());
+            }
+            // Get all punish salary records of this attendance record
+            for (StaffPunishSalary punishSalary : punishSalaryList) {
+                // Remove the association with the attendance record
+                punishSalary.setShiftAttendanceRecord(null);
+                punishSalary.setStore(null);
+                staffPunishSalaryRepository.deleteById(punishSalary.getId());
+            }
+            shiftAttendanceRecordRepository.deleteById(attendanceRecord.getId());
         }
-        DailyShift dailyShift = dailyShiftRepository.findById(dailyShiftId).orElseThrow();
-        List<Shift> listShift = shiftRepository.findByDailyShiftsContains(dailyShift);
-        for (Shift shift : listShift) {
-            shift.getDailyShifts().remove(dailyShift);
-            shiftRepository.save(shift);
-        }
+        Shift shift = existingDailyShift.getShift();
+        shift.getDailyShifts().remove(existingDailyShift);
+        shiftRepository.save(shift);
         dailyShiftRepository.deleteById(dailyShiftId);
     }
 }

@@ -32,7 +32,7 @@ public class Shift {
     @OneToOne(cascade = CascadeType.ALL)
     private ShiftClickingTime clickingTime;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL)
     private List<DailyShift> dailyShifts;
 
     @ManyToOne()
