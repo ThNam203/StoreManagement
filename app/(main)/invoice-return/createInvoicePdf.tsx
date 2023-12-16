@@ -14,6 +14,7 @@ import {
   Font,
 } from "@react-pdf/renderer";
 import { Product } from "@/entities/Product";
+import { ReturnInvoiceClient, ReturnInvoiceServer } from "@/entities/ReturnInvoice";
 
 Font.register({
   family: "OpenSansv2",
@@ -69,7 +70,7 @@ const pdfStyleSheet = StyleSheet.create({
   },
 });
 
-const createInvoicePdf = async (invoice: Invoice, products: Product[]) => {
+const createInvoicePdf = async (invoice: ReturnInvoiceClient, products: Product[], afterPrint: () => any) => {
   const InvoiceView = () => (
     <Document>
       <Page size="A4" style={pdfStyleSheet.page}>
@@ -106,9 +107,9 @@ const createInvoicePdf = async (invoice: Invoice, products: Product[]) => {
             borderBottom: "1 dashed #aaaaaa",
           }}
         />
-        {invoice.invoiceDetails.map((detail, idx) => {
+        {invoice.returnDetails.map((detail, idx) => {
           const detailProduct = products.find(
-            (product) => product.id === detail.productId,
+            (product) => product.id === detail.productId
           )!;
           return (
             <View key={idx} style={{ width: "100%" }}>
@@ -152,18 +153,16 @@ const createInvoicePdf = async (invoice: Invoice, products: Product[]) => {
           <Text style={{ fontWeight: 700 }}>Sub total:</Text>
           <Text style={{ fontWeight: 400 }}>{invoice.subTotal}</Text>
         </View>
-        {invoice.discountCode ? (
-          <>
-            <View style={{ ...pdfStyleSheet.flexJustifyBetween }}>
-              <Text style={{ fontWeight: 700 }}>Discount applied:</Text>
-              <Text style={{ fontWeight: 400 }}>{invoice.discountCode}</Text>
-            </View>
-            <View style={pdfStyleSheet.flexJustifyBetween}>
-              <Text style={{ fontWeight: 700 }}>Discount value:</Text>
-              <Text style={{ fontWeight: 400 }}>{invoice.discountValue}</Text>
-            </View>
-          </>
+        {invoice.discountValue ? (
+          <View style={{ ...pdfStyleSheet.flexJustifyBetween }}>
+            <Text style={{ fontWeight: 700 }}>Discount value:</Text>
+            <Text style={{ fontWeight: 400 }}>{invoice.discountValue}</Text>
+          </View>
         ) : null}
+        <View style={pdfStyleSheet.flexJustifyBetween}>
+          <Text style={{ fontWeight: 700 }}>Return fee:</Text>
+          <Text style={{ fontWeight: 400 }}>{invoice.returnFee}</Text>
+        </View>
         <View style={pdfStyleSheet.flexJustifyBetween}>
           <Text style={{ fontWeight: 700 }}>
             Total &#40;Pay by {invoice.paymentMethod}&#41;:
@@ -186,6 +185,8 @@ const createInvoicePdf = async (invoice: Invoice, products: Product[]) => {
   iframe.src = objectURL;
   iframe.onload = () => {
     iframe.contentWindow!.print();
+    iframe.contentWindow!.addEventListener('afterprint', afterPrint)
+    window.addEventListener("afterprint", afterPrint);
     URL.revokeObjectURL(objectURL);
   };
 };

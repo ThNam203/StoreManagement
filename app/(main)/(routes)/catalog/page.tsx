@@ -4,7 +4,7 @@ import {
   PageWithFilters,
   SearchFilter,
 } from "@/components/ui/filter";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { CatalogDatatable } from "./datatable";
 import { NewProductView } from "@/components/ui/catalog/new_product_form";
 import { Button } from "@/components/ui/button";
@@ -14,14 +14,16 @@ import { useToast } from "@/components/ui/use-toast";
 import { UpdateProductView } from "@/components/ui/catalog/update_product_form";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
 import { useAppDispatch, useAppSelector } from "@/hooks";
-import { addGroup } from "@/reducers/productGroupsReducer";
-import { addBrand } from "@/reducers/productBrandsReducer";
-import { addLocation } from "@/reducers/productLocationsReducer";
+import { addGroup, setGroups } from "@/reducers/productGroupsReducer";
+import { addBrand, setBrands } from "@/reducers/productBrandsReducer";
+import { addLocation, setLocations } from "@/reducers/productLocationsReducer";
 import * as productPropertiesActions from "@/reducers/productPropertiesReducer";
 import {
   addProducts,
+  setProducts,
   updateProduct,
 } from "@/reducers/productsReducer";
+import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
 
 const productInventoryThresholds = [
   "All",
@@ -34,12 +36,39 @@ const productStatuses = ["Active", "Disabled", "All"];
 
 export default function Catalog() {
   const { toast } = useToast();
+  const dispatch = useAppDispatch();
   const products = useAppSelector((state) => state.products.value);
   const productGroups = useAppSelector((state) => state.productGroups.value);
   const productLocations = useAppSelector(
-    (state) => state.productLocations.value
+    (state) => state.productLocations.value,
   );
-  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(showPreloader());
+    const getData = async () => {
+      try {
+        const products = await ProductService.getAllProducts();
+        dispatch(setProducts(products.data));
+
+        const productGroups = await ProductService.getAllGroups();
+        dispatch(setGroups(productGroups.data));
+
+        const productLocations = await ProductService.getAllLocations();
+        dispatch(setLocations(productLocations.data));
+
+        const productBrands = await ProductService.getAllBrands();
+        dispatch(setBrands(productBrands.data));
+
+        const productProperties = await ProductService.getAllProperties();
+        dispatch(productPropertiesActions.setProperties(productProperties.data));
+      } catch (e) {
+        axiosUIErrorHandler(e, toast)
+      }
+    };
+    getData().finally(() => {
+      dispatch(disablePreloader())
+    })
+  }, []);
 
   const addNewGroup = async (group: string) => {
     try {
@@ -187,7 +216,7 @@ export default function Catalog() {
   const [showNewProductView, setShowNewProductView] = useState(false);
   const [showUpdateProductView, setShowUpdateProductView] = useState(false);
   const [chosenProductIndex, setChosenProductIndex] = useState<number | null>(
-    null
+    null,
   );
 
   const onProductUpdateButtonClicked = (rowIndex: number) => {
@@ -201,7 +230,10 @@ export default function Catalog() {
       filters={filters}
       headerButtons={[<NewProductButton key={1} />]}
     >
-      <CatalogDatatable data={products} onProductUpdateButtonClicked={onProductUpdateButtonClicked}/>
+      <CatalogDatatable
+        data={products}
+        onProductUpdateButtonClicked={onProductUpdateButtonClicked}
+      />
       {showNewProductView ? (
         <NewProductView
           onChangeVisibility={setShowNewProductView}

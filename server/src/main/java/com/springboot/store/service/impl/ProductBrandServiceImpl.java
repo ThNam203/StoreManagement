@@ -66,6 +66,10 @@ public class ProductBrandServiceImpl implements ProductBrandService {
         ProductBrand existingProductBrand = productBrandRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("ProductBrand not found with id: " + id));
 
+        if (productBrandRepository.findByNameAndStoreId(productBrandDTO.getName(), existingProductBrand.getStore().getId()).isPresent()) {
+            throw new RuntimeException("ProductBrand already exists");
+        }
+
         // Update existingProductBrand with data from productBrandDTO
         existingProductBrand.setName(productBrandDTO.getName());
         // Update other fields as needed

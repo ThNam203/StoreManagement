@@ -19,14 +19,25 @@ import { DataTableViewOptions } from "../ui/my_table_column_visibility_toggle";
 import CustomDataTableContent from "./custom_datatable_content";
 import { TabProps } from "./custom_datatable_row";
 import LoadingCircle from "../ui/loading_circle";
+
 export type DatatableConfig<TData> = {
   showExportButton?: boolean;
   showDefaultSearchInput?: boolean;
   alternativeSearchInput?: JSX.Element;
+  showDataTableViewOptions?: boolean;
   onDeleteRowsBtnClick?: (dataToDelete: TData[]) => Promise<any>; // if null, remove button
   defaultVisibilityState?: {
     [key: string]: boolean;
   };
+};
+
+const defaultConfig: DatatableConfig<any> = {
+  showExportButton: true,
+  showDefaultSearchInput: true,
+  alternativeSearchInput: undefined,
+  showDataTableViewOptions: true,
+  defaultVisibilityState: {},
+  onDeleteRowsBtnClick: undefined,
 };
 
 export type CustomDatatableProps<TData> = {
@@ -39,14 +50,6 @@ export type CustomDatatableProps<TData> = {
   buttons?: JSX.Element[];
   config?: DatatableConfig<TData>;
   meta?: TableMeta<TData>;
-};
-
-const defaultConfig: DatatableConfig<any> = {
-  showExportButton: true,
-  showDefaultSearchInput: true,
-  alternativeSearchInput: undefined,
-  defaultVisibilityState: {},
-  onDeleteRowsBtnClick: undefined,
 };
 
 export function CustomDatatable<TData>({
@@ -132,11 +135,11 @@ export function CustomDatatable<TData>({
               Export Excel
             </Button>
           ) : null}
-          <DataTableViewOptions
+          {config.showDataTableViewOptions ? <DataTableViewOptions
             title="Columns"
             table={table}
             columnHeaders={columnTitles}
-          />
+          /> : null}
         </div>
       </div>
       <CustomDataTableContent

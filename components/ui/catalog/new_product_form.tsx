@@ -509,6 +509,7 @@ export const NewProductView = ({
           ...values,
           originalPrice: sameProduct.originalPrice,
           productPrice: sameProduct.productPrice,
+          stock: sameProduct.stock,
           barcode: sameProduct.barcode
             ? sameProduct.barcode
             : faker.number.int({ min: 100000000000, max: 999999999999 }),

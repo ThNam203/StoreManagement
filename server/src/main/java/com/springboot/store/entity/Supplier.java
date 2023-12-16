@@ -19,22 +19,22 @@ public class Supplier {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name")
     private String name;
 
-    @Column(name = "address", nullable = false)
+    @Column(name = "address")
     private String address;
 
     @Column(name = "phone_number")
     private String phoneNumber;
 
-    @Column(name = "email", nullable = false)
+    @Column(name = "email")
     private String email;
 
     @Column(name = "description")
     private String description;
 
-    @Column(name = "company_name", nullable = false)
+    @Column(name = "company_name")
     private String companyName;
 
     @Column(name = "created_at")

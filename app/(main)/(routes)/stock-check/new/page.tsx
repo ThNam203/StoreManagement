@@ -3,7 +3,7 @@ import { CustomDatatable } from "@/components/component/custom_datatable";
 import PropertiesString from "@/components/ui/properties_string_view";
 import SearchView from "@/components/ui/search_view";
 import { Product } from "@/entities/Product";
-import { useAppSelector } from "@/hooks";
+import { useAppDispatch, useAppSelector } from "@/hooks";
 import { useState } from "react";
 import {
   stockCheckDetailColumnTitles,
@@ -18,6 +18,15 @@ import LoadingCircle from "@/components/ui/loading_circle";
 import axios from "axios";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
 import { useToast } from "@/components/ui/use-toast";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import CustomAlertDialog from "@/components/component/custom_alert_dialog";
+import { addStockCheck } from "@/reducers/stockChecksReducer";
+import { useRouter } from "next/navigation";
 
 const ProductSearchItemView: (product: Product) => React.ReactNode = (
   product: Product,
@@ -52,6 +61,8 @@ const ProductSearchItemView: (product: Product) => React.ReactNode = (
 
 export default function NewStockCheckPage() {
   const products = useAppSelector((state) => state.products.value);
+  const dispatch = useAppDispatch();
+  const router = useRouter();
   const [details, setDetails] = useState<StockCheckDetail[]>([]);
   const [productSearch, setProductSearch] = useState("");
   const [note, setNote] = useState("");
@@ -104,19 +115,21 @@ export default function NewStockCheckPage() {
   };
 
   const deleteRows = async (data: StockCheckDetail[]) => {
-    console.log("ddmmmm chay di")
     const productIds = data.map((d) => d.productId);
     setDetails((prev) =>
       prev.filter((detail) => productIds.includes(detail.productId)),
     );
-    return Promise.resolve()
+    return Promise.resolve();
   };
 
-  const onClickButtonClick = () => {
-    setIsCompleting(true);
-    StockCheckService.uploadNewStockCheck({ products: details, note: note })
+  const onCompleteButtonClick = async () => {
+    await StockCheckService.uploadNewStockCheck({
+      products: details,
+      note: note,
+    })
       .then((result) => {
-        console.log(result.data);
+        dispatch(addStockCheck(result));
+        router.push("/stock-check");
       })
       .catch((e) => axiosUIErrorHandler(e, toast))
       .finally(() => setIsCompleting(false));
@@ -165,17 +178,17 @@ export default function NewStockCheckPage() {
             value={note}
             onChange={(e) => setNote(e.currentTarget.value)}
           />
-          <Button variant={"green"} disabled={isCompleting}>
-            <CheckCircle
-              size={16}
-              className="mr-2"
-              onClick={() => {
-                onClickButtonClick();
-              }}
-            />
-            Complete
-            {isCompleting ? <LoadingCircle /> : null}
-          </Button>
+          <CustomAlertDialog
+            title="Update catalog"
+            description="The products's stock in catalog will be changed base on the stock check. Make sure you will want to continue?"
+            trigger={
+              <Button variant={"green"} disabled={isCompleting}>
+                <CheckCircle size={16} className="mr-2" />
+                Complete
+              </Button>
+            }
+            onContinueClick={onCompleteButtonClick}
+          />
         </div>
       </div>
     </div>

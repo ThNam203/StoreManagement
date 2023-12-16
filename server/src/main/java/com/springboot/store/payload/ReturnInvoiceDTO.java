@@ -16,6 +16,7 @@ public class ReturnInvoiceDTO {
     private int total;
     private int returnFee;
     private double discountValue;
+    private String paymentMethod;
     private String note;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdAt;

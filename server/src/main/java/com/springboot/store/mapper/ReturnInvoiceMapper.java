@@ -12,6 +12,7 @@ public class ReturnInvoiceMapper {
                 .total(returnInvoice.getTotal())
                 .returnFee(returnInvoice.getReturnFee())
                 .discountValue(returnInvoice.getDiscountValue())
+                .paymentMethod(returnInvoice.getPaymentMethod())
                 .note(returnInvoice.getNote())
                 .createdAt(returnInvoice.getCreatedAt())
                 .staffId(returnInvoice.getStaff() == null ? 0 : returnInvoice.getStaff().getId())
@@ -28,6 +29,7 @@ public class ReturnInvoiceMapper {
                 .total(returnInvoiceDTO.getTotal())
                 .returnFee(returnInvoiceDTO.getReturnFee())
                 .discountValue(returnInvoiceDTO.getDiscountValue())
+                .paymentMethod(returnInvoiceDTO.getPaymentMethod())
                 .note(returnInvoiceDTO.getNote())
                 .createdAt(returnInvoiceDTO.getCreatedAt())
                 .build();

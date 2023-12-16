@@ -51,6 +51,9 @@ public class LocationServiceImpl implements LocationService {
     @Override
     public LocationDTO updateLocation(int id, LocationDTO locationDTO) {
         Location existingLocation = locationRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Location not found with id: " + id));
+        if (locationRepository.findByNameAndStoreId(locationDTO.getName(), existingLocation.getStore().getId()).isPresent()) {
+            throw new EntityNotFoundException("Location already exists with name: " + locationDTO.getName());
+        }
         existingLocation.setName(locationDTO.getName());
         existingLocation = locationRepository.save(existingLocation);
         return modelMapper.map(existingLocation, LocationDTO.class);

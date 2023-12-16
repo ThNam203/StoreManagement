@@ -76,7 +76,6 @@ export function CatalogDatatable({
         return Promise.resolve();
       });
     } catch (e) {
-      console.log("try catch triggered");
       axiosUIErrorHandler(e, toast);
       return Promise.reject();
     }

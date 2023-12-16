@@ -60,6 +60,9 @@ public class ProductGroupServiceImpl implements ProductGroupService {
     @Override
     public ProductGroupDTO updateProductGroup(int id, ProductGroupDTO productGroupDTO) {
         ProductGroup productGroup = productGroupRepository.findById(id).orElseThrow(() -> new RuntimeException("Product group not found"));
+        if (productGroupRepository.findByNameAndStoreId(productGroupDTO.getName(), staffService.getAuthorizedStaff().getStore().getId()).isPresent()) {
+            throw new RuntimeException("Product group already exists");
+        }
         productGroup.setName(productGroupDTO.getName());
         productGroup.setDescription(productGroupDTO.getDescription());
 
