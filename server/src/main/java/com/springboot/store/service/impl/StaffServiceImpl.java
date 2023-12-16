@@ -169,7 +169,7 @@ public class StaffServiceImpl implements StaffService {
             avatar = mediaRepository.save(avatar);
             staff.setAvatar(avatar);
         }
-        if (file == null || file.isEmpty()) {
+        if (file == null && staffRequest.getAvatar().isEmpty() || Objects.requireNonNull(file).isEmpty() && staffRequest.getAvatar().isEmpty()) {
             staff.setAvatar(null);
         }
         staff = staffRepository.save(staff);
