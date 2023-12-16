@@ -47,6 +47,9 @@ public class ProductPropertyNameServiceImpl implements ProductPropertyNameServic
 
     @Override
     public ProductPropertyNameDTO updateProductPropertyName(int id, ProductPropertyNameDTO productPropertyNameDTO) {
+        if (productPropertyNameRepository.findByNameAndStoreId(productPropertyNameDTO.getName(), staffService.getAuthorizedStaff().getStore().getId()).isPresent()) {
+            throw new RuntimeException("ProductPropertyName already exists");
+        }
         ProductPropertyName existingProductPropertyName = productPropertyNameRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("ProductProperty not found with id: " + id));
         existingProductPropertyName.setName(productPropertyNameDTO.getName());
         existingProductPropertyName = productPropertyNameRepository.save(existingProductPropertyName);

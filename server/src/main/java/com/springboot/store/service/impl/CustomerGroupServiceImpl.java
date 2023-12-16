@@ -24,7 +24,9 @@ public class CustomerGroupServiceImpl implements CustomerGroupService {
 
     @Override
     public CustomerGroupDTO createCustomerGroup(CustomerGroupDTO customerGroupDTO) {
-        customerGroupDTO.setCreator(staffService.getAuthorizedStaff().getId());
+        if (customerGroupRepository.findByNameAndStoreId(customerGroupDTO.getName(), staffService.getAuthorizedStaff().getStore().getId()) != null) {
+            throw new RuntimeException("Customer group name already exists");
+        }
         CustomerGroup customerGroup = modelMapper.map(customerGroupDTO, CustomerGroup.class);
         customerGroup.setCreatedAt(new Date());
         customerGroup.setCreator(staffService.getAuthorizedStaff());
@@ -35,6 +37,9 @@ public class CustomerGroupServiceImpl implements CustomerGroupService {
 
     @Override
     public CustomerGroupDTO updateCustomerGroup(int id, CustomerGroupDTO customerGroupDTO) {
+        if (customerGroupRepository.findByNameAndStoreId(customerGroupDTO.getName(), staffService.getAuthorizedStaff().getStore().getId()) != null) {
+            throw new RuntimeException("Customer group name already exists");
+        }
         CustomerGroup existingCustomerGroup = customerGroupRepository.findById(id).orElseThrow(() -> new RuntimeException("Customer group not found with id: " + id));
         existingCustomerGroup.setName(customerGroupDTO.getName());
         existingCustomerGroup.setDescription(customerGroupDTO.getDescription());

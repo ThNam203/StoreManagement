@@ -36,6 +36,7 @@ public class AuthenticationService {
     private final ProductGroupRepository productGroupRepository;
     private final ProductPropertyNameRepository productPropertyNameRepository;
     private final CustomerGroupRepository customerGroupRepository;
+    private final SupplierGroupRepository supplierGroupRepository;
     private final StaffPositionRepository staffPositionRepository;
 
     public AuthenticationResponse register(RegisterRequest request) {
@@ -313,5 +314,25 @@ public class AuthenticationService {
                 StaffPosition.builder().name("Cleaner").store(store).build()
         );
         staffPositionRepository.saveAll(staffPositions);
+
+        // TODO: create default supplier groups
+        List<SupplierGroup> supplierGroups = List.of(
+                SupplierGroup.builder().name("Provisions Alliance").store(store).build(),
+                SupplierGroup.builder().name("Grocery Network Partners").store(store).build(),
+                SupplierGroup.builder().name("Food Supply Collective").store(store).build(),
+                SupplierGroup.builder().name("Pantry Consortium").store(store).build(),
+                SupplierGroup.builder().name("Culinary Connections Group").store(store).build(),
+                SupplierGroup.builder().name("Harvest Collaborative").store(store).build(),
+                SupplierGroup.builder().name("Gourmet Goods Coalition").store(store).build(),
+                SupplierGroup.builder().name("Nourish Network").store(store).build(),
+                SupplierGroup.builder().name("Kitchen Essentials Collective").store(store).build(),
+                SupplierGroup.builder().name("Grocer's Guild").store(store).build(),
+                SupplierGroup.builder().name("Sustainable Sourcing Consortium").store(store).build(),
+                SupplierGroup.builder().name("Culinary Comrades").store(store).build(),
+                SupplierGroup.builder().name("Fresh Fare Federation").store(store).build(),
+                SupplierGroup.builder().name("Market Maven Alliance").store(store).build(),
+                SupplierGroup.builder().name("Epicurean Exchange Group").store(store).build()
+        );
+        supplierGroupRepository.saveAll(supplierGroups);
     }
 }
