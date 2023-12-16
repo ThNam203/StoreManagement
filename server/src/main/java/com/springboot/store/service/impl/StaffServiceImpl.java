@@ -129,7 +129,6 @@ public class StaffServiceImpl implements StaffService {
                 && creator.getStaffRole().getName() != Role.ADMIN) {
             throw new CustomException("Only admin can change staff role", HttpStatus.UNPROCESSABLE_ENTITY);
         }
-
         staff.setName(staffRequest.getName());
         staff.setAddress(staffRequest.getAddress());
         staff.setNote(staffRequest.getNote());
@@ -170,7 +169,9 @@ public class StaffServiceImpl implements StaffService {
             avatar = mediaRepository.save(avatar);
             staff.setAvatar(avatar);
         }
-
+        if (file == null || file.isEmpty()) {
+            staff.setAvatar(null);
+        }
         staff = staffRepository.save(staff);
 
         // save activity log
