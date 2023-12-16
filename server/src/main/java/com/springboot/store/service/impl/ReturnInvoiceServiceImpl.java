@@ -1,5 +1,6 @@
 package com.springboot.store.service.impl;
 
+import com.springboot.store.entity.Product;
 import com.springboot.store.entity.ReturnDetail;
 import com.springboot.store.entity.ReturnInvoice;
 import com.springboot.store.entity.Staff;
@@ -65,9 +66,13 @@ public class ReturnInvoiceServiceImpl implements ReturnInvoiceService {
                     .map(returnDetailDTO -> {
                                 ReturnDetail returnDetail = ReturnDetailMapper.toReturnDetail(returnDetailDTO);
                                 returnDetail.setReturnInvoice(returnInvoice);
-                                returnDetail.setProduct(returnDetailDTO.getProductId() == 0 ? null :
-                                        productRepository.findById(returnDetailDTO.getProductId()).orElseThrow(() ->
-                                                new CustomException("Product not found", HttpStatus.NOT_FOUND)));
+                                if (returnDetailDTO.getProductId() != null) {
+                                    Product product = productRepository.findById(returnDetailDTO.getProductId()).orElseThrow(() ->
+                                            new CustomException("Product not found", HttpStatus.NOT_FOUND));
+                                    product.setStock(product.getStock() + returnDetailDTO.getQuantity());
+                                    productRepository.save(product);
+                                    returnDetail.setProduct(product);
+                                }
                                 return returnDetail;
                             })
                     .collect(Collectors.toList()));
@@ -100,9 +105,13 @@ public class ReturnInvoiceServiceImpl implements ReturnInvoiceService {
                     .map(returnDetailDTO -> {
                         ReturnDetail returnDetail = ReturnDetailMapper.toReturnDetail(returnDetailDTO);
                         returnDetail.setReturnInvoice(returnInvoice);
-                        returnDetail.setProduct(returnDetailDTO.getProductId() == 0 ? null :
-                                productRepository.findById(returnDetailDTO.getProductId()).orElseThrow(() ->
-                                        new CustomException("Product not found", HttpStatus.NOT_FOUND)));
+                        if (returnDetailDTO.getProductId() != null) {
+                            Product product = productRepository.findById(returnDetailDTO.getProductId()).orElseThrow(() ->
+                                    new CustomException("Product not found", HttpStatus.NOT_FOUND));
+                            product.setStock(product.getStock() + returnDetailDTO.getQuantity());
+                            productRepository.save(product);
+                            returnDetail.setProduct(product);
+                        }
                         return returnDetail;
                     })
                     .toList());
