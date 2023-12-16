@@ -59,7 +59,7 @@ const ChoicesFilter = ({
 }) => {
   const multiChoicesHandler = (
     checkedState: boolean | "indeterminate",
-    checkedValue: string
+    checkedValue: string,
   ) => {
     if (checkedState === true) {
       if (!defaultValues.includes(checkedValue))
@@ -77,12 +77,12 @@ const ChoicesFilter = ({
       type="single"
       collapsible={!alwaysOpen}
       defaultValue="item-1"
-      className={cn("w-full bg-white rounded-md px-4", className)}
+      className={cn("w-full rounded-md bg-white px-4", className)}
     >
       <AccordionItem value="item-1">
         <AccordionTrigger showArrowFunc={alwaysOpen ? "hidden" : ""}>
-          <div className="flex flex-row items-center w-full">
-            <p className="text-[0.8rem] leading-4 font-bold text-start flex-1">
+          <div className="flex w-full flex-row items-center">
+            <p className="flex-1 text-start text-[0.8rem] font-bold leading-4">
               {title}
             </p>
             {showPlusButton === true ? (
@@ -111,7 +111,7 @@ const ChoicesFilter = ({
                   <RadioGroupItem value={choice} id={title + index} />
                   <Label
                     htmlFor={title + index}
-                    className="text-[0.8rem] hover:cursor-pointer font-normal"
+                    className="text-[0.8rem] font-normal hover:cursor-pointer"
                   >
                     {choice}
                   </Label>
@@ -132,7 +132,7 @@ const ChoicesFilter = ({
                   />
                   <Label
                     htmlFor={title + index}
-                    className="text-[0.8rem] hover:cursor-pointer font-normal"
+                    className="text-[0.8rem] font-normal hover:cursor-pointer"
                   >
                     {choice}
                   </Label>
@@ -210,7 +210,7 @@ const TimerFilterRangePicker = ({
         }}
       />
       <Button
-        className="bg-blue-400 hover:bg-blue-500 text-white mt-2"
+        className="mt-2 bg-blue-400 text-white hover:bg-blue-500"
         onClick={(e) => {
           e.stopPropagation();
           if (onValueChange) onValueChange(tempRange);
@@ -264,13 +264,13 @@ const TimeFilter = ({
   }) => void;
 }) => {
   const [isSingleFilter, setIsSingleFilter] = useState(
-    timeFilterControl === TimeFilterType.StaticRange
+    timeFilterControl === TimeFilterType.StaticRange,
   );
   const [isRangeFilterOpen, setIsRangeFilterOpen] = useState(false);
 
   useEffect(() => {
     onTimeFilterControlChanged(
-      isSingleFilter ? TimeFilterType.StaticRange : TimeFilterType.RangeTime
+      isSingleFilter ? TimeFilterType.StaticRange : TimeFilterType.RangeTime,
     );
   }, [isSingleFilter]);
 
@@ -279,19 +279,19 @@ const TimeFilter = ({
       type="single"
       collapsible={!alwaysOpen}
       defaultValue="item-1"
-      className={cn("w-full bg-white rounded-md px-4", className)}
+      className={cn("w-full rounded-md bg-white px-4", className)}
     >
       <AccordionItem value="item-1">
         <AccordionTrigger showArrowFunc={alwaysOpen ? "hidden" : ""}>
-          <div className="flex flex-row items-center w-full">
-            <p className="text-[0.8rem] leading-4 font-bold text-start flex-1">
+          <div className="flex w-full flex-row items-center">
+            <p className="flex-1 text-start text-[0.8rem] font-bold leading-4">
               {title}
             </p>
           </div>
         </AccordionTrigger>
         <AccordionContent>
           <RadioGroup className="gap-3 pb-2">
-            <div className="flex flex-row items-center space-x-3 border border-gray-300 p-2 rounded-sm relative">
+            <div className="relative flex flex-row items-center space-x-3 rounded-sm border border-gray-300 p-2">
               <RadioGroupItem
                 value="1"
                 id={title + "1"}
@@ -305,7 +305,7 @@ const TimeFilter = ({
               />
               <Label
                 htmlFor={title + "1"}
-                className="text-[0.8rem] flex-1 hover:cursor-pointer font-normal"
+                className="flex-1 text-[0.8rem] font-normal hover:cursor-pointer"
               >
                 {singleTimeString ? singleTimeString : singleTimeValue}
               </Label>
@@ -313,10 +313,10 @@ const TimeFilter = ({
                 <PopoverTrigger>
                   <Maximize2 size={16} />
                 </PopoverTrigger>
-                <PopoverContent className="flex flex-row gap-6 w-auto -translate-x-4">
+                <PopoverContent className="flex w-auto -translate-x-4 flex-row gap-6">
                   <div>
                     <p className="text-xs font-semibold">By day</p>
-                    <ul className="list-none text-blue-500 text-xs">
+                    <ul className="list-none text-xs text-blue-500">
                       {filterDay.map((val, idx) => (
                         <li
                           className="mt-5 cursor-pointer"
@@ -334,7 +334,7 @@ const TimeFilter = ({
                   </div>
                   <div>
                     <p className="text-xs font-semibold">By week</p>
-                    <ul className="list-none text-blue-500 text-xs">
+                    <ul className="list-none text-xs text-blue-500">
                       {filterWeek.map((val, idx) => (
                         <li
                           className="mt-5 cursor-pointer"
@@ -352,7 +352,7 @@ const TimeFilter = ({
                   </div>
                   <div>
                     <p className="text-xs font-semibold">By month</p>
-                    <ul className="list-none text-blue-500 text-xs">
+                    <ul className="list-none text-xs text-blue-500">
                       {filterMonth.map((val, idx) => (
                         <li
                           className="mt-5 cursor-pointer"
@@ -370,7 +370,7 @@ const TimeFilter = ({
                   </div>
                   <div>
                     <p className="text-xs font-semibold">By quarter</p>
-                    <ul className="list-none text-blue-500 text-xs">
+                    <ul className="list-none text-xs text-blue-500">
                       {filterQuarter.map((val, idx) => (
                         <li
                           className="mt-5 cursor-pointer"
@@ -388,7 +388,7 @@ const TimeFilter = ({
                   </div>
                   <div>
                     <p className="text-xs font-semibold">By year</p>
-                    <ul className="list-none text-blue-500 text-xs">
+                    <ul className="list-none text-xs text-blue-500">
                       {filterYear.map((val, idx) => (
                         <li
                           className="mt-5 cursor-pointer"
@@ -407,7 +407,7 @@ const TimeFilter = ({
                 </PopoverContent>
               </Popover>
             </div>
-            <div className="flex flex-row items-center space-x-3 border border-gray-300 p-2 rounded-sm">
+            <div className="flex flex-row items-center space-x-3 rounded-sm border border-gray-300 p-2">
               <RadioGroupItem
                 value="2"
                 id={title + "2"}
@@ -420,7 +420,7 @@ const TimeFilter = ({
               />
               <Label
                 htmlFor={title + "2"}
-                className="text-[0.8rem] flex-1 hover:cursor-pointer font-normal"
+                className="flex-1 text-[0.8rem] font-normal hover:cursor-pointer"
               >
                 {format(rangeTimeValue.startDate, "dd/MM/yyyy") +
                   " - " +
@@ -433,7 +433,7 @@ const TimeFilter = ({
                 <PopoverTrigger>
                   <CalendarDays size={16} />
                 </PopoverTrigger>
-                <PopoverContent className="w-auto -translate-x-4 flex flex-col">
+                <PopoverContent className="flex w-auto -translate-x-4 flex-col">
                   <TimerFilterRangePicker
                     defaultValue={rangeTimeValue}
                     onValueChange={onRangeTimeFilterChanged}
@@ -487,13 +487,13 @@ const SecondaryTimeFilter = ({
   }) => void;
 }) => {
   const [isSingleFilter, setIsSingleFilter] = useState(
-    timeFilterControl === TimeFilterType.StaticRange
+    timeFilterControl === TimeFilterType.StaticRange,
   );
   const [isRangeFilterOpen, setIsRangeFilterOpen] = useState(false);
 
   useEffect(() => {
     onTimeFilterControlChanged(
-      isSingleFilter ? TimeFilterType.StaticRange : TimeFilterType.RangeTime
+      isSingleFilter ? TimeFilterType.StaticRange : TimeFilterType.RangeTime,
     );
   }, [isSingleFilter]);
 
@@ -502,19 +502,19 @@ const SecondaryTimeFilter = ({
       type="single"
       collapsible={!alwaysOpen}
       defaultValue="item-1"
-      className={cn("w-full bg-white rounded-md px-4", className)}
+      className={cn("w-full rounded-md bg-white px-4", className)}
     >
       <AccordionItem value="item-1">
         <AccordionTrigger showArrowFunc={alwaysOpen ? "hidden" : ""}>
-          <div className="flex flex-row items-center w-full">
-            <p className="text-[0.8rem] leading-4 font-bold text-start flex-1">
+          <div className="flex w-full flex-row items-center">
+            <p className="flex-1 text-start text-[0.8rem] font-bold leading-4">
               {title}
             </p>
           </div>
         </AccordionTrigger>
         <AccordionContent>
           <RadioGroup className="gap-3 pb-2">
-            <div className="flex flex-row items-center space-x-3 border border-gray-300 p-2 rounded-sm relative">
+            <div className="relative flex flex-row items-center space-x-3 rounded-sm border border-gray-300 p-2">
               <RadioGroupItem
                 value="1"
                 id={title + "1"}
@@ -528,7 +528,7 @@ const SecondaryTimeFilter = ({
               />
               <Label
                 htmlFor={title + "1"}
-                className="text-[0.8rem] flex-1 hover:cursor-pointer font-normal"
+                className="flex-1 text-[0.8rem] font-normal hover:cursor-pointer"
               >
                 {singleTimeString ? singleTimeString : singleTimeValue}
               </Label>
@@ -536,10 +536,10 @@ const SecondaryTimeFilter = ({
                 <PopoverTrigger>
                   <Maximize2 size={16} />
                 </PopoverTrigger>
-                <PopoverContent className="flex flex-row gap-6 w-auto -translate-x-4">
+                <PopoverContent className="flex w-auto -translate-x-4 flex-row gap-6">
                   <div>
                     <p className="text-xs font-semibold">By day</p>
-                    <ul className="list-none text-blue-500 text-xs">
+                    <ul className="list-none text-xs text-blue-500">
                       {filterGroup.map((val, idx) => (
                         <li
                           className="mt-5 cursor-pointer"
@@ -558,7 +558,7 @@ const SecondaryTimeFilter = ({
                 </PopoverContent>
               </Popover>
             </div>
-            <div className="flex flex-row items-center space-x-3 border border-gray-300 p-2 rounded-sm">
+            <div className="flex flex-row items-center space-x-3 rounded-sm border border-gray-300 p-2">
               <RadioGroupItem
                 value="2"
                 id={title + "2"}
@@ -571,7 +571,7 @@ const SecondaryTimeFilter = ({
               />
               <Label
                 htmlFor={title + "2"}
-                className="text-[0.8rem] flex-1 hover:cursor-pointer font-normal"
+                className="flex-1 text-[0.8rem] font-normal hover:cursor-pointer"
               >
                 {format(rangeTimeValue.startDate, "dd/MM/yyyy") +
                   " - " +
@@ -584,7 +584,7 @@ const SecondaryTimeFilter = ({
                 <PopoverTrigger>
                   <CalendarDays size={16} />
                 </PopoverTrigger>
-                <PopoverContent className="w-auto -translate-x-4 flex flex-col">
+                <PopoverContent className="flex w-auto -translate-x-4 flex-col">
                   <TimerFilterRangePicker
                     defaultValue={rangeTimeValue}
                     onValueChange={onRangeTimeFilterChanged}
@@ -630,18 +630,18 @@ const SearchFilter = ({
       type="single"
       collapsible={!alwaysOpen}
       defaultValue="item-1"
-      className={cn("w-full bg-white rounded-md px-4", className)}
+      className={cn("w-full rounded-md bg-white px-4", className)}
     >
       <AccordionItem value="item-1">
         <AccordionTrigger showArrowFunc={alwaysOpen ? "hidden" : ""}>
-          <div className="flex flex-row items-center w-full">
-            <p className="text-[0.8rem] leading-4 font-bold text-start flex-1">
+          <div className="flex w-full flex-row items-center">
+            <p className="flex-1 text-start text-[0.8rem] font-bold leading-4">
               {title}
             </p>
           </div>
         </AccordionTrigger>
         <AccordionContent className="overflow-hidden data-[state=open]:overflow-visible">
-          <div className="flex flex-col mb-4 relative">
+          <div className="relative mb-4 flex flex-col">
             <Input
               className="w-full focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0"
               placeholder={placeholder}
@@ -654,25 +654,25 @@ const SearchFilter = ({
             {showSearchValue ? (
               <div
                 className={cn(
-                  "absolute top-[100%] overflow-y-auto left-0 max-h-[200px] w-full shadow-sm shadow-gray-600 z-[9]",
-                  scrollbar_style.scrollbar
+                  "absolute left-0 top-[100%] z-[9] max-h-[200px] w-full overflow-y-auto shadow-sm shadow-gray-600",
+                  scrollbar_style.scrollbar,
                 )}
               >
                 <ul>
                   {choices
                     .filter(
                       (value) =>
-                        value !== null && value.includes(searchInput.trim())
+                        value !== null && value.includes(searchInput.trim()),
                     )
                     .map((value, idx) => (
                       <li
                         key={idx}
-                        className="p-2 bg-slate-100 hover:cursor-pointer hover:bg-slate-300 flex flex-row items-center"
+                        className="flex flex-row items-center bg-slate-100 p-2 hover:cursor-pointer hover:bg-slate-300"
                         onClick={(e) => {
                           if (!onValuesChanged) return;
                           if (chosenValues.includes(value))
                             onValuesChanged(
-                              chosenValues.filter((v) => v !== value)
+                              chosenValues.filter((v) => v !== value),
                             );
                           else onValuesChanged([...chosenValues, value]);
                           e.stopPropagation();
@@ -694,16 +694,16 @@ const SearchFilter = ({
           {chosenValues.map((val, idx) => (
             <div
               key={idx}
-              className="flex flex-row items-center space-x-3 mb-3"
+              className="mb-3 flex flex-row items-center space-x-3"
             >
-              <p className="text-[0.8rem] flex-1 hover:cursor-pointer font-normal">
+              <p className="flex-1 text-[0.8rem] font-normal hover:cursor-pointer">
                 {val}
               </p>
               <XCircle
                 size={16}
                 color="#FFFFFF"
                 fill="rgb(96 165 250)"
-                className="w-4 h-4 hover:cursor-pointer p-0"
+                className="h-4 w-4 p-0 hover:cursor-pointer"
                 onClick={(e) => {
                   if (onValuesChanged)
                     onValuesChanged(chosenValues.filter((v) => v !== val));
@@ -743,19 +743,19 @@ const RangeFilter = ({
       type="single"
       collapsible={!alwaysOpen}
       defaultValue="item-1"
-      className={cn("w-full bg-white rounded-md px-4", className)}
+      className={cn("w-full rounded-md bg-white px-4", className)}
     >
       <AccordionItem value="item-1">
         <AccordionTrigger showArrowFunc={alwaysOpen ? "hidden" : ""}>
-          <div className="flex flex-row items-center w-full">
-            <p className="text-[0.8rem] leading-4 font-bold text-start flex-1">
+          <div className="flex w-full flex-row items-center">
+            <p className="flex-1 text-start text-[0.8rem] font-bold leading-4">
               {title}
             </p>
           </div>
         </AccordionTrigger>
         <AccordionContent className="overflow-hidden">
-          <div className="flex flex-col mb-4 relative space-y-2">
-            <div className="flex flex-row justify-between items-center space-x-2">
+          <div className="relative mb-4 flex flex-col space-y-2">
+            <div className="flex flex-row items-center justify-between space-x-2">
               <Label className="w-[50px]">{firstLabel}</Label>
               <Input
                 className="w-full focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0"
@@ -770,7 +770,7 @@ const RangeFilter = ({
                 }}
               />
             </div>
-            <div className="flex flex-row justify-between items-center space-x-2">
+            <div className="flex flex-row items-center justify-between space-x-2">
               <Label className="w-[50px]">{secondLabel}</Label>
               <Input
                 className="w-full focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0"
@@ -813,6 +813,8 @@ const PageWithFilters = ({
     const mql = window.matchMedia("(min-width: 768px)");
     mql.addEventListener("change", screenObserver);
 
+    console.log("render");
+
     return () => {
       mql.removeEventListener("change", screenObserver);
     };
@@ -822,18 +824,16 @@ const PageWithFilters = ({
     <>
       <div
         className={cn(
-          "flex flex-col flex-1 px-4 py-2 rounded-sm min-w-0 bg-white lg:mr-[260px] md:mr-[200px]"
+          "flex min-w-0 flex-1 flex-col rounded-sm bg-white px-4 py-2 md:mr-[200px] lg:mr-[260px]",
         )}
       >
         <div className="flex flex-row items-center">
-          <h2 className="flex-1 text-start font-bold text-2xl my-4">
-            {title}
-          </h2>
-          <div className="flex-1 min-w-[8px]" />
+          <h2 className="my-4 flex-1 text-start text-2xl font-bold">{title}</h2>
+          <div className="min-w-[8px] flex-1" />
           {headerButtons}
           <Filter
             size={20}
-            className="ml-2 md:hidden hover:cursor-pointer"
+            className="ml-2 hover:cursor-pointer md:hidden"
             onClick={(e) => setOpenFilter((prev) => !prev)}
           />
         </div>
@@ -841,10 +841,10 @@ const PageWithFilters = ({
       </div>
       <div
         className={cn(
-          "h-full fixed top-2 overflow-hidden",
+          "fixed top-2 h-full overflow-hidden",
           openFilter
-            ? "w-full p-3 top-0 left-0 z-[50] bg-slate-400"
-            : "lg:w-[260px] md:right-2 md:w-[200px] max-md:hidden"
+            ? "left-0 top-0 z-[50] w-full bg-slate-400 p-3"
+            : "max-md:hidden md:right-2 md:w-[200px] lg:w-[260px]",
         )}
       >
         <div className="flex flex-col">

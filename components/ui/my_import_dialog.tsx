@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { MyLabelButton } from "@/components/ui/my_label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/components/ui/use-toast";
-import { exportTemplateExcelFile, importExcel } from "@/utils";
+import { importExcel } from "@/utils";
 import { FileUp } from "lucide-react";
 import React from "react";
 
@@ -51,19 +51,11 @@ export function ImportDailog({
     fileInputRef.current!.value = "";
   };
 
-  const handleDownloadTemplateExcelFile = () => {
-    exportTemplateExcelFile(
-      filePath ? filePath : "",
-      "template_fundledger",
-      "template_fundledger"
-    );
-  };
   return (
     <Dialog>
       <DialogTrigger asChild>
         <Button
-          variant={"default"}
-          className="bg-lime-500 hover:bg-lime-600 hover:cursor-pointer"
+          variant={"green"}
         >
           <FileUp className="mr-2 h-4 w-4" />
           Import
@@ -74,12 +66,7 @@ export function ImportDailog({
           <DialogTitle>Import from excel file</DialogTitle>
           <div className="text-sm">
             Download template file:{" "}
-            <span
-              className="text-teal-600 whitespace-nowrap hover:cursor-pointer hover:underline hover:underline-offset-2 select-none"
-              onClick={handleDownloadTemplateExcelFile}
-            >
-              Excel file
-            </span>
+<a href="/template.xlsx" download="template.xlsx" className="text-teal-600 whitespace-nowrap hover:cursor-pointer hover:underline hover:underline-offset-2 select-none">Excel file</a>
           </div>
         </DialogHeader>
 
@@ -113,7 +100,7 @@ export function ImportDailog({
             );
           })}
           <form className="self-end">
-            <MyLabelButton className="bg-lime-500 hover:bg-lime-600 hover:cursor-pointer">
+            <MyLabelButton className="bg-green-500 hover:bg-green-600 hover:cursor-pointer">
               <input
                 ref={fileInputRef}
                 type="file"

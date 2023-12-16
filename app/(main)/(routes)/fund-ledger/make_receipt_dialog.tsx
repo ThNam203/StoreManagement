@@ -22,7 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Camera } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import {
@@ -41,11 +41,13 @@ import {
 } from "@/components/ui/select";
 import { nanoid } from "nanoid";
 import { DialogTrigger } from "@radix-ui/react-dialog";
+import { DatePicker } from "@/components/ui/datepicker";
+import { MyCombobox } from "@/components/ui/my_combobox";
+import { formatNumberInput } from "@/utils";
 
 const formSchema = z.object({
-  id: z.any(),
-  createdDate: z.string(),
-  value: z.string(),
+  createdDate: z.date(),
+  value: z.number(),
   creator: z.string(),
   transactionType: z.nativeEnum(TransactionType),
   targetType: z.nativeEnum(TargetType),
@@ -54,22 +56,43 @@ const formSchema = z.object({
 });
 
 type Props = {
-  data?: Transaction;
+  data: Transaction | null;
   submit: (values: Transaction) => void;
+  open: boolean;
+  setOpen: (open: boolean) => void;
 };
 
-export function MakeReceiptDialog({ data, submit }: Props) {
+export function MakeReceiptDialog({ data, submit, open, setOpen }: Props) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      createdDate: new Date().toLocaleString(),
-      value: "0",
+      createdDate: new Date(),
+      value: NaN,
     },
   });
 
+  useEffect(() => {
+    resetValues(data);
+  }, [data]);
+
+  const resetValues = (data: Transaction | null) => {
+    if (data) {
+      form.setValue("createdDate", data.createdDate);
+      form.setValue("value", data.value);
+      form.setValue("creator", data.creator);
+      form.setValue("transactionType", data.transactionType);
+      form.setValue("targetType", data.targetType);
+      form.setValue("targetName", data.targetName);
+      form.setValue("note", data.note);
+    } else resetToEmptyForm();
+  };
+  const resetToEmptyForm = () => {
+    form.reset();
+  };
+
   function onSubmit(values: z.infer<typeof formSchema>) {
     const receipt: Transaction = {
-      id: nanoid(9),
+      id: data ? data.id : -1,
       createdDate: values.createdDate
         ? new Date(values.createdDate)
         : new Date(),
@@ -89,7 +112,6 @@ export function MakeReceiptDialog({ data, submit }: Props) {
       setOpen(false);
     }
   }
-  const [open, setOpen] = useState(false);
   function handleCancelDialog() {
     setOpen(false);
     form.reset();
@@ -101,11 +123,6 @@ export function MakeReceiptDialog({ data, submit }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="default" className="whitespace-nowrap">
-          Make Receipt
-        </Button>
-      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create Receipt Form</DialogTitle>
@@ -114,21 +131,7 @@ export function MakeReceiptDialog({ data, submit }: Props) {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <div className="flex flex-row items-start">
-                <div className="flex flex-col ml-4 w-[400px]">
-                  <FormField
-                    control={form.control}
-                    name="id"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center">
-                        <FormLabel className="w-1/3">Receipt ID</FormLabel>
-
-                        <FormControl className="w-2/3">
-                          <Input placeholder="Automatic code" disabled />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-
+                <div className="ml-4 flex w-[400px] flex-col">
                   <FormField
                     control={form.control}
                     name="createdDate"
@@ -138,7 +141,13 @@ export function MakeReceiptDialog({ data, submit }: Props) {
                           <FormLabel className="w-1/3">Time</FormLabel>
 
                           <FormControl className="w-2/3">
-                            <Input type="datetime-local" {...field} />
+                            <div>
+                              <DatePicker
+                                onChange={(date) =>
+                                  form.setValue("createdDate", date)
+                                }
+                              />
+                            </div>
                           </FormControl>
                         </div>
                       </FormItem>
@@ -154,25 +163,15 @@ export function MakeReceiptDialog({ data, submit }: Props) {
                           <FormLabel className="w-1/3">
                             Transaction Type
                           </FormLabel>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                          >
-                            <FormControl className="w-2/3">
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select group" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {transactionTypes.map((type) => {
-                                return (
-                                  <SelectItem key={type} value={type}>
-                                    {type}
-                                  </SelectItem>
-                                );
-                              })}
-                            </SelectContent>
-                          </Select>
+                          <FormControl className="w-2/3">
+                            <MyCombobox
+                              choices={transactionTypes}
+                              defaultValue={field.value}
+                              onValueChange={field.onChange}
+                              placeholder="Select type"
+                              canRemoveOption={false}
+                            />
+                          </FormControl>
                         </div>
                       </FormItem>
                     )}
@@ -190,10 +189,9 @@ export function MakeReceiptDialog({ data, submit }: Props) {
                             <Input
                               type="number"
                               placeholder="0"
-                              {...field}
-                              onKeyUp={(e: any) => {
-                                e.target.value = parseInt(e.target.value);
-                                field.onChange(e);
+                              defaultValue={field.value}
+                              onChange={(e: any) => {
+                                form.setValue("value", formatNumberInput(e));
                               }}
                             />
                           </FormControl>
@@ -209,25 +207,17 @@ export function MakeReceiptDialog({ data, submit }: Props) {
                       <FormItem className="mt-2">
                         <div className="flex flex-row items-center">
                           <FormLabel className="w-1/3">Creator</FormLabel>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                          >
-                            <FormControl className="w-2/3">
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select staff" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {staffList.map((staff) => {
-                                return (
-                                  <SelectItem key={staff} value={staff}>
-                                    {staff}
-                                  </SelectItem>
-                                );
-                              })}
-                            </SelectContent>
-                          </Select>
+                          <FormControl className="w-2/3">
+                            <MyCombobox
+                              choices={staffList}
+                              defaultValue={field.value}
+                              onValueChange={(val) => {
+                                form.setValue("creator", val);
+                              }}
+                              placeholder="Select creator"
+                              canRemoveOption={false}
+                            />
+                          </FormControl>
                         </div>
                       </FormItem>
                     )}
@@ -240,25 +230,17 @@ export function MakeReceiptDialog({ data, submit }: Props) {
                       <FormItem className="mt-2">
                         <div className="flex flex-row items-center">
                           <FormLabel className="w-1/3">Payer Type</FormLabel>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                          >
-                            <FormControl className="w-2/3">
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select type" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {targetTypes.map((type) => {
-                                return (
-                                  <SelectItem key={type} value={type}>
-                                    {type}
-                                  </SelectItem>
-                                );
-                              })}
-                            </SelectContent>
-                          </Select>
+                          <FormControl className="w-2/3">
+                            <MyCombobox
+                              choices={targetTypes}
+                              defaultValue={field.value}
+                              onValueChange={(val) => {
+                                form.setValue("targetType", val as TargetType);
+                              }}
+                              placeholder="Select type"
+                              canRemoveOption={false}
+                            />
+                          </FormControl>
                         </div>
                       </FormItem>
                     )}

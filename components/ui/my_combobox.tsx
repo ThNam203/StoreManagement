@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, ChevronDown } from "lucide-react";
+import { Check, ChevronDown, X } from "lucide-react";
 import * as React from "react";
 
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,8 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
-import { de } from "date-fns/locale";
+import { ca, de } from "date-fns/locale";
+import LoadingCircle from "./loading_circle";
 
 export function MyCombobox({
   placeholder,
@@ -26,17 +27,22 @@ export function MyCombobox({
   className,
   defaultValue = "",
   endIcon,
+  canRemoveOption = true,
   onValueChange,
+  onRemoveChoice,
 }: {
   placeholder?: string;
   choices: string[];
   className?: string;
   defaultValue?: string;
+  canRemoveOption?: boolean;
   onValueChange?: (value: string) => void;
+  onRemoveChoice?: (value: string) => any;
   endIcon?: React.JSX.Element;
 }) {
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState(defaultValue);
+  const [isRemovingOption, setIsRemovingOption] = React.useState(false);
 
   React.useEffect(() => {
     setValue(defaultValue);
@@ -52,18 +58,18 @@ export function MyCombobox({
           type="button"
           variant="outline"
           role="combobox"
-          className="w-full flex flex-row items-center justify-between p-0"
+          className="flex w-full flex-row items-center justify-between p-0"
         >
           <PopoverTrigger asChild>
             <div
               className={cn(
-                "w-full flex flex-row items-center justify-between p-2",
-                value ? "text-black" : "text-muted-foreground"
+                "flex w-full flex-row items-center justify-between p-2",
+                value ? "text-black" : "text-muted-foreground",
               )}
             >
               {value ? value : placeholder}
 
-              <ChevronDown className="w-4 h-4 text-muted-foreground ease-linear duration-200" />
+              <ChevronDown className="h-4 w-4 text-muted-foreground duration-200 ease-linear" />
             </div>
           </PopoverTrigger>
           <div className="mr-2">{endIcon}</div>
@@ -74,25 +80,55 @@ export function MyCombobox({
             <CommandInput placeholder={placeholder} />
             <CommandEmpty>No result found.</CommandEmpty>
             <CommandGroup>
-              {choices.map((option, index) => (
-                <CommandItem
-                  key={option}
-                  onSelect={(currentValue) => {
-                    setValue(currentValue === value ? "" : option);
-                    setOpen(false);
-                  }}
-                >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      value === option ? "opacity-100" : "opacity-0"
-                    )}
-                  />
-                  <div className="flex flex-col gap-1">
-                    <span>{option}</span>
-                  </div>
-                </CommandItem>
-              ))}
+              {choices.map((option, index) => {
+                return (
+                  <CommandItem
+                    key={option}
+                    onSelect={(currentValue) => {
+                      setValue(
+                        currentValue.toLowerCase() === value.toLowerCase()
+                          ? ""
+                          : option,
+                      );
+                      setOpen(false);
+                    }}
+                    className="group/option"
+                  >
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        value === option ? "opacity-100" : "opacity-0",
+                      )}
+                    />
+                    <div className="flex flex-1 flex-row items-center justify-between">
+                      <span>{option}</span>
+                      <X
+                        size={16}
+                        className={cn(
+                          "invisible cursor-pointer text-red-500 group-hover/option:visible",
+                          canRemoveOption ? "visible" : "hidden",
+                          isRemovingOption ? "hidden" : "",
+                        )}
+                        onClick={async () => {
+                          if (onRemoveChoice) {
+                            setIsRemovingOption(true);
+
+                            try {
+                              await onRemoveChoice(option);
+                            } catch (e) {
+                              console.log(e);
+                            } finally {
+                              setIsRemovingOption(false);
+                              setValue("");
+                            }
+                          }
+                        }}
+                      ></X>
+                      {isRemovingOption && <LoadingCircle></LoadingCircle>}
+                    </div>
+                  </CommandItem>
+                );
+              })}
             </CommandGroup>
           </Command>
         </PopoverContent>
@@ -135,17 +171,17 @@ export function MyObjectCombobox({
           type="button"
           variant="outline"
           role="combobox"
-          className="w-full flex flex-row items-center justify-between gap-2"
+          className="flex w-full flex-row items-center justify-between gap-2"
         >
           <PopoverTrigger asChild>
             <div
               className={cn(
-                "w-full flex flex-row items-center justify-between text-muted-foreground"
+                "flex w-full flex-row items-center justify-between text-muted-foreground",
               )}
             >
               {placeholder}
 
-              <ChevronDown className="w-4 h-4 text-muted-foreground ease-linear duration-200" />
+              <ChevronDown className="h-4 w-4 text-muted-foreground duration-200 ease-linear" />
             </div>
           </PopoverTrigger>
           {endIcon}
@@ -170,12 +206,12 @@ export function MyObjectCombobox({
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      values.includes(choice) ? "opacity-100" : "opacity-0"
+                      values.includes(choice) ? "opacity-100" : "opacity-0",
                     )}
                   />
                   <div
                     key={index}
-                    className="flex flex-row gap-1 items-center justify-between"
+                    className="flex flex-row items-center justify-between gap-1"
                   >
                     <Image
                       width={0}
@@ -186,7 +222,7 @@ export function MyObjectCombobox({
                         "/default-user-avatar.png"
                       }
                       alt="image"
-                      className="w-[30px] h-[40px] border rounded-sm"
+                      className="h-[40px] w-[30px] rounded-sm border"
                     />
                     <div key={index} className="flex flex-col gap-1">
                       {propToShow.map((prop, i) => {
@@ -196,7 +232,7 @@ export function MyObjectCombobox({
                             key={i}
                             className={cn(
                               "text-xs",
-                              prop === "name" ? "font-semibold" : ""
+                              prop === "name" ? "font-semibold" : "",
                             )}
                           >
                             {prop !== "name"

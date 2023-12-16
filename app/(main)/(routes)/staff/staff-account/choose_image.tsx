@@ -15,28 +15,30 @@ export const ChooseImageButton = ({
 }) => {
   const id = nanoid();
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    if (e.target.files && e.target.files.length > 0)
+    if (e.target.files && e.target.files.length > 0) {
       onImageChanged(e.target.files[0]);
+      e.target.files = null;
+    }
   }
 
   return (
     <div
       className={cn(
-        "w-[150px] h-[200px] relative",
+        "relative h-[200px] w-[150px]",
         !fileUrl || fileUrl.length === 0
-          ? "hover:cursor-pointer hover:bg-gray-50 border-2 border-dashed rounded-md"
-          : "hover:cursor-default"
+          ? "rounded-md border-2 border-dashed hover:cursor-pointer hover:bg-gray-50"
+          : "hover:cursor-default",
       )}
     >
       <div
         className={cn(
           !fileUrl || fileUrl.length === 0 ? "visible" : "hidden",
-          "w-full h-full relative"
+          "relative h-full w-full",
         )}
       >
         <Label
           htmlFor={id}
-          className="absolute top-0 left-0 flex items-center justify-center w-full h-full hover:cursor-pointer text-gray-600"
+          className="absolute left-0 top-0 flex h-full w-full items-center justify-center text-gray-600 hover:cursor-pointer"
         >
           <Camera color="grey" size={24} />
         </Label>
@@ -51,7 +53,7 @@ export const ChooseImageButton = ({
       <div
         className={cn(
           !fileUrl || fileUrl.length === 0 ? "hidden" : "visible",
-          "w-full h-full"
+          "h-full w-full",
         )}
       >
         <Image
@@ -60,13 +62,13 @@ export const ChooseImageButton = ({
           sizes="100vw"
           src={fileUrl || "/default-user-avatar.png"}
           alt="image"
-          className="w-full h-full border rounded-sm"
+          className="h-full w-full rounded-sm border"
         />
         <XCircle
           size={16}
           fill="red"
           color="white"
-          className="absolute top-[-8px] right-[-8px] hover:cursor-pointer"
+          className="absolute right-[-8px] top-[-8px] hover:cursor-pointer"
           onClick={(e) => {
             e.stopPropagation();
             onImageChanged(null);

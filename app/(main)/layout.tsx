@@ -16,7 +16,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <Provider store={store}>
       <html lang="en">
         <body className={cn(font.className)}>
-          <GlobalPreloader/>
+          <GlobalPreloader />
           {children}
           <Toaster />
         </body>

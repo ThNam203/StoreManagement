@@ -18,7 +18,7 @@ export const shiftSlice = createSlice({
     },
     updateShift: (state, action: PayloadAction<Shift>) => {
       state.value = state.value.map((shift) =>
-        shift.id === action.payload.id ? action.payload : shift
+        shift.id === action.payload.id ? action.payload : shift,
       );
     },
     deleteShift: (state, action: PayloadAction<number>) => {
@@ -31,7 +31,7 @@ export const shiftSlice = createSlice({
               ...shift,
               dailyShiftList: [...shift.dailyShiftList, action.payload],
             }
-          : shift
+          : shift,
       );
     },
     addDailyShifts: (state, action: PayloadAction<DailyShift[]>) => {
@@ -42,7 +42,7 @@ export const shiftSlice = createSlice({
                 ...shift,
                 dailyShiftList: [...shift.dailyShiftList, dailyShift],
               }
-            : shift
+            : shift,
         );
       });
     },
@@ -55,26 +55,50 @@ export const shiftSlice = createSlice({
                 dailyShift.date.toLocaleDateString() ===
                 action.payload.date.toLocaleDateString()
                   ? action.payload
-                  : dailyShift
+                  : dailyShift,
               ),
             }
-          : shift
+          : shift,
       );
     },
     updateDailyShifts: (state, action: PayloadAction<DailyShift[]>) => {
+      //get all dailyShifts existed in action.payload but not in state
+      //explain: update dailyShifts means override all dailyShifts in state with dailyShifts in action.payload
+      const dailyShiftToAdd = action.payload.filter(
+        (dailyShift) =>
+          !state.value
+            .find((shift) => shift.id === dailyShift.shiftId)
+            ?.dailyShiftList.find(
+              (_dailyShift) =>
+                _dailyShift.date.toLocaleDateString() ===
+                dailyShift.date.toLocaleDateString(),
+            ),
+      );
+
+      dailyShiftToAdd.forEach((dailyShift) => {
+        state.value = state.value.map((shift) =>
+          shift.id === dailyShift.shiftId
+            ? {
+                ...shift,
+                dailyShiftList: [...shift.dailyShiftList, dailyShift],
+              }
+            : shift,
+        );
+      });
+
       action.payload.forEach((dailyShift) => {
         state.value = state.value.map((shift) =>
           shift.id === dailyShift.shiftId
             ? {
                 ...shift,
-                dailyShiftList: shift.dailyShiftList.map((dailyShift) =>
+                dailyShiftList: shift.dailyShiftList.map((_dailyShift) =>
                   dailyShift.date.toLocaleDateString() ===
-                  dailyShift.date.toLocaleDateString()
+                  _dailyShift.date.toLocaleDateString()
                     ? dailyShift
-                    : dailyShift
+                    : _dailyShift,
                 ),
               }
-            : shift
+            : shift,
         );
       });
     },
@@ -86,11 +110,27 @@ export const shiftSlice = createSlice({
               dailyShiftList: shift.dailyShiftList.filter(
                 (dailyShift) =>
                   dailyShift.date.toLocaleDateString() !==
-                  action.payload.date.toLocaleDateString()
+                  action.payload.date.toLocaleDateString(),
               ),
             }
-          : shift
+          : shift,
       );
+    },
+    deleteDailyShifts: (state, action: PayloadAction<DailyShift[]>) => {
+      action.payload.forEach((dailyShift) => {
+        state.value = state.value.map((shift) =>
+          shift.id === dailyShift.shiftId
+            ? {
+                ...shift,
+                dailyShiftList: shift.dailyShiftList.filter(
+                  (_dailyShift) =>
+                    dailyShift.date.toLocaleDateString() !==
+                    _dailyShift.date.toLocaleDateString(),
+                ),
+              }
+            : shift,
+        );
+      });
     },
   },
 });
@@ -106,5 +146,6 @@ export const {
   updateDailyShift,
   updateDailyShifts,
   deleteDailyShift,
+  deleteDailyShifts,
 } = shiftSlice.actions;
 export default shiftSlice.reducer;

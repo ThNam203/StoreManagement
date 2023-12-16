@@ -20,15 +20,18 @@ import { Staff } from "@/entities/Staff";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Info } from "lucide-react";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { ConfirmOverwritingDialog } from "./confirm_dialog";
+import { MyConfirmDialog } from "../../../../../components/ui/my_confirm_dialog";
 import { DataTable } from "./datatable";
 import { DailyShift, Shift } from "@/entities/Attendance";
-import { ca, da } from "date-fns/locale";
+import { ca, da, is } from "date-fns/locale";
 import LoadingCircle from "@/components/ui/loading_circle";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useToast } from "@/components/ui/use-toast";
+import { create } from "domain";
+import { createRangeDate } from "@/utils";
 
 const formSchema = z.object({
   date: z.date(),
@@ -36,7 +39,7 @@ const formSchema = z.object({
   repeatPeriod: z.string(),
   startRepeat: z.date(),
   finishRepeat: z.date(),
-  shiftName: z.string().min(1),
+  shiftName: z.string(),
   note: z.string(),
 });
 
@@ -47,13 +50,13 @@ export function SetTimeDialog({
   submit,
   open,
   setOpen,
-  onUpdateDailyShift,
+  onUpdateDailyShifts,
 }: {
   shiftList: Shift[];
   specificShift: DailyShift | null;
   staffList: Staff[];
   submit?: (values: DailyShift[]) => any;
-  onUpdateDailyShift?: (dailyShift: DailyShift) => any;
+  onUpdateDailyShifts?: (dailyShift: DailyShift[]) => any;
   open: boolean;
   setOpen: (open: boolean) => void;
 }) {
@@ -64,43 +67,81 @@ export function SetTimeDialog({
       isRepeat: false,
       repeatPeriod: "daily",
       startRepeat: new Date(),
-      finishRepeat: new Date(new Date().getFullYear() + 1, 11, 31),
+      finishRepeat: new Date(),
       shiftName: undefined,
       note: "",
     },
   });
+  const { toast } = useToast();
   let attendStaffList: Staff[] = [];
+  const [tempAttendStaffList, setTempAttendStaffList] = useState<Staff[]>([]);
   const repeatPeriodList = ["daily", "weekly", "monthly"];
   const [isRepeat, setIsRepeat] = useState(false);
   const [openConfirmOverwritingDialog, setOpenConfirmOverwritingDialog] =
     useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isExisted, setIsExisted] = useState(false);
 
   useEffect(() => {
     if (open) resetValues(specificShift);
   }, [open]);
 
+  useEffect(() => {
+    console.log("form change");
+  }, [form]);
+
   const resetValues = (specificShift: DailyShift | null) => {
     setIsLoading(false);
+    setIsRepeat(false);
     if (specificShift) {
       form.setValue("date", specificShift.date);
       form.setValue("shiftName", specificShift.shiftName);
       form.setValue("note", specificShift.note);
+      form.setValue("isRepeat", false);
+      form.setValue("repeatPeriod", "daily");
+      form.setValue("startRepeat", specificShift.date);
+      form.setValue("finishRepeat", new Date(new Date().getFullYear(), 11, 31));
       specificShift.attendList.forEach((attend) => {
         const staff = staffList.find((staff) => staff.id === attend.staffId);
         if (staff) attendStaffList.push(staff);
       });
+      setTempAttendStaffList(attendStaffList);
     } else resetToEmptyForm();
   };
   const resetToEmptyForm = () => {
     form.reset();
     attendStaffList = [];
+    setTempAttendStaffList([]);
     setIsRepeat(false);
   };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    if (!specificShift) return;
-    setIsLoading(true);
+    if (!specificShift) {
+      const existedShift = shiftList.find(
+        (shift) => shift.name === values.shiftName,
+      );
+      if (existedShift) {
+        console.log("existed shift", existedShift);
+        const existedDailyShift = existedShift.dailyShiftList.find(
+          (dailyShift) =>
+            dailyShift.date.toLocaleDateString() ===
+            values.date.toLocaleDateString(),
+        );
+        if (existedDailyShift) {
+          specificShift = existedDailyShift;
+        } else {
+          specificShift = {
+            id: -1,
+            shiftId: existedShift.id,
+            shiftName: existedShift.name,
+            date: values.date,
+            note: values.note,
+            attendList: [],
+          };
+        }
+      } else return;
+    }
+    console.log("specific shift", specificShift);
     const updatedDailyShift: DailyShift = {
       id: specificShift.id,
       shiftId: specificShift ? specificShift.shiftId : -1,
@@ -109,7 +150,8 @@ export function SetTimeDialog({
       note: values.note,
       attendList: [],
     };
-    attendStaffList.forEach((staff) => {
+    console.log("attend staff list", attendStaffList);
+    tempAttendStaffList.forEach((staff) => {
       updatedDailyShift.attendList.push({
         id: -1,
         staffId: staff.id,
@@ -124,9 +166,13 @@ export function SetTimeDialog({
 
     let dailyShiftList: DailyShift[] = [];
     if (isRepeat) {
+      // create a list of daily shift
       const { repeatPeriod, startRepeat, finishRepeat } = values;
+      startRepeat.setHours(0, 0, 0, 0);
+      finishRepeat.setHours(0, 0, 0, 0);
+
       const repeatPeriodIndex = repeatPeriodList.findIndex(
-        (period) => period === repeatPeriod
+        (period) => period === repeatPeriod,
       );
       if (repeatPeriodIndex === -1) return;
 
@@ -134,25 +180,47 @@ export function SetTimeDialog({
         repeatPeriodIndex === 0 ? 1 : repeatPeriodIndex === 1 ? 7 : 30;
       const repeatPeriodCount = Math.floor(
         (finishRepeat.getTime() - startRepeat.getTime()) /
-          (repeatPeriodValue * 24 * 60 * 60 * 1000)
+          (repeatPeriodValue * 24 * 60 * 60 * 1000),
       );
+
       for (let i = 0; i <= repeatPeriodCount; i++) {
         const newDate = new Date(
-          startRepeat.getTime() + repeatPeriodValue * i * 24 * 60 * 60 * 1000
+          startRepeat.getTime() + repeatPeriodValue * i * 24 * 60 * 60 * 1000,
         );
+
         const newDailyShift = { ...updatedDailyShift };
         newDailyShift.date = newDate;
+        newDailyShift.attendList = newDailyShift.attendList.map((attend) => {
+          return { ...attend, date: newDate };
+        });
+        console.log("new daily shift", newDailyShift);
+        const shift = shiftList.find(
+          (shift) => shift.id === specificShift!.shiftId,
+        );
+        if (shift) {
+          const existedDailyShift = shift.dailyShiftList.find(
+            (dailyShift) =>
+              dailyShift.date.toLocaleDateString() ===
+              newDate.toLocaleDateString(),
+          );
+
+          if (existedDailyShift) newDailyShift.id = existedDailyShift.id;
+          else newDailyShift.id = -1;
+        }
+
         dailyShiftList.push(newDailyShift);
       }
     } else {
       dailyShiftList.push(updatedDailyShift);
     }
 
-    if (specificShift.attendList.length > 0) {
-      console.log("update specific shift", specificShift);
-      if (onUpdateDailyShift) {
+    console.log("daily shift list", dailyShiftList);
+
+    if (isExisted) {
+      if (onUpdateDailyShifts) {
+        setIsLoading(true);
         try {
-          await onUpdateDailyShift(updatedDailyShift);
+          await onUpdateDailyShifts(dailyShiftList);
         } catch (error) {
           console.log(error);
         } finally {
@@ -163,7 +231,15 @@ export function SetTimeDialog({
       }
     } else {
       console.log("submit new shift");
+      if (dailyShiftList[0].attendList.length === 0) {
+        toast({
+          description: "Please select at least 1 staff to attend this shift",
+          variant: "destructive",
+        });
+        return;
+      }
       if (submit) {
+        setIsLoading(true);
         try {
           await submit(dailyShiftList);
         } catch (error) {
@@ -179,17 +255,24 @@ export function SetTimeDialog({
 
   const isShiftExisted = (
     shiftName: string,
-    date: Date,
-    shiftList: Shift[]
+    range: { startDate: Date; endDate: Date },
+    shiftList: Shift[],
   ): boolean => {
     const shift = shiftList.find((shift) => shift.name === shiftName);
     if (!shift) return false;
-    const index = shift.dailyShiftList.findIndex(
-      (dailyShift) =>
-        dailyShift.date.toLocaleDateString() === date.toLocaleDateString()
+    const rangeDate = createRangeDate(range);
+    const rangeLocalDateString = rangeDate.map((date) =>
+      date.toLocaleDateString(),
     );
-    if (index === -1) return false;
-    return true;
+    for (let i = 0; i < shift.dailyShiftList.length; i++) {
+      if (
+        rangeLocalDateString.includes(
+          shift.dailyShiftList[i].date.toLocaleDateString(),
+        )
+      )
+        return true;
+    }
+    return false;
   };
 
   function handleCancelDialog() {
@@ -199,6 +282,7 @@ export function SetTimeDialog({
 
   const handleDataChange = (data: Staff[]) => {
     attendStaffList = data;
+    setTempAttendStaffList(data);
   };
 
   return (
@@ -209,9 +293,9 @@ export function SetTimeDialog({
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            <ScrollArea className="w-[1000px] h-[500px] pr-2">
-              <div className="h-full w-full flex flex-col justify-start gap-2">
-                <div className="w-full flex flex-row items-center justify-between">
+            <ScrollArea className="h-[500px] w-[1000px] pr-2">
+              <div className="flex h-full w-full flex-col justify-start gap-2">
+                <div className="flex w-full flex-row items-center justify-between">
                   <div className="flex flex-row items-center gap-4">
                     <FormField
                       control={form.control}
@@ -220,7 +304,7 @@ export function SetTimeDialog({
                         <FormItem>
                           <div className="flex flex-row items-center gap-2">
                             <FormLabel>
-                              <div className="w-[100px] flex flex-row items-center space-x-2">
+                              <div className="flex w-[100px] flex-row items-center space-x-2">
                                 <h5 className="text-sm">
                                   {isRepeat ? "Start date" : "Date"}
                                 </h5>
@@ -258,7 +342,7 @@ export function SetTimeDialog({
                               />
                             </FormControl>
                             <FormLabel>
-                              <h5 className="text-sm cursor-pointer">Repeat</h5>
+                              <h5 className="cursor-pointer text-sm">Repeat</h5>
                             </FormLabel>
                           </div>
                         </FormItem>
@@ -293,14 +377,14 @@ export function SetTimeDialog({
                         <FormItem>
                           <div
                             className={cn(
-                              "w-full flex flex-row items-center gap-2",
-                              isRepeat ? "visible" : "hidden"
+                              "flex w-full flex-row items-center gap-2",
+                              isRepeat ? "visible" : "hidden",
                             )}
                           >
                             <FormLabel>
                               <div
                                 className={cn(
-                                  "w-[100px] flex flex-row items-center space-x-2"
+                                  "flex w-[100px] flex-row items-center space-x-2",
                                 )}
                               >
                                 <h5 className="text-sm">Finish date</h5>
@@ -311,9 +395,24 @@ export function SetTimeDialog({
                               <div className={cn("w-[220px]")}>
                                 <DatePicker
                                   value={field.value}
-                                  onChange={(date) =>
-                                    form.setValue("finishRepeat", date)
-                                  }
+                                  onChange={(date) => {
+                                    if (
+                                      date.getTime() <
+                                      form.getValues("startRepeat").getTime()
+                                    ) {
+                                      const currentDate =
+                                        form.getValues("finishRepeat");
+                                      form.setValue(
+                                        "finishRepeat",
+                                        currentDate,
+                                      );
+                                      toast({
+                                        description:
+                                          "Finish date must be after start date",
+                                        variant: "destructive",
+                                      });
+                                    } else form.setValue("finishRepeat", date);
+                                  }}
                                 />
                               </div>
                             </FormControl>
@@ -329,9 +428,9 @@ export function SetTimeDialog({
                     name="shiftName"
                     render={({ field }) => (
                       <FormItem>
-                        <div className="w-full flex flex-row items-center gap-2">
+                        <div className="flex w-full flex-row items-center gap-2">
                           <FormLabel>
-                            <div className="w-[100px] flex flex-row items-center space-x-2">
+                            <div className="flex w-[100px] flex-row items-center space-x-2">
                               <h5 className="text-sm">Shift</h5>
                               <Info size={16} />
                             </div>
@@ -358,9 +457,9 @@ export function SetTimeDialog({
                     name="note"
                     render={({ field }) => (
                       <FormItem>
-                        <div className="w-full flex flex-row items-center gap-2">
+                        <div className="flex w-full flex-row items-center gap-2">
                           <FormLabel>
-                            <div className="w-[100px] flex flex-row items-center space-x-2">
+                            <div className="flex w-[100px] flex-row items-center space-x-2">
                               <h5 className="text-sm">Note</h5>
                               <Info size={16} />
                             </div>
@@ -388,11 +487,23 @@ export function SetTimeDialog({
                 />
               </div>
             </ScrollArea>
-            <div className="flex flex-row justify-end mt-2">
+            <div className="mt-2 flex flex-row justify-end">
               <Button
-                type="submit"
+                type="button"
                 onClick={() => {
-                  form.handleSubmit(onSubmit);
+                  // check if shift is existed to avoid overwriting shift
+                  const checkIsExisted = isShiftExisted(
+                    form.getValues("shiftName"),
+                    {
+                      startDate: form.getValues("startRepeat"),
+                      endDate: form.getValues("finishRepeat"),
+                    },
+                    shiftList,
+                  );
+                  setIsExisted(checkIsExisted);
+                  if (isRepeat && checkIsExisted)
+                    setOpenConfirmOverwritingDialog(true);
+                  else form.handleSubmit(onSubmit)();
                 }}
                 variant={"green"}
                 className="mr-3"
@@ -411,9 +522,14 @@ export function SetTimeDialog({
             </div>
           </form>
         </Form>
-        <ConfirmOverwritingDialog
+        <MyConfirmDialog
           open={openConfirmOverwritingDialog}
           setOpen={setOpenConfirmOverwritingDialog}
+          onAccept={() => {
+            setOpenConfirmOverwritingDialog(false);
+            form.handleSubmit(onSubmit)();
+          }}
+          onCancel={() => setOpenConfirmOverwritingDialog(false)}
         />
       </DialogContent>
     </Dialog>

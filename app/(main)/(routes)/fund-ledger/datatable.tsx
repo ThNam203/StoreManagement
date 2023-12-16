@@ -42,6 +42,7 @@ import { Label } from "@/components/ui/label";
 import { DialogClose } from "@radix-ui/react-dialog";
 import { ImportDailog } from "../../../../components/ui/my_import_dialog";
 import { join } from "path";
+import { format } from "date-fns";
 
 type Props = {
   data: Transaction[];
@@ -51,7 +52,7 @@ type Props = {
 export function DataTable({ data, onSubmit }: Props) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+    [],
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({
@@ -91,6 +92,12 @@ export function DataTable({ data, onSubmit }: Props) {
     },
   });
 
+  const [selectedForm, setSelectedForm] = React.useState<Transaction | null>(
+    null,
+  );
+  const [openExpense, setOpenExpense] = React.useState(false);
+  const [openReceipt, setOpenReceipt] = React.useState(false);
+
   const handleSubmit = (values: Transaction) => {
     if (onSubmit) onSubmit(values);
   };
@@ -105,12 +112,12 @@ export function DataTable({ data, onSubmit }: Props) {
     let toExport = data.map((dataRow, index) => {
       var row: object = {};
       visibleColumnIds.map((header) => {
-        const headerContent = columnHeader[header as keyof typeof columnHeader];
+        const headerTitle = columnHeader[header as keyof typeof columnHeader];
 
-        if (headerContent === "#") {
+        if (headerTitle === "#") {
           row = {
             ...row,
-            [headerContent]: index + 1,
+            [headerTitle]: index + 1,
           };
         } else if (header === "description") {
           const typePrefix =
@@ -119,7 +126,7 @@ export function DataTable({ data, onSubmit }: Props) {
           const type = `${typePrefix} ${typeSubfix}`;
           row = {
             ...row,
-            [headerContent]: type,
+            [headerTitle]: type,
           };
         } else if (header === "value") {
           const value = dataRow[header as keyof typeof dataRow];
@@ -129,12 +136,19 @@ export function DataTable({ data, onSubmit }: Props) {
 
           row = {
             ...row,
-            [headerContent]: isExpense ? expenseValue : receiveValue,
+            [headerTitle]: isExpense ? expenseValue : receiveValue,
           };
-        } else if (headerContent !== undefined) {
+        } else if (header === "createdDate") {
+          const date = dataRow[header as keyof typeof dataRow];
+          const dateStr = format(date, "dd/MM/yyyy HH:mm");
           row = {
             ...row,
-            [headerContent]: dataRow[header as keyof typeof dataRow],
+            [headerTitle]: dateStr,
+          };
+        } else if (headerTitle !== undefined) {
+          row = {
+            ...row,
+            [headerTitle]: dataRow[header as keyof typeof dataRow],
           };
         } else {
           console.log("header of undefined", header);
@@ -162,21 +176,35 @@ export function DataTable({ data, onSubmit }: Props) {
         />
         <div className="flex flex-row">
           <div className="mr-2">
-            <MakeReceiptDialog submit={handleSubmit} />
+            <Button
+              variant="default"
+              className="whitespace-nowrap"
+              onClick={() => {
+                setSelectedForm(null);
+                setOpenReceipt(true);
+              }}
+            >
+              Make Receipt
+            </Button>
           </div>
           <div className="mr-2">
-            <MakeExpenseDialog submit={handleSubmit} />
+            <Button
+              variant="default"
+              className="whitespace-nowrap"
+              onClick={() => {
+                setSelectedForm(null);
+                setOpenReceipt(true);
+              }}
+            >
+              Make Expense
+            </Button>
           </div>
           <div className="mr-2">
             <ImportDailog />
           </div>
 
           <div className="mr-2">
-            <Button
-              variant={"default"}
-              className="bg-lime-500 hover:bg-lime-600"
-              onClick={handleExportExcel}
-            >
+            <Button variant={"green"} onClick={handleExportExcel}>
               <FileDown className="mr-2 h-4 w-4" />
               Export
             </Button>
@@ -189,28 +217,40 @@ export function DataTable({ data, onSubmit }: Props) {
             cols={2}
             rowPerCols={6}
           />
+          <MakeExpenseDialog
+            data={selectedForm}
+            submit={handleSubmit}
+            open={openExpense}
+            setOpen={setOpenExpense}
+          />
+          <MakeReceiptDialog
+            data={selectedForm}
+            submit={handleSubmit}
+            open={openReceipt}
+            setOpen={setOpenReceipt}
+          />
         </div>
       </div>
       <div className="grid grid-cols-7 gap-4 py-4">
-        <div className="col-start-4 col-span-1 text-right">
+        <div className="col-span-1 col-start-4 text-right">
           Beginning Fund <br />{" "}
           <span className="font-bold">{formatPrice(beginningFund)}</span>
         </div>
-        <div className="col-start-5 col-span-1 text-right">
+        <div className="col-span-1 col-start-5 text-right">
           Total Receipt <br />{" "}
-          <span className="text-[#005ac3] font-bold">
+          <span className="font-bold text-[#005ac3]">
             {formatPrice(totalExpense)}
           </span>
         </div>
-        <div className="col-start-6 col-span-1 text-right">
+        <div className="col-span-1 col-start-6 text-right">
           Total Expense <br />{" "}
-          <span className="text-[#be1c26] font-bold">
+          <span className="font-bold text-[#be1c26]">
             - {formatPrice(totalReceipt)}
           </span>
         </div>
-        <div className="col-start-7 col-span-1 text-right">
+        <div className="col-span-1 col-start-7 text-right">
           Remaining Fund <br />{" "}
-          <span className="text-[green] font-bold">
+          <span className="font-bold text-[green]">
             {formatPrice(beginningFund - (totalExpense - totalReceipt))}
           </span>
         </div>

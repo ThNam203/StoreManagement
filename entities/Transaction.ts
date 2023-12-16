@@ -5,7 +5,7 @@ export type Transaction = {
   formType: FormType;
   description: string;
   transactionType: TransactionType;
-  value: string;
+  value: number;
   creator: string;
   createdDate: Date;
   status: Status;

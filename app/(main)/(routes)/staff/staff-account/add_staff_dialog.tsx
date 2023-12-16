@@ -20,61 +20,64 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input, PasswordInput } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import LoadingCircle from "@/components/ui/loading_circle";
 import { MyCombobox } from "@/components/ui/my_combobox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/components/ui/use-toast";
 import {
   SalarySetting,
   SalaryType,
   SalaryUnitTable,
 } from "@/entities/SalarySetting";
 import { Sex, Staff } from "@/entities/Staff";
-import { removeCharNotANum } from "@/utils";
+import { useAppSelector } from "@/hooks";
+import { addPosition, deletePosition } from "@/reducers/staffPositionReducer";
+import { axiosUIErrorHandler } from "@/services/axios_utils";
+import StaffService from "@/services/staff_service";
+import { formatNumberInput, removeCharNotANum } from "@/utils";
 import { CircleDollarSign, Info, PlusCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useDispatch } from "react-redux";
 import { ChooseImageButton } from "./choose_image";
-import { fi } from "date-fns/locale";
-import LoadingCircle from "@/components/ui/loading_circle";
 
 const createSchema = z.object({
-  avatar: z.string(),
-  name: z.string().min(1, { message: "Name must be at least one character" }),
+  avatar: z.string().optional(),
+  name: z.string().min(1, { message: "Name is missing" }),
   birthday: z.date(),
   sex: z.string(),
-  cccd: z.string().min(1, { message: "CCCD is empty" }),
-  position: z.string().min(1, { message: "Position is empty" }),
-  phoneNumber: z.string().min(1, { message: "Phone number is empty" }),
+  cccd: z.string().min(1, { message: "CCCD is missing" }),
+  position: z.string().min(1, { message: "Position is missing" }),
+  phoneNumber: z.string().min(1, { message: "Phone number is missing" }),
   email: z.string().email({ message: "Please enter a valid email" }),
   password: z
     .string()
     .min(8, { message: "Password must be at least 8 characters" }),
-  address: z.string().min(1, { message: "Address is empty" }),
+  address: z.string(),
   note: z.string().optional(),
-  salary: z.number(),
+  salary: z.number().min(0, { message: "Salary must be greater than 0" }),
   salaryType: z.nativeEnum(SalaryType),
 });
 const updateSchema = z.object({
-  avatar: z.string(),
-  name: z.string().min(1, { message: "Name must be at least one character" }),
+  avatar: z.string().optional(),
+  name: z.string().min(1, { message: "Name is missing" }),
   birthday: z.date(),
   sex: z.string(),
-  cccd: z.string().min(1, { message: "CCCD is empty" }),
-  position: z.string().min(1, { message: "Position is empty" }),
-  phoneNumber: z.string().min(1, { message: "Phone number is empty" }),
+  cccd: z.string().min(1, { message: "CCCD is missing" }),
+  position: z.string().min(1, { message: "Position is missing" }),
+  phoneNumber: z.string().min(1, { message: "Phone number is missing" }),
   email: z.string().email({ message: "Please enter a valid email" }),
-  password: z
-    .string()
-    .min(8, { message: "Password must be at least 8 characters" })
-    .optional(),
-  address: z.string().min(1, { message: "Address is empty" }),
+  password: z.string().optional(),
+  address: z.string(),
   note: z.string().optional(),
-  salary: z.number(),
+  salary: z.number().min(0, { message: "Salary must be greater than 0" }),
   salaryType: z.nativeEnum(SalaryType),
 });
 
@@ -97,12 +100,13 @@ export function AddStaffDialog({
       sex: Sex.MALE,
       salary: undefined,
       salaryType: SalaryType.ByShift,
+      password: "",
     },
   });
 
   const onSubmit = async (values: z.infer<typeof createSchema>) => {
     const newStaff: Staff = {
-      avatar: values.avatar,
+      avatar: values.avatar ? values.avatar : "",
       id: data ? data.id : -1,
       name: values.name,
       phoneNumber: values.phoneNumber,
@@ -122,6 +126,7 @@ export function AddStaffDialog({
         salaryType: SalaryType.ByShift,
       },
     };
+    console.log("avatar", staffAvatar);
 
     if (submit) {
       setIsLoading(true);
@@ -137,12 +142,10 @@ export function AddStaffDialog({
       }
     }
   };
-  const [positionList, setPositionList] = useState([
-    "Cashier",
-    "Safe Guard",
-    "Manager",
-    "Cleaner",
-  ]);
+  const { toast } = useToast();
+  const dispatch = useDispatch();
+  const rawPositionList = useAppSelector((state) => state.staffPositions.value);
+  const positionList = rawPositionList.map((position) => position.name);
   const positionInputRef = useRef<HTMLInputElement>(null);
   const [openAddPositionDialog, setOpenAddPositionDialog] = useState(false);
   const [salarySetting, setSalarySetting] = useState<SalarySetting>({
@@ -150,6 +153,7 @@ export function AddStaffDialog({
     salaryType: SalaryType.ByShift,
   });
   const [staffAvatar, setStaffAvatar] = useState<File | null>(null);
+  const [isAddingNewPosition, setIsAddingNewPosition] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   function handleCancelDialog() {
@@ -159,12 +163,13 @@ export function AddStaffDialog({
 
   useEffect(() => {
     if (open) resetValues(data);
+    console.log("render");
   }, [open]);
 
   const resetValues = (staff: Staff | null) => {
     setIsLoading(false);
     if (staff) {
-      form.setValue("avatar", staff.avatar);
+      form.setValue("avatar", staff.avatar ? staff.avatar : "");
       form.setValue("name", staff.name);
       form.setValue("birthday", staff.birthday);
       form.setValue("sex", staff.sex);
@@ -188,11 +193,59 @@ export function AddStaffDialog({
     setStaffAvatar(null);
   };
 
+  const addNewPosition = async (name: string) => {
+    setIsAddingNewPosition(true);
+    try {
+      const newPosition = { name: name };
+      const res = await StaffService.createNewPosition(newPosition);
+      console.log(res.data);
+      dispatch(addPosition(res.data));
+      return Promise.resolve();
+    } catch (e) {
+      axiosUIErrorHandler(e, toast);
+      return Promise.reject(e);
+    } finally {
+      setIsAddingNewPosition(false);
+    }
+  };
+
+  const removePosition = async (name: string) => {
+    try {
+      const id: number = rawPositionList.find((pos) => pos.name === name)?.id;
+      const res = await StaffService.deletePosition(id);
+      console.log(res.data);
+      dispatch(deletePosition(id));
+      return Promise.resolve();
+    } catch (e) {
+      axiosUIErrorHandler(e, toast);
+      return Promise.reject(e);
+    }
+  };
+
   const handleAddingNewPosition = () => {
     if (!positionInputRef.current) return;
-    if (positionList.includes(positionInputRef.current?.value)) return;
-    setPositionList((prev) => [...prev, positionInputRef.current?.value!]);
+    const newPosition = positionInputRef.current?.value;
+    if (newPosition === "") {
+      toast({
+        variant: "destructive",
+        description: "Please enter position name",
+      });
+      return;
+    }
+    if (positionList.includes(newPosition)) {
+      toast({
+        variant: "destructive",
+        description: "Position existed",
+      });
+      return;
+    }
+    addNewPosition(newPosition);
+    form.setValue("position", newPosition);
     setOpenAddPositionDialog(false);
+  };
+
+  const handleRemovePosition = (position: string) => {
+    return removePosition(position);
   };
 
   const onSalaryTypeChange = (value: string) => {
@@ -213,7 +266,7 @@ export function AddStaffDialog({
       onOpenChange={setOpenAddPositionDialog}
     >
       <DialogTrigger asChild>
-        <PlusCircle className="w-4 h-4 opacity-50 hover:cursor-pointer hover:opacity-100" />
+        <PlusCircle className="h-4 w-4 opacity-50 hover:cursor-pointer hover:opacity-100" />
       </DialogTrigger>
       <DialogContent
         className="sm:max-w-[425px]"
@@ -224,18 +277,19 @@ export function AddStaffDialog({
         </DialogHeader>
 
         <div className="grid grid-cols-6 items-center gap-4">
-          <Label htmlFor="name" className="text-right grid-col-1 col-span-1">
+          <Label htmlFor="name" className="grid-col-1 col-span-1 text-right">
             Position
           </Label>
           <Input ref={positionInputRef} className="grid-col-2 col-span-5" />
         </div>
         <DialogFooter>
           <Button
-            variant={"default"}
+            variant={"green"}
             type="button"
             onClick={handleAddingNewPosition}
           >
             Save
+            {isAddingNewPosition && <LoadingCircle></LoadingCircle>}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -264,7 +318,7 @@ export function AddStaffDialog({
                 </TabsList>
                 <TabsContent
                   value="infomation"
-                  className="min-w-[1200px] h-[350px] pt-2"
+                  className="h-[350px] min-w-[1200px] pt-2"
                 >
                   <div className="flex flex-row items-start justify-between">
                     <div className="flex flex-col">
@@ -276,7 +330,7 @@ export function AddStaffDialog({
                             <div className="">
                               <FormControl className="w-2/3">
                                 <ChooseImageButton
-                                  fileUrl={field.value}
+                                  fileUrl={field.value ? field.value : ""}
                                   onImageChanged={onImageChange}
                                 />
                               </FormControl>
@@ -285,18 +339,19 @@ export function AddStaffDialog({
                         )}
                       />
                     </div>
-                    <div className="flex flex-col ml-4 w-[450px]">
+                    <div className="ml-4 flex w-[450px] flex-col">
                       <FormField
                         control={form.control}
                         name="name"
                         render={({ field }) => (
                           <FormItem className="mt-2">
                             <div className="flex flex-row items-center">
-                              <FormLabel className="w-1/3">
+                              <FormLabel className="flex w-1/3 flex-col items-start">
                                 <div className="flex flex-row items-center space-x-2">
                                   <h5 className="text-sm">Name</h5>
                                   <Info size={16} />
                                 </div>
+                                <FormMessage className="mr-2 text-xs" />
                               </FormLabel>
                               <FormControl className="w-2/3">
                                 <Input {...field} />
@@ -337,7 +392,7 @@ export function AddStaffDialog({
                         control={form.control}
                         name="sex"
                         render={({ field }) => (
-                          <FormItem className="mt-6 mb-2">
+                          <FormItem className="mb-2 mt-6">
                             <div className="flex flex-row items-center">
                               <FormLabel className="w-1/3">
                                 <div className="flex flex-row items-center space-x-2">
@@ -378,11 +433,12 @@ export function AddStaffDialog({
                         render={({ field }) => (
                           <FormItem className="mt-2">
                             <div className="flex flex-row items-center">
-                              <FormLabel className="w-1/3">
+                              <FormLabel className="flex w-1/3 flex-col items-start">
                                 <div className="flex flex-row items-center space-x-2">
                                   <h5 className="text-sm">CCCD</h5>
                                   <Info size={16} />
                                 </div>
+                                <FormMessage className="mr-2 text-xs" />
                               </FormLabel>
 
                               <FormControl className="w-2/3">
@@ -406,11 +462,12 @@ export function AddStaffDialog({
                         render={({ field }) => (
                           <FormItem className="mt-2">
                             <div className="flex flex-row items-center">
-                              <FormLabel className="w-1/3">
+                              <FormLabel className="flex w-1/3 flex-col items-start">
                                 <div className="flex flex-row items-center space-x-2">
                                   <h5 className="text-sm">Position</h5>
                                   <Info size={16} />
                                 </div>
+                                <FormMessage className="mr-2 text-xs" />
                               </FormLabel>
                               <FormControl>
                                 <MyCombobox
@@ -422,6 +479,7 @@ export function AddStaffDialog({
                                   placeholder="Search position..."
                                   choices={positionList}
                                   endIcon={addPositionDailog}
+                                  onRemoveChoice={handleRemovePosition}
                                 />
                               </FormControl>
                             </div>
@@ -429,25 +487,25 @@ export function AddStaffDialog({
                         )}
                       />
                     </div>
-                    <div className="flex flex-col ml-4 w-[450px]">
+                    <div className="ml-4 flex w-[450px] flex-col">
                       <FormField
                         control={form.control}
                         name="phoneNumber"
                         render={({ field }) => (
                           <FormItem className="mt-2">
                             <div className="flex flex-row items-center">
-                              <FormLabel className="w-1/3">
+                              <FormLabel className="flex w-1/3 flex-col items-start">
                                 <div className="flex flex-row items-center space-x-2">
                                   <h5 className="text-sm">Phone number</h5>
                                   <Info size={16} />
                                 </div>
+                                <FormMessage className="mr-2 text-xs" />
                               </FormLabel>
 
                               <FormControl>
                                 <Input
                                   {...field}
-                                  maxLength={11}
-                                  minLength={10}
+                                  maxLength={10}
                                   className="w-2/3"
                                   type="tel"
                                 />
@@ -463,11 +521,12 @@ export function AddStaffDialog({
                         render={({ field }) => (
                           <FormItem className="mt-2">
                             <div className="flex flex-row items-center">
-                              <FormLabel className="w-1/3">
+                              <FormLabel className="flex w-1/3 flex-col items-start">
                                 <div className="flex flex-row items-center space-x-2">
                                   <h5 className="text-sm">Email</h5>
                                   <Info size={16} />
                                 </div>
+                                <FormMessage className="mr-2 text-xs" />
                               </FormLabel>
 
                               <FormControl className="w-2/3">
@@ -483,13 +542,14 @@ export function AddStaffDialog({
                         render={({ field }) => (
                           <FormItem className="mt-2">
                             <div className="flex flex-row items-center">
-                              <FormLabel className="w-1/3">
+                              <FormLabel className="flex w-1/3 flex-col items-start">
                                 <div className="flex flex-row items-center space-x-2">
                                   <h5 className="text-sm">
                                     {data ? "Update password" : "Password"}
                                   </h5>
                                   <Info size={16} />
                                 </div>
+                                <FormMessage className="mr-2 text-xs" />
                               </FormLabel>
 
                               <FormControl className="w-2/3">
@@ -506,11 +566,12 @@ export function AddStaffDialog({
                         render={({ field }) => (
                           <FormItem className="mt-2">
                             <div className="flex flex-row items-center">
-                              <FormLabel className="w-1/3">
+                              <FormLabel className="flex w-1/3 flex-col items-start">
                                 <div className="flex flex-row items-center space-x-2">
                                   <h5 className="text-sm">Address</h5>
                                   <Info size={16} />
                                 </div>
+                                <FormMessage className="mr-2 text-xs" />
                               </FormLabel>
 
                               <FormControl className="w-2/3">
@@ -545,18 +606,18 @@ export function AddStaffDialog({
                 </TabsContent>
                 <TabsContent
                   value="salary-setting"
-                  className="min-w-[1200px] h-[350px] pt-2"
+                  className="h-[350px] min-w-[1200px] pt-2"
                 >
                   <ScrollArea className="h-full pr-4">
                     <div className="flex flex-col gap-6">
-                      <div className="w-full rounded shadow-[0px_5px_15px_rgba(0,0,0,.1)] overflow-hidden">
-                        <div className="p-4 flex flex-row items-center">
-                          <CircleDollarSign className="mr-2 w-4 h-4 text-yellow-500" />
+                      <div className="w-full overflow-hidden rounded shadow-[0px_5px_15px_rgba(0,0,0,.1)]">
+                        <div className="flex flex-row items-center p-4">
+                          <CircleDollarSign className="mr-2 h-4 w-4 text-yellow-500" />
                           <span className="font-semibold">Staff salary</span>
                         </div>
                         <Separator />
                         <div className="flex flex-row items-center justify-between">
-                          <div className="p-4 flex flex-row items-center justify-between">
+                          <div className="flex flex-row items-center justify-between p-4">
                             <span className="w-[100px] whitespace-nowrap font-semibold">
                               Salary type
                             </span>
@@ -566,7 +627,7 @@ export function AddStaffDialog({
                               render={({ field }) => (
                                 <FormItem>
                                   <FormControl>
-                                    <div className="min-w-[400px] flex flex-row items-center gap-2">
+                                    <div className="flex min-w-[400px] flex-row items-center gap-2">
                                       <MyCombobox
                                         className="w-full"
                                         defaultValue={field.value}
@@ -574,47 +635,41 @@ export function AddStaffDialog({
                                         onValueChange={(val) => {
                                           form.setValue(
                                             "salaryType",
-                                            val as SalaryType
+                                            val as SalaryType,
                                           );
                                           onSalaryTypeChange(val);
                                         }}
                                       />
-                                      <Info className="w-6 h-6" />
+                                      <Info className="h-6 w-6" />
                                     </div>
                                   </FormControl>
                                 </FormItem>
                               )}
                             />
                           </div>
-                          <div className="p-4 flex flex-row items-center justify-between">
+                          <div className="flex flex-row items-center justify-between p-4">
                             <FormField
                               control={form.control}
                               name="salary"
                               render={({ field }) => (
                                 <FormItem>
                                   <div className="flex flex-row items-center justify-between gap-10">
-                                    <FormLabel>
+                                    <FormLabel className="flex flex-col items-start">
                                       <span className="w-[100px] whitespace-nowrap font-semibold">
                                         Default
                                       </span>
+                                      <FormMessage className="mr-2 text-xs" />
                                     </FormLabel>
                                     <FormControl>
-                                      <div className="w-[250px] flex flex-row items-center gap-2 whitespace-nowrap">
+                                      <div className="flex w-[250px] flex-row items-center gap-2 whitespace-nowrap">
                                         <Input
                                           defaultValue={field.value}
                                           className="w-[150px] text-right"
                                           placeholder="0"
                                           onChange={(e) => {
-                                            removeCharNotANum(e);
                                             form.setValue(
                                               "salary",
-                                              !Number.isNaN(
-                                                Number.parseInt(e.target.value)
-                                              )
-                                                ? Number.parseInt(
-                                                    e.target.value
-                                                  )
-                                                : 0
+                                              formatNumberInput(e),
                                             );
                                           }}
                                         />

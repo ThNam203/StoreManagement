@@ -39,6 +39,10 @@ import { ne } from "@faker-js/faker";
 import { cn } from "@/lib/utils";
 import { formatNumberInput, formatPrice } from "@/utils";
 import LoadingCircle from "@/components/ui/loading_circle";
+import {
+  ConfirmDialogType,
+  MyConfirmDialog,
+} from "../../../../../components/ui/my_confirm_dialog";
 
 const formSchema = z.object({
   note: z.string(),
@@ -49,7 +53,7 @@ const formSchema = z.object({
         name: z.string(),
         times: z.number(),
         value: z.number(),
-      })
+      }),
     )
     .optional(),
   rewardList: z
@@ -58,7 +62,7 @@ const formSchema = z.object({
         name: z.string(),
         times: z.number(),
         value: z.number(),
-      })
+      }),
     )
     .optional(),
 });
@@ -116,6 +120,12 @@ export function TimeKeepingDialog({
   const punishTypeInputRef = useRef<HTMLInputElement>(null);
   const [openAddRewardDialog, setOpenAddRewardDialog] = useState(false);
   const rewardTypeInputRef = useRef<HTMLInputElement>(null);
+  const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
+  const [contentConfirmDialog, setContentConfirmDialog] = useState({
+    title: "",
+    content: "",
+    type: "warning" as ConfirmDialogType,
+  });
 
   const resetValues = (attendanceRecord: AttendanceRecord | null) => {
     setIsAdding(false);
@@ -125,8 +135,8 @@ export function TimeKeepingDialog({
       form.setValue("hasAttend", attendanceRecord.hasAttend);
       form.setValue("punishList", attendanceRecord.bonus);
       form.setValue("rewardList", attendanceRecord.punish);
-      setPunishList(attendanceRecord.bonus);
-      setRewardList(attendanceRecord.punish);
+      setPunishList(attendanceRecord.punish);
+      setRewardList(attendanceRecord.bonus);
       console.log("form set value", form.getValues());
     } else resetToEmptyForm();
   };
@@ -165,8 +175,8 @@ export function TimeKeepingDialog({
       ...attendanceRecord!,
       note: values.note,
       hasAttend: values.hasAttend,
-      bonus: values.punishList ? values.punishList : [],
-      punish: values.rewardList ? values.rewardList : [],
+      bonus: values.rewardList ? values.rewardList : [],
+      punish: values.punishList ? values.punishList : [],
     };
     if (onUpdateAttendanceRecord) {
       console.log("submit", newAttendanceRecord);
@@ -188,6 +198,20 @@ export function TimeKeepingDialog({
     setOpen(false);
     resetValues(attendanceRecord);
   }
+  const handleRemoveAttendanceRecord = async () => {
+    if (onRemoveAttendanceRecord) {
+      setIsRemoving(true);
+      try {
+        await onRemoveAttendanceRecord(attendanceRecord!).then(() => {
+          setOpen(false);
+        });
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setIsRemoving(false);
+      }
+    }
+  };
 
   const handleAddingNewPunishType = () => {
     if (!punishTypeInputRef.current) return;
@@ -207,10 +231,10 @@ export function TimeKeepingDialog({
   const addNewPunishDailog = (
     <Dialog open={openAddPunishDialog} onOpenChange={setOpenAddPunishDialog}>
       <DialogTrigger asChild>
-        <PlusCircle className="w-4 h-4 opacity-50 hover:cursor-pointer hover:opacity-100" />
+        <PlusCircle className="h-4 w-4 opacity-50 hover:cursor-pointer hover:opacity-100" />
       </DialogTrigger>
       <DialogContent
-        className="w-[600px] h-[200px] flex flex-col justify-between"
+        className="flex h-[200px] w-[600px] flex-col justify-between"
         onInteractOutside={(e) => e.preventDefault()}
       >
         <DialogHeader>
@@ -238,10 +262,10 @@ export function TimeKeepingDialog({
   const addNewRewardDailog = (
     <Dialog open={openAddRewardDialog} onOpenChange={setOpenAddRewardDialog}>
       <DialogTrigger asChild>
-        <PlusCircle className="w-4 h-4 opacity-50 hover:cursor-pointer hover:opacity-100" />
+        <PlusCircle className="h-4 w-4 opacity-50 hover:cursor-pointer hover:opacity-100" />
       </DialogTrigger>
       <DialogContent
-        className="w-[600px] h-[200px] flex flex-col justify-between"
+        className="flex h-[200px] w-[600px] flex-col justify-between"
         onInteractOutside={(e) => e.preventDefault()}
       >
         <DialogHeader>
@@ -272,10 +296,10 @@ export function TimeKeepingDialog({
       <DialogContent onInteractOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>
-            <span className="font-semibold mr-2">
+            <span className="mr-2 font-semibold">
               {attendanceRecord ? attendanceRecord.staffName : ""}
             </span>
-            <span className="text-gray-500 text-xs">
+            <span className="text-xs text-gray-500">
               ID: {attendanceRecord ? attendanceRecord.staffId : ""}
             </span>
           </DialogTitle>
@@ -283,25 +307,25 @@ export function TimeKeepingDialog({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <ScrollArea className="w-full">
-              <div className="w-[800px] h-[400px] flex flex-col justify-between gap-3 pr-2">
-                <div className="w-full flex flex-col">
-                  <div className="flex flex-row gap-8 items-center justify-between">
+              <div className="flex h-[400px] w-[800px] flex-col justify-between gap-3 pr-2">
+                <div className="flex w-full flex-col">
+                  <div className="flex flex-row items-center justify-between gap-8">
                     <div className="flex flex-col items-start gap-2">
                       <div className="flex flex-row items-center justify-start">
-                        <p className="w-[100px] font-semibold pb-1 text-sm">
+                        <p className="w-[100px] pb-1 text-sm font-semibold">
                           Date
                         </p>
-                        <p className="w-[250px] text-sm border-b pb-1">
+                        <p className="w-[250px] border-b pb-1 text-sm">
                           {attendanceRecord
                             ? format(attendanceRecord.date, "eeee, dd/MM/yyyy")
                             : ""}
                         </p>
                       </div>
                       <div className="flex flex-row items-center justify-start">
-                        <p className="w-[100px] font-semibold pb-1 text-sm">
+                        <p className="w-[100px] pb-1 text-sm font-semibold">
                           Shift
                         </p>
-                        <p className="w-[250px] text-sm border-b pb-1">
+                        <p className="w-[250px] border-b pb-1 text-sm">
                           {dailyShift ? dailyShift.shiftName : ""}
                         </p>
                       </div>
@@ -314,7 +338,7 @@ export function TimeKeepingDialog({
                         <FormItem>
                           <FormControl>
                             <textarea
-                              className="w-[400px] p-4 text-sm resize-none border rounded-md"
+                              className="w-[400px] resize-none rounded-md border p-4 text-sm"
                               defaultValue={field.value}
                               onChange={(val) => {
                                 form.setValue("note", val.target.value);
@@ -336,7 +360,7 @@ export function TimeKeepingDialog({
                     </TabsList>
                     <TabsContent value="time-keeping">
                       <div className="flex flex-row items-center justify-start">
-                        <p className="w-[150px] font-semibold pb-1 text-sm">
+                        <p className="w-[150px] pb-1 text-sm font-semibold">
                           Time keeping
                         </p>
                         <FormField
@@ -353,7 +377,7 @@ export function TimeKeepingDialog({
                                   onValueChange={(val) => {
                                     form.setValue(
                                       "hasAttend",
-                                      val === "Present" ? true : false
+                                      val === "Present" ? true : false,
                                     );
                                   }}
                                   className="w-[150px]"
@@ -366,18 +390,18 @@ export function TimeKeepingDialog({
                     </TabsContent>
                     <TabsContent value="punish">
                       <div className="flex flex-col items-start">
-                        <div className="w-full flex flex-col rounded-md overflow-hidden">
-                          <div className="w-full flex flex-row items-center justify-start bg-blue-100 p-2">
-                            <span className="w-[300px] test-sm font-semibold">
+                        <div className="flex w-full flex-col overflow-hidden rounded-md">
+                          <div className="flex w-full flex-row items-center justify-start bg-blue-100 p-2">
+                            <span className="test-sm w-[300px] font-semibold">
                               Type of punishment
                             </span>
-                            <span className="w-[100px] test-sm font-semibold text-end">
+                            <span className="test-sm w-[100px] text-end font-semibold">
                               Times
                             </span>
-                            <span className="w-[150px] test-sm font-semibold text-end">
+                            <span className="test-sm w-[150px] text-end font-semibold">
                               Applied value
                             </span>
-                            <span className="w-[150px] test-sm font-semibold text-end">
+                            <span className="test-sm w-[150px] text-end font-semibold">
                               Total
                             </span>
                           </div>
@@ -386,7 +410,7 @@ export function TimeKeepingDialog({
                               <div
                                 key={index}
                                 className={cn(
-                                  "w-full flex flex-row items-center justify-start bg-gray-100 p-2"
+                                  "flex w-full flex-row items-center justify-start bg-gray-100 p-2",
                                 )}
                               >
                                 <div className="w-[300px]">
@@ -401,64 +425,64 @@ export function TimeKeepingDialog({
                                       ].map((punish, i) =>
                                         i === index
                                           ? { ...punish, name: val }
-                                          : punish
+                                          : punish,
                                       );
                                       setPunishList(newPunishList);
                                     }}
                                     endIcon={addNewPunishDailog}
                                   />
                                 </div>
-                                <div className="w-[100px] flex flex-row justify-end gap-2">
+                                <div className="flex w-[100px] flex-row justify-end gap-2">
                                   <Input
-                                    type="number"
                                     className="w-[50px] text-right text-sm"
                                     placeholder="0"
-                                    defaultValue={punish.times}
+                                    defaultValue={
+                                      punish.times ? punish.times : ""
+                                    }
                                     onChange={(val) => {
                                       const newPunishList: BonusAndPunish[] = [
                                         ...punishList,
                                       ];
-                                      newPunishList[index].times = Number(
-                                        val.target.value
-                                      );
+                                      newPunishList[index].times =
+                                        formatNumberInput(val);
                                       setPunishList(newPunishList);
                                     }}
                                   />
                                 </div>
-                                <div className="w-[150px] flex flex-row justify-end">
+                                <div className="flex w-[150px] flex-row justify-end">
                                   <Input
-                                    type="number"
                                     className="w-[100px] text-right text-sm"
                                     placeholder="0"
-                                    defaultValue={punish.value}
+                                    defaultValue={
+                                      punish.value ? punish.value : ""
+                                    }
                                     onChange={(val) => {
                                       const newPunishList: BonusAndPunish[] = [
                                         ...punishList,
                                       ];
-                                      newPunishList[index].value = Number(
-                                        val.target.value
-                                      );
+                                      newPunishList[index].value =
+                                        formatNumberInput(val);
                                       setPunishList(newPunishList);
                                     }}
                                   />
                                 </div>
-                                <div className="w-[150px] flex flex-row justify-end">
+                                <div className="flex w-[150px] flex-row justify-end">
                                   <p>
                                     {formatPrice(
                                       isNaN(punish.times * punish.value)
                                         ? 0
-                                        : punish.times * punish.value
+                                        : punish.times * punish.value,
                                     )}
                                   </p>
                                 </div>
-                                <div className="w-[50px] flex justify-end">
+                                <div className="flex w-[50px] justify-end">
                                   <Trash
                                     key={index}
                                     size={16}
                                     onClick={() => {
                                       const newPunishList: BonusAndPunish[] =
                                         punishList.filter(
-                                          (punish, i) => i !== index
+                                          (punish, i) => i !== index,
                                         );
 
                                       setPunishList(newPunishList);
@@ -480,8 +504,8 @@ export function TimeKeepingDialog({
                             ];
                             newPunishList.push({
                               name: "",
-                              value: 0,
-                              times: 0,
+                              value: NaN,
+                              times: NaN,
                             });
                             setPunishList(newPunishList);
                           }}
@@ -492,18 +516,18 @@ export function TimeKeepingDialog({
                     </TabsContent>
                     <TabsContent value="reward">
                       <div className="flex flex-col items-start">
-                        <div className="w-full flex flex-col rounded-md overflow-hidden">
-                          <div className="w-full flex flex-row items-center justify-start bg-blue-100 p-2">
-                            <span className="w-[300px] test-sm font-semibold">
+                        <div className="flex w-full flex-col overflow-hidden rounded-md">
+                          <div className="flex w-full flex-row items-center justify-start bg-blue-100 p-2">
+                            <span className="test-sm w-[300px] font-semibold">
                               Type of reward
                             </span>
-                            <span className="w-[100px] test-sm font-semibold text-end">
+                            <span className="test-sm w-[100px] text-end font-semibold">
                               Times
                             </span>
-                            <span className="w-[150px] test-sm font-semibold text-end">
+                            <span className="test-sm w-[150px] text-end font-semibold">
                               Applied value
                             </span>
-                            <span className="w-[150px] test-sm font-semibold text-end">
+                            <span className="test-sm w-[150px] text-end font-semibold">
                               Total
                             </span>
                           </div>
@@ -512,7 +536,7 @@ export function TimeKeepingDialog({
                               <div
                                 key={index}
                                 className={cn(
-                                  "w-full flex flex-row items-center justify-start bg-gray-100 p-2"
+                                  "flex w-full flex-row items-center justify-start bg-gray-100 p-2",
                                 )}
                               >
                                 <div className="w-[300px]">
@@ -527,7 +551,7 @@ export function TimeKeepingDialog({
                                       ].map((reward, i) =>
                                         i === index
                                           ? { ...reward, name: val }
-                                          : reward
+                                          : reward,
                                       );
 
                                       setRewardList(newRewardList);
@@ -535,57 +559,61 @@ export function TimeKeepingDialog({
                                     endIcon={addNewRewardDailog}
                                   />
                                 </div>
-                                <div className="w-[100px] flex flex-row justify-end gap-2">
+                                <div className="flex w-[100px] flex-row justify-end gap-2">
                                   <Input
-                                    type="number"
                                     className="w-[50px] text-right text-sm"
                                     placeholder="0"
-                                    defaultValue={reward.times}
+                                    defaultValue={
+                                      reward.times ? reward.times : ""
+                                    }
                                     onChange={(val) => {
                                       const newRewardList: BonusAndPunish[] = [
                                         ...rewardList,
                                       ];
-                                      newRewardList[index].times = Number(
-                                        val.target.value
-                                      );
+                                      newRewardList[index].times =
+                                        formatNumberInput(val);
                                       setRewardList(newRewardList);
                                     }}
                                   />
                                 </div>
-                                <div className="w-[150px] flex flex-row justify-end">
+                                <div className="flex w-[150px] flex-row justify-end">
                                   <Input
-                                    type="number"
                                     className="w-[100px] text-right text-sm"
                                     placeholder="0"
-                                    defaultValue={reward.value}
+                                    defaultValue={
+                                      reward.value ? reward.value : ""
+                                    }
                                     onChange={(val) => {
                                       const newRewardList: BonusAndPunish[] = [
                                         ...rewardList,
                                       ];
-                                      newRewardList[index].value = Number(
-                                        val.target.value
+                                      newRewardList[index].value =
+                                        formatNumberInput(val);
+                                      console.log(
+                                        "newRewardList",
+                                        newRewardList,
                                       );
                                       setRewardList(newRewardList);
                                     }}
                                   />
                                 </div>
-                                <div className="w-[150px] flex flex-row justify-end">
+                                <div className="flex w-[150px] flex-row justify-end">
                                   <p>
                                     {formatPrice(
                                       isNaN(reward.times * reward.value)
                                         ? 0
-                                        : reward.times * reward.value
+                                        : reward.times * reward.value,
                                     )}
                                   </p>
                                 </div>
-                                <div className="w-[50px] flex justify-end">
+                                <div className="flex w-[50px] justify-end">
                                   <Trash
                                     key={index}
                                     size={16}
                                     onClick={() => {
                                       const newRewardList: BonusAndPunish[] =
                                         rewardList.filter(
-                                          (reward, i) => i !== index
+                                          (reward, i) => i !== index,
                                         );
                                       setRewardList(newRewardList);
                                     }}
@@ -606,8 +634,8 @@ export function TimeKeepingDialog({
                             ];
                             newRewardList.push({
                               name: "",
-                              value: 0,
-                              times: 0,
+                              value: NaN,
+                              times: NaN,
                             });
                             setRewardList(newRewardList);
                           }}
@@ -621,21 +649,14 @@ export function TimeKeepingDialog({
                 <div className="flex flex-row justify-end">
                   <Button
                     type="button"
-                    onClick={async () => {
-                      if (onRemoveAttendanceRecord) {
-                        setIsRemoving(true);
-                        try {
-                          await onRemoveAttendanceRecord(
-                            attendanceRecord!
-                          ).then(() => {
-                            setOpen(false);
-                          });
-                        } catch (error) {
-                          console.log(error);
-                        } finally {
-                          setIsRemoving(false);
-                        }
-                      }
+                    onClick={() => {
+                      setContentConfirmDialog({
+                        title: "Warning",
+                        content:
+                          "Are you sure you want to remove this attendance record?",
+                        type: "warning",
+                      });
+                      setOpenConfirmDialog(true);
                     }}
                     variant={"red"}
                     className="mr-3 gap-1"
@@ -670,6 +691,18 @@ export function TimeKeepingDialog({
             </ScrollArea>
           </form>
         </Form>
+        <MyConfirmDialog
+          open={openConfirmDialog}
+          setOpen={setOpenConfirmDialog}
+          title={contentConfirmDialog.title}
+          content={contentConfirmDialog.content}
+          type={contentConfirmDialog.type}
+          onAccept={() => {
+            setOpenConfirmDialog(false);
+            handleRemoveAttendanceRecord();
+          }}
+          onCancel={() => setOpenConfirmDialog(false)}
+        />
       </DialogContent>
     </Dialog>
   );

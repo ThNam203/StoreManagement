@@ -1,25 +1,24 @@
 "use client";
 
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { Staff } from "@/entities/Staff";
-import { cn } from "@/lib/utils";
-import { format, set } from "date-fns";
-import { Pencil, PlusCircle } from "lucide-react";
-import dynamic from "next/dynamic";
-import { useEffect, useRef, useState } from "react";
-import { AddShiftDialog } from "./add_shift_dialog";
-import { SetTimeDialog } from "./set_time_dialog";
-import Image from "next/image";
-import { AttendanceRecord, DailyShift, Shift } from "@/entities/Attendance";
-import { TimeKeepingDialog } from "./timekeeping_dialog";
-import { on } from "events";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { AttendanceRecord, DailyShift, Shift } from "@/entities/Attendance";
+import { Staff } from "@/entities/Staff";
+import { cn } from "@/lib/utils";
+import { createRangeDate } from "@/utils";
 import { PopoverAnchor } from "@radix-ui/react-popover";
-import { is } from "date-fns/locale";
+import { format } from "date-fns";
+import { Pencil, PlusCircle } from "lucide-react";
+import dynamic from "next/dynamic";
+import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
+import { AddShiftDialog } from "./add_shift_dialog";
+import { SetTimeDialog } from "./set_time_dialog";
+import { TimeKeepingDialog } from "./timekeeping_dialog";
 const borderStyle = "border border-gray-100 border-[1px]";
 const HeaderCellStyleWeek = "w-[calc(100%/8)] h-10" + " " + borderStyle;
 const CellStyleWeek = "w-[calc(100%/8)] h-44" + " " + borderStyle;
@@ -38,7 +37,7 @@ const AttendanceTable = ({
   onUpdateShift,
   onRemoveShift,
   onSetTime,
-  onUpdateDailyShift,
+  onUpdateDailyShifts,
 }: {
   shiftList: Shift[];
   rangeDate: { startDate: Date; endDate: Date };
@@ -47,7 +46,7 @@ const AttendanceTable = ({
   onUpdateShift?: (values: Shift) => any;
   onRemoveShift?: (id: any) => any;
   onSetTime?: (values: DailyShift[]) => any;
-  onUpdateDailyShift?: (values: DailyShift) => any;
+  onUpdateDailyShifts?: (values: DailyShift[]) => any;
 }) => {
   if (displayType === "Month" || displayType === "Custom") {
     HeaderCellStyle = HeaderCellStyleMonth;
@@ -77,7 +76,7 @@ const AttendanceTable = ({
   };
   const handleOpenTimeKeepingDialog = (
     attendance: AttendanceRecord,
-    dailyShift: DailyShift
+    dailyShift: DailyShift,
   ) => {
     setSelectedAttendance(attendance);
     setSelectedDailyShift(dailyShift);
@@ -87,15 +86,15 @@ const AttendanceTable = ({
   useEffect(() => {
     const sortedData = [...shiftList];
     sortedData.sort(
-      (a, b) => a.workingTime.start.getTime() - b.workingTime.start.getTime()
+      (a, b) => a.workingTime.start.getTime() - b.workingTime.start.getTime(),
     );
     setData(sortedData);
     console.log("table", sortedData);
   }, [shiftList]);
 
   return (
-    <ScrollArea className={cn("w-full rounded-md shadow pb-2")}>
-      <table className="w-full bg-white overflow-x-scroll">
+    <ScrollArea className={cn("w-full rounded-md pb-2 shadow")}>
+      <table className="w-full overflow-x-scroll bg-white">
         <tr>
           <AttendanceHeaderRow
             range={rangeDate}
@@ -110,7 +109,7 @@ const AttendanceTable = ({
               width={300}
               height={200}
               src={"/no-shift-found.png"}
-              className="object-contain mx-auto"
+              className="mx-auto object-contain"
             />
           </tr>
         )}
@@ -134,7 +133,7 @@ const AttendanceTable = ({
         open={openAddShiftDialog}
         setOpen={setOpenAddShiftDialog}
         submit={onUpdateShift}
-        handleRemoveShift={onRemoveShift}
+        onRemoveShift={onRemoveShift}
       />
       <SetTimeDialog
         open={openSetTimeDialog}
@@ -143,7 +142,7 @@ const AttendanceTable = ({
         staffList={staffList}
         specificShift={selectedDailyShift}
         submit={onSetTime}
-        onUpdateDailyShift={onUpdateDailyShift}
+        onUpdateDailyShifts={onUpdateDailyShifts}
       />
       <TimeKeepingDialog
         open={openTimeKeepingDialog}
@@ -158,11 +157,11 @@ const AttendanceTable = ({
               (attend) =>
                 attend.date.toLocaleDateString() !==
                   attendanceRecord.date.toLocaleDateString() ||
-                attend.staffId !== attendanceRecord.staffId
+                attend.staffId !== attendanceRecord.staffId,
             );
           }
           console.log("newDailyShift", newDailyShift);
-          if (onUpdateDailyShift) return onUpdateDailyShift(newDailyShift);
+          if (onUpdateDailyShifts) return onUpdateDailyShifts([newDailyShift]);
         }}
         onUpdateAttendanceRecord={(attendanceRecord) => {
           if (!selectedDailyShift) return;
@@ -177,29 +176,16 @@ const AttendanceTable = ({
                 )
                   return attendanceRecord;
                 return attend;
-              }
+              },
             );
           }
           console.log("newDailyShift", newDailyShift);
-          if (onUpdateDailyShift) return onUpdateDailyShift(newDailyShift);
+          if (onUpdateDailyShifts) return onUpdateDailyShifts([newDailyShift]);
         }}
       />
       <ScrollBar orientation="horizontal" className="bg-red-300" />
     </ScrollArea>
   );
-};
-
-const createRangeDate = (range: { startDate: Date; endDate: Date }): Date[] => {
-  const rangeDate: Date[] = [];
-  //create an array of date from startDate to endDate
-  for (
-    let i = range.startDate.getTime();
-    i <= range.endDate.getTime();
-    i += 86400000
-  ) {
-    rangeDate.push(new Date(i));
-  }
-  return rangeDate;
 };
 
 const AttendanceHeaderRow = ({
@@ -213,7 +199,7 @@ const AttendanceHeaderRow = ({
 }) => {
   const rangeDate: Date[] = createRangeDate(range);
   return (
-    <div className={cn("w-full flex flex-row items-center")}>
+    <div className={cn("flex w-full flex-row items-center")}>
       <ShiftCell
         className={cn(HeaderCellStyle)}
         handleOpenShiftDialog={handleOpenShiftDialog}
@@ -234,7 +220,7 @@ const AttendanceHeaderRow = ({
 
 const formatDailyShiftList = (
   shift: Shift,
-  rangeDate: { startDate: Date; endDate: Date }
+  rangeDate: { startDate: Date; endDate: Date },
 ) => {
   const range: Date[] = createRangeDate(rangeDate);
 
@@ -242,7 +228,7 @@ const formatDailyShiftList = (
   range.forEach((date) => {
     const dailyShift = shift.dailyShiftList.find(
       (dailyShift) =>
-        dailyShift.date.toLocaleDateString() === date.toLocaleDateString()
+        dailyShift.date.toLocaleDateString() === date.toLocaleDateString(),
     );
     if (dailyShift === undefined)
       formattedDailyShiftList.push({
@@ -291,14 +277,14 @@ const AttendanceDataRow = ({
   handleOpenSetTimeDialog?: (value: DailyShift | null) => void;
   handleOpenTimeKeepingDialog?: (
     value: AttendanceRecord,
-    dailyShift: DailyShift
+    dailyShift: DailyShift,
   ) => void;
 }) => {
   const formattedDailyShiftList = formatDailyShiftList(shift, rangeDate);
   console.log("formattedDailyShiftList", formattedDailyShiftList);
   const isInWorkingTime = IsInWorkingTime(shift);
   return (
-    <div className={cn("w-full flex flex-row items-center")}>
+    <div className={cn("flex w-full flex-row items-center")}>
       <ShiftInfoCell
         shift={shift}
         className={cn(CellStyle)}
@@ -330,14 +316,14 @@ const ShiftCell = ({
   return (
     <div
       className={cn(
-        "px-2 flex flex-row items-center justify-between select-none",
-        className
+        "flex select-none flex-row items-center justify-between px-2",
+        className,
       )}
     >
       <span className="font-semibold">Shift</span>
       <PlusCircle
         size={16}
-        className="opacity-50 hover:opacity-100 ease-linear duration-100 cursor-pointer select-none"
+        className="cursor-pointer select-none opacity-50 duration-100 ease-linear hover:opacity-100"
         onClick={() => {
           if (handleOpenShiftDialog) handleOpenShiftDialog(null);
         }}
@@ -368,8 +354,8 @@ const DateCell = ({
   return (
     <div
       className={cn(
-        "p-2 flex flex-row items-center justify-start gap-1 select-none",
-        className
+        "flex select-none flex-row items-center justify-start gap-1 p-2",
+        className,
       )}
     >
       <span className={cn("font-semibold")}>{day[date.getDay()]}</span>
@@ -378,7 +364,7 @@ const DateCell = ({
           "rounded-md px-1 py-1 text-xs",
           date.toLocaleDateString() === new Date().toLocaleDateString()
             ? "bg-blue-500 text-white"
-            : "bg-gray-100 text-black"
+            : "bg-gray-100 text-black",
         )}
       >
         {format(date, "dd/MM")}
@@ -401,9 +387,9 @@ const ShiftInfoCell = ({
   return (
     <div
       className={cn(
-        "p-2 flex flex-col relative",
+        "relative flex flex-col p-2",
         className,
-        isInWorkingTime ? "bg-blue-500 text-white" : ""
+        isInWorkingTime ? "bg-blue-500 text-white" : "",
       )}
       onClick={() => {
         if (handleOpenShiftDialog) handleOpenShiftDialog(shift);
@@ -412,14 +398,14 @@ const ShiftInfoCell = ({
       <span className="font-semibold">{shift.name}</span>
       <span className="text-xs">{`${format(
         shift.workingTime.start,
-        "hh:mm a"
+        "hh:mm a",
       )} - ${format(shift.workingTime.end, "hh:mm a")}`}</span>
 
-      <div className="w-full h-full absolute top-0 left-0 cursor-pointer select-none opacity-0 hover:opacity-100 ease-linear duration-100">
+      <div className="absolute left-0 top-0 h-full w-full cursor-pointer select-none opacity-0 duration-100 ease-linear hover:opacity-100">
         <div
           className={cn(
-            "flex justify-center p-1 absolute top-2 right-2  rounded-full",
-            isInWorkingTime ? "bg-blue-400" : "bg-gray-100"
+            "absolute right-2 top-2 flex justify-center rounded-full  p-1",
+            isInWorkingTime ? "bg-blue-400" : "bg-gray-100",
           )}
         >
           <Pencil size={16} />
@@ -442,7 +428,7 @@ const DataCell = ({
   handleOpenSetTimeDialog?: (value: DailyShift | null) => void;
   handleOpenTimeKeepingDialog?: (
     value: AttendanceRecord,
-    dailyShift: DailyShift
+    dailyShift: DailyShift,
   ) => void;
 }) => {
   const toShow = data.attendList.slice(0, maxItem);
@@ -454,18 +440,18 @@ const DataCell = ({
   return (
     <div
       className={cn(
-        "h-full relative",
+        "relative h-full",
         className,
         data.attendList.length == 0
-          ? "hover:bg-gray-100 ease-linear duration-200 cursor-pointer"
-          : ""
+          ? "cursor-pointer duration-200 ease-linear hover:bg-gray-100"
+          : "",
       )}
       ref={dataCellRef}
     >
       <div
         className={cn(
-          "w-full h-full flex flex-col items-center justify-start gap-2 py-2",
-          open ? "hidden" : "visible"
+          "flex h-full w-full flex-col items-center justify-start gap-2 py-2",
+          open ? "hidden" : "visible",
         )}
       >
         {toShow.map((attend, index) => {
@@ -481,8 +467,8 @@ const DataCell = ({
         })}
         <span
           className={cn(
-            "self-start bg-pink-200 rounded-md py-1 px-2 text-xs ml-2",
-            hidedItem > 0 ? "visible" : "hidden"
+            "ml-2 self-start rounded-md bg-pink-200 px-2 py-1 text-xs",
+            hidedItem > 0 ? "visible" : "hidden",
           )}
         >
           +{hidedItem}
@@ -491,27 +477,27 @@ const DataCell = ({
 
       <div
         className={cn(
-          "w-full opacity-0 flex flex-col items-center justify-center absolute bottom-0 hover:opacity-100 ease-linear duration-100 cursor-pointer select-none",
+          "absolute bottom-0 flex w-full cursor-pointer select-none flex-col items-center justify-center opacity-0 duration-100 ease-linear hover:opacity-100",
           data.attendList.length === 0 || data.attendList.length > maxItem
             ? "h-full"
             : "",
-          data.attendList.length === 1 ? "h-1/3 absolute bottom-0" : "",
-          data.attendList.length === 2 ? "h-1/4 absolute bottom-0" : ""
+          data.attendList.length === 1 ? "absolute bottom-0 h-1/3" : "",
+          data.attendList.length === 2 ? "absolute bottom-0 h-1/4" : "",
         )}
       >
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverAnchor asChild>
             <div
               className={cn(
-                "w-full h-5 bg-red-100 absolute",
-                anchorPosition === "top" ? "top-0" : "bottom-0"
+                "absolute h-5 w-full bg-red-100",
+                anchorPosition === "top" ? "top-0" : "bottom-0",
               )}
             ></div>
           </PopoverAnchor>
           <div
             className={cn(
-              "w-full flex flex-row items-center justify-center bg-gray-100 hover:bg-green-400 hover:text-white hover:font-semibold backdrop-blur-sm text-gray-600 ease-linear duration-100 cursor-pointer select-none",
-              data.attendList.length > maxItem ? "h-1/2" : "h-full"
+              "flex w-full cursor-pointer select-none flex-row items-center justify-center bg-gray-100 text-gray-600 backdrop-blur-sm duration-100 ease-linear hover:bg-green-400 hover:font-semibold hover:text-white",
+              data.attendList.length > maxItem ? "h-1/2" : "h-full",
             )}
             onClick={() => {
               if (handleOpenSetTimeDialog) handleOpenSetTimeDialog(data);
@@ -522,8 +508,8 @@ const DataCell = ({
           <PopoverTrigger asChild>
             <div
               className={cn(
-                "w-full h-1/2 flex flex-row items-center justify-center bg-gray-100 hover:bg-blue-400 hover:text-white hover:font-semibold backdrop-blur-sm text-gray-600 ease-linear duration-100 cursor-pointer select-none",
-                data.attendList.length > maxItem ? "visible" : "hidden"
+                "flex h-1/2 w-full cursor-pointer select-none flex-row items-center justify-center bg-gray-100 text-gray-600 backdrop-blur-sm duration-100 ease-linear hover:bg-blue-400 hover:font-semibold hover:text-white",
+                data.attendList.length > maxItem ? "visible" : "hidden",
               )}
               onClick={() => {
                 const dataCell = dataCellRef.current;
@@ -564,7 +550,7 @@ const DataCell = ({
                 );
               })}
               <div
-                className="text-sm hover:font-medium cursor-pointer hover:underline"
+                className="cursor-pointer text-sm hover:font-medium hover:underline"
                 onClick={() => setOpen(false)}
               >
                 Collapse
@@ -588,17 +574,17 @@ const StaffAttendCell = ({
   className?: string;
   handleOpenTimeKeepingDialog?: (
     value: AttendanceRecord,
-    dailyShift: DailyShift
+    dailyShift: DailyShift,
   ) => void;
 }) => {
   return (
     <div
       className={cn(
-        "flex flex-col rounded-md p-2 ease-linear duration-200 cursor-pointer select-none",
+        "flex cursor-pointer select-none flex-col rounded-md p-2 duration-200 ease-linear",
         data.hasAttend
           ? "bg-blue-100 hover:bg-blue-200"
           : "bg-orange-100 hover:bg-orange-200",
-        className
+        className,
       )}
       onClick={() => {
         if (handleOpenTimeKeepingDialog && dailyShift)
