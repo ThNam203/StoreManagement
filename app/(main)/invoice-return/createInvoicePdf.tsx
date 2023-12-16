@@ -14,7 +14,10 @@ import {
   Font,
 } from "@react-pdf/renderer";
 import { Product } from "@/entities/Product";
-import { ReturnInvoiceClient, ReturnInvoiceServer } from "@/entities/ReturnInvoice";
+import {
+  ReturnInvoiceClient,
+  ReturnInvoiceServer,
+} from "@/entities/ReturnInvoice";
 
 Font.register({
   family: "OpenSansv2",
@@ -70,7 +73,10 @@ const pdfStyleSheet = StyleSheet.create({
   },
 });
 
-const createInvoicePdf = async (invoice: ReturnInvoiceClient, products: Product[], afterPrint: () => any) => {
+const createInvoicePdf = async (
+  invoice: ReturnInvoiceClient,
+  products: Product[],
+) => {
   const InvoiceView = () => (
     <Document>
       <Page size="A4" style={pdfStyleSheet.page}>
@@ -109,7 +115,7 @@ const createInvoicePdf = async (invoice: ReturnInvoiceClient, products: Product[
         />
         {invoice.returnDetails.map((detail, idx) => {
           const detailProduct = products.find(
-            (product) => product.id === detail.productId
+            (product) => product.id === detail.productId,
           )!;
           return (
             <View key={idx} style={{ width: "100%" }}>
@@ -179,16 +185,11 @@ const createInvoicePdf = async (invoice: ReturnInvoiceClient, products: Product[
   const blob = await pdf(InvoiceView()).toBlob();
   const objectURL = URL.createObjectURL(blob);
 
-  const iframe = document.createElement("iframe");
-  iframe.style.display = "none"; // Hide the iframe
-  document.body.appendChild(iframe);
-  iframe.src = objectURL;
-  iframe.onload = () => {
-    iframe.contentWindow!.print();
-    iframe.contentWindow!.addEventListener('afterprint', afterPrint)
-    window.addEventListener("afterprint", afterPrint);
-    URL.revokeObjectURL(objectURL);
-  };
+  const pdfWindow = window.open()
+  if (pdfWindow) {
+    pdfWindow.location.href = objectURL
+    pdfWindow.print();
+  }
 };
 
 export default createInvoicePdf;

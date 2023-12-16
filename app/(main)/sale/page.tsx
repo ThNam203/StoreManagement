@@ -799,7 +799,7 @@ const InvoiceView = ({
                   ) : (
                     <div className="flex flex-row items-center">
                       <input
-                        className="w-[120px] border-b border-black text-sm"
+                        className="w-[120px] border-b border-black text-sm p-1 focus:outline-none"
                         value={discountCode}
                         disabled={isGettingDiscountData}
                         onChange={(e) => setDiscountCode(e.currentTarget.value)}

@@ -4,7 +4,7 @@ import { ArrowRightCircle, Bell } from "lucide-react";
 import styles from "./styles.module.css";
 import scrollbar_style from "../../../../styles/scrollbar.module.css";
 import OverviewChart from "@/components/ui/overview/overview_chart";
-import React from "react";
+import React, { useEffect } from "react";
 import RecentActivityItem from "@/components/ui/overview/overview_recent_activity_item";
 import {
   Popover,
@@ -22,6 +22,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useAppDispatch } from "@/hooks";
+import { disablePreloader } from "@/reducers/preloaderReducer";
 
 const notifications = [
   {
@@ -199,6 +201,16 @@ const recentActivities = [
 ];
 
 export default function OverviewPage() {
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      dispatch(disablePreloader())
+    }
+
+    fetchData()
+  })
+
   return (
     // if we change 832px to another value, we must change it again in styles.module.css
     // and change the value of mediaquery of notification-board in the same folder

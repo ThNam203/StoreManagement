@@ -5,11 +5,15 @@ import AxiosService from "./axios_service";
     return AxiosService.post<ReturnInvoiceServer>("/api/return-invoices", data);
   };
 
-  const getAllReturneInvoices = () => {
+  const getAllReturnInvoices = () => {
     return AxiosService.get<ReturnInvoiceServer[]>("api/return-invoices")
   }
+
+  const deleteReturnInvoice = (returnInvoiceId: number) => {
+    return AxiosService.delete<ReturnInvoiceServer[]>(`api/return-invoices/${returnInvoiceId}`)
+  }
   
-  const ReturnInvoiceService = {uploadReturnInvoice,getAllReturneInvoices};
+  const ReturnInvoiceService = {uploadReturnInvoice,getAllReturnInvoices, deleteReturnInvoice};
   
   export default ReturnInvoiceService;
   
