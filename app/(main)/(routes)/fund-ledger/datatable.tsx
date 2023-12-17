@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { DataTableViewOptions } from "@/components/ui/my_table_column_visibility_toggle";
 import { DataTableContent } from "@/components/ui/my_table_content";
 import { FormType, Transaction } from "@/entities/Transaction";
+import { useAppSelector } from "@/hooks";
+import { exportExcel, formatPrice } from "@/utils";
 import {
   ColumnFiltersState,
   RowSelectionState,
@@ -16,32 +18,13 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import { format } from "date-fns";
+import { FileDown } from "lucide-react";
 import * as React from "react";
+import { ImportDailog } from "../../../../components/ui/my_import_dialog";
 import { columnHeader, columns } from "./columns";
 import { MakeExpenseDialog } from "./make_expense_dialog";
 import { MakeReceiptDialog } from "./make_receipt_dialog";
-import { exportExcel, formatPrice, importExcel } from "@/utils";
-import { MyLabelButton } from "@/components/ui/my_label";
-import { useToast } from "@/components/ui/use-toast";
-import { ChevronDown, CopyIcon, FileDown, FileUp } from "lucide-react";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { DialogClose } from "@radix-ui/react-dialog";
-import { ImportDailog } from "../../../../components/ui/my_import_dialog";
-import { join } from "path";
 
 type Props = {
   data: Transaction[];
@@ -51,7 +34,7 @@ type Props = {
 export function DataTable({ data, onSubmit }: Props) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+    [],
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({
@@ -91,6 +74,14 @@ export function DataTable({ data, onSubmit }: Props) {
     },
   });
 
+  const [selectedForm, setSelectedForm] = React.useState<Transaction | null>(
+    null,
+  );
+  const [openExpense, setOpenExpense] = React.useState(false);
+  const [openReceipt, setOpenReceipt] = React.useState(false);
+  const staffList = useAppSelector((state) => state.staffs.value);
+  const staffNameList = staffList.map((staff) => staff.name);
+
   const handleSubmit = (values: Transaction) => {
     if (onSubmit) onSubmit(values);
   };
@@ -105,12 +96,12 @@ export function DataTable({ data, onSubmit }: Props) {
     let toExport = data.map((dataRow, index) => {
       var row: object = {};
       visibleColumnIds.map((header) => {
-        const headerContent = columnHeader[header as keyof typeof columnHeader];
+        const headerTitle = columnHeader[header as keyof typeof columnHeader];
 
-        if (headerContent === "#") {
+        if (headerTitle === "#") {
           row = {
             ...row,
-            [headerContent]: index + 1,
+            [headerTitle]: index + 1,
           };
         } else if (header === "description") {
           const typePrefix =
@@ -119,7 +110,7 @@ export function DataTable({ data, onSubmit }: Props) {
           const type = `${typePrefix} ${typeSubfix}`;
           row = {
             ...row,
-            [headerContent]: type,
+            [headerTitle]: type,
           };
         } else if (header === "value") {
           const value = dataRow[header as keyof typeof dataRow];
@@ -129,12 +120,19 @@ export function DataTable({ data, onSubmit }: Props) {
 
           row = {
             ...row,
-            [headerContent]: isExpense ? expenseValue : receiveValue,
+            [headerTitle]: isExpense ? expenseValue : receiveValue,
           };
-        } else if (headerContent !== undefined) {
+        } else if (header === "createdDate") {
+          const date = dataRow[header as keyof typeof dataRow];
+          const dateStr = format(date, "dd/MM/yyyy HH:mm");
           row = {
             ...row,
-            [headerContent]: dataRow[header as keyof typeof dataRow],
+            [headerTitle]: dateStr,
+          };
+        } else if (headerTitle !== undefined) {
+          row = {
+            ...row,
+            [headerTitle]: dataRow[header as keyof typeof dataRow],
           };
         } else {
           console.log("header of undefined", header);
@@ -145,6 +143,31 @@ export function DataTable({ data, onSubmit }: Props) {
     });
 
     exportExcel(toExport, "Fund Ledger", "Fund Ledger");
+  };
+
+  const handleImportFile = (sheets: any[]) => {
+    const keys = Object.keys(columnHeader);
+    const newData = sheets.map((sheet: any[]) => {
+      const convertedSheet = sheet.map((row) => {
+        console.log("row", row);
+        let convertedRow: any = {};
+        for (let key of keys) {
+          const value =
+            row[
+              columnHeader[key as keyof typeof columnHeader] as keyof typeof row
+            ];
+          console.log("value", value);
+          if (value === undefined) {
+            convertedRow = { ...convertedRow, [key]: "" };
+          } else {
+            convertedRow = { ...convertedRow, [key]: value };
+          }
+        }
+        return convertedRow;
+      });
+      console.log("convertedSheet", convertedSheet);
+      return convertedSheet;
+    });
   };
 
   const beginningFund = 200000000;
@@ -162,21 +185,35 @@ export function DataTable({ data, onSubmit }: Props) {
         />
         <div className="flex flex-row">
           <div className="mr-2">
-            <MakeReceiptDialog submit={handleSubmit} />
+            <Button
+              variant="default"
+              className="whitespace-nowrap"
+              onClick={() => {
+                setSelectedForm(null);
+                setOpenReceipt(true);
+              }}
+            >
+              Make Receipt
+            </Button>
           </div>
           <div className="mr-2">
-            <MakeExpenseDialog submit={handleSubmit} />
+            <Button
+              variant="default"
+              className="whitespace-nowrap"
+              onClick={() => {
+                setSelectedForm(null);
+                setOpenReceipt(true);
+              }}
+            >
+              Make Expense
+            </Button>
           </div>
           <div className="mr-2">
-            <ImportDailog />
+            <ImportDailog onImport={handleImportFile} />
           </div>
 
           <div className="mr-2">
-            <Button
-              variant={"default"}
-              className="bg-lime-500 hover:bg-lime-600"
-              onClick={handleExportExcel}
-            >
+            <Button variant={"green"} onClick={handleExportExcel}>
               <FileDown className="mr-2 h-4 w-4" />
               Export
             </Button>
@@ -189,28 +226,42 @@ export function DataTable({ data, onSubmit }: Props) {
             cols={2}
             rowPerCols={6}
           />
+          <MakeExpenseDialog
+            data={selectedForm}
+            submit={handleSubmit}
+            open={openExpense}
+            setOpen={setOpenExpense}
+            staffNameList={staffNameList}
+          />
+          <MakeReceiptDialog
+            data={selectedForm}
+            submit={handleSubmit}
+            open={openReceipt}
+            setOpen={setOpenReceipt}
+            staffNameList={staffNameList}
+          />
         </div>
       </div>
       <div className="grid grid-cols-7 gap-4 py-4">
-        <div className="col-start-4 col-span-1 text-right">
+        <div className="col-span-1 col-start-4 text-right">
           Beginning Fund <br />{" "}
           <span className="font-bold">{formatPrice(beginningFund)}</span>
         </div>
-        <div className="col-start-5 col-span-1 text-right">
+        <div className="col-span-1 col-start-5 text-right">
           Total Receipt <br />{" "}
-          <span className="text-[#005ac3] font-bold">
+          <span className="font-bold text-[#005ac3]">
             {formatPrice(totalExpense)}
           </span>
         </div>
-        <div className="col-start-6 col-span-1 text-right">
+        <div className="col-span-1 col-start-6 text-right">
           Total Expense <br />{" "}
-          <span className="text-[#be1c26] font-bold">
+          <span className="font-bold text-[#be1c26]">
             - {formatPrice(totalReceipt)}
           </span>
         </div>
-        <div className="col-start-7 col-span-1 text-right">
+        <div className="col-span-1 col-start-7 text-right">
           Remaining Fund <br />{" "}
-          <span className="text-[green] font-bold">
+          <span className="font-bold text-[green]">
             {formatPrice(beginningFund - (totalExpense - totalReceipt))}
           </span>
         </div>

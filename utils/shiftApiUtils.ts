@@ -34,7 +34,10 @@ const convertAttendanceToSent = (value: AttendanceRecord) => {
 };
 
 const convertDailyShiftToSent = (value: DailyShift) => {
+  console.log("dailyShift before convert", value);
+  console.log("date to ISOS", value.date.toISOString());
   const converted: any = {
+    id: value.id,
     shiftId: value.shiftId,
     date: value.date.toISOString(),
     note: value.note,
@@ -49,6 +52,7 @@ const convertDailyShiftToSent = (value: DailyShift) => {
 
 const convertShiftToSent = (value: Shift) => {
   const converted: any = {
+    id: value.id,
     name: value.name,
     status: value.status,
     workingTime: {
@@ -136,6 +140,7 @@ const convertShiftReceived = (value: any): Shift => {
       shift.dailyShiftList.push(convertDailyShiftReceived(dailyShift));
     });
   }
+  console.log("received shift", shift);
   return shift;
 };
 

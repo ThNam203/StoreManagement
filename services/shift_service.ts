@@ -25,8 +25,9 @@ const createDailyShifts = (data: any) => {
   console.log("data", data);
   return AxiosService.post<DailyShift[]>("/api/daily-shifts", data);
 };
-const updateDailyShift = (id: any, data: any) => {
-  return AxiosService.put<DailyShift>("/api/daily-shifts/" + id, data);
+const updateDailyShifts = (data: any) => {
+  console.log("data to be", data);
+  return AxiosService.post<DailyShift[]>("/api/daily-shifts/update", data);
 };
 const deleteDailyShift = (id: any) => {
   return AxiosService.delete("/api/shifts/" + id);
@@ -39,7 +40,7 @@ const ShiftService = {
   updateShift,
   deleteShift,
   createDailyShifts,
-  updateDailyShift,
+  updateDailyShifts,
   deleteDailyShift,
 };
 

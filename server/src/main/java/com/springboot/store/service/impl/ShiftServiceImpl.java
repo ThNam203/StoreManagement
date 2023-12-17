@@ -4,9 +4,7 @@ import com.springboot.store.entity.*;
 import com.springboot.store.payload.DailyShiftDTO;
 import com.springboot.store.payload.ShiftAttendanceRecordDTO;
 import com.springboot.store.payload.ShiftDTO;
-import com.springboot.store.repository.DailyShiftRepository;
-import com.springboot.store.repository.ShiftRepository;
-import com.springboot.store.repository.StaffRepository;
+import com.springboot.store.repository.*;
 import com.springboot.store.service.DailyShiftService;
 import com.springboot.store.service.ShiftService;
 import com.springboot.store.service.StaffService;
@@ -30,6 +28,9 @@ public class ShiftServiceImpl implements ShiftService {
     private final ModelMapper modelMapper;
     private final StaffRepository staffRepository;
     private final DailyShiftRepository dailyShiftRepository;
+    private final ShiftAttendanceRecordRepository shiftAttendanceRecordRepository;
+    private final StaffBonusSalaryRepository staffBonusSalaryRepository;
+    private final StaffPunishSalaryRepository staffPunishSalaryRepository;
     private final StaffService staffService;
 
     @Override
@@ -40,7 +41,7 @@ public class ShiftServiceImpl implements ShiftService {
 
     @Override
     public List<ShiftDTO> getAllShifts() {
-        int storeId= staffService.getAuthorizedStaff().getStore().getId();
+        int storeId = staffService.getAuthorizedStaff().getStore().getId();
         List<Shift> shifts = shiftRepository.findByStoreId(storeId);
         return shifts.stream()
                 .map((shift) -> {
@@ -172,13 +173,43 @@ public class ShiftServiceImpl implements ShiftService {
 
     @Override
     public void deleteShift(int shiftId) {
-        //delete all daily shift of this shift
-        List<DailyShift> dailyShifts = shiftRepository.findById(shiftId).orElseThrow().getDailyShifts();
+        // Get the shift
+        Shift shift = shiftRepository.findById(shiftId).orElseThrow();
+        // Get all daily shifts of this shift
+        List<DailyShift> dailyShifts = shift.getDailyShifts();
+        shift.setStore(null);
+        shift.setDailyShifts(null);
+
         for (DailyShift dailyShift : dailyShifts) {
-            //delete all attendance record of this daily shift
+            // Get all attendance records of this daily shift
             List<ShiftAttendanceRecord> attendanceRecords = dailyShift.getAttendanceList();
+            dailyShift.setShift(null);
+            dailyShift.setStore(null);
+            dailyShift.setAttendanceList(null);
             for (ShiftAttendanceRecord attendanceRecord : attendanceRecords) {
-                dailyShiftRepository.deleteById(attendanceRecord.getId());
+                // Remove the association with the daily shift
+                attendanceRecord.setDailyShift(null);
+                attendanceRecord.setStore(null);
+                // Get all bonus salary records of this attendance record
+                List<StaffBonusSalary> bonusSalaryList = attendanceRecord.getBonusSalaryList();
+                attendanceRecord.setBonusSalaryList(null);
+                List<StaffPunishSalary> punishSalaryList = attendanceRecord.getPunishSalaryList();
+                attendanceRecord.setPunishSalaryList(null);
+
+                for (StaffBonusSalary bonusSalary : bonusSalaryList) {
+                    // Remove the association with the attendance record
+                    bonusSalary.setShiftAttendanceRecord(null);
+                    bonusSalary.setStore(null);
+                    staffBonusSalaryRepository.deleteById(bonusSalary.getId());
+                }
+                // Get all punish salary records of this attendance record
+                for (StaffPunishSalary punishSalary : punishSalaryList) {
+                    // Remove the association with the attendance record
+                    punishSalary.setShiftAttendanceRecord(null);
+                    punishSalary.setStore(null);
+                    staffPunishSalaryRepository.deleteById(punishSalary.getId());
+                }
+                shiftAttendanceRecordRepository.deleteById(attendanceRecord.getId());
             }
             dailyShiftRepository.deleteById(dailyShift.getId());
         }

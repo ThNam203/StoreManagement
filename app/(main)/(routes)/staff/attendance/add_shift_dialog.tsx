@@ -26,6 +26,11 @@ import { Info, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import {
+  ConfirmDialogType,
+  MyConfirmDialog,
+} from "../../../../../components/ui/my_confirm_dialog";
+import { useToast } from "@/components/ui/use-toast";
 
 const formSchema = z.object({
   name: z.string().min(1),
@@ -46,15 +51,16 @@ export function AddShiftDialog({
   submit,
   open,
   setOpen,
-  handleRemoveShift,
+  onRemoveShift,
 }: {
   title?: string;
   shift: Shift | null;
   submit?: (value: Shift) => any;
   open: boolean;
   setOpen: (value: boolean) => void;
-  handleRemoveShift?: (id: any) => any;
+  onRemoveShift?: (id: any) => any;
 }) {
+  const { toast } = useToast();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -72,6 +78,12 @@ export function AddShiftDialog({
   });
   const [isAdding, setIsAdding] = useState(false);
   const [isRemoving, setIsRemoving] = useState(false);
+  const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
+  const [contentConfirmDialog, setContentConfirmDialog] = useState({
+    title: "",
+    content: "",
+    type: "warning" as ConfirmDialogType,
+  });
   const resetValues = (shift: Shift | null) => {
     setIsAdding(false);
     setIsRemoving(false);
@@ -80,19 +92,19 @@ export function AddShiftDialog({
       form.setValue("name", shift.name);
       form.setValue(
         "workingTime.start",
-        format(shift.workingTime.start, "HH:mm:ss")
+        format(shift.workingTime.start, "HH:mm:ss"),
       );
       form.setValue(
         "workingTime.end",
-        format(shift.workingTime.end, "HH:mm:ss")
+        format(shift.workingTime.end, "HH:mm:ss"),
       );
       form.setValue(
         "edittingTime.start",
-        format(shift.editingTime.start, "HH:mm:ss")
+        format(shift.editingTime.start, "HH:mm:ss"),
       );
       form.setValue(
         "edittingTime.end",
-        format(shift.editingTime.end, "HH:mm:ss")
+        format(shift.editingTime.end, "HH:mm:ss"),
       );
       form.setValue("status", shift.status);
     } else resetToEmptyForm();
@@ -115,6 +127,19 @@ export function AddShiftDialog({
   };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    //check logic
+    if (
+      stringTimeToDate(values.workingTime.start) >=
+      stringTimeToDate(values.workingTime.end)
+    ) {
+      toast({
+        description:
+          "The start time of working time must be earlier than the end time of working time",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsAdding(true);
     const newShift: Shift = {
       id: shift ? shift.id : null,
@@ -149,6 +174,21 @@ export function AddShiftDialog({
     resetValues(shift);
   };
 
+  const handleRemoveShift = async () => {
+    if (onRemoveShift && shift) {
+      setIsRemoving(true);
+      try {
+        await onRemoveShift(shift.id);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setOpen(false);
+        resetToEmptyForm();
+        setIsRemoving(false);
+      }
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent onInteractOutside={(e) => e.preventDefault()}>
@@ -157,15 +197,15 @@ export function AddShiftDialog({
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            <div className="w-[600px] h-[250px] flex flex-col justify-start gap-3">
+            <div className="flex h-[250px] w-[600px] flex-col justify-start gap-3">
               <FormField
                 control={form.control}
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <div className="w-full flex flex-row items-center gap-2">
+                    <div className="flex w-full flex-row items-center gap-2">
                       <FormLabel>
-                        <div className="w-[150px] flex flex-row items-center space-x-2">
+                        <div className="flex w-[150px] flex-row items-center space-x-2">
                           <h5 className="text-sm">Name</h5>
                         </div>
                       </FormLabel>
@@ -190,7 +230,7 @@ export function AddShiftDialog({
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <div className="w-full flex flex-row items-center gap-2">
+                      <div className="flex w-full flex-row items-center gap-2">
                         <div className="flex flex-row items-center gap-2">
                           <FormLabel>
                             <h5 className="w-[150px] text-sm">Working from</h5>
@@ -201,7 +241,7 @@ export function AddShiftDialog({
                             onChange={(val) => {
                               form.setValue(
                                 "workingTime.start",
-                                val.target.value
+                                val.target.value,
                               );
                             }}
                           />
@@ -216,7 +256,7 @@ export function AddShiftDialog({
                             onChange={(val) => {
                               form.setValue(
                                 "workingTime.end",
-                                val.target.value
+                                val.target.value,
                               );
                             }}
                           />
@@ -226,7 +266,7 @@ export function AddShiftDialog({
                   </FormItem>
                 )}
               />
-              <div className="flex flex-row items-center gap-2 my-1">
+              <div className="my-1 flex flex-row items-center gap-2">
                 <span className="font-semibold">
                   Time allowed for employees to clock in
                 </span>
@@ -238,7 +278,7 @@ export function AddShiftDialog({
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <div className="w-full flex flex-row items-center gap-2">
+                      <div className="flex w-full flex-row items-center gap-2">
                         <div className="flex flex-row items-center gap-2">
                           <FormLabel>
                             <h5 className="w-[150px] text-sm">
@@ -251,7 +291,7 @@ export function AddShiftDialog({
                             onChange={(val) => {
                               form.setValue(
                                 "edittingTime.start",
-                                val.target.value
+                                val.target.value,
                               );
                             }}
                           />
@@ -266,7 +306,7 @@ export function AddShiftDialog({
                             onChange={(val) => {
                               form.setValue(
                                 "edittingTime.end",
-                                val.target.value
+                                val.target.value,
                               );
                             }}
                           />
@@ -283,7 +323,7 @@ export function AddShiftDialog({
                   <FormItem>
                     <div className="flex flex-row items-center gap-2">
                       <FormLabel>
-                        <div className="w-[150px] flex flex-row items-center space-x-2">
+                        <div className="flex w-[150px] flex-row items-center space-x-2">
                           <h5 className="text-sm">Status</h5>
                           <Info size={16} />
                         </div>
@@ -297,7 +337,7 @@ export function AddShiftDialog({
                             return (
                               <div
                                 key={status}
-                                className="flex flex-row items-center space-x-2 mr-11"
+                                className="mr-11 flex flex-row items-center space-x-2"
                                 onClick={() => form.setValue("status", status)}
                               >
                                 <RadioGroupItem
@@ -320,19 +360,13 @@ export function AddShiftDialog({
             <div className={cn("flex flex-row justify-end")}>
               <Button
                 type="button"
-                onClick={async () => {
-                  if (handleRemoveShift && shift) {
-                    setIsRemoving(true);
-                    try {
-                      await handleRemoveShift(shift.id);
-                    } catch (error) {
-                      console.log(error);
-                    } finally {
-                      setOpen(false);
-                      resetToEmptyForm();
-                      setIsRemoving(false);
-                    }
-                  }
+                onClick={() => {
+                  setContentConfirmDialog({
+                    title: "Warning",
+                    content: `Do you want to remove the shift named '${shift?.name}'?`,
+                    type: "warning",
+                  });
+                  setOpenConfirmDialog(true);
                 }}
                 variant={"red"}
                 className={cn("mr-3 gap-1", shift ? "visible" : "hidden")}
@@ -364,6 +398,18 @@ export function AddShiftDialog({
             </div>
           </form>
         </Form>
+        <MyConfirmDialog
+          open={openConfirmDialog}
+          setOpen={setOpenConfirmDialog}
+          title={contentConfirmDialog.title}
+          content={contentConfirmDialog.content}
+          type={contentConfirmDialog.type}
+          onAccept={() => {
+            setOpenConfirmDialog(false);
+            handleRemoveShift();
+          }}
+          onCancel={() => setOpenConfirmDialog(false)}
+        />
       </DialogContent>
     </Dialog>
   );

@@ -1,25 +1,57 @@
 "use client";
 
 import { PageWithFilters, SearchFilter } from "@/components/ui/filter";
+import { useToast } from "@/components/ui/use-toast";
 import { Staff } from "@/entities/Staff";
 import { useAppDispatch, useAppSelector } from "@/hooks";
-import { handleMultipleFilter } from "@/utils";
-import { useEffect, useState } from "react";
-import { DataTable } from "./datatable";
-import StaffService from "@/services/staff_service";
-import { addStaff, deleteStaff, updateStaff } from "@/reducers/staffReducer";
-import { axiosUIErrorHandler } from "@/services/axios_utils";
-import { add } from "date-fns";
-import { useToast } from "@/components/ui/use-toast";
 import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
+import {
+  addStaff,
+  deleteStaff,
+  setStaffs,
+  updateStaff,
+} from "@/reducers/staffReducer";
+import { axiosUIErrorHandler } from "@/services/axios_utils";
+import StaffService from "@/services/staff_service";
+import { handleMultipleFilter } from "@/utils";
 import {
   convertStaffReceived,
   convertStaffToSent,
 } from "@/utils/staffApiUtils";
+import { useEffect, useState } from "react";
+import { DataTable } from "./datatable";
+import { setPositions } from "@/reducers/staffPositionReducer";
 
 export default function StaffInfoPage() {
   const dispatch = useAppDispatch();
   const { toast } = useToast();
+  const fetchStaffList = async () => {
+    dispatch(showPreloader());
+    try {
+      const res = await StaffService.getAllStaffs();
+      const staffReceived = res.data.map((staff) =>
+        convertStaffReceived(staff),
+      );
+      dispatch(setStaffs(staffReceived));
+    } catch (e) {
+      axiosUIErrorHandler(e, toast);
+    } finally {
+      dispatch(disablePreloader());
+    }
+  };
+  const fetchStaffPositionList = async () => {
+    try {
+      const res = await StaffService.getAllPositions();
+      dispatch(setPositions(res.data));
+    } catch (e) {
+      axiosUIErrorHandler(e, toast);
+    }
+  };
+  useEffect(() => {
+    fetchStaffPositionList();
+    fetchStaffList();
+  }, []);
+
   const staffList = useAppSelector((state) => state.staffs.value);
 
   const [filterdStaffList, setFilteredStaffList] = useState<Staff[]>([]);
@@ -40,7 +72,7 @@ export default function StaffInfoPage() {
       const dataForm: any = new FormData();
       dataForm.append(
         "data",
-        new Blob([JSON.stringify(staffToSent)], { type: "application/json" })
+        new Blob([JSON.stringify(staffToSent)], { type: "application/json" }),
       );
       dataForm.append("file", avatar);
 
@@ -51,7 +83,7 @@ export default function StaffInfoPage() {
     } catch (e) {
       console.log(e);
       axiosUIErrorHandler(e, toast);
-      return Promise.reject();
+      return Promise.reject(e);
     }
   };
 
@@ -61,19 +93,20 @@ export default function StaffInfoPage() {
       const dataForm: any = new FormData();
       dataForm.append(
         "data",
-        new Blob([JSON.stringify(staffToSent)], { type: "application/json" })
+        new Blob([JSON.stringify(staffToSent)], { type: "application/json" }),
       );
+      console.log("avatar to update", avatar);
       dataForm.append("file", avatar);
       const staffResult = await StaffService.updateStaff(
         staffToSent.id,
-        dataForm
+        dataForm,
       );
       const staffReceived = convertStaffReceived(staffResult.data);
       dispatch(updateStaff(staffReceived));
       return Promise.resolve();
     } catch (e) {
       axiosUIErrorHandler(e, toast);
-      return Promise.reject();
+      return Promise.reject(e);
     }
   };
 
@@ -84,13 +117,14 @@ export default function StaffInfoPage() {
       return Promise.resolve();
     } catch (e) {
       axiosUIErrorHandler(e, toast);
-      return Promise.reject();
+      return Promise.reject(e);
     }
   };
 
   const handleFormSubmit = (value: Staff, avatar: File | null) => {
     const index = staffList.findIndex((staff) => staff.id === value.id);
     if (index !== -1) {
+      console.log("update");
       return handleUpdateStaff(value, avatar);
     } else return addNewStaff(value, avatar);
   };

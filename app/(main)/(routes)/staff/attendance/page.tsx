@@ -1,55 +1,82 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-  FilterDay,
-  FilterMonth,
-  FilterTime,
-  FilterWeek,
-} from "@/components/ui/filter";
-import { Input } from "@/components/ui/input";
-import { TimeFilterType, formatID, getStaticRangeFilterTime } from "@/utils";
-import { AlignJustify, FileDown, Filter, Plus } from "lucide-react";
-import { useEffect, useState } from "react";
-import { DisplayType, Table } from "./attendance_table";
-import { ButtonGroup } from "./button_group";
-import { MyDateRangePicker } from "./my_date_range_picker";
-import { SetTimeDialog } from "./set_time_dialog";
-import { set } from "date-fns";
-import { el, fi } from "date-fns/locale";
-import { Sex, Staff } from "@/entities/Staff";
-import { BonusUnit, SalaryType } from "@/entities/SalarySetting";
-import { useAppDispatch, useAppSelector } from "@/hooks";
+import { FilterDay, FilterMonth, FilterWeek } from "@/components/ui/filter";
+import LoadingCircle from "@/components/ui/loading_circle";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useToast } from "@/components/ui/use-toast";
 import { DailyShift, Shift } from "@/entities/Attendance";
+import { useAppDispatch, useAppSelector } from "@/hooks";
 import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
-import ShiftService from "@/services/shift_service";
 import {
-  addDailyShift,
   addDailyShifts,
   addShift,
-  deleteDailyShift,
+  deleteDailyShifts,
   deleteShift,
   setShifts,
-  updateDailyShift,
+  updateDailyShifts,
   updateShift,
 } from "@/reducers/shiftReducer";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
-import { useToast } from "@/components/ui/use-toast";
+import ShiftService from "@/services/shift_service";
+import { getStaticRangeFilterTime } from "@/utils";
 import {
   convertDailyShiftReceived,
   convertDailyShiftToSent,
   convertShiftReceived,
   convertShiftToSent,
 } from "@/utils/shiftApiUtils";
-import { off } from "process";
-import LoadingCircle from "@/components/ui/loading_circle";
-import { cn } from "@/lib/utils";
+import { FileDown, Plus } from "lucide-react";
+import { useEffect, useState } from "react";
+import { DisplayType, Table } from "./attendance_table";
+import { ButtonGroup } from "./button_group";
+import { MyDateRangePicker } from "./my_date_range_picker";
+import { SetTimeDialog } from "./set_time_dialog";
+import { convertStaffReceived } from "@/utils/staffApiUtils";
+import StaffService from "@/services/staff_service";
+import { setStaffs } from "@/reducers/staffReducer";
 
 export default function Attendance() {
   const dispatch = useAppDispatch();
   const { toast } = useToast();
+
+  const fetchShiftList = async () => {
+    dispatch(showPreloader());
+    try {
+      const res = await ShiftService.getShiftsThisMonth();
+      const shiftReceived = res.data.map((shift) =>
+        convertShiftReceived(shift),
+      );
+      dispatch(setShifts(shiftReceived));
+    } catch (e) {
+      axiosUIErrorHandler(e, toast);
+    } finally {
+      dispatch(disablePreloader());
+    }
+  };
+
+  const fetchStaffList = async () => {
+    dispatch(showPreloader());
+    try {
+      const res = await StaffService.getAllStaffs();
+      const staffReceived = res.data.map((staff) =>
+        convertStaffReceived(staff),
+      );
+      dispatch(setStaffs(staffReceived));
+    } catch (e) {
+      axiosUIErrorHandler(e, toast);
+    } finally {
+      dispatch(disablePreloader());
+    }
+  };
+
+  useEffect(() => {
+    fetchShiftList();
+    fetchStaffList();
+  }, []);
+
   const [range, setRange] = useState<{ startDate: Date; endDate: Date }>(
-    getStaticRangeFilterTime(FilterWeek.ThisWeek)
+    getStaticRangeFilterTime(FilterWeek.ThisWeek),
   );
   const [displayType, setDisplayType] = useState<DisplayType>("Week");
   const [openSetTimeDialog, setOpenSetTimeDialog] = useState(false);
@@ -106,8 +133,8 @@ export default function Attendance() {
     else if (value === "Week")
       setRange(getStaticRangeFilterTime(FilterWeek.ThisWeek));
     else setRange(getStaticRangeFilterTime(FilterMonth.ThisMonth));
-    setDisplayType(value as DisplayType);
     if (displayType === "Custom") getShiftsThisMonth();
+    setDisplayType(value as DisplayType);
   };
   const AddShift = async (shift: Shift) => {
     try {
@@ -126,6 +153,7 @@ export default function Attendance() {
   const UpdateShift = async (id: any, shift: Shift) => {
     try {
       const newShift = convertShiftToSent(shift);
+      console.log("to update shift", newShift);
       const res = await ShiftService.updateShift(id, newShift);
       const result = convertShiftReceived(res.data);
       dispatch(updateShift(result));
@@ -139,13 +167,13 @@ export default function Attendance() {
   const AddDailyShifts = async (dailyShiftList: DailyShift[]) => {
     try {
       const newDailyShiftList = dailyShiftList.map((dailyShift) =>
-        convertDailyShiftToSent(dailyShift)
+        convertDailyShiftToSent(dailyShift),
       );
       console.log("to sent", newDailyShiftList);
       const res = await ShiftService.createDailyShifts(newDailyShiftList);
       console.log("received", res.data);
       const result = res.data.map((dailyShift: any) =>
-        convertDailyShiftReceived(dailyShift)
+        convertDailyShiftReceived(dailyShift),
       );
       dispatch(addDailyShifts(result));
       return Promise.resolve();
@@ -154,18 +182,20 @@ export default function Attendance() {
       return Promise.reject();
     }
   };
-  const UpdateDailyShift = async (dailyShift: DailyShift) => {
+  const UpdateDailyShifts = async (dailyShiftList: DailyShift[]) => {
     try {
-      const newDailyShift = convertDailyShiftToSent(dailyShift);
-      const res = await ShiftService.updateDailyShift(
-        dailyShift.id,
-        newDailyShift
+      const newDailyShiftList = dailyShiftList.map((dailyShift) =>
+        convertDailyShiftToSent(dailyShift),
       );
+      const res = await ShiftService.updateDailyShifts(newDailyShiftList);
       if (res.data) {
-        const result = convertDailyShiftReceived(res.data);
-        dispatch(updateDailyShift(result));
+        const result = res.data.map((dailyShift: any) =>
+          convertDailyShiftReceived(dailyShift),
+        );
+        console.log("res data", res.data);
+        dispatch(updateDailyShifts(result));
       } else {
-        dispatch(deleteDailyShift(dailyShift));
+        dispatch(deleteDailyShifts(dailyShiftList));
       }
       return Promise.resolve();
     } catch (e) {
@@ -195,12 +225,12 @@ export default function Attendance() {
   const handleAddDailyShift = (value: DailyShift[]) => {
     return AddDailyShifts(value);
   };
-  const handleUpdateDailyShift = (value: DailyShift) => {
-    return UpdateDailyShift(value);
+  const handleUpdateDailyShifts = (value: DailyShift[]) => {
+    return UpdateDailyShifts(value);
   };
 
   return (
-    <div className="text-sm flex flex-col gap-4">
+    <div className="flex flex-col gap-4 text-sm">
       <div className="flex flex-row items-center justify-between">
         <div className="flex flex-row items-center gap-4">
           <MyDateRangePicker
@@ -212,8 +242,6 @@ export default function Attendance() {
             defaultValue="Week"
             onValueChange={handleStaticRangeFilterChange}
           />
-          <div className={cn(isLoading ? "visible" : "hidden")}>Loading</div>
-          {isLoading ? <LoadingCircle className="bg-red-500" /> : null}
         </div>
         <div className="flex flex-row items-center gap-4">
           <Button
@@ -230,17 +258,23 @@ export default function Attendance() {
           </Button>
         </div>
       </div>
+      {isLoading ? (
+        <Skeleton className="flex h-[500px] w-full items-center justify-center rounded-md bg-gray-200">
+          Loading table<LoadingCircle></LoadingCircle>
+        </Skeleton>
+      ) : (
+        <Table
+          staffList={staffList}
+          rangeDate={range}
+          shiftList={table}
+          displayType={displayType}
+          onUpdateShift={handleUpdateShift}
+          onSetTime={handleAddDailyShift}
+          onRemoveShift={handleRemoveShift}
+          onUpdateDailyShifts={handleUpdateDailyShifts}
+        />
+      )}
 
-      <Table
-        staffList={staffList}
-        rangeDate={range}
-        shiftList={table}
-        displayType={displayType}
-        onUpdateShift={handleUpdateShift}
-        onSetTime={handleAddDailyShift}
-        onRemoveShift={handleRemoveShift}
-        onUpdateDailyShift={handleUpdateDailyShift}
-      />
       <SetTimeDialog
         open={openSetTimeDialog}
         setOpen={setOpenSetTimeDialog}
@@ -248,6 +282,7 @@ export default function Attendance() {
         staffList={staffList}
         specificShift={null}
         submit={handleAddDailyShift}
+        onUpdateDailyShifts={handleUpdateDailyShifts}
       />
     </div>
   );

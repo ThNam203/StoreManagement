@@ -23,3 +23,27 @@ export enum Sex {
   MALE = "Male",
   FEMALE = "Female",
 }
+
+export type Paycheck = {
+  id: any;
+  workingPeriod: {
+    startDate: Date;
+    endDate: Date;
+  };
+  totalSalary: number;
+  paid: number;
+  needToPay: number;
+};
+
+export type WorkSchedule = {
+  date: Date;
+  shiftName: string;
+  startTime: Date;
+  endTime: Date;
+  note: string;
+};
+
+export type Position = {
+  id: any;
+  name: string;
+};

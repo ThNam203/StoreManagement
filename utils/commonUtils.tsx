@@ -9,10 +9,12 @@ import {
 import { AttendanceRecord, DailyShift, Shift } from "@/entities/Attendance";
 import { BonusUnit, SalaryType } from "@/entities/SalarySetting";
 import { Staff } from "@/entities/Staff";
+import { axiosUIErrorHandler } from "@/services/axios_utils";
 
 import * as XLSX from "xlsx";
 
 const exportExcel = (data: any[], nameSheet: string, nameFile: string) => {
+  console.log("data", data);
   return new Promise((resolve, reject) => {
     var wb = XLSX.utils.book_new();
     var ws = XLSX.utils.json_to_sheet(data);
@@ -21,32 +23,33 @@ const exportExcel = (data: any[], nameSheet: string, nameFile: string) => {
     resolve("oke");
   });
 };
-const exportTemplateExcelFile = (
-  filePath: string,
-  nameSheet: string,
-  nameFile: string
-) => {
-  return new Promise((resolve, reject) => {
-    const wb = XLSX.readFile(filePath);
-    XLSX.writeFile(wb, `${nameFile}.xlsx`);
-    resolve("oke");
-  });
-};
+
 const importExcel = async (file: any) => {
   const validMIMEType = [
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     "application/vnd.ms-excel",
   ];
-  if (!validMIMEType.includes(file.type)) return;
-
-  const data = await file.arrayBuffer();
-
-  const workbook = XLSX.readFile(data);
-  let worksheet: any = {};
-  for (let sheetName of workbook.SheetNames) {
-    worksheet[sheetName] = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+  let importData = [];
+  if (!validMIMEType.includes(file.type)) {
+    const error = new Error("Invalid file type");
+    return Promise.reject(error);
   }
-  return worksheet;
+  try {
+    const data = await file.arrayBuffer();
+
+    const workbook = XLSX.readFile(data, { cellDates: true });
+    let worksheet: any = {};
+    for (let sheetName of workbook.SheetNames) {
+      worksheet[sheetName] = XLSX.utils.sheet_to_json(
+        workbook.Sheets[sheetName],
+      );
+      importData.push(worksheet[sheetName]);
+    }
+  } catch (e) {
+    console.log(e);
+    return Promise.reject(e);
+  }
+  return Promise.resolve(importData);
 };
 
 type MultiFilter = Record<string, any>;
@@ -62,7 +65,7 @@ export enum TimeFilterType {
 
 function handleMultipleFilter<T>(
   filter: MultiFilter,
-  listToFilter: Array<T>
+  listToFilter: Array<T>,
 ): Array<T> {
   const filterList = listToFilter.filter((row) => {
     const filterKeys = Object.keys(filter);
@@ -70,7 +73,7 @@ function handleMultipleFilter<T>(
       if (
         filter[key as keyof typeof filter].length > 0 &&
         !filter[key as keyof typeof filter].includes(
-          row[key as keyof typeof row]
+          row[key as keyof typeof row],
         )
       )
         return false;
@@ -82,7 +85,7 @@ function handleMultipleFilter<T>(
 
 function handleSingleFilter<T>(
   filter: SingleFilter,
-  listToFilter: Array<T>
+  listToFilter: Array<T>,
 ): Array<T> {
   const filterList = listToFilter.filter((row) => {
     const filterKeys = Object.keys(filter);
@@ -100,7 +103,7 @@ function handleSingleFilter<T>(
 
 function handleRangeTimeFilter<T>(
   filter: RangeTimeFilter,
-  listToFilter: Array<T>
+  listToFilter: Array<T>,
 ): Array<T> {
   const filterList = listToFilter.filter((row) => {
     const filterKeys = Object.keys(filter);
@@ -118,7 +121,7 @@ function handleRangeTimeFilter<T>(
 
 const isInRangeTime = (
   value: Date,
-  range: { startDate: Date; endDate: Date }
+  range: { startDate: Date; endDate: Date },
 ) => {
   let date = value as Date;
   let startDate = range.startDate as Date;
@@ -158,7 +161,7 @@ function handleTimeFilter<T>(
   staticRangeFilter: StaticRangeFilter,
   rangeTimeFilter: RangeTimeFilter,
   filterControl: FilterControl,
-  listToFilter: Array<T>
+  listToFilter: Array<T>,
 ): Array<T> {
   const filterList = listToFilter.filter((row) => {
     const filterKeys = Object.keys(filterControl);
@@ -191,7 +194,7 @@ function handleTimeFilter<T>(
 
 function handleStaticRangeFilter<T>(
   filter: StaticRangeFilter,
-  listToFilter: Array<T>
+  listToFilter: Array<T>,
 ): Array<T> {
   const filterList = listToFilter.filter((row) => {
     const filterKeys = Object.keys(filter);
@@ -211,7 +214,7 @@ function handleStaticRangeFilter<T>(
 
 function handleRangeNumFilter<T>(
   filter: RangeNumFilter,
-  listToFilter: Array<T>
+  listToFilter: Array<T>,
 ): Array<T> {
   const filterList = listToFilter.filter((row) => {
     const filterKeys = Object.keys(filter);
@@ -232,7 +235,7 @@ function handleRangeNumFilter<T>(
 }
 
 const getStaticRangeFilterTime = (
-  value: FilterTime
+  value: FilterTime,
 ): { startDate: Date; endDate: Date } => {
   let range = {
     startDate: new Date(),
@@ -329,7 +332,7 @@ const getStaticRangeFilterTime = (
   return range;
 };
 const getMinMaxOfListTime = (
-  list: Date[]
+  list: Date[],
 ): { minDate: Date; maxDate: Date } => {
   let range = {
     minDate: new Date(),
@@ -372,15 +375,36 @@ const formatNumberInput = (e: React.ChangeEvent<HTMLInputElement>) => {
   let rawValue = e.currentTarget.value.replace(/[^\d]/g, "");
   // remove leading 0s
   rawValue = rawValue.replace(/^0+(\d)/, "$1");
+  let num = Number(rawValue);
   // Add commas for every 3 digits from the right
-  const formattedValue = rawValue.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  const formattedValue = new Intl.NumberFormat("vi-VN", {
+    style: "decimal",
+  }).format(num);
+  console.log("format value", formattedValue);
+
   e.currentTarget.value = formattedValue;
-  return isNaN(Number(rawValue)) ? 0 : Number(rawValue);
+  return num;
+};
+
+const createRangeDate = (range: { startDate: Date; endDate: Date }): Date[] => {
+  const rangeDate: Date[] = [];
+  range.startDate.setHours(0, 0, 0, 0);
+  range.endDate.setHours(0, 0, 0, 0);
+
+  //create an array of date from startDate to endDate
+  for (
+    let i = range.startDate.getTime();
+    i <= range.endDate.getTime();
+    i += 86400000
+  ) {
+    rangeDate.push(new Date(i));
+  }
+  return rangeDate;
 };
 
 export {
   exportExcel,
-  exportTemplateExcelFile,
+  importExcel,
   formatID,
   formatPrice,
   getMinMaxOfListTime,
@@ -393,7 +417,7 @@ export {
   handleSingleFilter,
   handleStaticRangeFilter,
   handleTimeFilter,
-  importExcel,
   removeCharNotANum,
   formatNumberInput,
+  createRangeDate,
 };
