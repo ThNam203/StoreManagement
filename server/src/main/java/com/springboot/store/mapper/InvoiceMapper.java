@@ -16,8 +16,8 @@ public class InvoiceMapper {
                 .total(invoice.getTotal())
                 .paymentMethod(invoice.getPaymentMethod())
                 .createdAt(invoice.getCreatedAt())
-                .customerId(invoice.getCustomer() == null ? 0 : invoice.getCustomer().getId())
-                .staffId(invoice.getStaff() == null ? 0 : invoice.getStaff().getId())
+                .customerId(invoice.getCustomer() == null ? null : invoice.getCustomer().getId())
+                .staffId(invoice.getStaff() == null ? null : invoice.getStaff().getId())
                 .invoiceDetails(invoice.getInvoiceDetails() == null ? null
                         : invoice.getInvoiceDetails()
                         .stream()

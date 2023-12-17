@@ -7,7 +7,7 @@ public class StockCheckDetailMapper {
     public static StockCheckDetailDTO toStockCheckDetailDTO(StockCheckDetail stockCheckDetail) {
         return StockCheckDetailDTO.builder()
                 .id(stockCheckDetail.getId())
-                .productId(stockCheckDetail.getProduct() == null ? 0 : stockCheckDetail.getProduct().getId())
+                .productId(stockCheckDetail.getProduct() == null ? null : stockCheckDetail.getProduct().getId())
                 .productName(stockCheckDetail.getProductName())
                 .productProperties(stockCheckDetail.getProductProperties())
                 .countedStock(stockCheckDetail.getCountedStock())

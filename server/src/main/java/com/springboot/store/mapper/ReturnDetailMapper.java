@@ -10,7 +10,7 @@ public class ReturnDetailMapper {
                 .quantity(returnDetail.getQuantity())
                 .price(returnDetail.getPrice())
                 .description(returnDetail.getDescription())
-                .productId(returnDetail.getProduct() != null ? returnDetail.getProduct().getId() : 0)
+                .productId(returnDetail.getProduct() != null ? returnDetail.getProduct().getId() : null)
                 .build();
     }
     public static ReturnDetail toReturnDetail(ReturnDetailDTO returnDetailDTO) {

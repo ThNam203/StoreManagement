@@ -8,7 +8,7 @@ public class StockCheckMapper {
         return StockCheckDTO.builder()
                 .id(stockCheck.getId())
                 .createdDate(stockCheck.getCreatedDate())
-                .creatorId(stockCheck.getCreator() == null ? 0 : stockCheck.getCreator().getId())
+                .creatorId(stockCheck.getCreator() == null ? null : stockCheck.getCreator().getId())
                 .products(stockCheck.getProducts() == null ? null :
                         stockCheck.getProducts().stream().map(StockCheckDetailMapper::toStockCheckDetailDTO).toList())
                 .note(stockCheck.getNote())
