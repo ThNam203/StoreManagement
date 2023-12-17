@@ -1,16 +1,22 @@
-import { ReturnInvoice } from "@/entities/ReturnInvoice";
+import {
+  ReturnInvoiceClient,
+  ReturnInvoiceServer,
+} from "@/entities/ReturnInvoice";
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 
 export const returnInvoicesSlice = createSlice({
   name: "returnInvoices",
   initialState: {
-    value: [] as ReturnInvoice[],
+    value: [] as ReturnInvoiceServer[],
   },
   reducers: {
-    setReturnInvoices: (state, action: PayloadAction<ReturnInvoice[]>) => {
-      state.value = action.payload
+    setReturnInvoices: (
+      state,
+      action: PayloadAction<ReturnInvoiceServer[]>,
+    ) => {
+      state.value = action.payload;
     },
-    addReturnInvoice: (state, action: PayloadAction<ReturnInvoice>) => {
+    addReturnInvoice: (state, action: PayloadAction<ReturnInvoiceServer>) => {
       state.value.push(action.payload);
     },
     deleteReturnInvoice: (state, action: PayloadAction<number>) => {
@@ -20,14 +26,23 @@ export const returnInvoicesSlice = createSlice({
 
       state.value = newValue;
     },
-    updateReturnInvoice: (state, action: PayloadAction<ReturnInvoice>) => {
+    updateReturnInvoice: (
+      state,
+      action: PayloadAction<ReturnInvoiceServer>,
+    ) => {
       state.value = state.value.map((returnInvoice) => {
-        return returnInvoice.id === action.payload.id ? action.payload : returnInvoice
-      })
+        return returnInvoice.id === action.payload.id
+          ? action.payload
+          : returnInvoice;
+      });
     },
   },
 });
 
-export const { setReturnInvoices, deleteReturnInvoice, updateReturnInvoice, addReturnInvoice } =
-  returnInvoicesSlice.actions;
+export const {
+  setReturnInvoices,
+  deleteReturnInvoice,
+  updateReturnInvoice,
+  addReturnInvoice,
+} = returnInvoicesSlice.actions;
 export default returnInvoicesSlice.reducer;

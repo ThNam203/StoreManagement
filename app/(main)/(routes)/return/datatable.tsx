@@ -18,9 +18,9 @@ import {
 } from "@tanstack/react-table";
 import { Product } from "@/entities/Product";
 import {
-  invoiceColumnTitles,
-  invoiceDefaultVisibilityState,
-  invoiceTableColumns,
+  returnColumnTitles,
+  returnDefaultVisibilityState,
+  returnTableColumns,
 } from "./table_columns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,20 +46,21 @@ import LoadingCircle from "@/components/ui/loading_circle";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
 import { useToast } from "@/components/ui/use-toast";
 import { CustomDatatable } from "@/components/component/custom_datatable";
-import { Invoice, InvoiceDetail } from "@/entities/Invoice";
 import InvoiceService from "@/services/invoice_service";
 import { format } from "date-fns";
 import { defaultColumn } from "@/components/ui/my_table_default_column";
 import { DataTableColumnHeader } from "@/components/ui/my_table_column_header";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context";
-import { deleteInvoice } from "@/reducers/invoicesReducer";
+import { ReturnInvoiceClient, ReturnInvoiceDetailServer, ReturnInvoiceServer } from "@/entities/ReturnInvoice";
+import ReturnInvoiceService from "@/services/return_invoice_service";
+import { deleteReturnInvoice } from "@/reducers/returnInvoicesReducer";
 
-export function InvoiceDatatable({ data, router }: { data: Invoice[], router: AppRouterInstance }) {
+export function ReturnDatatable({ data, router }: { data: ReturnInvoiceServer[], router: AppRouterInstance }) {
   const { toast } = useToast();
 
-  async function deleteInvoices(dataToDelete: Invoice[]): Promise<void> {
+  async function deleteReturns(dataToDelete: ReturnInvoiceServer[]): Promise<void> {
     const promises = dataToDelete.map((invoice) => {
-      return InvoiceService.deleteInvoice(invoice.id);
+      return ReturnInvoiceService.deleteReturnInvoice(invoice.id);
     });
 
     try {
@@ -70,7 +71,7 @@ export function InvoiceDatatable({ data, router }: { data: Invoice[], router: Ap
         toast({
           description: `Deleted ${
             successfullyDeleted.length
-          } invoices, failed ${
+          } return invoices, failed ${
             deletedData.length - successfullyDeleted.length
           }`,
         });
@@ -85,8 +86,8 @@ export function InvoiceDatatable({ data, router }: { data: Invoice[], router: Ap
   return (
     <CustomDatatable
       data={data}
-      columns={invoiceTableColumns()}
-      columnTitles={invoiceColumnTitles}
+      columns={returnTableColumns()}
+      columnTitles={returnColumnTitles}
       infoTabs={[
         {
           render(row, setShowTabs) {
@@ -102,8 +103,8 @@ export function InvoiceDatatable({ data, router }: { data: Invoice[], router: Ap
         },
       ]}
       config={{
-        onDeleteRowsBtnClick: (dataToDelete) => deleteInvoices(dataToDelete), // if null, remove button
-        defaultVisibilityState: invoiceDefaultVisibilityState,
+        onDeleteRowsBtnClick: (dataToDelete) => deleteReturns(dataToDelete), // if null, remove button
+        defaultVisibilityState: returnDefaultVisibilityState,
       }}
     />
   );
@@ -114,7 +115,7 @@ const DetailInvoiceTab = ({
   setShowTabs,
   router
 }: {
-  row: Row<Invoice>;
+  row: Row<ReturnInvoiceServer>;
   setShowTabs: (value: boolean) => any;
   router: AppRouterInstance
 }) => {
@@ -136,10 +137,10 @@ const DetailInvoiceTab = ({
               <p className="w-[120px] font-normal">Created at:</p>
               <p>{invoice.createdAt}</p>
             </div>
-            <div className="mb-2 flex flex-row border-b font-medium">
+            {/* <div className="mb-2 flex flex-row border-b font-medium">
               <p className="w-[120px] font-normal">Customer:</p>
               {invoice.customerId}
-            </div>
+            </div> */}
           </div>
           <div className="flex flex-1 flex-col pr-4 gap-1">
             <div className="mb-2 flex flex-row border-b font-medium">
@@ -161,9 +162,9 @@ const DetailInvoiceTab = ({
         </div>
       </div>
       <CustomDatatable
-        data={invoice.invoiceDetails}
-        columnTitles={invoiceDetailTitles}
-        columns={invoiceDetailColumns()}
+        data={invoice.returnDetails}
+        columnTitles={returnDetailTitles}
+        columns={returnDetailColumns()}
         config={{
             showExportButton: false,
             showDataTableViewOptions: false,
@@ -171,33 +172,30 @@ const DetailInvoiceTab = ({
             className: "py-0",
             showRowSelectedCounter: false,
         }}
-      >
-
-      </CustomDatatable>
+      />
       <div className="flex flex-row justify-between">
         <div className="flex-1">
-
         </div>
         <div className="text-xs flex flex-col gap-1 mb-2">
           <div className="flex flex-row">
             <p className="w-28 text-end">Total qty:</p>
-            <p className="w-32 font-semibold text-end">{invoice.invoiceDetails.map((v) => v.quantity).reduce((a, b) => a + b, 0)}</p>
+            <p className="w-32 font-semibold text-end">{invoice.returnDetails.map((v) => v.quantity).reduce((a, b) => a + b, 0)}</p>
           </div>
           <div className="flex flex-row">
-            <p className="w-28 text-end">Sub total:</p>
-            <p className="w-32 font-semibold text-end">{invoice.subTotal}</p>
+            <p className="w-28 text-end">Sub total &#40;Refund&#41;:</p>
+            <p className="w-32 font-semibold text-end">{invoice.returnDetails.map((v) => v.quantity * v.price).reduce((a, b) => a + b, 0)}</p>
           </div>
           <div className="flex flex-row">
             <p className="w-28 text-end">Discount:</p>
             <p className="w-32 font-semibold text-end">{invoice.discountValue}</p>
           </div>
           <div className="flex flex-row">
-            <p className="w-28 text-end">Total:</p>
-            <p className="w-32 font-semibold text-end">{invoice.total}</p>
+            <p className="w-28 text-end">Return fee:</p>
+            <p className="w-32 font-semibold text-end">{invoice.returnFee}</p>
           </div>
           <div className="flex flex-row">
-            <p className="w-28 text-end">Paid:</p>
-            <p className="w-32 font-semibold text-end">{invoice.cash}</p>
+            <p className="w-28 text-end">Total &#40;Refund&#41;:</p>
+            <p className="w-32 font-semibold text-end">{invoice.total}</p>
           </div>
         </div>
       </div>
@@ -218,9 +216,9 @@ const DetailInvoiceTab = ({
           variant={"red"}
           onClick={(e) => {
             setDisableDeleteButton(true);
-            InvoiceService.deleteInvoice(invoice.id)
+            ReturnInvoiceService.deleteReturnInvoice(invoice.id)
               .then((result) => {
-                dispatch(deleteInvoice(invoice.id));
+                dispatch(deleteReturnInvoice(invoice.id));
                 setShowTabs(false);
               })
               .catch((error) => axiosUIErrorHandler(error, toast))
@@ -237,23 +235,23 @@ const DetailInvoiceTab = ({
   );
 };
 
-const invoiceDetailTitles = {
+const returnDetailTitles = {
     productId: "Product ID",
     quantity: "Quantity",
     price: "Price",
     description: "Description",
 }
 
-const invoiceDetailColumns = () => {
-    const columns: ColumnDef<InvoiceDetail>[] = []
-    for (const key in invoiceDetailTitles) {
-        columns.push(defaultColumn(key, invoiceDetailTitles))
+const returnDetailColumns = () => {
+    const columns: ColumnDef<ReturnInvoiceDetailServer>[] = []
+    for (const key in returnDetailTitles) {
+        columns.push(defaultColumn(key, returnDetailTitles))
     }
-    columns.push(invoiceDetailTotalColumn)
+    columns.push(returnDetailTotalColumn)
     return columns;
 }
 
-const invoiceDetailTotalColumn: ColumnDef<InvoiceDetail> =  {
+const returnDetailTotalColumn: ColumnDef<ReturnInvoiceDetailServer> =  {
       accessorKey: "total",
       header: ({ column }) => (
         <DataTableColumnHeader

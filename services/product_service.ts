@@ -48,7 +48,7 @@ const updateProperty = (value: string, id: number) => {
     `/api/product-property-names/${id}`,
     {
       name: value,
-    }
+    },
   );
 };
 
@@ -64,7 +64,7 @@ const getAllProducts = () => {
   return AxiosService.get<Product[]>("/api/products").then((result) => {
     result.data.forEach((product) => {
       product.propertiesString = product.productProperties
-        .map((property) => property.propertyValue)
+        ?.map((property) => property.propertyValue)
         .join(" - ");
     });
 
@@ -79,19 +79,20 @@ const createNewProduct = (data: any) => {
 };
 
 const updateProduct = (productData: any, imageFiles: File[] | null) => {
-  const formData = new FormData()
+  const formData = new FormData();
   formData.append(
     "data",
-    new Blob([JSON.stringify(productData)], { type: "application/json" })
+    new Blob([JSON.stringify(productData)], { type: "application/json" }),
   );
-  if (imageFiles && imageFiles.length > 0) imageFiles.forEach(imageFile => formData.append("files", imageFile));
+  if (imageFiles && imageFiles.length > 0)
+    imageFiles.forEach((imageFile) => formData.append("files", imageFile));
 
   return AxiosService.put<Product>(
     `/api/products/${productData.id}`,
     formData,
     {
       headers: { "Content-Type": "multipart/form-data" },
-    }
+    },
   );
 };
 

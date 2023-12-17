@@ -19,16 +19,19 @@ import { DataTableViewOptions } from "../ui/my_table_column_visibility_toggle";
 import CustomDataTableContent from "./custom_datatable_content";
 import { TabProps } from "./custom_datatable_row";
 import LoadingCircle from "../ui/loading_circle";
+import { cn } from "@/lib/utils";
 
 export type DatatableConfig<TData> = {
   showExportButton?: boolean;
   showDefaultSearchInput?: boolean;
   alternativeSearchInput?: JSX.Element;
   showDataTableViewOptions?: boolean;
+  showRowSelectedCounter?: boolean;
   onDeleteRowsBtnClick?: (dataToDelete: TData[]) => Promise<any>; // if null, remove button
   defaultVisibilityState?: {
     [key: string]: boolean;
   };
+  className?: string,
 };
 
 const defaultConfig: DatatableConfig<any> = {
@@ -36,8 +39,10 @@ const defaultConfig: DatatableConfig<any> = {
   showDefaultSearchInput: true,
   alternativeSearchInput: undefined,
   showDataTableViewOptions: true,
+  showRowSelectedCounter: true,
   defaultVisibilityState: {},
   onDeleteRowsBtnClick: undefined,
+  className: "",
 };
 
 export type CustomDatatableProps<TData> = {
@@ -98,7 +103,7 @@ export function CustomDatatable<TData>({
 
   return (
     <div ref={tableContainerRef} className="w-full space-y-2">
-      <div className="flex py-4 flex-col gap-2 md:flex-row md:gap-0 md:items-center md:justify-between">
+      <div className={cn("flex py-4 flex-col gap-2 md:flex-row md:gap-0 md:items-center md:justify-between", config.className)}>
         {!config.showDefaultSearchInput ||
         config.alternativeSearchInput ? null : (
           <Input
@@ -147,6 +152,7 @@ export function CustomDatatable<TData>({
         table={table}
         tableContainerRef={tableContainerRef}
         infoTabs={infoTabs}
+        showRowSelectedCounter={config.showRowSelectedCounter ?? true}
       />
     </div>
   );

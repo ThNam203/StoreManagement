@@ -29,13 +29,15 @@ interface CustomDataTableProps<TData> {
   table: ReactTable<TData>;
   tableContainerRef: RefObject<HTMLDivElement>;
   infoTabs?: TabProps<TData>[],
+  showRowSelectedCounter: boolean,
 }
 
 export default function CustomDataTableContent<TData>({
   columns,
   table,
   tableContainerRef,
-  infoTabs
+  infoTabs,
+  showRowSelectedCounter
 }: CustomDataTableProps<TData>) {
   return (
     <div className="space-y-4">
@@ -84,7 +86,9 @@ export default function CustomDataTableContent<TData>({
           </TableBody>
         </Table>
       </div>
-      <DataTablePagination table={table} />
+      <DataTablePagination table={table} config={{
+        showRowSelectedCounter: showRowSelectedCounter,
+      }}/>
     </div>
   );
 }

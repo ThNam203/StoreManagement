@@ -171,11 +171,8 @@ export default function InvoiceReturnPage() {
     setIsCompletingReturn(true);
     await ReturnInvoiceService.uploadReturnInvoice(submitInvoice)
       .then((response) => {
-        createInvoicePdf(returnInvoice!, products, () => {
-          console.log('mao phac')
-          router.back()
-          console.log('mao phac 2')
-        });
+        createInvoicePdf(returnInvoice!, products)
+        router.back();
       })
       .catch((e) => {
         axiosUIErrorHandler(e, toast);

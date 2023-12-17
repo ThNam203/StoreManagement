@@ -112,31 +112,36 @@ export default function SearchAndChooseButton({
   );
 }
 
+type Value = {
+  id: any;
+  value: string,
+}
+
 export function SearchAndChooseMultiple({
   value,
   className,
   choices,
   onValueChanged,
 }: {
-  value: string[];
+  value: Value[];
   className?: string;
-  choices: string[];
-  onValueChanged: (values: string[]) => void;
+  choices: Value[];
+  onValueChanged: (values: Value[]) => void;
 }) {
   const [searchInput, setSearchInput] = useState("");
   const [showSearchResult, setShowSearchResult] = useState(false);
 
   const filteredChoices = choices
     .filter((choice) =>
-      choice.toLowerCase().includes(searchInput.trim().toLowerCase())
+      choice.value.toLowerCase().includes(searchInput.trim().toLowerCase())
     )
     .map((choice, idx) => (
       <li
         key={idx}
         className="p-2 bg-white hover:cursor-pointer hover:bg-slate-300 flex flex-row items-center"
         onClick={(e) => {
-          if (value.includes(choice))
-            onValueChanged(value.filter((v) => v !== choice));
+          if (value.find((v) => v.id === choice.id))
+            onValueChanged(value.filter((v) => v.id !== choice.id));
           else onValueChanged([...value, choice]);
           e.stopPropagation();
           setShowSearchResult(false);
@@ -146,8 +151,8 @@ export function SearchAndChooseMultiple({
           e.preventDefault();
         }}
       >
-        <p className="flex-1">{choice}</p>
-        {value.includes(choice) ? <Check size={16} /> : null}
+        <p className="flex-1">{choice.value}</p>
+        {value.map((v) => v.id).includes(choice.id) ? <Check size={16} /> : null}
       </li>
     ));
 
@@ -201,12 +206,12 @@ export function SearchAndChooseMultiple({
             key={idx}
             className="flex flex-row p-1 bg-blue-400 text-white text-xs rounded-md items-center gap-[2px]"
           >
-            <p>{rs}</p>
+            <p>{rs.value}</p>
             <X
               size={16}
               color="white"
               className="p-[2px] hover:cursor-pointer"
-              onClick={() => onValueChanged(value.filter((v) => v !== rs))}
+              onClick={() => onValueChanged(value.filter((v) => v.id !== rs.id))}
             />
           </div>
         ))}

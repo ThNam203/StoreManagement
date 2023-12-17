@@ -8,8 +8,12 @@ import { Invoice } from "@/entities/Invoice";
   const getAllInvoices = () => {
     return AxiosService.get<Invoice[]>("api/invoice")
   }
+
+  const deleteInvoice = (invoiceId: number) => {
+    return AxiosService.delete<Invoice>(`api/invoice${invoiceId}`)
+  }
   
-  const InvoiceService = {uploadInvoice,getAllInvoices};
+  const InvoiceService = {uploadInvoice,getAllInvoices, deleteInvoice};
   
   export default InvoiceService;
   

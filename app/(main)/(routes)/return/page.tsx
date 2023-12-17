@@ -10,30 +10,40 @@ import { axiosUIErrorHandler } from "@/services/axios_utils";
 import InvoiceService from "@/services/invoice_service";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { InvoiceDatatable } from "./datatable";
+import { useEffect, useState } from "react";
+import ChooseInvoiceToReturnDialog from "@/components/component/choose_invoice_to_return_dialog";
+import ReturnInvoiceService from "@/services/return_invoice_service";
+import { setReturnInvoices } from "@/reducers/returnInvoicesReducer";
+import { ReturnDatatable } from "./datatable";
 
-export default function InvoicePage() {
+export default function ReturnPage() {
   const router = useRouter()
   const dispatch = useAppDispatch();
   const { toast } = useToast();
 
   const NewInvoiceButton = () => {
+    const [openDialog, setOpenDialog] = useState(false)
     return (
-      <Button variant={"green"} onClick={() => router.push('/sale')}>
-        <Plus size={16} className="mr-2" />
-        New Invoice
-      </Button>
+      <>
+        <Button variant={"green"} onClick={() => router.push('/sale')}>
+          <Plus size={16} className="mr-2" />
+          New Return
+        </Button>
+        <ChooseInvoiceToReturnDialog open={openDialog} onOpenChange={setOpenDialog} invoices={invoices}/>
+      </>
     );
   };
 
   const invoices = useAppSelector((state) => state.invoices.value)
+  const returnInvoices = useAppSelector((state) => state.returnInvoices.value)
 
   useEffect(() => {
     dispatch(showPreloader())
     const fetchData = async () => {
       const invoices = await InvoiceService.getAllInvoices()
       dispatch(setInvoices(invoices.data))
+      const returnInvoices = await ReturnInvoiceService.getAllReturnInvoices()
+      dispatch(setReturnInvoices(returnInvoices.data))
     }
 
     fetchData().then().catch(e => axiosUIErrorHandler(e, toast)).finally(() => dispatch(disablePreloader()))
@@ -45,7 +55,7 @@ export default function InvoicePage() {
       filters={[]}
       headerButtons={[<NewInvoiceButton key={1} />]}
     >
-      <InvoiceDatatable data={invoices} router={router}/>
+      <ReturnDatatable data={returnInvoices} router={router}/>
     </PageWithFilters>
   );
 }
