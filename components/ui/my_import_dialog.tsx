@@ -10,13 +10,14 @@ import { Label } from "@/components/ui/label";
 import { MyLabelButton } from "@/components/ui/my_label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/components/ui/use-toast";
+import { Transaction } from "@/entities/Transaction";
 import { importExcel } from "@/utils";
 import { FileUp } from "lucide-react";
 import React from "react";
 
 const templateAskAndAns: Array<{ question: string; options: Array<string> }> = [
   {
-    question: "Handling duplicate product codes and different product names ?",
+    question: "Handling duplicate product codes or different product names ?",
     options: ["Throw error and abort", "Replace old name by new one"],
   },
   {
@@ -31,32 +32,46 @@ const templateAskAndAns: Array<{ question: string; options: Array<string> }> = [
 
 export function ImportDailog({
   askAndAns = templateAskAndAns,
-  filePath,
+  onImport,
   onChange,
 }: {
   askAndAns?: Array<{ question: string; options: Array<string> }>;
-  filePath?: string;
+  onImport?: (data: any[]) => any;
   onChange?: (ans: Array<{ question: string; ans: string }>) => void;
 }) {
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
-  const handleImportExcel = (event: any) => {
+  const handleImportExcel = async (event: any) => {
     const file = event.target.files[0];
-    const importFile = importExcel(file);
-    toast({
-      title: "File uploaded",
-      duration: 3000,
-    });
-    fileInputRef.current!.value = "";
+    if (!file) {
+      toast({
+        title: "Please choose a file",
+        duration: 3000,
+      });
+      return;
+    }
+    try {
+      await importExcel(file).then((sheets) => {
+        if (onImport) onImport(sheets);
+        toast({
+          title: "File uploaded",
+          duration: 3000,
+        });
+        fileInputRef.current!.value = "";
+      });
+    } catch (error) {
+      toast({
+        title: error as string,
+        duration: 3000,
+      });
+    }
   };
 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button
-          variant={"green"}
-        >
+        <Button variant={"green"}>
           <FileUp className="mr-2 h-4 w-4" />
           Import
         </Button>
@@ -66,7 +81,13 @@ export function ImportDailog({
           <DialogTitle>Import from excel file</DialogTitle>
           <div className="text-sm">
             Download template file:{" "}
-<a href="/template.xlsx" download="template.xlsx" className="text-teal-600 whitespace-nowrap hover:cursor-pointer hover:underline hover:underline-offset-2 select-none">Excel file</a>
+            <a
+              href="/template.xlsx"
+              download="template.xlsx"
+              className="select-none whitespace-nowrap text-teal-600 hover:cursor-pointer hover:underline hover:underline-offset-2"
+            >
+              Excel file
+            </a>
           </div>
         </DialogHeader>
 
@@ -74,7 +95,7 @@ export function ImportDailog({
           {askAndAns.map((item, index) => {
             return (
               <div key={index} className="pt-4">
-                <div className="font-semibold text-base">{item.question}</div>
+                <div className="text-base font-semibold">{item.question}</div>
                 <RadioGroup
                   defaultValue={item.options[0]}
                   className="mt-4 flex flex-col space-y-2"
@@ -100,7 +121,7 @@ export function ImportDailog({
             );
           })}
           <form className="self-end">
-            <MyLabelButton className="bg-green-500 hover:bg-green-600 hover:cursor-pointer">
+            <MyLabelButton className="bg-green-500 hover:cursor-pointer hover:bg-green-600">
               <input
                 ref={fileInputRef}
                 type="file"

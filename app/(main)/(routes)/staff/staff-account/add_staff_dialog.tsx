@@ -479,6 +479,7 @@ export function AddStaffDialog({
                                   placeholder="Search position..."
                                   choices={positionList}
                                   endIcon={addPositionDailog}
+                                  canRemoveOption={true}
                                   onRemoveChoice={handleRemovePosition}
                                 />
                               </FormControl>

@@ -86,10 +86,6 @@ export function SetTimeDialog({
     if (open) resetValues(specificShift);
   }, [open]);
 
-  useEffect(() => {
-    console.log("form change");
-  }, [form]);
-
   const resetValues = (specificShift: DailyShift | null) => {
     setIsLoading(false);
     setIsRepeat(false);
@@ -116,12 +112,12 @@ export function SetTimeDialog({
   };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    // check if shift is existed to give id for BE to update
     if (!specificShift) {
       const existedShift = shiftList.find(
         (shift) => shift.name === values.shiftName,
       );
       if (existedShift) {
-        console.log("existed shift", existedShift);
         const existedDailyShift = existedShift.dailyShiftList.find(
           (dailyShift) =>
             dailyShift.date.toLocaleDateString() ===
@@ -141,7 +137,7 @@ export function SetTimeDialog({
         }
       } else return;
     }
-    console.log("specific shift", specificShift);
+
     const updatedDailyShift: DailyShift = {
       id: specificShift.id,
       shiftId: specificShift ? specificShift.shiftId : -1,
@@ -150,7 +146,6 @@ export function SetTimeDialog({
       note: values.note,
       attendList: [],
     };
-    console.log("attend staff list", attendStaffList);
     tempAttendStaffList.forEach((staff) => {
       updatedDailyShift.attendList.push({
         id: -1,
@@ -193,7 +188,6 @@ export function SetTimeDialog({
         newDailyShift.attendList = newDailyShift.attendList.map((attend) => {
           return { ...attend, date: newDate };
         });
-        console.log("new daily shift", newDailyShift);
         const shift = shiftList.find(
           (shift) => shift.id === specificShift!.shiftId,
         );
@@ -214,9 +208,8 @@ export function SetTimeDialog({
       dailyShiftList.push(updatedDailyShift);
     }
 
-    console.log("daily shift list", dailyShiftList);
-
     if (isExisted) {
+      console.log("update daily shifts");
       if (onUpdateDailyShifts) {
         setIsLoading(true);
         try {
@@ -230,14 +223,7 @@ export function SetTimeDialog({
         }
       }
     } else {
-      console.log("submit new shift");
-      if (dailyShiftList[0].attendList.length === 0) {
-        toast({
-          description: "Please select at least 1 staff to attend this shift",
-          variant: "destructive",
-        });
-        return;
-      }
+      console.log("submit daily shift");
       if (submit) {
         setIsLoading(true);
         try {
@@ -491,6 +477,15 @@ export function SetTimeDialog({
               <Button
                 type="button"
                 onClick={() => {
+                  // check if attend staff list is empty
+                  if (tempAttendStaffList.length === 0) {
+                    toast({
+                      description:
+                        "Please select at least 1 staff to attend this shift",
+                      variant: "destructive",
+                    });
+                    return;
+                  }
                   // check if shift is existed to avoid overwriting shift
                   const checkIsExisted = isShiftExisted(
                     form.getValues("shiftName"),

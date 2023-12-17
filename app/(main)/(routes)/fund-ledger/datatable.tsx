@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { DataTableViewOptions } from "@/components/ui/my_table_column_visibility_toggle";
 import { DataTableContent } from "@/components/ui/my_table_content";
 import { FormType, Transaction } from "@/entities/Transaction";
+import { useAppSelector } from "@/hooks";
+import { exportExcel, formatPrice } from "@/utils";
 import {
   ColumnFiltersState,
   RowSelectionState,
@@ -16,33 +18,13 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import { format } from "date-fns";
+import { FileDown } from "lucide-react";
 import * as React from "react";
+import { ImportDailog } from "../../../../components/ui/my_import_dialog";
 import { columnHeader, columns } from "./columns";
 import { MakeExpenseDialog } from "./make_expense_dialog";
 import { MakeReceiptDialog } from "./make_receipt_dialog";
-import { exportExcel, formatPrice, importExcel } from "@/utils";
-import { MyLabelButton } from "@/components/ui/my_label";
-import { useToast } from "@/components/ui/use-toast";
-import { ChevronDown, CopyIcon, FileDown, FileUp } from "lucide-react";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { DialogClose } from "@radix-ui/react-dialog";
-import { ImportDailog } from "../../../../components/ui/my_import_dialog";
-import { join } from "path";
-import { format } from "date-fns";
 
 type Props = {
   data: Transaction[];
@@ -97,6 +79,8 @@ export function DataTable({ data, onSubmit }: Props) {
   );
   const [openExpense, setOpenExpense] = React.useState(false);
   const [openReceipt, setOpenReceipt] = React.useState(false);
+  const staffList = useAppSelector((state) => state.staffs.value);
+  const staffNameList = staffList.map((staff) => staff.name);
 
   const handleSubmit = (values: Transaction) => {
     if (onSubmit) onSubmit(values);
@@ -161,6 +145,31 @@ export function DataTable({ data, onSubmit }: Props) {
     exportExcel(toExport, "Fund Ledger", "Fund Ledger");
   };
 
+  const handleImportFile = (sheets: any[]) => {
+    const keys = Object.keys(columnHeader);
+    const newData = sheets.map((sheet: any[]) => {
+      const convertedSheet = sheet.map((row) => {
+        console.log("row", row);
+        let convertedRow: any = {};
+        for (let key of keys) {
+          const value =
+            row[
+              columnHeader[key as keyof typeof columnHeader] as keyof typeof row
+            ];
+          console.log("value", value);
+          if (value === undefined) {
+            convertedRow = { ...convertedRow, [key]: "" };
+          } else {
+            convertedRow = { ...convertedRow, [key]: value };
+          }
+        }
+        return convertedRow;
+      });
+      console.log("convertedSheet", convertedSheet);
+      return convertedSheet;
+    });
+  };
+
   const beginningFund = 200000000;
   const totalExpense = 1500000;
   const totalReceipt = 1000000;
@@ -200,7 +209,7 @@ export function DataTable({ data, onSubmit }: Props) {
             </Button>
           </div>
           <div className="mr-2">
-            <ImportDailog />
+            <ImportDailog onImport={handleImportFile} />
           </div>
 
           <div className="mr-2">
@@ -222,12 +231,14 @@ export function DataTable({ data, onSubmit }: Props) {
             submit={handleSubmit}
             open={openExpense}
             setOpen={setOpenExpense}
+            staffNameList={staffNameList}
           />
           <MakeReceiptDialog
             data={selectedForm}
             submit={handleSubmit}
             open={openReceipt}
             setOpen={setOpenReceipt}
+            staffNameList={staffNameList}
           />
         </div>
       </div>

@@ -30,6 +30,7 @@ import {
   ConfirmDialogType,
   MyConfirmDialog,
 } from "../../../../../components/ui/my_confirm_dialog";
+import { useToast } from "@/components/ui/use-toast";
 
 const formSchema = z.object({
   name: z.string().min(1),
@@ -59,6 +60,7 @@ export function AddShiftDialog({
   setOpen: (value: boolean) => void;
   onRemoveShift?: (id: any) => any;
 }) {
+  const { toast } = useToast();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -125,6 +127,19 @@ export function AddShiftDialog({
   };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    //check logic
+    if (
+      stringTimeToDate(values.workingTime.start) >=
+      stringTimeToDate(values.workingTime.end)
+    ) {
+      toast({
+        description:
+          "The start time of working time must be earlier than the end time of working time",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsAdding(true);
     const newShift: Shift = {
       id: shift ? shift.id : null,

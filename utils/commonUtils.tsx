@@ -9,6 +9,7 @@ import {
 import { AttendanceRecord, DailyShift, Shift } from "@/entities/Attendance";
 import { BonusUnit, SalaryType } from "@/entities/SalarySetting";
 import { Staff } from "@/entities/Staff";
+import { axiosUIErrorHandler } from "@/services/axios_utils";
 
 import * as XLSX from "xlsx";
 
@@ -28,16 +29,27 @@ const importExcel = async (file: any) => {
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     "application/vnd.ms-excel",
   ];
-  if (!validMIMEType.includes(file.type)) return;
-
-  const data = await file.arrayBuffer();
-
-  const workbook = XLSX.readFile(data);
-  let worksheet: any = {};
-  for (let sheetName of workbook.SheetNames) {
-    worksheet[sheetName] = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+  let importData = [];
+  if (!validMIMEType.includes(file.type)) {
+    const error = new Error("Invalid file type");
+    return Promise.reject(error);
   }
-  return worksheet;
+  try {
+    const data = await file.arrayBuffer();
+
+    const workbook = XLSX.readFile(data, { cellDates: true });
+    let worksheet: any = {};
+    for (let sheetName of workbook.SheetNames) {
+      worksheet[sheetName] = XLSX.utils.sheet_to_json(
+        workbook.Sheets[sheetName],
+      );
+      importData.push(worksheet[sheetName]);
+    }
+  } catch (e) {
+    console.log(e);
+    return Promise.reject(e);
+  }
+  return Promise.resolve(importData);
 };
 
 type MultiFilter = Record<string, any>;

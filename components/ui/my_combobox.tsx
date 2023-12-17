@@ -27,7 +27,7 @@ export function MyCombobox({
   className,
   defaultValue = "",
   endIcon,
-  canRemoveOption = true,
+  canRemoveOption = false,
   onValueChange,
   onRemoveChoice,
 }: {

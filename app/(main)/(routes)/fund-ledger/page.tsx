@@ -31,7 +31,12 @@ import {
 } from "@/utils";
 import { Toaster } from "@/components/ui/toaster";
 import { useAppDispatch } from "@/hooks";
-import { disablePreloader } from "@/reducers/preloaderReducer";
+import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
+import StaffService from "@/services/staff_service";
+import { convertStaffReceived } from "@/utils/staffApiUtils";
+import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { setStaffs } from "@/reducers/staffReducer";
+import { useToast } from "@/components/ui/use-toast";
 const originalSalesList: Transaction[] = [
   {
     id: 1,
@@ -76,6 +81,7 @@ const originalSalesList: Transaction[] = [
 
 export default function SalesPage() {
   const dispatch = useAppDispatch();
+  const { toast } = useToast();
   const [salesList, setSalesList] = useState<Transaction[]>([]);
   const [filteredSaleList, setFilterSaleList] = useState<Transaction[]>([]);
   const [multiFilter, setMultiFilter] = useState({
@@ -101,20 +107,24 @@ export default function SalesPage() {
 
   // hook use effect
   useEffect(() => {
+    dispatch(showPreloader());
     const fetchData = async () => {
-      const res = originalSalesList;
-      const formatedData: Transaction[] = res.map((row) => {
-        const newRow = { ...row };
-        newRow.id = formatID(
-          newRow.id,
-          newRow.formType === FormType.EXPENSE ? "PC" : "PT",
+      try {
+        setSalesList(originalSalesList);
+
+        const res = await StaffService.getAllStaffs();
+        const staffReceived = res.data.map((staff) =>
+          convertStaffReceived(staff),
         );
-        return newRow;
-      });
-      setSalesList(formatedData);
+        dispatch(setStaffs(staffReceived));
+      } catch (e) {
+        axiosUIErrorHandler(e, toast);
+      } finally {
+        dispatch(disablePreloader());
+      }
     };
+
     fetchData();
-    dispatch(disablePreloader());
   }, []);
 
   useEffect(() => {
