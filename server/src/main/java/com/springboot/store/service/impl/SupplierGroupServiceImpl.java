@@ -52,6 +52,8 @@ public class SupplierGroupServiceImpl implements SupplierGroupService {
         SupplierGroup supplierGroup = supplierGroupRepository.findById(id).orElseThrow(() -> new CustomException("Supplier group not found", HttpStatus.NOT_FOUND));
         supplierGroup.setName(supplierGroupDTO.getName());
         supplierGroup.setDescription(supplierGroupDTO.getDescription());
+        supplierGroup.setAddress(supplierGroupDTO.getAddress());
+        supplierGroup.setCompany(supplierGroupDTO.getCompany());
         return SupplierGroupMapper.toSupplierGroupDTO(supplierGroupRepository.save(supplierGroup));
     }
 

@@ -8,6 +8,8 @@ public class SupplierGroupMapper {
         return SupplierGroup.builder()
                 .name(supplierGroupDTO.getName())
                 .description(supplierGroupDTO.getDescription())
+                .address(supplierGroupDTO.getAddress())
+                .company(supplierGroupDTO.getCompany())
                 .createdAt(supplierGroupDTO.getCreatedAt())
                 .build();
     }
@@ -16,6 +18,8 @@ public class SupplierGroupMapper {
                 .id(supplierGroup.getId())
                 .name(supplierGroup.getName())
                 .description(supplierGroup.getDescription())
+                .address(supplierGroup.getAddress())
+                .company(supplierGroup.getCompany())
                 .createdAt(supplierGroup.getCreatedAt())
                 .creatorId(supplierGroup.getCreator() != null ? supplierGroup.getCreator().getId() : null)
                 .build();

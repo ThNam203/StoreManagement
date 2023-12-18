@@ -37,7 +37,7 @@ public class CustomerServiceImpl implements CustomerService {
         return customers.stream()
                 .map(customer -> {
                     CustomerDTO customerDTO = modelMapper.map(customer, CustomerDTO.class);
-                    customerDTO.setCreator(Integer.toString(customer.getCreator().getId()));
+                    customerDTO.setCreatorId(customer.getCreator().getId());
                     customerDTO.setCustomerGroup(customer.getCustomerGroup().getName());
                     return customerDTO;
                 })
@@ -46,25 +46,32 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public CustomerDTO createCustomer(CustomerDTO customerDTO, MultipartFile file) {
+
+        if (!customerRepository.findByEmail(customerDTO.getEmail()).isEmpty()) {
+            throw new RuntimeException("Email already exists");
+        }
+
         Staff staff = staffService.getAuthorizedStaff();
-        customerDTO.setCreator(staffService.getAuthorizedStaff().getName());
+        customerDTO.setCreatorId(staffService.getAuthorizedStaff().getId());
         Customer customer = modelMapper.map(customerDTO, Customer.class);
         CustomerGroup customerGroup = customerGroupRepository.findByNameAndStoreId(customerDTO.getCustomerGroup(), staff.getStore().getId());
         if (customerGroup == null) {
             throw new RuntimeException("Customer group not found with name: " + customerDTO.getCustomerGroup());
         }
         customer.setCustomerGroup(customerGroup);
-        if (!file.isEmpty()) {
+        if (file != null) {
             String fileName = fileService.uploadFile(file);
-            Media media = Media.builder().url(fileName).build();
-            customer.setImage(media);
+            if (fileName != null) {
+                Media media = Media.builder().url(fileName).build();
+                customer.setImage(media);
+            }
         }
         customer.setCreatedAt(new Date());
         customer.setCreator(staff);
         customer.setStore(staff.getStore());
         customer = customerRepository.save(customer);
         customerDTO = modelMapper.map(customer, CustomerDTO.class);
-        customerDTO.setCreator(Integer.toString(customer.getCreator().getId()));
+        customerDTO.setCreatorId(customer.getCreator().getId());
         customerDTO.setCustomerGroup(customer.getCustomerGroup().getName());
         return customerDTO;
     }
@@ -72,6 +79,13 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public CustomerDTO updateCustomer(int id, CustomerDTO customerDTO, MultipartFile file) {
         Customer customer = customerRepository.findById(id).orElseThrow(() -> new RuntimeException("Customer not found with id: " + id));
+
+        if (customer.getEmail() != null && !customer.getEmail().equals(customerDTO.getEmail())) {
+            if (!customerRepository.findByEmail(customerDTO.getEmail()).isEmpty()) {
+                throw new RuntimeException("Email already exists");
+            }
+        }
+
         Staff staff = staffService.getAuthorizedStaff();
         if (!customer.getCustomerGroup().getName().equals(customerDTO.getCustomerGroup())) {
             CustomerGroup customerGroup = customerGroupRepository.findByNameAndStoreId(customerDTO.getCustomerGroup(), staff.getStore().getId());
@@ -80,10 +94,12 @@ public class CustomerServiceImpl implements CustomerService {
             }
             customer.setCustomerGroup(customerGroup);
         }
-        if (!file.isEmpty()) {
+        if (file != null) {
             String fileName = fileService.uploadFile(file);
-            Media media = Media.builder().url(fileName).build();
-            customer.setImage(media);
+            if (fileName != null) {
+                Media media = Media.builder().url(fileName).build();
+                customer.setImage(media);
+            }
         }
         customer.setName(customerDTO.getName());
         customer.setAddress(customerDTO.getAddress());
@@ -96,7 +112,7 @@ public class CustomerServiceImpl implements CustomerService {
         customer = customerRepository.save(customer);
 
         customerDTO = modelMapper.map(customer, CustomerDTO.class);
-        customerDTO.setCreator(Integer.toString(customer.getCreator().getId()));
+        customerDTO.setCreatorId(customer.getCreator().getId());
         customerDTO.setCustomerGroup(customer.getCustomerGroup().getName());
         return customerDTO;
     }
@@ -105,7 +121,7 @@ public class CustomerServiceImpl implements CustomerService {
     public CustomerDTO getCustomerById(int id) {
         Customer customer = customerRepository.findById(id).orElseThrow(() -> new RuntimeException("Customer not found with id: " + id));
         CustomerDTO customerDTO = modelMapper.map(customer, CustomerDTO.class);
-        customerDTO.setCreator(Integer.toString(customer.getCreator().getId()));
+        customerDTO.setCreatorId(customer.getCreator().getId());
         customerDTO.setCustomerGroup(customer.getCustomerGroup().getName());
         return customerDTO;
     }

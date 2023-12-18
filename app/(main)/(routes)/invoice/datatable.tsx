@@ -56,10 +56,12 @@ import { deleteInvoice } from "@/reducers/invoicesReducer";
 
 export function InvoiceDatatable({ data, router }: { data: Invoice[], router: AppRouterInstance }) {
   const { toast } = useToast();
+  const dispatch = useAppDispatch();
 
   async function deleteInvoices(dataToDelete: Invoice[]): Promise<void> {
-    const promises = dataToDelete.map((invoice) => {
-      return InvoiceService.deleteInvoice(invoice.id);
+    const promises = dataToDelete.map(async (invoice) => {
+      await InvoiceService.deleteInvoice(invoice.id);
+      return dispatch(deleteInvoice(invoice.id));
     });
 
     try {

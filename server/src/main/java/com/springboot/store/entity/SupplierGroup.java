@@ -25,6 +25,12 @@ public class SupplierGroup {
     @Column(name = "description")
     private String description;
 
+    @Column(name = "address")
+    private String address;
+
+    @Column(name="company")
+    private String company;
+
     @Column(name = "created_at")
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date createdAt;

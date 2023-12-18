@@ -55,16 +55,19 @@ export function CatalogDatatable({
   onProductUpdateButtonClicked: (rowIndex: number) => any;
 }) {
   const { toast } = useToast();
+  const dispatch = useAppDispatch();
 
   async function deleteProducts(dataToDelete: Product[]): Promise<void> {
     const promises = dataToDelete.map((product) => {
-      return ProductService.deleteProduct(product.id);
+      return ProductService.deleteProduct(product.id).then((_) =>
+        dispatch(deleteProduct(product.id)),
+      );
     });
 
     try {
       Promise.allSettled(promises).then((deletedData) => {
         const successfullyDeleted = deletedData.map(
-          (data) => data.status === "fulfilled"
+          (data) => data.status === "fulfilled",
         );
         toast({
           description: `Deleted ${
@@ -101,7 +104,7 @@ export function CatalogDatatable({
         },
       ]}
       config={{
-        onDeleteRowsBtnClick: (dataToDelete) => deleteProducts(dataToDelete), // if null, remove button
+        onDeleteRowsBtnClick: deleteProducts, // if null, remove button
         defaultVisibilityState: catalogDefaultVisibilityState,
       }}
     />
@@ -119,7 +122,7 @@ const DetailProductTab = ({
 }) => {
   const product = row.original;
   const [chosenImagePos, setChosenImagePos] = React.useState<number | null>(
-    product.images && product.images.length > 0 ? 0 : null
+    product.images && product.images.length > 0 ? 0 : null,
   );
   const [disableDisableButton, setDisableDisableButton] = useState(false);
   const [disableDeleteButton, setDisableDeleteButton] = useState(false);
@@ -130,9 +133,9 @@ const DetailProductTab = ({
     <>
       <h4 className="text-lg font-bold text-blue-800">{product.name}</h4>
       <div className="flex flex-row gap-4">
-        <div className="flex flex-col grow-[2] shrink-[2] gap-2 max-w-[300px]">
+        <div className="flex max-w-[300px] shrink-[2] grow-[2] flex-col gap-2">
           <AspectRatio
-            className="w-full flex items-center justify-center  border-2 border-gray-200 rounded-sm"
+            className="flex w-full items-center justify-center  rounded-sm border-2 border-gray-200"
             ratio={1 / 1}
           >
             <img
@@ -142,7 +145,7 @@ const DetailProductTab = ({
                   ? product.images[chosenImagePos]
                   : "/default-product-img.jpg"
               }
-              className="w-full max-h-[300px] max-w-[300px]"
+              className="max-h-[300px] w-full max-w-[300px]"
             />
           </AspectRatio>
           {product.images && product.images.length > 0 ? (
@@ -154,7 +157,7 @@ const DetailProductTab = ({
                       "max-h-[53px] max-w-[60px] border",
                       chosenImagePos === idx
                         ? "border-black"
-                        : "border-gray-200"
+                        : "border-gray-200",
                     )}
                     key={idx}
                     onClick={(_) => setChosenImagePos(idx)}
@@ -162,7 +165,7 @@ const DetailProductTab = ({
                     <img
                       alt="product image preview"
                       src={imageLink ?? "/default-product-img.jpg"}
-                      className="object-contain mb-1"
+                      className="mb-1 object-contain"
                     />
                   </div>
                 );
@@ -170,29 +173,29 @@ const DetailProductTab = ({
             </div>
           ) : null}
         </div>
-        <div className="flex flex-row grow-[5] shrink-[5] text-[0.8rem]">
-          <div className="flex-1 flex flex-col pr-4">
-            <div className="flex flex-row font-medium border-b mb-2">
+        <div className="flex shrink-[5] grow-[5] flex-row text-[0.8rem]">
+          <div className="flex flex-1 flex-col pr-4">
+            <div className="mb-2 flex flex-row border-b font-medium">
               <p className="w-[120px] font-normal">Product id:</p>
               <p>{product.id}</p>
             </div>
-            <div className="flex flex-row font-medium border-b mb-2">
+            <div className="mb-2 flex flex-row border-b font-medium">
               <p className="w-[120px] font-normal">Product barcode:</p>
               <p>{product.barcode}</p>
             </div>
-            <div className="flex flex-row font-medium border-b mb-2">
+            <div className="mb-2 flex flex-row border-b font-medium">
               <p className="w-[120px] font-normal">Product group:</p>
               {product.productGroup ? <p>{product.productGroup}</p> : null}
             </div>
-            <div className="flex flex-row font-medium border-b mb-2">
+            <div className="mb-2 flex flex-row border-b font-medium">
               <p className="w-[120px] font-normal">Brand:</p>
               {product.productBrand ? <p>{product.productBrand}</p> : null}
             </div>
-            <div className="flex flex-row font-medium border-b mb-2">
+            <div className="mb-2 flex flex-row border-b font-medium">
               <p className="w-[120px] font-normal">Stock:</p>
               <p>{product.stock}</p>
             </div>
-            <div className="flex flex-row font-medium border-b mb-2">
+            <div className="mb-2 flex flex-row border-b font-medium">
               <p className="w-[120px] font-normal">Stock quota:</p>
               <div className="flex flex-row items-center">
                 <p>{product.minStock}</p>
@@ -201,25 +204,25 @@ const DetailProductTab = ({
               </div>
             </div>
 
-            <div className="flex flex-row font-medium border-b mb-2">
+            <div className="mb-2 flex flex-row border-b font-medium">
               <p className="w-[120px] font-normal">Product price:</p>
               <p>{product.productPrice}</p>
             </div>
-            <div className="flex flex-row font-medium border-b mb-2">
+            <div className="mb-2 flex flex-row border-b font-medium">
               <p className="w-[120px] font-normal">Original price:</p>
               <p>{product.originalPrice}</p>
             </div>
-            <div className="flex flex-row font-medium border-b mb-2">
+            <div className="mb-2 flex flex-row border-b font-medium">
               <p className="w-[120px] font-normal">Weight:</p>
               <p>{product.weight}</p>
             </div>
-            <div className="flex flex-row font-medium border-b mb-2">
+            <div className="mb-2 flex flex-row border-b font-medium">
               <p className="w-[120px] font-normal">Location:</p>
               <p>{product.location}</p>
             </div>
           </div>
-          <div className="flex-1 flex flex-col pr-4">
-            <div className="flex flex-row font-medium border-b mb-2">
+          <div className="flex flex-1 flex-col pr-4">
+            <div className="mb-2 flex flex-row border-b font-medium">
               <p className="w-[120px] font-normal">Status:</p>
               <p>{product.status}</p>
             </div>
@@ -228,8 +231,8 @@ const DetailProductTab = ({
               <textarea
                 readOnly
                 className={cn(
-                  "resize-none border-2 rounded-sm p-1 h-[80px] w-full",
-                  scrollbar_style.scrollbar
+                  "h-[80px] w-full resize-none rounded-sm border-2 p-1",
+                  scrollbar_style.scrollbar,
                 )}
                 defaultValue={product.description}
               ></textarea>
@@ -239,8 +242,8 @@ const DetailProductTab = ({
               <textarea
                 readOnly
                 className={cn(
-                  "resize-none border-2 rounded-sm p-1 h-[80px] w-full",
-                  scrollbar_style.scrollbar
+                  "h-[80px] w-full resize-none rounded-sm border-2 p-1",
+                  scrollbar_style.scrollbar,
                 )}
                 defaultValue={product.note}
               ></textarea>
@@ -268,7 +271,7 @@ const DetailProductTab = ({
                 ...product,
                 status: product.status === "Active" ? "Disabled" : "Active",
               },
-              null
+              null,
             )
               .then((result) => {
                 dispatch(updateProduct(result.data));
