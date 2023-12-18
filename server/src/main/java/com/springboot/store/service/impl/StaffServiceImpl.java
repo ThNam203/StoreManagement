@@ -36,7 +36,7 @@ public class StaffServiceImpl implements StaffService {
     private final ShiftAttendanceRecordRepository shiftAttendanceRecordRepository;
     private final StaffPositionRepository staffPositionRepository;
     private final DailyShiftRepository dailyShiftRepository;
-    private final DailyShiftService dailyShiftService;
+    private final ShiftRepository shiftRepository;
 
     @Override
     public StaffResponse createStaff(StaffRequest newStaff, MultipartFile file) {
@@ -199,7 +199,13 @@ public class StaffServiceImpl implements StaffService {
             for (DailyShift dailyShift : dailyShifts) {
                 dailyShift.getAttendanceList().remove(shiftAttendanceRecord);
                 if (dailyShift.getAttendanceList().isEmpty()) {
-                    dailyShiftService.deleteDailyShift(dailyShift.getId());
+                    dailyShift.setAttendanceList(null);
+                    Shift shift = dailyShift.getShift();
+                    shift.getDailyShifts().remove(dailyShift);
+                    dailyShift.setStore(null);
+                    dailyShift.setShift(null);
+                    shiftRepository.save(shift);
+                    dailyShiftRepository.deleteById(dailyShift.getId());
                 } else dailyShiftRepository.save(dailyShift);
             }
         }
