@@ -22,12 +22,10 @@ const visibilityState = {
   createdDate: false,
 };
 
-export function StockCheckDatatable() {
-  const stockChecks = useAppSelector((state) => state.stockChecks.value);
-
+export function StockCheckDatatable({data}:{data: StockCheck[]}) {
   return (
     <CustomDatatable
-      data={stockChecks}
+      data={data}
       columns={stockCheckTableColumns()}
       columnTitles={stockCheckColumnTitles}
       infoTabs={[

@@ -7,11 +7,17 @@ import {
   SearchFilter,
   TimeFilter,
 } from "@/components/ui/filter";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { StockCheckDatatable } from "./datatable";
 import { TimeFilterType } from "@/utils";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { useAppDispatch, useAppSelector } from "@/hooks";
+import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
+import StockCheckService from "@/services/stock_check_service";
+import { setStockChecks } from "@/reducers/stockChecksReducer";
+import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { useToast } from "@/components/ui/use-toast";
 
 const creatorChoices = ["Nam", "Dat", "Son", "Khoi"];
 
@@ -112,7 +118,20 @@ export default function StockCheck() {
     />,
   ];
 
+  const dispatch = useAppDispatch();
+  const { toast } = useToast();
   const router = useRouter();
+  const stockChecks = useAppSelector((state) => state.stockChecks.value);
+
+  useEffect(() => {
+    dispatch(showPreloader())
+    const fetchData = async () => {
+      const stockChecks = await StockCheckService.getAllStockChecks()
+      dispatch(setStockChecks(stockChecks))
+    }
+
+    fetchData().then().catch(e => axiosUIErrorHandler(e, toast)).finally(() => dispatch(disablePreloader()))
+  }, [])
 
   return (
     <PageWithFilters
@@ -124,7 +143,7 @@ export default function StockCheck() {
         </Button>,
       ]}
     >
-      <StockCheckDatatable />
+      <StockCheckDatatable data={stockChecks} />
     </PageWithFilters>
   );
 }

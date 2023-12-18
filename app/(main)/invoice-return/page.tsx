@@ -78,7 +78,7 @@ export default function InvoiceReturnPage() {
         dispatch(setDiscounts(discounts.data));
 
         const returnInvoices =
-          await ReturnInvoiceService.getAllReturneInvoices();
+          await ReturnInvoiceService.getAllReturnInvoices();
         dispatch(setReturnInvoices(returnInvoices.data));
 
         let foundInvoice = invoices.data.find(

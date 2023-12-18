@@ -23,6 +23,7 @@ import {
 import { RefObject } from "react";
 import CustomDatatableRow, { TabProps } from "./custom_datatable_row";
 import { DataTablePagination } from "../ui/my_table_pagination";
+import { CustomDataTablePagination } from "./custom_datatable_pagination";
 
 interface CustomDataTableProps<TData> {
   columns: ColumnDef<TData, any>[];
@@ -86,7 +87,7 @@ export default function CustomDataTableContent<TData>({
           </TableBody>
         </Table>
       </div>
-      <DataTablePagination table={table} config={{
+      <CustomDataTablePagination table={table} config={{
         showRowSelectedCounter: showRowSelectedCounter,
       }}/>
     </div>
