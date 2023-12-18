@@ -2,8 +2,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { useForm } from "react-hook-form";
 import z from "zod";
-import { Button } from "./button";
-import LoadingCircle from "./loading_circle";
+import { Button } from "../ui/button";
+import LoadingCircle from "../ui/loading_circle";
 import {
   Form,
   FormControl,
@@ -11,30 +11,32 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "./form";
-import { Textarea } from "./textarea";
+} from "../ui/form";
+import { Textarea } from "../ui/textarea";
 import scrollbar_style from "@/styles/scrollbar.module.css";
-import { RadioGroup, RadioGroupItem } from "./radio-group";
-import { Label } from "./label";
-import { Input } from "./input";
-import SearchAndChooseButton from "./catalog/search_filter";
+import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
+import { Label } from "../ui/label";
+import { Input } from "../ui/input";
+import SearchAndChooseButton from "../ui/catalog/search_filter";
 import { cn } from "@/lib/utils";
 import { X } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogContent,
   AlertDialogTrigger,
-} from "./alert-dialog";
+} from "../ui/alert-dialog";
 import { useEffect, useState } from "react";
 import CustomerService from "@/services/customer_service";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { addCustomer } from "@/reducers/customersReducer";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
-import { useToast } from "./use-toast";
-import AddNewThing from "./add_new_thing_dialog";
+import { useToast } from "../ui/use-toast";
+import AddNewThing from "../ui/add_new_thing_dialog";
 import { addCustomerGroup } from "@/reducers/customerGroupsReducer";
+import { Customer } from "@/entities/Customer";
 
 const newCustomerFormSchema = z.object({
+  id: z.string(),
   name: z
     .string()
     .trim()
@@ -62,12 +64,14 @@ const newCustomerFormSchema = z.object({
   customerGroup: z.string().min(1, "Missing group!").nullable(),
 });
 
-export default function NewCustomerDialog({
+export default function UpdateCustomerDialog({
   DialogTrigger,
   triggerClassname,
+  customer
 }: {
   DialogTrigger: JSX.Element;
   triggerClassname?: string;
+  customer: Customer
 }) {
   const [isCreatingNewCustomer, setIsCreatingNewCustomer] = useState(false);
   const [open, setOpen] = useState(false);
@@ -81,7 +85,7 @@ export default function NewCustomerDialog({
     if (file) formData.append("file", file);
     formData.append("data", new Blob([JSON.stringify(values)], { type: "application/json" }));
     setIsCreatingNewCustomer(true);
-    CustomerService.uploadCustomer(formData)
+    CustomerService.updateCustomer(formData)
       .then((result) => {
         dispatch(addCustomer(result.data));
         setOpen(false);
@@ -106,7 +110,7 @@ export default function NewCustomerDialog({
           )}
         >
           <div className="flex flex-row items-center justify-between mb-2">
-            <h3 className="font-semibold text-base">Add new customer</h3>
+            <h3 className="font-semibold text-base">Update customer</h3>
             <X
               size={24}
               className="hover:cursor-pointer rounded-full hover:bg-slate-200 p-1"
@@ -114,12 +118,13 @@ export default function NewCustomerDialog({
             />
           </div>
           <div className="flex flex-col md:flex-row gap-8">
-            <FormImage onImageChosen={onFileChanged} />
+            <FormImage onImageChosen={onFileChanged} imageSrc={customer.image.url} />
             <div className="flex-1">
               <FormContent
                 onSubmit={onSubmit}
                 isCreatingNewCustomer={isCreatingNewCustomer}
                 setOpen={setOpen}
+                customer={customer}
               />
             </div>
           </div>
@@ -131,8 +136,10 @@ export default function NewCustomerDialog({
 
 const FormImage = ({
   onImageChosen,
+  imageSrc,
 }: {
   onImageChosen: (file: File | null) => any;
+  imageSrc?: string;
 }) => {
   const [file, setFile] = useState<File | null>(null);
 
@@ -149,9 +156,9 @@ const FormImage = ({
           <img
             className={cn(
               "object-contain",
-              file ? "w-full h-full" : "h-10 w-10"
+              file || imageSrc ? "w-full h-full" : "h-10 w-10"
             )}
-            src={file ? URL.createObjectURL(file) : "/ic_user.png"}
+            src={file ? URL.createObjectURL(file) : imageSrc ? imageSrc : "/ic_user.png"}
           />
         </div>
         {file ? (
@@ -197,25 +204,18 @@ const FormContent = ({
   onSubmit,
   setOpen,
   isCreatingNewCustomer,
+  customer,
 }: {
   onSubmit: (values: any) => any;
   setOpen: (value: boolean) => any;
   isCreatingNewCustomer: boolean;
+  customer: Customer,
 }) => {
   const { toast } = useToast();
   const customerGroups = useAppSelector((state) => state.customerGroups.value)
   const form = useForm<z.infer<typeof newCustomerFormSchema>>({
     resolver: zodResolver(newCustomerFormSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      phoneNumber: "",
-      address: "",
-      sex: "Male",
-      description: "",
-      birthday: format(new Date(), "yyyy-MM-dd"),
-      customerGroup: "",
-    },
+    defaultValues: {...customer},
   });
 
   const dispatch = useAppDispatch();
@@ -428,7 +428,7 @@ const FormContent = ({
             className="px-4 min-w-[150px] uppercase"
             disabled={isCreatingNewCustomer}
           >
-            Save
+            Update
             <LoadingCircle
               className={"!w-4 ml-4 " + (isCreatingNewCustomer ? "" : "hidden")}
             />

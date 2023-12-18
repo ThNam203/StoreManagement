@@ -78,7 +78,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import LoadingCircle from "@/components/ui/loading_circle";
-import NewCustomerDialog from "@/components/ui/new_customer_dialog";
+import NewCustomerDialog from "@/components/component/new_customer_dialog";
 import SearchView from "@/components/ui/search_view";
 import PropertiesString from "@/components/ui/properties_string_view";
 import { Customer } from "@/entities/Customer";

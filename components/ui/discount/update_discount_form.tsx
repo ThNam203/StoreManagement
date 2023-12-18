@@ -107,7 +107,7 @@ export default function UpdateDiscountForm({
       maxValue: values.type === "COUPON" ? values.maxValue : null,
     };
 
-    delete data.time
+    delete data.time;
 
     DiscountService.updateDiscount(data)
       .then((result) => {
@@ -121,24 +121,24 @@ export default function UpdateDiscountForm({
   };
 
   return (
-    <div className="fixed top-0 left-0 w-screen h-screen bg-transparent backdrop-blur-sm flex items-center justify-center z-10">
+    <div className="fixed left-0 top-0 z-10 flex h-screen w-screen items-center justify-center bg-transparent backdrop-blur-sm">
       <div
-        className="w-[90vw] max-w-[1080px] shadow-md shadow-[#a2a2a2] rounded-sm"
+        className="w-[90vw] max-w-[1080px] rounded-sm shadow-md shadow-[#a2a2a2]"
         onClick={(e) => {
           e.stopPropagation();
         }}
       >
         <div
           className={cn(
-            "rounded-md max-h-[95vh] w-full flex flex-col p-4 bg-white overflow-y-auto",
-            scrollbar_style.scrollbar
+            "flex max-h-[95vh] w-full flex-col overflow-y-auto rounded-md bg-white p-4",
+            scrollbar_style.scrollbar,
           )}
         >
-          <div className="flex flex-row items-center justify-between mb-2">
-            <h3 className="font-semibold text-base">Update discount</h3>
+          <div className="mb-2 flex flex-row items-center justify-between">
+            <h3 className="text-base font-semibold">Update discount</h3>
             <X
               size={24}
-              className="hover:cursor-pointer rounded-full hover:bg-slate-200 p-1"
+              className="rounded-full p-1 hover:cursor-pointer hover:bg-slate-200"
               onClick={() => setOpen(false)}
             />
           </div>
@@ -156,38 +156,38 @@ export default function UpdateDiscountForm({
                     control={form.control}
                     name="name"
                     render={({ field }) => (
-                      <FormItem className="flex flex-row mb-2">
-                        <FormLabel className="flex flex-col w-[150px] text-black justify-center h-[41.6px]">
+                      <FormItem className="mb-2 flex flex-row">
+                        <FormLabel className="flex h-[41.6px] w-[150px] flex-col justify-center text-black">
                           <h5 className="text-sm">Discount name</h5>
                           <FormMessage className="mr-2 text-xs" />
                         </FormLabel>
                         <FormControl>
-                          <Input className="flex-1 !m-0" {...field} />
+                          <Input className="!m-0 flex-1" {...field} />
                         </FormControl>
                       </FormItem>
                     )}
                   />
-                  <div className="flex flex-1 flex-row gap-1 items-center">
+                  <div className="flex flex-1 flex-row items-center gap-1">
                     <FormField
                       control={form.control}
                       name="value"
                       render={({ field }) => (
-                        <FormItem className="flex-1 flex flex-row mb-2">
-                          <FormLabel className="flex flex-col w-[150px] text-black justify-center h-[41.6px]">
+                        <FormItem className="mb-2 flex flex-1 flex-row">
+                          <FormLabel className="flex h-[41.6px] w-[150px] flex-col justify-center text-black">
                             <h5 className="text-sm">Value</h5>
                             <FormMessage className="mr-2 text-xs" />
                           </FormLabel>
                           <FormControl>
                             <div
                               className={cn(
-                                "border flex flex-row items-center p-2 gap-2 rounded-md !mt-0",
+                                "!mt-0 flex flex-row items-center gap-2 rounded-md border p-2",
                                 form.getValues("type") === "COUPON"
                                   ? "max-w-[70px]"
-                                  : "flex-1"
+                                  : "flex-1",
                               )}
                             >
                               <input
-                                className="flex-1 text-end !m-0 border-0 focus-visible:outline-none w-full"
+                                className="!m-0 w-full flex-1 border-0 text-end focus-visible:outline-none"
                                 type="number"
                                 min={0}
                                 max={
@@ -199,7 +199,7 @@ export default function UpdateDiscountForm({
                                 onChange={(e) =>
                                   form.setValue(
                                     "value",
-                                    e.currentTarget.valueAsNumber
+                                    e.currentTarget.valueAsNumber,
                                   )
                                 }
                               />
@@ -217,16 +217,16 @@ export default function UpdateDiscountForm({
                         name="maxValue"
                         render={({ field }) => {
                           return (
-                            <FormItem className="flex flex-row mb-2">
-                              <FormLabel className="flex flex-col text-black justify-center">
-                                <p className="whitespace-nowrap mx-2">
+                            <FormItem className="mb-2 flex flex-row">
+                              <FormLabel className="flex flex-col justify-center text-black">
+                                <p className="mx-2 whitespace-nowrap">
                                   Max value
                                 </p>
                                 <FormMessage className="mr-2 text-xs" />
                               </FormLabel>
                               <FormControl>
                                 <Input
-                                  className="flex-1 !m-0 text-end w-[100px] lg:w-[140px] xl:w-[180px]"
+                                  className="!m-0 w-[100px] flex-1 text-end lg:w-[140px] xl:w-[180px]"
                                   type="number"
                                   value={field.value ? field.value : 0}
                                   min={0}
@@ -236,7 +236,7 @@ export default function UpdateDiscountForm({
                                     else
                                       form.setValue(
                                         "maxValue",
-                                        e.currentTarget.valueAsNumber
+                                        e.currentTarget.valueAsNumber,
                                       );
                                   }}
                                 />
@@ -252,8 +252,8 @@ export default function UpdateDiscountForm({
                     control={form.control}
                     name="amount"
                     render={({ field }) => (
-                      <FormItem className="flex flex-row mb-2">
-                        <FormLabel className="flex flex-col w-[150px] text-black justify-center h-[41.6px]">
+                      <FormItem className="mb-2 flex flex-row">
+                        <FormLabel className="flex h-[41.6px] w-[150px] flex-col justify-center text-black">
                           <h5 className="text-sm">Amount</h5>
                           <FormMessage className="mr-2 text-xs" />
                         </FormLabel>
@@ -261,12 +261,12 @@ export default function UpdateDiscountForm({
                           <Input
                             type="number"
                             min={0}
-                            className="flex-1 !m-0 text-end"
+                            className="!m-0 flex-1 text-end"
                             value={field.value}
                             onChange={(e) =>
                               form.setValue(
                                 "amount",
-                                e.currentTarget.valueAsNumber
+                                e.currentTarget.valueAsNumber,
                               )
                             }
                           />
@@ -278,8 +278,8 @@ export default function UpdateDiscountForm({
                     control={form.control}
                     name="type"
                     render={({ field }) => (
-                      <FormItem className="flex flex-row mb-2">
-                        <FormLabel className="flex flex-col w-[150px] text-black justify-center">
+                      <FormItem className="mb-2 flex flex-row">
+                        <FormLabel className="flex w-[150px] flex-col justify-center text-black">
                           <h5 className="text-sm">Type</h5>
                           <FormMessage className="mr-2 text-xs" />
                         </FormLabel>
@@ -303,19 +303,19 @@ export default function UpdateDiscountForm({
                     )}
                   />
 
-                  <div className="border rounded-sm mb-4">
+                  <div className="mb-4 rounded-sm border">
                     <FormField
                       control={form.control}
                       name="description"
                       render={({ field }) => (
                         <FormItem className="flex flex-col">
-                          <FormLabel className="text-black justify-center text-sm bg-gray-200 p-3">
+                          <FormLabel className="justify-center bg-gray-200 p-3 text-sm text-black">
                             <h5 className="text-sm">Description</h5>
                             <FormMessage className="mr-2 text-xs" />
                           </FormLabel>
                           <FormControl className="border-none">
                             <Textarea
-                              className="flex-1 resize-none p-2 !mt-0 min-h-[100px] !rounded-none focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0"
+                              className="!mt-0 min-h-[100px] flex-1 resize-none !rounded-none p-2 focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0"
                               onKeyDown={(e) => e.stopPropagation()}
                               {...field}
                             />
@@ -330,21 +330,40 @@ export default function UpdateDiscountForm({
                     control={form.control}
                     name="productGroups"
                     render={({ field }) => (
-                      <FormItem className="flex flex-row mb-2 mt-0">
-                        <FormLabel className="flex flex-col min-w-[150px] text-black justify-center">
+                      <FormItem className="mb-2 mt-0 flex flex-row">
+                        <FormLabel className="flex min-w-[150px] flex-col justify-center text-black">
                           <div className="flex flex-row items-center gap-2">
                             <h5 className="text-sm">Product groups</h5>
                           </div>
                           <FormMessage className="mr-2 text-xs" />
                         </FormLabel>
                         <FormControl>
+                          {/* TODO: group can be deleted, if bug, implement a filter */}
                           <SearchAndChooseMultiple
-                            value={field.value ? field.value : []}
-                            choices={productGroups.map((p) => p.name)}
-                            onValueChanged={(val) =>
-                              form.setValue("productGroups", val)
+                            value={
+                              field.value
+                                ? field.value.map((v) => {
+                                    const group = productGroups.find(
+                                      (p) => p.name === v,
+                                    )!;
+                                    return {
+                                      id: group.id,
+                                      value: group.name,
+                                    };
+                                  })
+                                : []
                             }
-                            className="w-full z-10"
+                            choices={productGroups.map((p) => ({
+                              id: p.id,
+                              value: p.name,
+                            }))}
+                            onValueChanged={(val) =>
+                              form.setValue(
+                                "productGroups",
+                                val.map((v) => v.value),
+                              )
+                            }
+                            className="z-10 w-full"
                           />
                         </FormControl>
                       </FormItem>
@@ -354,8 +373,8 @@ export default function UpdateDiscountForm({
                     control={form.control}
                     name="productIds"
                     render={({ field }) => (
-                      <FormItem className="flex flex-row mb-2">
-                        <FormLabel className="flex flex-col min-w-[150px] text-black justify-center">
+                      <FormItem className="mb-2 flex flex-row">
+                        <FormLabel className="flex min-w-[150px] flex-col justify-center text-black">
                           <div className="flex flex-row items-center gap-2">
                             <h5 className="text-sm">Products</h5>
                           </div>
@@ -367,35 +386,28 @@ export default function UpdateDiscountForm({
                               .filter(
                                 (product) =>
                                   field.value &&
-                                  field.value.includes(product.id)
+                                  field.value.includes(product.id),
                               )
-                              .map(
-                                (product) =>
+                              .map((product) => ({
+                                id: product.id,
+                                value:
                                   product.name +
                                   (product.propertiesString
                                     ? ` (${product.propertiesString})`
-                                    : "")
-                              )}
-                            choices={products.map(
-                              (p) =>
+                                    : ""),
+                              }))}
+                            choices={products.map((p) => ({
+                              id: p.id,
+                              value:
                                 p.name +
                                 (p.propertiesString
                                   ? ` (${p.propertiesString})`
-                                  : "")
-                            )}
+                                  : ""),
+                            }))}
                             onValueChanged={(val) =>
                               form.setValue(
                                 "productIds",
-                                products
-                                  .filter((product) =>
-                                    val.includes(
-                                      product.name +
-                                        (product.propertiesString
-                                          ? ` (${product.propertiesString})`
-                                          : "")
-                                    )
-                                  )
-                                  .map((product) => product.id)
+                                val.map((product) => product.id),
                               )
                             }
                             className="w-full"
@@ -408,22 +420,22 @@ export default function UpdateDiscountForm({
                     control={form.control}
                     name="time"
                     render={({ field }) => (
-                      <FormItem className="flex flex-row mb-2">
-                        <FormLabel className="flex flex-col w-[150px] text-black justify-center h-[41.6px]">
+                      <FormItem className="mb-2 flex flex-row">
+                        <FormLabel className="flex h-[41.6px] w-[150px] flex-col justify-center text-black">
                           <h5 className="text-sm">Apply time</h5>
                           <FormMessage className="mr-2 text-xs" />
                         </FormLabel>
                         <FormControl>
                           <>
                             <div
-                              className="flex-1 h-[41.6px] !mt-0 flex flex-row items-center border rounded-md justify-between px-2 hover:cursor-pointer"
+                              className="!mt-0 flex h-[41.6px] flex-1 flex-row items-center justify-between rounded-md border px-2 hover:cursor-pointer"
                               onClick={(e) => setIsTimeRangeOpen(true)}
                             >
                               <p>
                                 {format(field.value.startDate, "dd LLL, yyyy")}
                                 <ChevronRight
                                   size={20}
-                                  className="inline-block mx-1"
+                                  className="mx-1 inline-block"
                                 />
                                 {format(field.value.endDate, "dd LLL, yyyy")}
                               </p>
@@ -447,15 +459,18 @@ export default function UpdateDiscountForm({
                     control={form.control}
                     name="status"
                     render={({ field }) => (
-                      <FormItem className="flex flex-row mb-2 py-1">
-                        <FormLabel className="flex flex-col w-[150px] text-black justify-center">
+                      <FormItem className="mb-2 flex flex-row py-1">
+                        <FormLabel className="flex w-[150px] flex-col justify-center text-black">
                           <h5 className="text-sm">Status</h5>
                           <FormMessage className="mr-2 text-xs" />
                         </FormLabel>
                         <FormControl>
                           <RadioGroup
                             defaultValue={String(field.value)}
-                            onValueChange={(value) => {if (value === "true") field.onChange(true); field.onChange(false)}}
+                            onValueChange={(value) => {
+                              if (value === "true") field.onChange(true);
+                              field.onChange(false);
+                            }}
                             className="flex flex-row text-sm"
                           >
                             <div className="flex items-center space-x-2 p-1">
@@ -478,20 +493,20 @@ export default function UpdateDiscountForm({
                 <Button
                   variant={"green"}
                   type="submit"
-                  className="px-4 min-w-[150px] uppercase"
+                  className="min-w-[150px] px-4 uppercase"
                   disabled={isCreatingNewDiscount}
                 >
                   Save
                   <LoadingCircle
                     className={
-                      "!w-4 ml-4 " + (isCreatingNewDiscount ? "" : "hidden")
+                      "ml-4 !w-4 " + (isCreatingNewDiscount ? "" : "hidden")
                     }
                   />
                 </Button>
                 <Button
                   variant={"green"}
                   type="button"
-                  className="px-4 min-w-[150px] bg-gray-400 hover:bg-gray-500 uppercase"
+                  className="min-w-[150px] bg-gray-400 px-4 uppercase hover:bg-gray-500"
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
@@ -523,14 +538,14 @@ const TimeFilterRangePicker = ({
 
   return (
     <div
-      className="fixed top-0 left-0 w-screen h-screen flex items-center justify-center bg-transparent z-10"
+      className="fixed left-0 top-0 z-10 flex h-screen w-screen items-center justify-center bg-transparent"
       onClick={(e) => {
         setIsRangeFilterOpen(false);
         e.stopPropagation();
       }}
     >
       <div
-        className="flex flex-col items-center border shadow-md bg-white"
+        className="flex flex-col items-center border bg-white shadow-md"
         onClick={(e) => e.stopPropagation()}
       >
         <DateRangePicker
@@ -549,7 +564,7 @@ const TimeFilterRangePicker = ({
           }}
         />
         <Button
-          className="bg-blue-400 hover:bg-blue-500 text-white mt-2 w-96 mb-2"
+          className="mb-2 mt-2 w-96 bg-blue-400 text-white hover:bg-blue-500"
           onClick={(e) => {
             e.stopPropagation();
             if (onValueChange) onValueChange(tempRange);

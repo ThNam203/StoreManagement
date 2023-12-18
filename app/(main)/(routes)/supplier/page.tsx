@@ -41,7 +41,7 @@ export default function InvoicePage() {
 
   return (
     <PageWithFilters
-      title="Invoices"
+      title="Supplier"
       filters={[]}
       headerButtons={[<NewInvoiceButton key={1} />]}
     >

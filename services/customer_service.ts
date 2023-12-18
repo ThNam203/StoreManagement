@@ -14,6 +14,10 @@ const uploadCustomerGroup = (groupName: string) => {
   });
 };
 
+const updateCustomer = (customer: any) => {
+  return AxiosService.put<Customer>(`/api/customers/${customer.id}`);
+};
+
 const getAllCustomerGroups = () => {
   return AxiosService.get<CustomerGroup[]>("/api/customer-groups");
 };
@@ -32,6 +36,7 @@ const CustomerService = {
   uploadCustomerGroup,
   getAllCustomerGroups,
   deleteCustomer,
+  updateCustomer
 };
 
 export default CustomerService;
