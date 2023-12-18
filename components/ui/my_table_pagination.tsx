@@ -17,7 +17,7 @@ import {
 
 interface DataTablePaginationProps<TData> {
   table: Table<TData>;
-  config: DataTablePaginationConfig;
+  config?: DataTablePaginationConfig;
 }
 
 interface DataTablePaginationConfig {
@@ -26,7 +26,7 @@ interface DataTablePaginationConfig {
 
 export function DataTablePagination<TData>({
   table,
-  config,
+  config = { showRowSelectedCounter: true },
 }: DataTablePaginationProps<TData>) {
   return (
     <div className="flex items-center justify-between px-2">

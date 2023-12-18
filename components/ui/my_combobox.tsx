@@ -106,8 +106,8 @@ export function MyCombobox({
                         size={16}
                         className={cn(
                           "invisible cursor-pointer text-red-500 group-hover/option:visible",
-                          canRemoveOption ? "visible" : "hidden",
                           isRemovingOption ? "hidden" : "",
+                          canRemoveOption ? "" : "hidden",
                         )}
                         onClick={async () => {
                           if (onRemoveChoice) {
