@@ -6,10 +6,7 @@ import com.springboot.store.exception.ResourceNotFoundException;
 import com.springboot.store.payload.StaffRequest;
 import com.springboot.store.payload.StaffResponse;
 import com.springboot.store.repository.*;
-import com.springboot.store.service.ActivityLogService;
-import com.springboot.store.service.FileService;
-import com.springboot.store.service.StaffSalaryService;
-import com.springboot.store.service.StaffService;
+import com.springboot.store.service.*;
 import com.springboot.store.utils.Role;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -39,6 +36,7 @@ public class StaffServiceImpl implements StaffService {
     private final ShiftAttendanceRecordRepository shiftAttendanceRecordRepository;
     private final StaffPositionRepository staffPositionRepository;
     private final DailyShiftRepository dailyShiftRepository;
+    private final DailyShiftService dailyShiftService;
 
     @Override
     public StaffResponse createStaff(StaffRequest newStaff, MultipartFile file) {
@@ -200,9 +198,9 @@ public class StaffServiceImpl implements StaffService {
             shiftAttendanceRecord.setDailyShift(null);
             for (DailyShift dailyShift : dailyShifts) {
                 dailyShift.getAttendanceList().remove(shiftAttendanceRecord);
-                if (dailyShift.getAttendanceList().isEmpty())
-                    dailyShiftRepository.delete(dailyShift);
-                else dailyShiftRepository.save(dailyShift);
+                if (dailyShift.getAttendanceList().isEmpty()) {
+                    dailyShiftService.deleteDailyShift(dailyShift.getId());
+                } else dailyShiftRepository.save(dailyShift);
             }
         }
         shiftAttendanceRecordRepository.deleteAll(shiftAttendanceRecords);

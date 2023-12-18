@@ -309,6 +309,7 @@ public class DailyShiftServiceImpl implements DailyShiftService {
     public void deleteDailyShift(int dailyShiftId) {
         DailyShift existingDailyShift = dailyShiftRepository.findById(dailyShiftId).orElseThrow(() -> new EntityNotFoundException("DailyShift not found with id: " + dailyShiftId));
         List<ShiftAttendanceRecord> attendanceRecordListToDelete = existingDailyShift.getAttendanceList();
+        existingDailyShift.setAttendanceList(null);
         for (ShiftAttendanceRecord attendanceRecord : attendanceRecordListToDelete) {
             // Remove the association with the daily shift
             attendanceRecord.setDailyShift(null);
@@ -336,6 +337,8 @@ public class DailyShiftServiceImpl implements DailyShiftService {
         }
         Shift shift = existingDailyShift.getShift();
         shift.getDailyShifts().remove(existingDailyShift);
+        existingDailyShift.setStore(null);
+        existingDailyShift.setShift(null);
         shiftRepository.save(shift);
         dailyShiftRepository.deleteById(dailyShiftId);
     }
