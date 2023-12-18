@@ -16,7 +16,7 @@ export type Staff = {
   createAt: Date;
   role: string;
   salarySetting: SalarySetting;
-  password: string;
+  password: string | null;
 };
 
 export enum Sex {

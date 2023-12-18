@@ -53,10 +53,12 @@ export function DataTable({
   data,
   onSubmit,
   onStaffDeleteButtonClicked,
+  onStaffCalculateSalaryButtonClicked,
 }: {
   data: Staff[];
   onSubmit: (values: Staff, avatar: File | null) => any;
   onStaffDeleteButtonClicked: (rowIndex: number) => void;
+  onStaffCalculateSalaryButtonClicked?: (rowIndex: number) => any;
 }) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -92,17 +94,7 @@ export function DataTable({
       return onSubmit(values, avatar);
     }
   };
-  const handleCalculateSalary = async (rowIndex: number) => {
-    try {
-      const res = await StaffService.calculateSalary(data[rowIndex].id);
-      const salaryDebt = res.data.salaryDebt;
-      data[rowIndex].salaryDebt = salaryDebt;
-      return Promise.resolve();
-    } catch (e) {
-      console.log(e);
-      return Promise.reject();
-    }
-  };
+
   const onStaffUpdateButtonClicked = (rowIndex: number) => {
     handleOpenStaffDialog(data[rowIndex]);
   };
@@ -153,7 +145,9 @@ export function DataTable({
         columns={columns}
         table={table}
         tableContainerRef={tableContainerRef}
-        onStaffCalculateSalaryButtonClicked={handleCalculateSalary}
+        onStaffCalculateSalaryButtonClicked={
+          onStaffCalculateSalaryButtonClicked
+        }
         onStaffUpdateButtonClicked={onStaffUpdateButtonClicked}
         onStaffDeleteButtonClicked={onStaffDeleteButtonClicked}
       />
@@ -178,7 +172,7 @@ function DataTableContent<TData, TValue>({
   columns: ColumnDef<TData, TValue>[];
   table: ReactTable<TData>;
   tableContainerRef: RefObject<HTMLDivElement>;
-  onStaffCalculateSalaryButtonClicked: (rowIndex: number) => any;
+  onStaffCalculateSalaryButtonClicked?: (rowIndex: number) => any;
   onStaffUpdateButtonClicked: (rowIndex: number) => any;
   onStaffDeleteButtonClicked: (rowIndex: number) => any;
 }) {
@@ -247,7 +241,7 @@ const CustomRow = ({
 }: {
   row: any;
   containerRef: RefObject<HTMLDivElement>;
-  onStaffCalculateSalaryButtonClicked: (rowIndex: number) => any;
+  onStaffCalculateSalaryButtonClicked?: (rowIndex: number) => any;
   onStaffUpdateButtonClicked: (rowIndex: number) => any;
   onStaffDeleteButtonClicked: (rowIndex: number) => any;
 }) => {
@@ -320,7 +314,7 @@ const CustomRow = ({
     <React.Fragment>
       <TableRow
         data-state={row.getIsSelected() && "selected"}
-        onDoubleClick={(e) => {
+        onClick={(e) => {
           setShowInfoRow((prev) => !prev);
         }}
         className={cn("relative hover:cursor-pointer")}
@@ -617,9 +611,10 @@ const CustomRow = ({
                         <div className="flex-1" />
                         <Button
                           variant={"green"}
-                          onClick={(e) =>
-                            onStaffCalculateSalaryButtonClicked(row.index)
-                          }
+                          onClick={(e) => {
+                            if (onStaffCalculateSalaryButtonClicked)
+                              onStaffCalculateSalaryButtonClicked(row.index);
+                          }}
                         >
                           <Calculator size={16} className="mr-2" />
                           Calculate salary

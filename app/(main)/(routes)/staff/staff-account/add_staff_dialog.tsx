@@ -60,7 +60,7 @@ const createSchema = z.object({
   password: z
     .string()
     .min(8, { message: "Password must be at least 8 characters" }),
-  address: z.string(),
+  address: z.string().optional(),
   note: z.string().optional(),
   salary: z.number().min(0, { message: "Salary must be greater than 0" }),
   salaryType: z.nativeEnum(SalaryType),
@@ -74,8 +74,8 @@ const updateSchema = z.object({
   position: z.string().min(1, { message: "Position is missing" }),
   phoneNumber: z.string().min(1, { message: "Phone number is missing" }),
   email: z.string().email({ message: "Please enter a valid email" }),
-  password: z.string().optional(),
-  address: z.string(),
+  password: z.string().nullable(),
+  address: z.string().optional(),
   note: z.string().optional(),
   salary: z.number().min(0, { message: "Salary must be greater than 0" }),
   salaryType: z.nativeEnum(SalaryType),
@@ -92,6 +92,7 @@ export function AddStaffDialog({
   data: Staff | null;
   submit: (values: Staff, avatar: File | null) => any;
 }) {
+  console.log("data", data);
   const form = useForm<z.infer<typeof createSchema>>({
     resolver: zodResolver(data ? updateSchema : createSchema),
     defaultValues: {
@@ -100,7 +101,7 @@ export function AddStaffDialog({
       sex: Sex.MALE,
       salary: undefined,
       salaryType: SalaryType.ByShift,
-      password: "",
+      password: undefined,
     },
   });
 
@@ -117,7 +118,7 @@ export function AddStaffDialog({
       sex: values.sex as Sex,
       email: values.email,
       password: values.password,
-      address: values.address,
+      address: values.address ? values.address : "",
       position: values.position,
       createAt: new Date(),
       role: "STAFF",
@@ -131,6 +132,7 @@ export function AddStaffDialog({
     if (submit) {
       setIsLoading(true);
       try {
+        console.log("newStaff", newStaff);
         await submit(newStaff, staffAvatar).then(() => {
           form.reset();
           setOpen(false);
@@ -186,6 +188,7 @@ export function AddStaffDialog({
       salary: form.getValues("salary"),
       salaryType: form.getValues("salaryType"),
     });
+    console.log("form values", form.getValues());
   };
 
   const resetToEmptyForm = () => {

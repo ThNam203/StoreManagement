@@ -54,6 +54,7 @@ import { AppRouterInstance } from "next/dist/shared/lib/app-router-context";
 import { deleteInvoice } from "@/reducers/invoicesReducer";
 import { Customer } from "@/entities/Customer";
 import CustomerService from "@/services/customer_service";
+import UpdateCustomerDialog from "@/components/component/update_customer_dialog";
 
 export function CustomerDatatable({ data }: { data: Customer[] }) {
   const { toast } = useToast();
@@ -175,6 +176,16 @@ const DetailCustomerTab = ({
       </div>
       <div className="flex flex-row items-center gap-2">
         <div className="flex-1" />
+        <UpdateCustomerDialog
+          DialogTrigger={
+            <Button variant={"green"} disabled={disableDeleteButton}>
+              <PenLine size={16} className="mr-2" />
+              Update
+              {disableDeleteButton ? <LoadingCircle /> : null}
+            </Button>
+          }
+          customer={customer}
+        />
         <Button
           variant={"red"}
           onClick={(e) => {

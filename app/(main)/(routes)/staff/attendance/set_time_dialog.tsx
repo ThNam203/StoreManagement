@@ -26,7 +26,7 @@ import * as z from "zod";
 import { MyConfirmDialog } from "../../../../../components/ui/my_confirm_dialog";
 import { DataTable } from "./datatable";
 import { DailyShift, Shift } from "@/entities/Attendance";
-import { ca, da, is } from "date-fns/locale";
+import { ca, da, el, fi, is } from "date-fns/locale";
 import LoadingCircle from "@/components/ui/loading_circle";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/components/ui/use-toast";
@@ -96,7 +96,7 @@ export function SetTimeDialog({
       form.setValue("isRepeat", false);
       form.setValue("repeatPeriod", "daily");
       form.setValue("startRepeat", specificShift.date);
-      form.setValue("finishRepeat", new Date(new Date().getFullYear(), 11, 31));
+      form.setValue("finishRepeat", specificShift.date);
       specificShift.attendList.forEach((attend) => {
         const staff = staffList.find((staff) => staff.id === attend.staffId);
         if (staff) attendStaffList.push(staff);
@@ -208,33 +208,53 @@ export function SetTimeDialog({
       dailyShiftList.push(updatedDailyShift);
     }
 
-    if (isExisted) {
-      console.log("update daily shifts");
-      if (onUpdateDailyShifts) {
-        setIsLoading(true);
-        try {
-          await onUpdateDailyShifts(dailyShiftList);
-        } catch (error) {
-          console.log(error);
-        } finally {
-          resetToEmptyForm();
-          setOpen(false);
-          setIsLoading(false);
-        }
+    if (isRepeat) {
+      console.log("repeat");
+      if (isExisted) {
+        console.log("update daily shift");
+        handleUpdateDailyShift(dailyShiftList);
+      } else {
+        console.log("create new daily shift");
+        handleCreateNewDailyShift(dailyShiftList);
       }
     } else {
-      console.log("submit daily shift");
-      if (submit) {
-        setIsLoading(true);
-        try {
-          await submit(dailyShiftList);
-        } catch (error) {
-          console.log(error);
-        } finally {
-          resetToEmptyForm();
-          setOpen(false);
-          setIsLoading(false);
-        }
+      console.log("not repeat");
+      if (updatedDailyShift.id === -1) {
+        console.log("create daily shift");
+        handleCreateNewDailyShift(dailyShiftList);
+      } else {
+        console.log("update new daily shift");
+        handleUpdateDailyShift(dailyShiftList);
+      }
+    }
+  };
+
+  const handleUpdateDailyShift = async (dailyShiftList: DailyShift[]) => {
+    if (onUpdateDailyShifts) {
+      setIsLoading(true);
+      try {
+        await onUpdateDailyShifts(dailyShiftList);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        resetToEmptyForm();
+        setOpen(false);
+        setIsLoading(false);
+      }
+    }
+  };
+
+  const handleCreateNewDailyShift = async (dailyShiftList: DailyShift[]) => {
+    if (submit) {
+      setIsLoading(true);
+      try {
+        await submit(dailyShiftList);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        resetToEmptyForm();
+        setOpen(false);
+        setIsLoading(false);
       }
     }
   };
@@ -322,6 +342,21 @@ export function SetTimeDialog({
                               <Checkbox
                                 checked={field.value}
                                 onCheckedChange={(isChecked) => {
+                                  if (!!isChecked) {
+                                    form.setValue(
+                                      "finishRepeat",
+                                      new Date(
+                                        new Date().getFullYear(),
+                                        11,
+                                        31,
+                                      ),
+                                    );
+                                  } else {
+                                    form.setValue(
+                                      "finishRepeat",
+                                      form.getValues("startRepeat"),
+                                    );
+                                  }
                                   form.setValue("isRepeat", !!isChecked);
                                   setIsRepeat(!!isChecked);
                                 }}
@@ -486,19 +521,25 @@ export function SetTimeDialog({
                     });
                     return;
                   }
-                  // check if shift is existed to avoid overwriting shift
-                  const checkIsExisted = isShiftExisted(
-                    form.getValues("shiftName"),
-                    {
-                      startDate: form.getValues("startRepeat"),
-                      endDate: form.getValues("finishRepeat"),
-                    },
-                    shiftList,
-                  );
-                  setIsExisted(checkIsExisted);
-                  if (isRepeat && checkIsExisted)
-                    setOpenConfirmOverwritingDialog(true);
-                  else form.handleSubmit(onSubmit)();
+
+                  if (isRepeat) {
+                    // check if shift is existed to avoid overwriting shift
+                    const checkIsExisted = isShiftExisted(
+                      form.getValues("shiftName"),
+                      {
+                        startDate: form.getValues("startRepeat"),
+                        endDate: form.getValues("finishRepeat"),
+                      },
+                      shiftList,
+                    );
+                    setIsExisted(checkIsExisted);
+                    if (checkIsExisted) {
+                      setOpenConfirmOverwritingDialog(true);
+                      return;
+                    }
+                  }
+
+                  form.handleSubmit(onSubmit)();
                 }}
                 variant={"green"}
                 className="mr-3"

@@ -157,3 +157,16 @@ export function CustomDatatable<TData>({
     </div>
   );
 }
+
+export const DefaultInformationCellDataTable = ({
+  title,
+  value,
+}: {
+  title: string;
+  value: string | number | boolean;
+}) => {
+  return <div className="mb-2 flex flex-row border-b font-medium">
+    <p className="w-[120px] font-normal">{title}</p>
+    <p>{value}</p>
+  </div>;
+};
