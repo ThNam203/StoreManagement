@@ -70,6 +70,34 @@ const visibilityConfig = {
 };
 
 export function DiscountDatatable({ data, onUpdateButtonClick }: Props) {
+  const { toast } = useToast();
+  const dispatch = useAppDispatch();
+
+  async function deleteDiscounts(dataToDelete: Discount[]): Promise<void> {
+    const promises = dataToDelete.map((discount) => {
+      return DiscountService.deleteDiscount(discount.id).then((_) => dispatch(deleteDiscount(discount.id)));
+    });
+
+    try {
+      Promise.allSettled(promises).then((deletedData) => {
+        const successfullyDeleted = deletedData.map(
+          (data) => data.status === "fulfilled"
+        );
+        toast({
+          description: `Deleted ${
+            successfullyDeleted.length
+          } discounts, failed ${
+            deletedData.length - successfullyDeleted.length
+          }`,
+        });
+        return Promise.resolve();
+      });
+    } catch (e) {
+      axiosUIErrorHandler(e, toast);
+      return Promise.reject();
+    }
+  }
+
   return (
     <CustomDatatable
       data={data}
@@ -93,7 +121,7 @@ export function DiscountDatatable({ data, onUpdateButtonClick }: Props) {
       ]}
       config={{
         defaultVisibilityState: visibilityConfig,
-        onDeleteRowsBtnClick: (dataToDelete) => Promise.resolve(),
+        onDeleteRowsBtnClick: deleteDiscounts,
       }}
     />
   );

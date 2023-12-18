@@ -36,7 +36,7 @@ import { addCustomerGroup } from "@/reducers/customerGroupsReducer";
 import { Customer } from "@/entities/Customer";
 
 const newCustomerFormSchema = z.object({
-  id: z.string(),
+  id: z.number(),
   name: z
     .string()
     .trim()
@@ -81,11 +81,12 @@ export default function UpdateCustomerDialog({
   const { toast } = useToast();
 
   const onSubmit = (values: z.infer<typeof newCustomerFormSchema>) => {
+    console.log('valules', values)
     const formData = new FormData();
     if (file) formData.append("file", file);
     formData.append("data", new Blob([JSON.stringify(values)], { type: "application/json" }));
     setIsCreatingNewCustomer(true);
-    CustomerService.updateCustomer(formData)
+    CustomerService.updateCustomer(formData, values.id)
       .then((result) => {
         dispatch(addCustomer(result.data));
         setOpen(false);
@@ -98,7 +99,7 @@ export default function UpdateCustomerDialog({
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger className={triggerClassname}>{DialogTrigger}</AlertDialogTrigger>
+      <AlertDialogTrigger className={triggerClassname} asChild>{DialogTrigger}</AlertDialogTrigger>
       <AlertDialogContent
         className="max-w-[960px] !w-[500px] md:!w-[600px]"
         asChild

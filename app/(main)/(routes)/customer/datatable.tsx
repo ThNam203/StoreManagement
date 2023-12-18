@@ -2,16 +2,6 @@
 "use client";
 import scrollbar_style from "@/styles/scrollbar.module.css";
 import {
-  ColumnDef,
-  ColumnFiltersState,
-  RowSelectionState,
-  SortingState,
-  VisibilityState,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
   Table as ReactTable,
   flexRender,
   Row,
@@ -23,38 +13,20 @@ import {
   customerTableColumns,
 } from "./table_columns";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { DataTableViewOptions } from "@/components/ui/my_table_column_visibility_toggle";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import React, { Ref, RefObject, useEffect, useRef, useState } from "react";
-import { DataTablePagination } from "@/components/ui/my_table_pagination";
-import Image from "next/image";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
+import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { ChevronRight, Lock, PenLine, Trash, Undo2 } from "lucide-react";
 import { useAppDispatch } from "@/hooks";
-import { deleteProduct, updateProduct } from "@/reducers/productsReducer";
-import ProductService from "@/services/product_service";
 import LoadingCircle from "@/components/ui/loading_circle";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
 import { useToast } from "@/components/ui/use-toast";
 import { CustomDatatable } from "@/components/component/custom_datatable";
 import InvoiceService from "@/services/invoice_service";
-import { format } from "date-fns";
-import { defaultColumn } from "@/components/ui/my_table_default_column";
-import { DataTableColumnHeader } from "@/components/ui/my_table_column_header";
-import { AppRouterInstance } from "next/dist/shared/lib/app-router-context";
 import { deleteInvoice } from "@/reducers/invoicesReducer";
 import { Customer } from "@/entities/Customer";
 import CustomerService from "@/services/customer_service";
 import UpdateCustomerDialog from "@/components/component/update_customer_dialog";
+import { deleteCustomer } from "@/reducers/customersReducer";
 
 export function CustomerDatatable({ data }: { data: Customer[] }) {
   const { toast } = useToast();
@@ -190,9 +162,9 @@ const DetailCustomerTab = ({
           variant={"red"}
           onClick={(e) => {
             setDisableDeleteButton(true);
-            InvoiceService.deleteInvoice(customer.id)
+            CustomerService.deleteCustomer(customer.id)
               .then((result) => {
-                dispatch(deleteInvoice(customer.id));
+                dispatch(deleteCustomer(customer.id));
                 setShowTabs(false);
               })
               .catch((error) => axiosUIErrorHandler(error, toast))

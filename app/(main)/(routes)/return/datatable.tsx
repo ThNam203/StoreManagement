@@ -23,16 +23,6 @@ import {
   returnTableColumns,
 } from "./table_columns";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { DataTableViewOptions } from "@/components/ui/my_table_column_visibility_toggle";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import React, { Ref, RefObject, useEffect, useRef, useState } from "react";
 import { DataTablePagination } from "@/components/ui/my_table_pagination";
 import Image from "next/image";
@@ -40,14 +30,10 @@ import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { cn } from "@/lib/utils";
 import { ChevronRight, Lock, PenLine, Trash, Undo2 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/hooks";
-import { deleteProduct, updateProduct } from "@/reducers/productsReducer";
-import ProductService from "@/services/product_service";
 import LoadingCircle from "@/components/ui/loading_circle";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
 import { useToast } from "@/components/ui/use-toast";
 import { CustomDatatable, DefaultInformationCellDataTable } from "@/components/component/custom_datatable";
-import InvoiceService from "@/services/invoice_service";
-import { format } from "date-fns";
 import { defaultColumn } from "@/components/ui/my_table_default_column";
 import { DataTableColumnHeader } from "@/components/ui/my_table_column_header";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context";
@@ -58,7 +44,6 @@ import {
 } from "@/entities/ReturnInvoice";
 import ReturnInvoiceService from "@/services/return_invoice_service";
 import { deleteReturnInvoice } from "@/reducers/returnInvoicesReducer";
-import StaffService from "@/services/staff_service";
 
 export function ReturnDatatable({
   data,
@@ -68,12 +53,14 @@ export function ReturnDatatable({
   router: AppRouterInstance;
 }) {
   const { toast } = useToast();
+  const dispatch = useAppDispatch();
 
   async function deleteReturns(
     dataToDelete: ReturnInvoiceServer[],
   ): Promise<void> {
-    const promises = dataToDelete.map((invoice) => {
-      return ReturnInvoiceService.deleteReturnInvoice(invoice.id);
+    const promises = dataToDelete.map(async (returnInvoice) => {
+      await ReturnInvoiceService.deleteReturnInvoice(returnInvoice.id);
+      return dispatch(deleteReturnInvoice(returnInvoice.id))
     });
 
     try {
@@ -137,7 +124,6 @@ const DetailInvoiceTab = ({
   const dispatch = useAppDispatch();
   const { toast } = useToast();
   const staffs = useAppSelector((state) => state.customers.value);
-  console.log('staff', staffs)
 
   return (
     <div className="py-2">

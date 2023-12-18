@@ -14,8 +14,8 @@ const uploadCustomerGroup = (groupName: string) => {
   });
 };
 
-const updateCustomer = (customer: any) => {
-  return AxiosService.put<Customer>(`/api/customers/${customer.id}`);
+const updateCustomer = (customerData: FormData, customerId: number) => {
+  return AxiosService.put<Customer>(`/api/customers/${customerId}`, customerData);
 };
 
 const getAllCustomerGroups = () => {

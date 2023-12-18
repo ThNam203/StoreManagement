@@ -94,7 +94,7 @@ export default function NewCustomerDialog({
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger className={triggerClassname}>{DialogTrigger}</AlertDialogTrigger>
+      <AlertDialogTrigger className={triggerClassname} asChild>{DialogTrigger}</AlertDialogTrigger>
       <AlertDialogContent
         className="max-w-[960px] !w-[500px] md:!w-[600px]"
         asChild

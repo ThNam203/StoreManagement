@@ -5,7 +5,10 @@ import {
   stockCheckTableColumns,
 } from "./table_columns";
 import { useAppDispatch, useAppSelector } from "@/hooks";
-import { CustomDatatable, DefaultInformationCellDataTable } from "@/components/component/custom_datatable";
+import {
+  CustomDatatable,
+  DefaultInformationCellDataTable,
+} from "@/components/component/custom_datatable";
 import { StockCheck, StockCheckDetail } from "@/entities/StockCheck";
 import { useToast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
@@ -24,7 +27,36 @@ const visibilityState = {
   createdDate: false,
 };
 
-export function StockCheckDatatable({data}:{data: StockCheck[]}) {
+export function StockCheckDatatable({ data }: { data: StockCheck[] }) {
+  const { toast } = useToast();
+  const dispatch = useAppDispatch();
+  async function deleteStockChecks(dataToDelete: StockCheck[]): Promise<void> {
+    const promises = dataToDelete.map((stockCheck) => {
+      return StockCheckService.deleteStockCheck(stockCheck.id).then((_) =>
+        dispatch(deleteStockCheck(stockCheck.id)),
+      );
+    });
+
+    try {
+      Promise.allSettled(promises).then((deletedData) => {
+        const successfullyDeleted = deletedData.map(
+          (data) => data.status === "fulfilled",
+        );
+        toast({
+          description: `Deleted ${
+            successfullyDeleted.length
+          } stock checks, failed ${
+            deletedData.length - successfullyDeleted.length
+          }`,
+        });
+        return Promise.resolve();
+      });
+    } catch (e) {
+      axiosUIErrorHandler(e, toast);
+      return Promise.reject();
+    }
+  }
+
   return (
     <CustomDatatable
       data={data}
@@ -46,6 +78,7 @@ export function StockCheckDatatable({data}:{data: StockCheck[]}) {
       ]}
       config={{
         defaultVisibilityState: visibilityState,
+        onDeleteRowsBtnClick: deleteStockChecks,
       }}
     />
   );
@@ -69,19 +102,28 @@ const DetailTab = ({
   return (
     <>
       <div className="flex flex-row gap-4">
-        <div className="flex flex-row flex-1 text-[0.8rem]">
-          <div className="flex-1 flex flex-col pr-4 gap-2">
-            <DefaultInformationCellDataTable title="Check Id:" value={stockCheck.id}/>
-            <DefaultInformationCellDataTable title="Created Date:" value={stockCheck.createdDate}/>
-            <DefaultInformationCellDataTable title="Creator:" value={stockCheck.creatorId}/>
+        <div className="flex flex-1 flex-row text-[0.8rem]">
+          <div className="flex flex-1 flex-col gap-2 pr-4">
+            <DefaultInformationCellDataTable
+              title="Check Id:"
+              value={stockCheck.id}
+            />
+            <DefaultInformationCellDataTable
+              title="Created Date:"
+              value={stockCheck.createdDate}
+            />
+            <DefaultInformationCellDataTable
+              title="Creator:"
+              value={stockCheck.creatorId}
+            />
           </div>
-          <div className="flex-1 flex flex-col pr-4">
+          <div className="flex flex-1 flex-col pr-4">
             <p className="mb-2">Note</p>
             <textarea
               readOnly
               className={cn(
-                "resize-none border-2 rounded-sm p-1 h-[80px] w-full",
-                scrollbar_style.scrollbar
+                "h-[80px] w-full resize-none rounded-sm border-2 p-1",
+                scrollbar_style.scrollbar,
               )}
               defaultValue={stockCheck.note}
             ></textarea>
@@ -100,6 +142,67 @@ const DetailTab = ({
           showRowSelectedCounter: false,
         }}
       />
+      <div className="flex flex-row justify-between">
+        <div className="flex-1"></div>
+        <div className="mb-2 flex flex-col gap-1 text-xs">
+          <div className="flex flex-row">
+            <p className="w-48 text-end">
+              Total counted: &#40;
+              {stockCheck.products
+                .map((v) => v.countedStock)
+                .reduce((a, b) => a + b, 0)}
+              &#41;
+            </p>
+            <p className="w-32 text-end font-semibold">
+              {stockCheck.products
+                .map((v) => v.countedStock * v.price)
+                .reduce((a, b) => a + b, 0)}
+            </p>
+          </div>
+          <div className="flex flex-row">
+            <p className="w-48 text-end">
+              Surplus qty: &#40;
+              {stockCheck.products
+                .map((v) => (v.diffQuantity > 0 ? v.diffQuantity : 0))
+                .reduce((a, b) => a + b, 0)}
+              &#41;
+            </p>
+            <p className="w-32 text-end font-semibold">
+              {stockCheck.products
+                .map((v) => v.price * (v.diffQuantity > 0 ? v.diffQuantity : 0))
+                .reduce((a, b) => a + b, 0)}
+            </p>
+          </div>
+          <div className="flex flex-row">
+            <p className="w-48 text-end">
+              Missing qty: &#40;
+              {stockCheck.products
+                .map((v) => (v.diffQuantity < 0 ? v.diffQuantity : 0))
+                .reduce((a, b) => a + b, 0)}
+              &#41;
+            </p>
+            <p className="w-32 text-end font-semibold">
+              {stockCheck.products
+                .map((v) => v.price * (v.diffQuantity < 0 ? v.diffQuantity : 0))
+                .reduce((a, b) => a + b, 0)}
+            </p>
+          </div>
+          <div className="flex flex-row">
+            <p className="w-48 text-end">
+              Total diff. quantity: &#40;
+              {stockCheck.products
+                .map((v) => v.diffQuantity)
+                .reduce((a, b) => a + b, 0)}
+              &#41;
+            </p>
+            <p className="w-32 text-end font-semibold">
+              {stockCheck.products
+                .map((v) => v.price * v.diffQuantity)
+                .reduce((a, b) => a + b, 0)}
+            </p>
+          </div>
+        </div>
+      </div>
       <div className="flex flex-row items-center gap-2">
         <div className="flex-1" />
         <Button
@@ -146,7 +249,7 @@ const stockCheckDetailTitles = {
 
 const stockCheckDetailColumns = () => {
   const columns: ColumnDef<StockCheckDetail>[] = [];
-  for (const key in stockCheckDetailTitles) 
+  for (const key in stockCheckDetailTitles)
     columns.push(defaultColumn(key, stockCheckDetailTitles));
   return columns;
 };
