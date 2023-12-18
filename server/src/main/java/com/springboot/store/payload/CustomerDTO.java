@@ -26,6 +26,6 @@ public class CustomerDTO {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdAt;
     private String customerGroup;
-    private String creator;
+    private Integer creatorId;
     private Media image;
 }

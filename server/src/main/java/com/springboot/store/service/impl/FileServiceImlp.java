@@ -28,6 +28,9 @@ public class FileServiceImlp implements FileService {
     @Override
     public String uploadFile(MultipartFile file ){
         try {
+            if (file.isEmpty()) {
+                return null;
+            }
             File fileObj = convertMultiPartToFile(file);
             String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
             s3.putObject(new PutObjectRequest(bucketName, fileName, fileObj));
