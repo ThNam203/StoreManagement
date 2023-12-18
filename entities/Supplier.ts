@@ -1,22 +1,19 @@
 export type Supplier = {
-  id: any;
-  name: string;
-  phoneNumber: string;
-  supplierGroup: string;
-  email: string;
-  address: string;
-  company: string;
-  note: string;
-  taxId: string;
-  creator: string;
-  createdDate: Date;
-  debt: number;
-  sale: number;
-  totalSale: number;
-  status: Status;
+  id: number;
+  name:string,
+  address: string,
+  phoneNumber: string,
+  email: string,
+  description: string,
+  companyName: string,
+  status: "Active" | "Disabled",
+  supplierGroupName: string,
 };
 
-export enum Status {
-  WORKING = "Working",
-  NOT_WORKING = "Not Working",
+export type SupplierGroup = {
+  id: number,
+  name: string,
+  description: string,
+  address: string,
+  company: string
 }

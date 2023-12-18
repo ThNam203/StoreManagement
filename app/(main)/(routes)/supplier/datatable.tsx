@@ -18,9 +18,9 @@ import {
 } from "@tanstack/react-table";
 import { Product } from "@/entities/Product";
 import {
-  invoiceColumnTitles,
-  invoiceDefaultVisibilityState,
-  invoiceTableColumns,
+  supplierColumnTitles,
+  supplierDefaultVisibilityState,
+  supplierTableColumns,
 } from "./table_columns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,7 +45,10 @@ import ProductService from "@/services/product_service";
 import LoadingCircle from "@/components/ui/loading_circle";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
 import { useToast } from "@/components/ui/use-toast";
-import { CustomDatatable } from "@/components/component/custom_datatable";
+import {
+  CustomDatatable,
+  DefaultInformationCellDataTable,
+} from "@/components/component/custom_datatable";
 import { Invoice, InvoiceDetail } from "@/entities/Invoice";
 import InvoiceService from "@/services/invoice_service";
 import { format } from "date-fns";
@@ -53,13 +56,19 @@ import { defaultColumn } from "@/components/ui/my_table_default_column";
 import { DataTableColumnHeader } from "@/components/ui/my_table_column_header";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context";
 import { deleteInvoice } from "@/reducers/invoicesReducer";
+import { Supplier } from "@/entities/Supplier";
+import SupplierService from "@/services/supplier_service";
+import { addSupplier, deleteSupplier } from "@/reducers/suppliersReducer";
+import UpdateSupplierDialog from "@/components/component/update_supplier_dialog";
 
-export function InvoiceDatatable({ data, router }: { data: Invoice[], router: AppRouterInstance }) {
+export function SupplierDatatable({ data }: { data: Supplier[] }) {
   const { toast } = useToast();
+  const dispatch = useAppDispatch();
 
-  async function deleteInvoices(dataToDelete: Invoice[]): Promise<void> {
-    const promises = dataToDelete.map((invoice) => {
-      return InvoiceService.deleteInvoice(invoice.id);
+  async function deleteSuppliers(dataToDelete: Supplier[]): Promise<void> {
+    const promises = dataToDelete.map(async (supplier) => {
+      await SupplierService.deleteSupplier(supplier.id);
+      return dispatch(deleteSupplier(supplier.id));
     });
 
     try {
@@ -70,7 +79,7 @@ export function InvoiceDatatable({ data, router }: { data: Invoice[], router: Ap
         toast({
           description: `Deleted ${
             successfullyDeleted.length
-          } invoices, failed ${
+          } suppliers, failed ${
             deletedData.length - successfullyDeleted.length
           }`,
         });
@@ -85,40 +94,32 @@ export function InvoiceDatatable({ data, router }: { data: Invoice[], router: Ap
   return (
     <CustomDatatable
       data={data}
-      columns={invoiceTableColumns()}
-      columnTitles={invoiceColumnTitles}
+      columns={supplierTableColumns()}
+      columnTitles={supplierColumnTitles}
       infoTabs={[
         {
           render(row, setShowTabs) {
-            return (
-              <DetailInvoiceTab
-                row={row}
-                setShowTabs={setShowTabs}
-                router={router}
-              />
-            );
+            return <DetailSupplierTab row={row} setShowTabs={setShowTabs} />;
           },
           tabName: "Detail",
         },
       ]}
       config={{
-        onDeleteRowsBtnClick: (dataToDelete) => deleteInvoices(dataToDelete), // if null, remove button
-        defaultVisibilityState: invoiceDefaultVisibilityState,
+        onDeleteRowsBtnClick: deleteSuppliers, // if null, remove button
+        defaultVisibilityState: supplierDefaultVisibilityState,
       }}
     />
   );
 }
 
-const DetailInvoiceTab = ({
+const DetailSupplierTab = ({
   row,
   setShowTabs,
-  router
 }: {
-  row: Row<Invoice>;
+  row: Row<Supplier>;
   setShowTabs: (value: boolean) => any;
-  router: AppRouterInstance
 }) => {
-  const invoice = row.original;
+  const supplier = row.original;
   const [disableDeleteButton, setDisableDeleteButton] = useState(false);
   const dispatch = useAppDispatch();
   const { toast } = useToast();
@@ -127,142 +128,79 @@ const DetailInvoiceTab = ({
     <div className="py-2">
       <div className="flex flex-row gap-2">
         <div className="flex flex-1 flex-row text-[0.8rem]">
-          <div className="flex flex-1 flex-col pr-4 gap-1">
-            <div className="mb-2 flex flex-row border-b font-medium">
-              <p className="w-[120px] font-normal">Invoice id:</p>
-              <p>{invoice.id}</p>
-            </div>
-            <div className="mb-2 flex flex-row border-b font-medium">
-              <p className="w-[120px] font-normal">Created at:</p>
-              <p>{invoice.createdAt}</p>
-            </div>
-            <div className="mb-2 flex flex-row border-b font-medium">
-              <p className="w-[120px] font-normal">Customer:</p>
-              {invoice.customerId}
-            </div>
+          <div className="flex flex-1 flex-col gap-1 pr-4">
+            <DefaultInformationCellDataTable
+              title="Supplier id:"
+              value={supplier.id}
+            />
+            <DefaultInformationCellDataTable
+              title="Name:"
+              value={supplier.name}
+            />
+            <DefaultInformationCellDataTable
+              title="Email:"
+              value={supplier.email}
+            />
+            <DefaultInformationCellDataTable
+              title="Phone number:"
+              value={supplier.phoneNumber}
+            />
           </div>
-          <div className="flex flex-1 flex-col pr-4 gap-1">
-            <div className="mb-2 flex flex-row border-b font-medium">
-              <p className="w-[120px] font-normal">Staff id:</p>
-              <p>{invoice.staffId}</p>
-            </div>
+          <div className="flex flex-1 flex-col gap-1 pr-4">
+            <DefaultInformationCellDataTable
+              title="Address"
+              value={supplier.address}
+            />
+            <DefaultInformationCellDataTable
+              title="Group"
+              value={supplier.supplierGroupName}
+            />
+            <DefaultInformationCellDataTable
+              title="Status"
+              value={supplier.status}
+            />
             <div>
-              <p className="mb-2">Note</p>
+              <p className="mb-2">Description</p>
               <textarea
                 readOnly
                 className={cn(
                   "h-[80px] w-full resize-none rounded-sm border-2 p-1",
                   scrollbar_style.scrollbar,
                 )}
-                defaultValue={invoice.note}
+                defaultValue={supplier.description}
               ></textarea>
             </div>
           </div>
         </div>
       </div>
-      <CustomDatatable
-        data={invoice.invoiceDetails}
-        columnTitles={invoiceDetailTitles}
-        columns={invoiceDetailColumns()}
-        config={{
-            showExportButton: false,
-            showDataTableViewOptions: false,
-            showDefaultSearchInput: false,
-            className: "py-0",
-            showRowSelectedCounter: false,
+      <UpdateSupplierDialog
+        DialogTrigger={
+          <Button variant={"green"} disabled={disableDeleteButton}>
+            <PenLine size={16} className="mr-2" />
+            Update
+            {disableDeleteButton ? <LoadingCircle /> : null}
+          </Button>
+        }
+        supplier={supplier}
+      />
+      <Button
+        variant={"red"}
+        onClick={(e) => {
+          setDisableDeleteButton(true);
+          SupplierService.deleteSupplier(supplier.id)
+            .then((result) => {
+              dispatch(deleteSupplier(supplier.id));
+              setShowTabs(false);
+            })
+            .catch((error) => axiosUIErrorHandler(error, toast))
+            .finally(() => setDisableDeleteButton(false));
         }}
+        disabled={disableDeleteButton}
       >
-
-      </CustomDatatable>
-      <div className="flex flex-row justify-between">
-        <div className="flex-1">
-
-        </div>
-        <div className="text-xs flex flex-col gap-1 mb-2">
-          <div className="flex flex-row">
-            <p className="w-28 text-end">Total qty:</p>
-            <p className="w-32 font-semibold text-end">{invoice.invoiceDetails.map((v) => v.quantity).reduce((a, b) => a + b, 0)}</p>
-          </div>
-          <div className="flex flex-row">
-            <p className="w-28 text-end">Sub total:</p>
-            <p className="w-32 font-semibold text-end">{invoice.subTotal}</p>
-          </div>
-          <div className="flex flex-row">
-            <p className="w-28 text-end">Discount:</p>
-            <p className="w-32 font-semibold text-end">{invoice.discountValue}</p>
-          </div>
-          <div className="flex flex-row">
-            <p className="w-28 text-end">Total:</p>
-            <p className="w-32 font-semibold text-end">{invoice.total}</p>
-          </div>
-          <div className="flex flex-row">
-            <p className="w-28 text-end">Paid:</p>
-            <p className="w-32 font-semibold text-end">{invoice.cash}</p>
-          </div>
-        </div>
-      </div>
-      <div className="flex flex-row items-center gap-2">
-        <div className="flex-1" />
-        <Button
-          variant={"green"}
-          onClick={(e) => {
-            router.push(`/invoice-return?invoiceId${invoice.id}`)
-          }}
-          disabled={disableDeleteButton}
-        >
-          <Undo2 size={16} className="mr-2" />
-          Return
-          {disableDeleteButton ? <LoadingCircle /> : null}
-        </Button>
-        <Button
-          variant={"red"}
-          onClick={(e) => {
-            setDisableDeleteButton(true);
-            InvoiceService.deleteInvoice(invoice.id)
-              .then((result) => {
-                dispatch(deleteInvoice(invoice.id));
-                setShowTabs(false);
-              })
-              .catch((error) => axiosUIErrorHandler(error, toast))
-              .finally(() => setDisableDeleteButton(false));
-          }}
-          disabled={disableDeleteButton}
-        >
-          <Trash size={16} className="mr-2" />
-          Delete
-          {disableDeleteButton ? <LoadingCircle /> : null}
-        </Button>
-      </div>
+        <Trash size={16} className="mr-2" />
+        Delete
+        {disableDeleteButton ? <LoadingCircle /> : null}
+      </Button>
     </div>
   );
 };
-
-const invoiceDetailTitles = {
-    productId: "Product ID",
-    quantity: "Quantity",
-    price: "Price",
-    description: "Description",
-}
-
-const invoiceDetailColumns = () => {
-    const columns: ColumnDef<InvoiceDetail>[] = []
-    for (const key in invoiceDetailTitles) {
-        columns.push(defaultColumn(key, invoiceDetailTitles))
-    }
-    columns.push(invoiceDetailTotalColumn)
-    return columns;
-}
-
-const invoiceDetailTotalColumn: ColumnDef<InvoiceDetail> =  {
-      accessorKey: "total",
-      header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title="Total"
-        />
-      ),
-      cell: ({ row }) => {
-        const detail = row.original
-        return <p className="text-[0.8rem] font-semibold">{detail.price * detail.quantity}</p>;
-      }
-  }
