@@ -69,7 +69,7 @@ public class StockCheckServiceImpl implements StockCheckService {
                         StockCheckDetail stockCheckDetail = StockCheckDetailMapper.toStockCheckDetail(stockCheckDetailDTO);
                         Product product = productRepository.findById(stockCheckDetailDTO.getProductId())
                                 .orElseThrow(() -> new CustomException("Product not found with id" + stockCheckDetailDTO.getProductId(), HttpStatus.NOT_FOUND));
-                        product.setStock(stockCheckDetail.getRealStock());
+                        product.setStock(stockCheckDetail.getCountedStock());
                         productRepository.save(product);
                         stockCheckDetail.setProduct(product);
                         stockCheckDetail.setStockCheck(stockCheck);
