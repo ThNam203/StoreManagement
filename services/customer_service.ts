@@ -22,11 +22,16 @@ const getAllCustomers = () => {
   return AxiosService.get<Customer[]>("/api/customers");
 };
 
+const deleteCustomer = (customerId: number) => {
+  return AxiosService.delete<Customer>(`/api/customers/${customerId}`);
+};
+
 const CustomerService = {
   uploadCustomer,
   getAllCustomers,
   uploadCustomerGroup,
   getAllCustomerGroups,
+  deleteCustomer,
 };
 
 export default CustomerService;
