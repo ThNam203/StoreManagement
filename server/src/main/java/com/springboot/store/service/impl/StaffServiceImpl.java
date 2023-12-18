@@ -200,7 +200,9 @@ public class StaffServiceImpl implements StaffService {
             shiftAttendanceRecord.setDailyShift(null);
             for (DailyShift dailyShift : dailyShifts) {
                 dailyShift.getAttendanceList().remove(shiftAttendanceRecord);
-                dailyShiftRepository.save(dailyShift);
+                if (dailyShift.getAttendanceList().isEmpty())
+                    dailyShiftRepository.delete(dailyShift);
+                else dailyShiftRepository.save(dailyShift);
             }
         }
         shiftAttendanceRecordRepository.deleteAll(shiftAttendanceRecords);
