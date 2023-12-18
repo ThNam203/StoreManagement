@@ -141,6 +141,23 @@ export default function StaffInfoPage() {
     setMultiFilter((prev) => ({ ...prev, position: values }));
   };
 
+  const handleCalculateSalary = async (rowIndex: number) => {
+    try {
+      const res = await StaffService.calculateSalary(
+        filterdStaffList[rowIndex].id,
+      );
+      console.log("res", res);
+      const salaryDebt = res.data.salaryDebt;
+      await updateAStaff({ ...filterdStaffList[rowIndex], salaryDebt }, null);
+
+      console.log("salaryDebt", salaryDebt);
+      return Promise.resolve();
+    } catch (e) {
+      console.log(e);
+      return Promise.reject();
+    }
+  };
+
   const filters: JSX.Element[] = [
     <div key={1} className="flex flex-col space-y-2">
       <SearchFilter
@@ -160,6 +177,7 @@ export default function StaffInfoPage() {
         data={filterdStaffList}
         onSubmit={handleFormSubmit}
         onStaffDeleteButtonClicked={handleDeleteStaff}
+        onStaffCalculateSalaryButtonClicked={handleCalculateSalary}
       />
     </PageWithFilters>
   );
