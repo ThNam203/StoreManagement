@@ -259,7 +259,7 @@ export const NewProductView = ({
       name: "",
       productGroup: "",
       productBrand: undefined,
-      location: undefined,
+      location: null,
       originalPrice: 0,
       productPrice: 0,
       status: "Active",

@@ -86,11 +86,11 @@ export default function InvoiceReturnPage() {
         );
 
         if (!foundInvoice) {
-          router.back();
           toast({
             variant: "destructive",
             description: "Can not find the invoice to return",
           });
+          return router.back();
         }
 
         // there could have been other return that have been made

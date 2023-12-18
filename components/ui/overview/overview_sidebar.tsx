@@ -457,7 +457,7 @@ const SideBar = ({
               title="Return"
               className="!w-full"
               isCollapsed={isCollapsed}
-              href="/invoice-return"
+              href="/return"
             />,
             <SideBarButton
               key={3}
@@ -498,7 +498,7 @@ const SideBar = ({
               title="Customers"
               className="!w-full"
               isCollapsed={isCollapsed}
-              href="/partner/customer"
+              href="/customer"
             />,
             <SideBarButton
               key={2}
@@ -506,7 +506,7 @@ const SideBar = ({
               title="Supplier"
               className="!w-full"
               isCollapsed={isCollapsed}
-              href="/partner/supplier"
+              href="/supplier"
             />,
           ]}
           isCollapsed={isCollapsed}

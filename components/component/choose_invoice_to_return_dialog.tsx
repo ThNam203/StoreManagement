@@ -55,7 +55,7 @@ export default function ChooseInvoiceToReturnDialog({
       <div className="mx-auto flex max-h-96 max-w-4xl flex-col rounded-lg bg-white p-6">
         <div className="flex justify-between">
           <h4>Choose invoice to make return</h4>
-          <X size={16} onClick={() => onOpenChange(false)} />
+          <X size={16} onClick={() => onOpenChange(false)} className="hover:cursor-pointer"/>
         </div>
         <CustomDatatable
           data={invoices}

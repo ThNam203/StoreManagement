@@ -128,7 +128,6 @@ export default function NewStockCheckPage() {
       note: note,
     })
       .then((result) => {
-        dispatch(addStockCheck(result));
         router.push("/stock-check");
       })
       .catch((e) => axiosUIErrorHandler(e, toast))

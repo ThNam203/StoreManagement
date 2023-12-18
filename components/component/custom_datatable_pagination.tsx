@@ -30,7 +30,7 @@ import {
   }: DataTablePaginationProps<TData>) {
     return (
       <div className="flex items-center justify-between px-2">
-        {config.showRowSelectedCounter ? (
+        {table.getColumn('select') ? (
           <div className="flex-1 text-xs text-muted-foreground">
             {table.getFilteredSelectedRowModel().rows.length} of{" "}
             {table.getFilteredRowModel().rows.length} row(s) selected.

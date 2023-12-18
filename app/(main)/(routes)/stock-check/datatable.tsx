@@ -5,8 +5,8 @@ import {
   stockCheckTableColumns,
 } from "./table_columns";
 import { useAppDispatch, useAppSelector } from "@/hooks";
-import { CustomDatatable } from "@/components/component/custom_datatable";
-import { StockCheck } from "@/entities/StockCheck";
+import { CustomDatatable, DefaultInformationCellDataTable } from "@/components/component/custom_datatable";
+import { StockCheck, StockCheckDetail } from "@/entities/StockCheck";
 import { useToast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
 import scrollbar_style from "@/styles/scrollbar.module.css";
@@ -16,6 +16,8 @@ import LoadingCircle from "@/components/ui/loading_circle";
 import StockCheckService from "@/services/stock_check_service";
 import { deleteStockCheck } from "@/reducers/stockChecksReducer";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { ColumnDef } from "@tanstack/react-table";
+import { defaultColumn } from "@/components/ui/my_table_default_column";
 
 const visibilityState = {
   creatorId: false,
@@ -68,20 +70,10 @@ const DetailTab = ({
     <>
       <div className="flex flex-row gap-4">
         <div className="flex flex-row flex-1 text-[0.8rem]">
-          <div className="flex-1 flex flex-col pr-4">
-            <div className="flex flex-row font-medium border-b mb-2">
-              <p className="w-[100px] font-normal">Check Id:</p>
-              <p>{stockCheck.id}</p>
-            </div>
-            <div className="flex flex-row font-medium border-b mb-2">
-              <p className="w-[100px] font-normal">Created At:</p>
-              {stockCheck.createdDate}
-            </div>
-            <div className="flex flex-row font-medium border-b mb-2">
-              <p className="w-[100px] font-normal">Creator Id:</p>
-              {stockCheck.creatorId}
-              {/* FIXXX */}
-            </div>
+          <div className="flex-1 flex flex-col pr-4 gap-2">
+            <DefaultInformationCellDataTable title="Check Id:" value={stockCheck.id}/>
+            <DefaultInformationCellDataTable title="Created Date:" value={stockCheck.createdDate}/>
+            <DefaultInformationCellDataTable title="Creator:" value={stockCheck.creatorId}/>
           </div>
           <div className="flex-1 flex flex-col pr-4">
             <p className="mb-2">Note</p>
@@ -96,6 +88,18 @@ const DetailTab = ({
           </div>
         </div>
       </div>
+      <CustomDatatable
+        data={stockCheck.products}
+        columnTitles={stockCheckDetailTitles}
+        columns={stockCheckDetailColumns()}
+        config={{
+          showExportButton: false,
+          showDataTableViewOptions: false,
+          showDefaultSearchInput: false,
+          className: "py-0",
+          showRowSelectedCounter: false,
+        }}
+      />
       <div className="flex flex-row items-center gap-2">
         <div className="flex-1" />
         <Button
@@ -127,4 +131,22 @@ const DetailTab = ({
       </div>
     </>
   );
+};
+
+const stockCheckDetailTitles = {
+  productId: "Product ID",
+  productName: "Name",
+  productProperties: "Properties",
+  unitName: "Unit",
+  countedStock: "Counted",
+  realStock: "In Stock",
+  diffQuantity: "Diff Qty",
+  diffCost: "Diff Cost",
+};
+
+const stockCheckDetailColumns = () => {
+  const columns: ColumnDef<StockCheckDetail>[] = [];
+  for (const key in stockCheckDetailTitles) 
+    columns.push(defaultColumn(key, stockCheckDetailTitles));
+  return columns;
 };

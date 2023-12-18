@@ -14,7 +14,8 @@ import { useEffect } from "react";
 import { CustomerDatatable } from "./datatable";
 import CustomerService from "@/services/customer_service";
 import { setCustomers } from "@/reducers/customersReducer";
-import NewCustomerDialog from "@/components/ui/new_customer_dialog";
+import NewCustomerDialog from "@/components/component/new_customer_dialog";
+import { setCustomerGroup } from "@/reducers/customerGroupsReducer";
 
 export default function InvoicePage() {
   const router = useRouter();
@@ -44,6 +45,8 @@ export default function InvoicePage() {
       dispatch(setInvoices(invoices.data));
       const customers = await CustomerService.getAllCustomers();
       dispatch(setCustomers(customers.data));
+      const customerGroups = await CustomerService.getAllCustomerGroups();
+      dispatch(setCustomerGroup(customerGroups.data));
     };
 
     fetchData()
@@ -54,7 +57,7 @@ export default function InvoicePage() {
 
   return (
     <PageWithFilters
-      title="Invoices"
+      title="Customers"
       filters={[]}
       headerButtons={[<NewInvoiceButton key={1} />]}
     >
