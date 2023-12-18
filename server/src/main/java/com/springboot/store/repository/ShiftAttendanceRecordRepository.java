@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface ShiftAttendanceRecordRepository extends JpaRepository<ShiftAttendanceRecord, Integer> {
-    @Query("SELECT s FROM ShiftAttendanceRecord s WHERE s.staffId = :staffId AND YEAR(s.date) = YEAR(CURRENT_DATE) AND MONTH(s.date) = MONTH(CURRENT_DATE)")
+    @Query("SELECT s FROM ShiftAttendanceRecord s WHERE s.staffId = :staffId AND YEAR(s.date) = YEAR(CURRENT_DATE) AND MONTH(s.date) = MONTH(CURRENT_DATE) AND s.store IS NOT NULL AND s.dailyShift IS NOT NULL")
     List<ShiftAttendanceRecord> findByStaffIdAndDateInThisMonth(@Param("staffId") int staffId);
 
     List<ShiftAttendanceRecord> findByStaffId(int staffId);

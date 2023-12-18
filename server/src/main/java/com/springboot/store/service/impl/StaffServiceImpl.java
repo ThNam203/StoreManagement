@@ -38,6 +38,7 @@ public class StaffServiceImpl implements StaffService {
     private final ModelMapper modelMapper;
     private final ShiftAttendanceRecordRepository shiftAttendanceRecordRepository;
     private final StaffPositionRepository staffPositionRepository;
+    private final DailyShiftRepository dailyShiftRepository;
 
     @Override
     public StaffResponse createStaff(StaffRequest newStaff, MultipartFile file) {
@@ -194,6 +195,14 @@ public class StaffServiceImpl implements StaffService {
         Staff creator = getAuthorizedStaff();
         Staff staff = staffRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Staff", "id", id));
         List<ShiftAttendanceRecord> shiftAttendanceRecords = shiftAttendanceRecordRepository.findByStaffId(id);
+        for (ShiftAttendanceRecord shiftAttendanceRecord : shiftAttendanceRecords) {
+            List<DailyShift> dailyShifts = dailyShiftRepository.findByAttendanceListContaining(shiftAttendanceRecord);
+            shiftAttendanceRecord.setDailyShift(null);
+            for (DailyShift dailyShift : dailyShifts) {
+                dailyShift.getAttendanceList().remove(shiftAttendanceRecord);
+                dailyShiftRepository.save(dailyShift);
+            }
+        }
         shiftAttendanceRecordRepository.deleteAll(shiftAttendanceRecords);
         staffRepository.delete(staff);
         // save activity log
