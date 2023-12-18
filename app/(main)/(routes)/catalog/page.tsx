@@ -24,6 +24,8 @@ import {
   updateProduct,
 } from "@/reducers/productsReducer";
 import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
+import { handleMultipleFilter, handleSingleFilter } from "@/utils";
+import { Product } from "@/entities/Product";
 
 const productInventoryThresholds = [
   "All",
@@ -60,14 +62,16 @@ export default function Catalog() {
         dispatch(setBrands(productBrands.data));
 
         const productProperties = await ProductService.getAllProperties();
-        dispatch(productPropertiesActions.setProperties(productProperties.data));
+        dispatch(
+          productPropertiesActions.setProperties(productProperties.data),
+        );
       } catch (e) {
-        axiosUIErrorHandler(e, toast)
+        axiosUIErrorHandler(e, toast);
       }
     };
     getData().finally(() => {
-      dispatch(disablePreloader())
-    })
+      dispatch(disablePreloader());
+    });
   }, []);
 
   const addNewGroup = async (group: string) => {
@@ -136,72 +140,92 @@ export default function Catalog() {
     }
   };
 
-  const [filtersChoice, setFiltersChoice] = useState<{
-    type: string[];
-    group: string[];
-    inventoryThreshold: string;
-    supplier: string[];
-    position: string[];
-    status: string;
-  }>({
-    type: ["Goods"],
-    group: [],
-    inventoryThreshold: "All",
-    supplier: [],
-    position: [],
-    status: "All",
+  const [filteredProductList, setFilterSaleList] =
+    useState<Product[]>(products);
+  let [multiFilter, setMultiFilter] = useState({
+    // type: ["Goods"] as string[],
+    productGroup: [] as string[],
+    // supplier: [] as string[],
+    location: [] as string[],
+  });
+  let [singleFileter, setSingleFilter] = useState({
+    // minStock: "All" as string | undefined,
+    // status: "All" as string | undefined,
   });
 
+  useEffect(() => {
+    let filteredList = [...products];
+    console.log("multi filter", multiFilter);
+    filteredList = handleMultipleFilter<Product>(multiFilter, filteredList);
+    console.log("filtered list", filteredList);
+    filteredList = handleSingleFilter<Product>(singleFileter, filteredList);
+
+    setFilterSaleList([...filteredList]);
+  }, [multiFilter, singleFileter, products]);
+
   const updateTypeFilter = (choices: string[]) =>
-    setFiltersChoice((prev) => ({ ...prev, type: choices }));
-  const updateGroupFilter = (choices: string[]) =>
-    setFiltersChoice((prev) => ({ ...prev, group: choices }));
-  const updateInventoryThresholdFilter = (choice: string) =>
-    setFiltersChoice((prev) => ({ ...prev, inventoryThreshold: choice }));
+    setMultiFilter((prev) => ({ ...prev, type: choices }));
+  const updateProductGroupFilter = (choices: string[]) =>
+    setMultiFilter((prev) => ({ ...prev, productGroup: choices }));
+  const updateInventoryThresholdFilter = (choice: string) => {
+    // if (choice === "All") {
+    //   const newSingleFilter = { ...singleFileter };
+    //   delete newSingleFilter.minStock;
+    //   setSingleFilter(newSingleFilter);
+    // } else if (choice === "Below threshold") {
+    //   setSingleFilter((prev) => ({ ...prev, minStock: choice }));
+    // }
+    // setSingleFilter((prev) => ({ ...prev, minStock: choice }));
+  };
   const updateSupplierFilter = (choices: string[]) =>
-    setFiltersChoice((prev) => ({ ...prev, supplier: choices }));
-  const updatePositionFilter = (choices: string[]) =>
-    setFiltersChoice((prev) => ({ ...prev, position: choices }));
-  const updateStatusFilter = (choice: string) =>
-    setFiltersChoice((prev) => ({ ...prev, status: choice }));
+    setMultiFilter((prev) => ({ ...prev, supplier: choices }));
+  const updateLocationFilter = (choices: string[]) =>
+    setMultiFilter((prev) => ({ ...prev, location: choices }));
+  const updateStatusFilter = (choice: string) => {
+    // if (choice === "All") {
+    //   const newSingleFilter = { ...singleFileter };
+    //   delete newSingleFilter.status;
+    //   setSingleFilter(newSingleFilter);
+    // } else setSingleFilter((prev) => ({ ...prev, status: choice }));
+  };
 
   const filters = [
     <SearchFilter
       key={2}
       placeholder="Find group..."
       title="Product group"
-      chosenValues={filtersChoice.group}
+      chosenValues={multiFilter.productGroup}
       choices={productGroups.map((group) => group.name)}
-      onValuesChanged={updateGroupFilter}
+      onValuesChanged={updateProductGroupFilter}
       className="mb-4"
     />,
-    <ChoicesFilter
-      key={3}
-      title="Inventory"
-      isSingleChoice
-      defaultValue={filtersChoice.inventoryThreshold}
-      choices={productInventoryThresholds}
-      onSingleChoiceChanged={updateInventoryThresholdFilter}
-      className="my-4"
-    />,
+    // <ChoicesFilter
+    //   key={3}
+    //   title="Inventory"
+    //   isSingleChoice
+    //   defaultValue={singleFileter.minStock}
+    //   choices={productInventoryThresholds}
+    //   onSingleChoiceChanged={updateInventoryThresholdFilter}
+    //   className="my-4"
+    // />,
     <SearchFilter
       key={5}
       title="Product position"
       placeholder="Find position..."
-      chosenValues={filtersChoice.position}
-      onValuesChanged={updatePositionFilter}
+      chosenValues={multiFilter.location}
+      onValuesChanged={updateLocationFilter}
       choices={productLocations.map((v) => v.name)}
       className="my-4"
     />,
-    <ChoicesFilter
-      key={6}
-      title="Product status"
-      isSingleChoice
-      defaultValue={filtersChoice.status}
-      choices={productStatuses}
-      onSingleChoiceChanged={updateStatusFilter}
-      className="my-4"
-    />,
+    // <ChoicesFilter
+    //   key={6}
+    //   title="Product status"
+    //   isSingleChoice
+    //   defaultValue={singleFileter.status}
+    //   choices={productStatuses}
+    //   onSingleChoiceChanged={updateStatusFilter}
+    //   className="my-4"
+    // />,
   ];
 
   const NewProductButton = () => {
@@ -231,7 +255,7 @@ export default function Catalog() {
       headerButtons={[<NewProductButton key={1} />]}
     >
       <CatalogDatatable
-        data={products}
+        data={filteredProductList}
         onProductUpdateButtonClicked={onProductUpdateButtonClicked}
       />
       {showNewProductView ? (

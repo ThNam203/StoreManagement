@@ -30,10 +30,10 @@ const createNewPosition = (data: any) => {
   return AxiosService.post<Position>("/api/staff-positions", data);
 };
 const updatePosition = (id: any, data: any) => {
-  return AxiosService.put<Position>("/api/staff-positions" + id, data);
+  return AxiosService.put<Position>("/api/staff-positions/" + id, data);
 };
 const deletePosition = (id: any) => {
-  return AxiosService.delete("/api/staff-positions" + id);
+  return AxiosService.delete("/api/staff-positions/" + id);
 };
 const StaffService = {
   getAllStaffs,

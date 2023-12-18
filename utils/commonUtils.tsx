@@ -90,6 +90,12 @@ function handleSingleFilter<T>(
   const filterList = listToFilter.filter((row) => {
     const filterKeys = Object.keys(filter);
     for (let key of filterKeys) {
+      console.log("value", row[key as keyof typeof row]);
+      if (
+        filter[key as keyof typeof filter] === null ||
+        filter[key as keyof typeof filter] === undefined
+      )
+        return true;
       if (
         filter[key as keyof typeof filter].length > 0 &&
         filter[key as keyof typeof filter] !== row[key as keyof typeof row]

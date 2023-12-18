@@ -134,11 +134,19 @@ public class StaffServiceImpl implements StaffService {
         staff.setNote(staffRequest.getNote());
         staff.setSex(staffRequest.getSex());
         staff.setBirthday(staffRequest.getBirthday());
+        staff.setEmail(staffRequest.getEmail());
         staff.setStaffPosition(staffPositionRepository.findByName(staffRequest.getPosition()).orElseThrow());
         staff.setSalaryDebt(staffRequest.getSalaryDebt());
         staff.setStaffRole(staffRequest.getRole() != null
                 ? staffRoleRepository.findByNameAndStoreId(staffRequest.getRole(), storeId).orElseThrow()
                 : null);
+
+        if (staffRequest.getPassword() != null && !staffRequest.getPassword().isEmpty()) {
+            if (staffRequest.getPassword().length() < 8) {
+                throw new CustomException("Password must be at least 8 characters", HttpStatus.UNPROCESSABLE_ENTITY);
+            }
+            staff.setPassword(passwordEncoder.encode(staffRequest.getPassword()));
+        }
 
         if (staff.getCccd() != null && staff.getCccd().equals(staffRequest.getCccd())) {
             staff.setCccd(staffRequest.getCccd());
@@ -172,6 +180,7 @@ public class StaffServiceImpl implements StaffService {
         if (file == null && staffRequest.getAvatar().isEmpty() || Objects.requireNonNull(file).isEmpty() && staffRequest.getAvatar().isEmpty()) {
             staff.setAvatar(null);
         }
+
         staff = staffRepository.save(staff);
 
         // save activity log
@@ -304,8 +313,8 @@ public class StaffServiceImpl implements StaffService {
         }
 
         // check if password is valid
-        if (newStaff.getPassword().length() < 6) {
-            throw new CustomException("Password must be at least 6 characters", HttpStatus.UNPROCESSABLE_ENTITY);
+        if (newStaff.getPassword().length() < 8) {
+            throw new CustomException("Password must be at least 8 characters", HttpStatus.UNPROCESSABLE_ENTITY);
         }
 
         // check if birthday is valid
