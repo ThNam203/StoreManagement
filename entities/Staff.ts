@@ -25,7 +25,6 @@ export enum Sex {
 }
 
 export type Paycheck = {
-  id: any;
   workingPeriod: {
     startDate: Date;
     endDate: Date;

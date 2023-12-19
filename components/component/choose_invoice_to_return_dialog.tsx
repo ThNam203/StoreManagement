@@ -52,10 +52,14 @@ export default function ChooseInvoiceToReturnDialog({
   const router = useRouter();
   return open ? (
     <div className="fixed left-0 top-0 z-20 flex h-screen w-screen items-center bg-slate-300 bg-opacity-70">
-      <div className="mx-auto flex max-h-96 max-w-4xl flex-col rounded-lg bg-white p-6">
+      <div className="mx-auto flex max-h-96 max-w-4xl flex-col overflow-y-auto rounded-lg bg-white p-6">
         <div className="flex justify-between">
           <h4>Choose invoice to make return</h4>
-          <X size={16} onClick={() => onOpenChange(false)} className="hover:cursor-pointer"/>
+          <X
+            size={16}
+            onClick={() => onOpenChange(false)}
+            className="hover:cursor-pointer"
+          />
         </div>
         <CustomDatatable
           data={invoices}

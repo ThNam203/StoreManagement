@@ -90,6 +90,7 @@ export default function StaffInfoPage() {
   const updateAStaff = async (value: Staff, avatar: File | null) => {
     try {
       const staffToSent = convertStaffToSent(value);
+      console.log("value to update", staffToSent);
       const dataForm: any = new FormData();
       dataForm.append(
         "data",
@@ -97,11 +98,13 @@ export default function StaffInfoPage() {
       );
       console.log("avatar to update", avatar);
       dataForm.append("file", avatar);
+      console.log("dataForm", dataForm);
       const staffResult = await StaffService.updateStaff(
         staffToSent.id,
         dataForm,
       );
       const staffReceived = convertStaffReceived(staffResult.data);
+      console.log("staffReceived", staffReceived);
       dispatch(updateStaff(staffReceived));
       return Promise.resolve();
     } catch (e) {
@@ -148,7 +151,7 @@ export default function StaffInfoPage() {
       );
       console.log("res", res);
       const salaryDebt = res.data.salaryDebt;
-      await updateAStaff({ ...filterdStaffList[rowIndex], salaryDebt }, null);
+      dispatch(updateStaff({ ...filterdStaffList[rowIndex], salaryDebt }));
 
       console.log("salaryDebt", salaryDebt);
       return Promise.resolve();

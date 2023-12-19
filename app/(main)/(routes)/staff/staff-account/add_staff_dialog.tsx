@@ -92,7 +92,6 @@ export function AddStaffDialog({
   data: Staff | null;
   submit: (values: Staff, avatar: File | null) => any;
 }) {
-  console.log("data", data);
   const form = useForm<z.infer<typeof createSchema>>({
     resolver: zodResolver(data ? updateSchema : createSchema),
     defaultValues: {
@@ -113,11 +112,11 @@ export function AddStaffDialog({
       phoneNumber: values.phoneNumber,
       cccd: values.cccd,
       salaryDebt: 0,
-      note: "",
+      note: values.note ? values.note : "",
       birthday: new Date(values.birthday),
       sex: values.sex as Sex,
       email: values.email,
-      password: values.password,
+      password: values.password === "" ? null : values.password,
       address: values.address ? values.address : "",
       position: values.position,
       createAt: new Date(),
@@ -130,9 +129,9 @@ export function AddStaffDialog({
     console.log("avatar", staffAvatar);
 
     if (submit) {
+      console.log("submit staff", newStaff);
       setIsLoading(true);
       try {
-        console.log("newStaff", newStaff);
         await submit(newStaff, staffAvatar).then(() => {
           form.reset();
           setOpen(false);

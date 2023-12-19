@@ -32,7 +32,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SalaryUnitTable } from "@/entities/SalarySetting";
 import { cn } from "@/lib/utils";
-import { formatPrice } from "@/utils";
+import { formatPrice, getStaticRangeFilterTime } from "@/utils";
 import { format, set } from "date-fns";
 import { Calculator, PenLine, Trash } from "lucide-react";
 import Image from "next/image";
@@ -48,6 +48,7 @@ import LoadingCircle from "@/components/ui/loading_circle";
 import StaffService from "@/services/staff_service";
 import { useToast } from "@/components/ui/use-toast";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { FilterMonth } from "@/components/ui/filter";
 
 export function DataTable({
   data,
@@ -248,18 +249,7 @@ const CustomRow = ({
   const { toast } = useToast();
   const [showInfoRow, setShowInfoRow] = React.useState(false);
   const staff: Staff = row.original;
-  const [paycheckList, setPaycheckList] = React.useState<Paycheck[]>([
-    {
-      id: 1,
-      workingPeriod: {
-        startDate: new Date(2023, 10, 1),
-        endDate: new Date(2023, 10, 30),
-      },
-      totalSalary: 0,
-      paid: 0,
-      needToPay: 0,
-    },
-  ]);
+  const [paycheckList, setPaycheckList] = React.useState<Paycheck[]>([]);
   const [isRemoving, setIsRemoving] = useState(false);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   const [contentConfirmDialog, setContentConfirmDialog] = useState({
@@ -289,6 +279,17 @@ const CustomRow = ({
     });
     setWorkScheduleList(tempWorkScheduleList);
   }, [shiftList]);
+
+  useEffect(() => {
+    let tempPaycheckList: Paycheck[] = [];
+    tempPaycheckList.push({
+      workingPeriod: getStaticRangeFilterTime(FilterMonth.ThisMonth),
+      totalSalary: staff.salaryDebt,
+      paid: 0,
+      needToPay: staff.salaryDebt - 0,
+    });
+    setPaycheckList(tempPaycheckList);
+  }, [staff]);
 
   const borderWidth =
     containerRef && containerRef.current
@@ -558,9 +559,6 @@ const CustomRow = ({
                     <div className="flex h-[300px] flex-col justify-between gap-4 py-2 pl-8 pr-4">
                       <div className="w-full overflow-hidden rounded-md">
                         <div className="flex w-full flex-row items-center justify-start gap-2 bg-blue-100 p-2">
-                          <span className="w-[150px] text-sm font-semibold">
-                            Form ID
-                          </span>
                           <span className="w-[250px] text-sm font-semibold">
                             Working period
                           </span>
@@ -580,9 +578,6 @@ const CustomRow = ({
                               key={index}
                               className="flex w-full flex-row items-center justify-start gap-2 bg-gray-100 p-2"
                             >
-                              <span className="w-[150px] text-sm font-semibold">
-                                {paycheck.id}
-                              </span>
                               <span className="w-[250px] text-sm">
                                 {format(
                                   paycheck.workingPeriod.startDate,
