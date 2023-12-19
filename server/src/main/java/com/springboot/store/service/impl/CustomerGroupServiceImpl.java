@@ -3,6 +3,7 @@ package com.springboot.store.service.impl;
 import com.springboot.store.entity.Customer;
 import com.springboot.store.entity.CustomerGroup;
 import com.springboot.store.entity.Staff;
+import com.springboot.store.mapper.CustomerGroupMapper;
 import com.springboot.store.payload.CustomerGroupDTO;
 import com.springboot.store.repository.CustomerGroupRepository;
 import com.springboot.store.service.CustomerGroupService;
@@ -20,7 +21,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CustomerGroupServiceImpl implements CustomerGroupService {
     private final CustomerGroupRepository customerGroupRepository;
-    private final ModelMapper modelMapper;
     private final StaffService staffService;
 
     @Override
@@ -28,16 +28,14 @@ public class CustomerGroupServiceImpl implements CustomerGroupService {
         if (customerGroupRepository.findByNameAndStoreId(customerGroupDTO.getName(), staffService.getAuthorizedStaff().getStore().getId()) != null) {
             throw new RuntimeException("Customer group name already exists");
         }
-        CustomerGroup customerGroup = modelMapper.map(customerGroupDTO, CustomerGroup.class);
+        CustomerGroup customerGroup = CustomerGroupMapper.toCustomerGroup(customerGroupDTO);
         customerGroup.setCreatedAt(new Date());
         customerGroup.setCreator(staffService.getAuthorizedStaff());
         customerGroup.setStore(staffService.getAuthorizedStaff().getStore());
         customerGroup = customerGroupRepository.save(customerGroup);
 
-        CustomerGroupDTO customerGroupDTONew = modelMapper.map(customerGroup, CustomerGroupDTO.class);
-        customerGroupDTONew.setCustomerId(customerGroup.getCustomers().stream().map(Customer::getId).collect(java.util.stream.Collectors.toSet()));
-        customerGroupDTONew.setCreator(customerGroup.getCreator().getId());
-        return customerGroupDTONew;
+        return CustomerGroupMapper.toCustomerGroupDTO(customerGroup);
+
     }
 
     @Override
@@ -49,10 +47,7 @@ public class CustomerGroupServiceImpl implements CustomerGroupService {
         existingCustomerGroup.setName(customerGroupDTO.getName());
         existingCustomerGroup.setDescription(customerGroupDTO.getDescription());
         existingCustomerGroup = customerGroupRepository.save(existingCustomerGroup);
-        customerGroupDTO = modelMapper.map(existingCustomerGroup, CustomerGroupDTO.class);
-        customerGroupDTO.setCreator(existingCustomerGroup.getCreator().getId());
-        customerGroupDTO.setCustomerId(existingCustomerGroup.getCustomers().stream().map(Customer::getId).collect(java.util.stream.Collectors.toSet()));
-        return customerGroupDTO;
+        return CustomerGroupMapper.toCustomerGroupDTO(existingCustomerGroup);
     }
 
     @Override
@@ -61,7 +56,7 @@ public class CustomerGroupServiceImpl implements CustomerGroupService {
         List<CustomerGroup> customerGroups = customerGroupRepository.findByStoreId(staff.getStore().getId());
         return customerGroups.stream()
                 .map(customerGroup -> {
-                    CustomerGroupDTO customerGroupDTO = modelMapper.map(customerGroup, CustomerGroupDTO.class);
+                    CustomerGroupDTO customerGroupDTO = CustomerGroupMapper.toCustomerGroupDTO(customerGroup);
                     // check if creator is null
                     customerGroupDTO.setCreator(customerGroup.getCreator() == null ? null : customerGroup.getCreator().getId());
                     customerGroupDTO.setCustomerId(customerGroup.getCustomers().stream().map(Customer::getId).collect(java.util.stream.Collectors.toSet()));
@@ -73,10 +68,7 @@ public class CustomerGroupServiceImpl implements CustomerGroupService {
     @Override
     public CustomerGroupDTO getCustomerGroupById(int id) {
         CustomerGroup customerGroup = customerGroupRepository.findById(id).orElseThrow(() -> new RuntimeException("Customer group not found with id: " + id));
-        CustomerGroupDTO customerGroupDTO = modelMapper.map(customerGroup, CustomerGroupDTO.class);
-        customerGroupDTO.setCreator(customerGroup.getCreator() == null ? null : customerGroup.getCreator().getId());
-        customerGroupDTO.setCustomerId(customerGroup.getCustomers().stream().map(Customer::getId).collect(java.util.stream.Collectors.toSet()));
-        return customerGroupDTO;
+        return CustomerGroupMapper.toCustomerGroupDTO(customerGroup);
     }
 
     @Override
