@@ -11,6 +11,7 @@ public class PurchaseOrderMapper {
                 .discount(purchaseOrder.getDiscount())
                 .total(purchaseOrder.getTotal())
                 .note(purchaseOrder.getNote())
+                .paymentMethod(purchaseOrder.getPaymentMethod())
                 .createdDate(purchaseOrder.getCreatedDate())
                 .staffId(purchaseOrder.getStaff() != null ? purchaseOrder.getStaff().getId() : null)
                 .supplierId(purchaseOrder.getSupplier() != null ? purchaseOrder.getSupplier().getId() : null)
@@ -27,6 +28,7 @@ public class PurchaseOrderMapper {
                 .discount(purchaseOrderDTO.getDiscount())
                 .total(purchaseOrderDTO.getTotal())
                 .note(purchaseOrderDTO.getNote())
+                .paymentMethod(purchaseOrderDTO.getPaymentMethod())
                 .createdDate(purchaseOrderDTO.getCreatedDate())
                 .build();
     }

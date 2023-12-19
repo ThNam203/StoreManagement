@@ -7,11 +7,14 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class PurchaseOrderDetailDTO {
+public class PurchaseReturnDetailDTO {
     private int id;
     private int quantity;
-    private int price;
+    private int supplyPrice;
+    private int returnPrice;
     private int discount;
+    private int total;
+    private String unit;
     private String note;
     private Integer productId;
 }

@@ -10,6 +10,7 @@ public class PurchaseOrderDetailMapper {
                 .quantity(purchaseOrderDetail.getQuantity())
                 .price(purchaseOrderDetail.getPrice())
                 .discount(purchaseOrderDetail.getDiscount())
+                .note(purchaseOrderDetail.getNote())
                 .productId(purchaseOrderDetail.getProduct() != null ? purchaseOrderDetail.getProduct().getId() : null)
                 .build();
     }
@@ -18,6 +19,7 @@ public class PurchaseOrderDetailMapper {
                 .quantity(purchaseOrderDetailDTO.getQuantity())
                 .price(purchaseOrderDetailDTO.getPrice())
                 .discount(purchaseOrderDetailDTO.getDiscount())
+                .note(purchaseOrderDetailDTO.getNote())
                 .build();
     }
 }

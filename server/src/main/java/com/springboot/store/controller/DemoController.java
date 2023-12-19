@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +25,7 @@ public class DemoController {
     @GetMapping
     public ResponseEntity<?> hello(HttpServletResponse response) {
         response.addCookie(new Cookie("hello", "world"));
-        return ResponseEntity.ok().body("Hello world");
+        return ResponseEntity.ok().body("Hello world: " + new Date());
     }
     @GetMapping("/{id}")
     public ResponseEntity<?> hello(@PathVariable Integer id) {
