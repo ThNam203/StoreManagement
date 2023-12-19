@@ -91,7 +91,7 @@ const LucideIcons = (iconName: IconNames, isCollapsed: boolean | null) => {
   const iconClasses = cn(
     "m-auto",
     isCollapsed == null ? "lg:ml-4 lg:mr-4" : "",
-    isCollapsed == true ? "" : isCollapsed == false ? "ml-4 mr-4" : ""
+    isCollapsed == true ? "" : isCollapsed == false ? "ml-4 mr-4" : "",
   );
   let icon: JSX.Element;
   switch (iconName) {
@@ -185,11 +185,11 @@ const SideBarButton = ({
     <Link
       href={href}
       className={cn(
-        "hover:text-blue-700 hover:bg-blue-100",
-        title == "Logout" && "hover:text-red-700 hover:bg-red-200",
-        " w-5/6 flex justify-start items-center min-h-[2.5rem] h-10 my-1" +
+        "hover:bg-blue-100 hover:text-blue-700",
+        title == "Logout" && "hover:bg-red-200 hover:text-red-700",
+        " my-1 flex h-10 min-h-[2.5rem] w-5/6 items-center justify-start" +
           " rounded-sm hover:cursor-pointer ",
-        className
+        className,
       )}
     >
       {icon!}
@@ -197,7 +197,7 @@ const SideBarButton = ({
         className={cn(
           "text-sm",
           isCollapsed == null ? "hidden lg:block" : "",
-          isCollapsed == true ? "hidden" : isCollapsed == false ? "block" : ""
+          isCollapsed == true ? "hidden" : isCollapsed == false ? "block" : "",
         )}
       >
         {title}
@@ -205,7 +205,7 @@ const SideBarButton = ({
           /* "ORDERS section needs an aditional which tells how much orders is being processed" */
           title === "Orders" ? (
             /* leading-[1.75rem] == h-7 value, which is to align the text vertically */
-            <span className="w-7 h-7 ml-6 leading-[1.75rem] rounded-full bg-blue-800 text-white text-sm text-center inline-block">
+            <span className="ml-6 inline-block h-7 w-7 rounded-full bg-blue-800 text-center text-sm leading-[1.75rem] text-white">
               10
             </span>
           ) : null
@@ -230,26 +230,30 @@ const SideBarAccordion = ({
     <Accordion
       type="single"
       collapsible={true}
-      className="w-5/6 bg-slate-100 rounded-md mx-2 my-1"
+      className="mx-2 my-1 w-5/6 rounded-md bg-slate-100"
     >
       <AccordionItem value="item-1">
         <AccordionTrigger
           showArrowFunc={cn(
             "mr-2",
             isCollapsed == null ? "hidden lg:block" : "",
-            isCollapsed == true ? "hidden" : isCollapsed == false ? "block" : ""
+            isCollapsed == true
+              ? "hidden"
+              : isCollapsed == false
+                ? "block"
+                : "",
           )}
           className={cn(
-            "justify-center gap-2 h-12",
+            "h-12 justify-center gap-2",
             isCollapsed == null ? "justify-center lg:justify-start" : "",
             isCollapsed == true
               ? "justify-center"
               : isCollapsed == false
-              ? "justify-start"
-              : ""
+                ? "justify-start"
+                : "",
           )}
         >
-          <div className="flex flex-row w-full">
+          <div className="flex w-full flex-row">
             {LucideIcons(iconName, isCollapsed)}
             <p
               className={cn(
@@ -258,8 +262,8 @@ const SideBarAccordion = ({
                 isCollapsed == true
                   ? "hidden"
                   : isCollapsed == false
-                  ? "block"
-                  : ""
+                    ? "block"
+                    : "",
               )}
             >
               {title}
@@ -290,30 +294,30 @@ const SideBar = ({
         fill="rgb(96 165 250)"
         onClick={() => changeSideBarCollapsibility()}
         className={cn(
-          "fixed rounded-full translate-x-[-50%] z-[10] top-8 ease-linear duration-150 hover:cursor-pointer",
+          "fixed top-8 z-[10] translate-x-[-50%] rounded-full duration-150 ease-linear hover:cursor-pointer",
           isCollapsed == null
-            ? "max-lg:rotate-180 left-[64px] lg:left-[232px]"
+            ? "left-[64px] max-lg:rotate-180 lg:left-[232px]"
             : "",
           isCollapsed == true
             ? "left-[64px] rotate-180"
             : isCollapsed == false
-            ? "left-[232px]"
-            : ""
+              ? "left-[232px]"
+              : "",
         )}
       />
       <div
         className={cn(
-          "flex flex-col fixed left-0 top-0 h-full overflow-y-scroll items-center ease-linear duration-200",
+          "fixed left-0 top-0 flex h-full flex-col items-center overflow-y-scroll duration-200 ease-linear",
           className,
           isCollapsed == null ? "w-[64px] lg:w-[232px]" : "",
           isCollapsed == true
             ? "w-[64px]"
             : isCollapsed == false
-            ? "w-[232px]"
-            : ""
+              ? "w-[232px]"
+              : "",
         )}
       >
-        <div className="flex flex-row w-full items-center justify-center relative overflow-y-visible">
+        <div className="relative flex w-full flex-row items-center justify-center overflow-y-visible">
           {/* <img src="/static/web_avatar.png" alt="web avatar" className="w-[32px] h-[32px]"/> */}
           <Image
             src="/web_avatar.png"
@@ -323,13 +327,13 @@ const SideBar = ({
           />
           <h1
             className={cn(
-              "ml-2 font-bold text-xl tracking-tight",
+              "ml-2 text-xl font-bold tracking-tight",
               isCollapsed == null ? "hidden lg:block" : "",
               isCollapsed == true
                 ? "hidden"
                 : isCollapsed == false
-                ? "block"
-                : ""
+                  ? "block"
+                  : "",
             )}
           >
             MSTORE
@@ -338,7 +342,7 @@ const SideBar = ({
         <Accordion
           type="single"
           collapsible={true}
-          className="w-5/6 bg-slate-100 rounded-md mx-2 my-2 px-2"
+          className="mx-2 my-2 w-5/6 rounded-md bg-slate-100 px-2"
         >
           <AccordionItem value="item-1">
             <AccordionTrigger
@@ -347,12 +351,12 @@ const SideBar = ({
                 isCollapsed == true
                   ? "hidden"
                   : isCollapsed == false
-                  ? "block"
-                  : ""
+                    ? "block"
+                    : "",
               )}
               className="gap-2"
             >
-              <Avatar className="w-9 h-9 border-2 border-dashed border-blue-500 hover:border-solid">
+              <Avatar className="h-9 w-9 border-2 border-dashed border-blue-500 hover:border-solid">
                 <AvatarImage src="https://github.com/shadcn.png" />
                 <AvatarFallback>CN</AvatarFallback>
               </Avatar>
@@ -362,14 +366,14 @@ const SideBar = ({
                   isCollapsed == true
                     ? "hidden"
                     : isCollapsed == false
-                    ? "block"
-                    : ""
+                      ? "block"
+                      : "",
                 )}
               >
-                <h4 className="font-medium text-sm max-w-[85px] text-start break-words">
+                <h4 className="max-w-[85px] break-words text-start text-sm font-medium">
                   Nam Huynh
                 </h4>
-                <p className="text-xs opacity-75 text-start flex-wrap">Staff</p>
+                <p className="flex-wrap text-start text-xs opacity-75">Staff</p>
               </div>
             </AccordionTrigger>
             <AccordionContent>
@@ -544,18 +548,18 @@ const SideBar = ({
           isCollapsed={isCollapsed}
         />
 
+        {/* <SideBarButton
+          iconName={IconNames.Settings}
+          title="Settings"
+          className=""
+          isCollapsed={isCollapsed}
+          href="/settings"
+        /> */}
+
         <SideBarAccordion
           iconName={IconNames.Contact}
           title="Staff"
           buttons={[
-            <SideBarButton
-              key={1}
-              iconName={IconNames.UserCog}
-              title="Staff Group"
-              className="!w-full"
-              isCollapsed={isCollapsed}
-              href="/staff/staff-group"
-            />,
             <SideBarButton
               key={2}
               iconName={IconNames.MenuSquare}
