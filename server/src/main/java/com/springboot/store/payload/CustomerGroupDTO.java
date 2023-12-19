@@ -17,5 +17,5 @@ public class CustomerGroupDTO {
     private String description;
     private Date createdAt;
     private Integer creator;
-    private Set<CustomerDTO> customers;
+    private Set<Integer> customerId;
 }
