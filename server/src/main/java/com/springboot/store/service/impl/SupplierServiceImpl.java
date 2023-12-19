@@ -43,6 +43,10 @@ public class SupplierServiceImpl implements SupplierService {
 
     @Override
     public SupplierDTO createSupplier(SupplierDTO supplierDTO, MultipartFile file) {
+        if (supplierRepository.findByEmail(supplierDTO.getEmail()).isPresent()) {
+            throw new CustomException("Email already exists", HttpStatus.BAD_REQUEST);
+        }
+
         Staff creator = staffService.getAuthorizedStaff();
         Supplier supplier = SupplierMapper.toSupplier(supplierDTO);
         supplier.setCreatedAt(new Date());
@@ -71,6 +75,9 @@ public class SupplierServiceImpl implements SupplierService {
     public SupplierDTO updateSupplier(int id, SupplierDTO supplierDTO, MultipartFile file) {
         Staff creator = staffService.getAuthorizedStaff();
         Supplier supplier = supplierRepository.findById(id).orElseThrow(() -> new CustomException("Supplier not found", HttpStatus.NOT_FOUND));
+        if (!supplier.getEmail().equals(supplierDTO.getEmail()) && supplierRepository.findByEmail(supplierDTO.getEmail()).isPresent()) {
+            throw new CustomException("Email already exists", HttpStatus.BAD_REQUEST);
+        }
         supplier.setName(supplierDTO.getName());
         supplier.setAddress(supplierDTO.getAddress());
         supplier.setPhoneNumber(supplierDTO.getPhoneNumber());
