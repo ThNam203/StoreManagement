@@ -26,22 +26,22 @@ import {
   AlertDialogTrigger,
 } from "../ui/alert-dialog";
 import { useEffect, useState } from "react";
-import CustomerService from "@/services/customer_service";
 import { useAppDispatch, useAppSelector } from "@/hooks";
-import { addCustomer, updateCustomer } from "@/reducers/customersReducer";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
 import { useToast } from "../ui/use-toast";
 import AddNewThing from "../ui/add_new_thing_dialog";
-import { addCustomerGroup } from "@/reducers/customerGroupsReducer";
-import { Customer } from "@/entities/Customer";
+import SupplierService from "@/services/supplier_service";
+import { addSupplierGroup } from "@/reducers/supplierGroupsReducer";
+import { addSupplier, updateSupplier } from "@/reducers/suppliersReducer";
+import { Supplier } from "@/entities/Supplier";
 
-const newCustomerFormSchema = z.object({
+const updateSupplierFormSchema = z.object({
   id: z.number(),
   name: z
     .string()
     .trim()
     .min(1, { message: "Missing name!" })
-    .max(100, { message: "Customer name must be at most 100 characters!" }),
+    .max(100, { message: "Supplier name must be at most 100 characters!" }),
   email: z
     .string()
     .trim()
@@ -58,45 +58,44 @@ const newCustomerFormSchema = z.object({
     .trim()
     .max(100, { message: "Address must be at most 100 characters!" })
     .optional(),
-  sex: z.enum(["Male", "Female", "Not to say"]),
+  status: z.enum(["Active", "Disabled"]),
   description: z.string(),
-  birthday: z.string(),
-  customerGroup: z.string().min(1, "Missing group!").nullable(),
+  companyName: z.string(),
+  supplierGroupName: z.string().min(1, "Missing group!").nullable(),
 });
 
-export default function UpdateCustomerDialog({
+export default function UpdateSupplierDialog({
   DialogTrigger,
   triggerClassname,
-  customer,
+  supplier,
 }: {
   DialogTrigger: JSX.Element;
   triggerClassname?: string;
-  customer: Customer;
+  supplier: Supplier;
 }) {
-  const [isCreatingNewCustomer, setIsCreatingNewCustomer] = useState(false);
+  const [isCreatingNewSupplier, setIsCreatingNewSupplier] = useState(false);
   const [open, setOpen] = useState(false);
   let [file, setFile] = useState<File | null>(null);
   const onFileChanged = (newFile: File | null) => setFile(newFile);
   const dispatch = useAppDispatch();
   const { toast } = useToast();
 
-  const onSubmit = (values: z.infer<typeof newCustomerFormSchema>) => {
-    console.log("valules", values);
+  const onSubmit = (values: z.infer<typeof updateSupplierFormSchema>) => {
     const formData = new FormData();
     if (file) formData.append("file", file);
     formData.append(
       "data",
       new Blob([JSON.stringify(values)], { type: "application/json" }),
     );
-    setIsCreatingNewCustomer(true);
-    CustomerService.updateCustomer(formData, values.id)
+    setIsCreatingNewSupplier(true);
+    SupplierService.uploadSupplier(formData)
       .then((result) => {
-        dispatch(updateCustomer(result.data));
+        dispatch(updateSupplier(result.data));
         setOpen(false);
       })
       .catch((error) => axiosUIErrorHandler(error, toast))
       .finally(() => {
-        setIsCreatingNewCustomer(false);
+        setIsCreatingNewSupplier(false);
       });
   };
 
@@ -116,26 +115,20 @@ export default function UpdateCustomerDialog({
           )}
         >
           <div className="mb-2 flex flex-row items-center justify-between">
-            <h3 className="text-base font-semibold">Update customer</h3>
+            <h3 className="text-base font-semibold">Add new supplier</h3>
             <X
               size={24}
               className="rounded-full p-1 hover:cursor-pointer hover:bg-slate-200"
               onClick={() => setOpen(false)}
             />
           </div>
-          <div className="flex flex-col gap-8 md:flex-row">
-            <FormImage
-              onImageChosen={onFileChanged}
-              imageSrc={customer.image.url}
+          <div className="flex-1">
+            <FormContent
+              onSubmit={onSubmit}
+              isCreatingNewSupplier={isCreatingNewSupplier}
+              setOpen={setOpen}
+              supplier={supplier}
             />
-            <div className="flex-1">
-              <FormContent
-                onSubmit={onSubmit}
-                isCreatingNewCustomer={isCreatingNewCustomer}
-                setOpen={setOpen}
-                customer={customer}
-              />
-            </div>
           </div>
         </div>
       </AlertDialogContent>
@@ -143,103 +136,31 @@ export default function UpdateCustomerDialog({
   );
 }
 
-const FormImage = ({
-  onImageChosen,
-  imageSrc,
-}: {
-  onImageChosen: (file: File | null) => any;
-  imageSrc?: string;
-}) => {
-  const [file, setFile] = useState<File | null>(null);
-
-  useEffect(() => {
-    return () => {
-      onImageChosen(null);
-    };
-  }, []);
-
-  return (
-    <div className="flex flex-row items-center gap-4 md:flex-col">
-      <div className="relative">
-        <div className="flex !h-[100px] min-w-[100px] max-w-[100px] items-center justify-center overflow-hidden rounded-full bg-slate-200">
-          <img
-            className={cn(
-              "object-contain",
-              file || imageSrc ? "h-full w-full" : "h-10 w-10",
-            )}
-            src={
-              file
-                ? URL.createObjectURL(file)
-                : imageSrc
-                  ? imageSrc
-                  : "/ic_user.png"
-            }
-          />
-        </div>
-        {file ? (
-          <X
-            size={16}
-            className="absolute right-0 top-0 cursor-pointer"
-            color="black"
-            onClick={() => {
-              setFile(null);
-              onImageChosen(null);
-            }}
-          />
-        ) : null}
-      </div>
-      <div className="w-full">
-        <Label
-          htmlFor="customer_img_input"
-          className="flex h-[35px] w-full max-w-[150px] items-center justify-center rounded-md border border-[#00b43e] bg-transparent text-center text-[0.8rem] font-semibold text-black hover:cursor-pointer hover:bg-[#00b43e] hover:text-white"
-        >
-          Choose Image
-        </Label>
-        <input
-          id="customer_img_input"
-          type="file"
-          onChange={(e) => {
-            const file =
-              e.target.files && e.target.files.length > 0
-                ? e.target.files[0]
-                : null;
-            setFile(file);
-            onImageChosen(file);
-          }}
-          onClick={(e) => (e.currentTarget.value = "")}
-          className="hidden"
-          accept="image/*"
-        />
-      </div>
-    </div>
-  );
-};
-
 const FormContent = ({
   onSubmit,
   setOpen,
-  isCreatingNewCustomer,
-  customer,
+  isCreatingNewSupplier,
+  supplier,
 }: {
   onSubmit: (values: any) => any;
   setOpen: (value: boolean) => any;
-  isCreatingNewCustomer: boolean;
-  customer: Customer;
+  isCreatingNewSupplier: boolean;
+  supplier: Supplier;
 }) => {
   const { toast } = useToast();
-  const customerGroups = useAppSelector((state) => state.customerGroups.value);
-  const form = useForm<z.infer<typeof newCustomerFormSchema>>({
-    resolver: zodResolver(newCustomerFormSchema),
-    defaultValues: { ...customer },
+  const supplierGroups = useAppSelector((state) => state.supplierGroups.value);
+  const form = useForm<z.infer<typeof updateSupplierFormSchema>>({
+    resolver: zodResolver(updateSupplierFormSchema),
+    defaultValues: { ...supplier },
   });
 
   const dispatch = useAppDispatch();
-  const [openNewCustomerGroupDialog, setOpenNewCustomerGroupDialog] =
+  const [openNewSupplierGroupDialog, setOpenNewSupplierGroupDialog] =
     useState(false);
-  const addNewCustomerGroup = async (groupName: string) => {
+  const addNewSupplierGroup = async (groupName: string) => {
     try {
-      const data = await CustomerService.uploadCustomerGroup(groupName);
-      dispatch(addCustomerGroup(data.data));
+      const data = await SupplierService.uploadSupplierGroup(groupName);
+      dispatch(addSupplierGroup(data.data));
       return Promise.resolve();
     } catch (e) {
       axiosUIErrorHandler(e, toast);
@@ -262,7 +183,7 @@ const FormContent = ({
             <FormItem className="mb-2 flex flex-row">
               <FormLabel className="flex w-[150px] flex-col justify-center text-black">
                 <div className="flex flex-row items-center gap-2">
-                  <h5 className="text-sm">Customer name</h5>
+                  <h5 className="text-sm">Supplier name</h5>
                 </div>
                 <FormMessage className="mr-2 text-xs" />
               </FormLabel>
@@ -325,12 +246,12 @@ const FormContent = ({
         />
         <FormField
           control={form.control}
-          name="customerGroup"
+          name="supplierGroupName"
           render={({ field }) => (
             <FormItem className="mb-2 flex flex-row">
               <FormLabel className="flex w-[150px] flex-col justify-center text-black">
                 <div className="flex flex-row items-center gap-2">
-                  <h5 className="text-sm">Customer group</h5>
+                  <h5 className="text-sm">Supplier group</h5>
                 </div>
                 <FormMessage className="mr-2 text-xs" />
               </FormLabel>
@@ -342,19 +263,19 @@ const FormContent = ({
                       placeholder="---Choose group---"
                       searchPlaceholder="Search group..."
                       onValueChanged={(val) => {
-                        form.setValue("customerGroup", val, {
+                        form.setValue("supplierGroupName", val, {
                           shouldValidate: true,
                         });
                       }}
-                      choices={customerGroups.map((v) => v.name)}
+                      choices={supplierGroups.map((v) => v.name)}
                     />
                   </div>
                   <AddNewThing
-                    title="Add new customer group"
+                    title="Add new supplier group"
                     placeholder="Group's name"
-                    open={openNewCustomerGroupDialog}
-                    onOpenChange={setOpenNewCustomerGroupDialog}
-                    onAddClick={addNewCustomerGroup}
+                    open={openNewSupplierGroupDialog}
+                    onOpenChange={setOpenNewSupplierGroupDialog}
+                    onAddClick={addNewSupplierGroup}
                   />
                 </div>
               </FormControl>
@@ -363,29 +284,29 @@ const FormContent = ({
         />
         <FormField
           control={form.control}
-          name="birthday"
+          name="companyName"
           render={({ field }) => (
             <FormItem className="mb-2 flex flex-row">
               <FormLabel className="flex min-w-[150px] max-w-[150px] flex-col justify-center text-black">
                 <div className="flex flex-row items-center gap-2">
-                  <h5 className="text-sm">Birthday</h5>
+                  <h5 className="text-sm">Company</h5>
                 </div>
                 <FormMessage className="mr-2 text-xs" />
               </FormLabel>
               <FormControl>
-                <Input type="date" {...field} className="w-full" />
+                <Input className="!m-0 flex-1" {...field} />
               </FormControl>
             </FormItem>
           )}
         />
         <FormField
           control={form.control}
-          name="sex"
+          name="status"
           render={({ field }) => (
             <FormItem className="mb-3 flex flex-row">
               <FormLabel className="flex w-[150px] flex-col justify-center text-black">
                 <div className="flex flex-row items-center gap-2">
-                  <h5 className="text-sm">Sex</h5>
+                  <h5 className="text-sm">Status</h5>
                 </div>
                 <FormMessage className="mr-2 text-xs" />
               </FormLabel>
@@ -396,16 +317,12 @@ const FormContent = ({
                   className="flex flex-row"
                 >
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Male" id="r1" />
-                    <Label htmlFor="r1">Male</Label>
+                    <RadioGroupItem value="Active" id="r1" />
+                    <Label htmlFor="r1">Active</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Female" id="r2" />
-                    <Label htmlFor="r2">Female</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Not to say" id="r3" />
-                    <Label htmlFor="r3">Not to say</Label>
+                    <RadioGroupItem value="Disabled" id="r2" />
+                    <Label htmlFor="r2">Disabled</Label>
                   </div>
                 </RadioGroup>
               </FormControl>
@@ -439,11 +356,11 @@ const FormContent = ({
             variant={"green"}
             type="submit"
             className="min-w-[150px] px-4 uppercase"
-            disabled={isCreatingNewCustomer}
+            disabled={isCreatingNewSupplier}
           >
-            Update
+            Save
             <LoadingCircle
-              className={"ml-4 !w-4 " + (isCreatingNewCustomer ? "" : "hidden")}
+              className={"ml-4 !w-4 " + (isCreatingNewSupplier ? "" : "hidden")}
             />
           </Button>
           <Button
@@ -455,7 +372,7 @@ const FormContent = ({
               e.preventDefault();
               setOpen(false);
             }}
-            disabled={isCreatingNewCustomer}
+            disabled={isCreatingNewSupplier}
           >
             Cancel
           </Button>

@@ -5,47 +5,42 @@ import {
   defaultSelectColumn,
   defaultIndexColumn,
 } from "@/components/ui/my_table_default_column";
-import { Invoice } from "@/entities/Invoice";
-import {Product} from "@/entities/Product";
+import { Supplier } from "@/entities/Supplier";
 import { ColumnDef } from "@tanstack/react-table";
 
-export const invoiceDefaultVisibilityState = {
-    id: true,
-    cash: false,
-    changed: false,
-    subTotal: false,
-    discountValue: true,
-    total: true,
-    paymentMethod: false,
-    discountCode: false,
-    customerId: true,
-    staffId: true,
-    createdAt: true,
-}
-
-export const invoiceColumnTitles = {
-  id: "Invoice ID",
-  cash: "Paid",
-  changed: "Change",
-  subTotal: "Sub-Total",
-  discountValue: "Discount Value",
-  total: "Total",
-  paymentMethod: "Payment Method",
-  discountCode: "Discount Code",
-  customerId: "Customer Id",
-  staffId: "Staff Id",
-  createdAt: "Created At",
+export const supplierDefaultVisibilityState = {
+  id: true,
+  name: true,
+  address: true,
+  phoneNumber: true,
+  email: true,
+  description: false,
+  companyName: false,
+  status: false,
+  supplierGroupName: false,
 };
 
-export const invoiceTableColumns = (): ColumnDef<Invoice>[] => {
-  const columns: ColumnDef<Invoice>[] = [
-    defaultSelectColumn<Invoice>(),
-    defaultIndexColumn<Invoice>(),
+export const supplierColumnTitles = {
+  id: "Supplier ID",
+  name: "Name",
+  address: "Address",
+  phoneNumber: "Phone Number",
+  email: "Email",
+  description: "Description",
+  companyName: "Company",
+  status: "Status",
+  supplierGroupName: "Supplier Group",
+};
+
+export const supplierTableColumns = (): ColumnDef<Supplier>[] => {
+  const columns: ColumnDef<Supplier>[] = [
+    defaultSelectColumn<Supplier>(),
+    defaultIndexColumn<Supplier>(),
   ];
 
-  for (let key in invoiceColumnTitles) {
-    let col: ColumnDef<Invoice>;
-    col = defaultColumn<Invoice>(key, invoiceColumnTitles);
+  for (let key in supplierColumnTitles) {
+    let col: ColumnDef<Supplier>;
+    col = defaultColumn<Supplier>(key, supplierColumnTitles);
     columns.push(col);
   }
 

@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { Button } from "@/components/ui/button";
 import { PageWithFilters } from "@/components/ui/filter";
@@ -11,33 +11,46 @@ import InvoiceService from "@/services/invoice_service";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { InvoiceDatatable } from "./datatable";
+import { SupplierDatatable } from "./datatable";
+import NewSupplierDialog from "@/components/component/new_supplier_dialog";
+import { setSuppliers } from "@/reducers/suppliersReducer";
+import SupplierService from "@/services/supplier_service";
+import { setSupplierGroups } from "@/reducers/supplierGroupsReducer";
 
 export default function InvoicePage() {
-  const router = useRouter()
+  const router = useRouter();
   const dispatch = useAppDispatch();
   const { toast } = useToast();
 
   const NewInvoiceButton = () => {
     return (
-      <Button variant={"green"} onClick={() => router.push('/sale')}>
-        <Plus size={16} className="mr-2" />
-        New Invoice
-      </Button>
+      <NewSupplierDialog
+        DialogTrigger={
+          <Button variant={"green"}>
+            <Plus size={16} className="mr-2" />
+            New Supplier
+          </Button>
+        }
+      />
     );
   };
 
-  const invoices = useAppSelector((state) => state.invoices.value)
+  const suppliers = useAppSelector((state) => state.suppliers.value);
 
   useEffect(() => {
-    dispatch(showPreloader())
+    dispatch(showPreloader());
     const fetchData = async () => {
-      const invoices = await InvoiceService.getAllInvoices()
-      dispatch(setInvoices(invoices.data))
-    }
+      const suppliers = await SupplierService.getAllSuppliers();
+      dispatch(setSuppliers(suppliers.data));
+      const supplierGroups = await SupplierService.getAllSupplierGroups();
+      dispatch(setSupplierGroups(supplierGroups.data));
+    };
 
-    fetchData().then().catch(e => axiosUIErrorHandler(e, toast)).finally(() => dispatch(disablePreloader()))
-  }, [])
+    fetchData()
+      .then()
+      .catch((e) => axiosUIErrorHandler(e, toast))
+      .finally(() => dispatch(disablePreloader()));
+  }, []);
 
   return (
     <PageWithFilters
@@ -45,7 +58,7 @@ export default function InvoicePage() {
       filters={[]}
       headerButtons={[<NewInvoiceButton key={1} />]}
     >
-      <InvoiceDatatable data={invoices} router={router}/>
+      <SupplierDatatable data={suppliers} />
     </PageWithFilters>
   );
 }
