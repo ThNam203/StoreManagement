@@ -4,6 +4,7 @@ import com.springboot.store.entity.Customer;
 import com.springboot.store.entity.CustomerGroup;
 import com.springboot.store.entity.Media;
 import com.springboot.store.entity.Staff;
+import com.springboot.store.mapper.CustomerMapper;
 import com.springboot.store.payload.CustomerDTO;
 import com.springboot.store.repository.CustomerGroupRepository;
 import com.springboot.store.repository.CustomerRepository;
@@ -28,19 +29,13 @@ public class CustomerServiceImpl implements CustomerService {
     private final CustomerGroupRepository customerGroupRepository;
     private final StaffRepository staffRepository;
     private final StaffService staffService;
-    private final ModelMapper modelMapper;
 
     @Override
     public List<CustomerDTO> getAllCustomers() {
         Staff staff = staffService.getAuthorizedStaff();
         List<Customer> customers = customerRepository.findByStoreId(staff.getStore().getId());
         return customers.stream()
-                .map(customer -> {
-                    CustomerDTO customerDTO = modelMapper.map(customer, CustomerDTO.class);
-                    customerDTO.setCreatorId(customer.getCreator().getId());
-                    customerDTO.setCustomerGroup(customer.getCustomerGroup().getName());
-                    return customerDTO;
-                })
+                .map(CustomerMapper::toCustomerDTO)
                 .collect(java.util.stream.Collectors.toList());
     }
 
@@ -53,7 +48,7 @@ public class CustomerServiceImpl implements CustomerService {
 
         Staff staff = staffService.getAuthorizedStaff();
         customerDTO.setCreatorId(staffService.getAuthorizedStaff().getId());
-        Customer customer = modelMapper.map(customerDTO, Customer.class);
+        Customer customer = CustomerMapper.toCustomer(customerDTO);
         CustomerGroup customerGroup = customerGroupRepository.findByNameAndStoreId(customerDTO.getCustomerGroup(), staff.getStore().getId());
         if (customerGroup == null) {
             throw new RuntimeException("Customer group not found with name: " + customerDTO.getCustomerGroup());
@@ -70,10 +65,7 @@ public class CustomerServiceImpl implements CustomerService {
         customer.setCreator(staff);
         customer.setStore(staff.getStore());
         customer = customerRepository.save(customer);
-        customerDTO = modelMapper.map(customer, CustomerDTO.class);
-        customerDTO.setCreatorId(customer.getCreator().getId());
-        customerDTO.setCustomerGroup(customer.getCustomerGroup().getName());
-        return customerDTO;
+        return CustomerMapper.toCustomerDTO(customer);
     }
 
     @Override
@@ -111,19 +103,13 @@ public class CustomerServiceImpl implements CustomerService {
         customer.setStatus(customerDTO.getStatus());
         customer = customerRepository.save(customer);
 
-        customerDTO = modelMapper.map(customer, CustomerDTO.class);
-        customerDTO.setCreatorId(customer.getCreator().getId());
-        customerDTO.setCustomerGroup(customer.getCustomerGroup().getName());
-        return customerDTO;
+        return CustomerMapper.toCustomerDTO(customer);
     }
 
     @Override
     public CustomerDTO getCustomerById(int id) {
         Customer customer = customerRepository.findById(id).orElseThrow(() -> new RuntimeException("Customer not found with id: " + id));
-        CustomerDTO customerDTO = modelMapper.map(customer, CustomerDTO.class);
-        customerDTO.setCreatorId(customer.getCreator().getId());
-        customerDTO.setCustomerGroup(customer.getCustomerGroup().getName());
-        return customerDTO;
+        return CustomerMapper.toCustomerDTO(customer);
     }
 
     @Override
