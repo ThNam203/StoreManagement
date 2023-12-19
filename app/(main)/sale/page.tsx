@@ -79,7 +79,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import LoadingCircle from "@/components/ui/loading_circle";
 import NewCustomerDialog from "@/components/component/new_customer_dialog";
-import SearchView from "@/components/ui/search_view";
+import SearchView from "@/components/component/SearchView";
 import PropertiesString from "@/components/ui/properties_string_view";
 import { Customer } from "@/entities/Customer";
 import { decode } from "punycode";
@@ -799,7 +799,7 @@ const InvoiceView = ({
                   ) : (
                     <div className="flex flex-row items-center">
                       <input
-                        className="w-[120px] border-b border-black text-sm p-1 focus:outline-none"
+                        className="w-[120px] border-b border-black p-1 text-sm focus:outline-none"
                         value={discountCode}
                         disabled={isGettingDiscountData}
                         onChange={(e) => setDiscountCode(e.currentTarget.value)}
@@ -1076,42 +1076,51 @@ const InvoiceDetailView = ({
 };
 
 const ActionMenu = () => {
-  const invoices = useAppSelector(state => state.invoices.value)
-  const [showMenu, setShowMenu] = useState(false)
+  const invoices = useAppSelector((state) => state.invoices.value);
+  const [showMenu, setShowMenu] = useState(false);
   const [showReturnDialog, setShowReturnDialog] = useState(false);
   return (
     <>
-    <Popover open={showMenu} onOpenChange={setShowMenu}>
-      <PopoverTrigger className="mr-2">
-        <AlignJustify size={24} color="white" className="end" />
-      </PopoverTrigger>
-      <PopoverContent className="mr-2 flex flex-col rounded-sm bg-white p-2">
-        <div className="flex flex-row items-center gap-4 p-2 hover:cursor-pointer hover:bg-slate-200">
-          <PieChart size={16} />
-          <p className="text-sm font-medium">End of day report</p>
-        </div>
-        <div className="flex flex-row items-center gap-4 p-2 hover:cursor-pointer hover:bg-slate-200">
-          <Undo size={16} />
-          <p className="text-sm font-medium" onClick={() => {
-            setShowReturnDialog(true);
-            setShowMenu(false);
-          }}>Return</p>
-        </div>
-        <div className="flex flex-row items-center gap-4 p-2 hover:cursor-pointer hover:bg-slate-200">
-          <FileDown size={16} />
-          <p className="text-sm font-medium">New Receipt</p>
-        </div>
-        <div className="flex flex-row items-center gap-4 p-2 hover:cursor-pointer hover:bg-slate-200">
-          <FilePlus size={16} />
-          <p className="text-sm font-medium">Import</p>
-        </div>
-        <div className="flex flex-row items-center gap-4 p-2 hover:cursor-pointer hover:bg-slate-200">
-          <Info size={16} />
-          <p className="text-sm font-medium">Shortcuts</p>
-        </div>
-      </PopoverContent>
-    </Popover>
-    <ChooseInvoiceToReturnDialog invoices={invoices} open={showReturnDialog} onOpenChange={setShowReturnDialog}/>
+      <Popover open={showMenu} onOpenChange={setShowMenu}>
+        <PopoverTrigger className="mr-2">
+          <AlignJustify size={24} color="white" className="end" />
+        </PopoverTrigger>
+        <PopoverContent className="mr-2 flex flex-col rounded-sm bg-white p-2">
+          <div className="flex flex-row items-center gap-4 p-2 hover:cursor-pointer hover:bg-slate-200">
+            <PieChart size={16} />
+            <p className="text-sm font-medium">End of day report</p>
+          </div>
+          <div className="flex flex-row items-center gap-4 p-2 hover:cursor-pointer hover:bg-slate-200">
+            <Undo size={16} />
+            <p
+              className="text-sm font-medium"
+              onClick={() => {
+                setShowReturnDialog(true);
+                setShowMenu(false);
+              }}
+            >
+              Return
+            </p>
+          </div>
+          <div className="flex flex-row items-center gap-4 p-2 hover:cursor-pointer hover:bg-slate-200">
+            <FileDown size={16} />
+            <p className="text-sm font-medium">New Receipt</p>
+          </div>
+          <div className="flex flex-row items-center gap-4 p-2 hover:cursor-pointer hover:bg-slate-200">
+            <FilePlus size={16} />
+            <p className="text-sm font-medium">Import</p>
+          </div>
+          <div className="flex flex-row items-center gap-4 p-2 hover:cursor-pointer hover:bg-slate-200">
+            <Info size={16} />
+            <p className="text-sm font-medium">Shortcuts</p>
+          </div>
+        </PopoverContent>
+      </Popover>
+      <ChooseInvoiceToReturnDialog
+        invoices={invoices}
+        open={showReturnDialog}
+        onOpenChange={setShowReturnDialog}
+      />
     </>
   );
 };

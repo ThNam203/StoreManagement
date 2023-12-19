@@ -18,9 +18,6 @@ import {
 import { Label } from "@radix-ui/react-label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Input } from "@/components/ui/input";
-import SearchAndChooseButton, {
-  SearchAndChooseMultiple,
-} from "@/components/ui/catalog/search_filter";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { DateRangePicker } from "react-date-range";
@@ -32,6 +29,7 @@ import { addDiscount } from "@/reducers/discountsReducer";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
 import { format } from "date-fns";
 import { Button } from "../button";
+import { MultipleChoicesSearchInput } from "@/components/component/StringChoicesSearchInput";
 
 const newDiscountFormSchema = z.object({
   name: z
@@ -336,7 +334,7 @@ export default function NewDiscountForm({
                           <FormMessage className="mr-2 text-xs" />
                         </FormLabel>
                         <FormControl>
-                          <SearchAndChooseMultiple
+                          <MultipleChoicesSearchInput
                             value={
                               field.value
                                 ? productGroups
@@ -377,7 +375,7 @@ export default function NewDiscountForm({
                           <FormMessage className="mr-2 text-xs" />
                         </FormLabel>
                         <FormControl>
-                          <SearchAndChooseMultiple
+                          <MultipleChoicesSearchInput
                             value={products
                               .filter(
                                 (product) =>

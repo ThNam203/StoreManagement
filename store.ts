@@ -16,6 +16,7 @@ import staffPositionReducer from "./reducers/staffPositionReducer";
 import returnInvoicesReducer from "./reducers/returnInvoicesReducer";
 import supplierGroupsReducer from "./reducers/supplierGroupsReducer";
 import suppliersReducer from "./reducers/suppliersReducer";
+import purchaseOrdersReducer from "./reducers/purchaseOrdersReducer";
 
 const store = configureStore({
   reducer: {
@@ -36,6 +37,7 @@ const store = configureStore({
     returnInvoices: returnInvoicesReducer,
     suppliers: suppliersReducer,
     supplierGroups: supplierGroupsReducer,
+    purchaseOrders: purchaseOrdersReducer,
   },
 });
 

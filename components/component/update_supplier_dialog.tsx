@@ -73,7 +73,7 @@ export default function UpdateSupplierDialog({
   triggerClassname?: string;
   supplier: Supplier;
 }) {
-  const [isCreatingNewSupplier, setIsCreatingNewSupplier] = useState(false);
+  const [isUpdatingSupplier, setIsUpdatingSupplier] = useState(false);
   const [open, setOpen] = useState(false);
   let [file, setFile] = useState<File | null>(null);
   const onFileChanged = (newFile: File | null) => setFile(newFile);
@@ -81,21 +81,17 @@ export default function UpdateSupplierDialog({
   const { toast } = useToast();
 
   const onSubmit = (values: z.infer<typeof updateSupplierFormSchema>) => {
-    const formData = new FormData();
-    if (file) formData.append("file", file);
-    formData.append(
-      "data",
-      new Blob([JSON.stringify(values)], { type: "application/json" }),
-    );
-    setIsCreatingNewSupplier(true);
-    SupplierService.uploadSupplier(formData)
+    //TODO: fix
+    const data: any = values;
+    setIsUpdatingSupplier(true);
+    SupplierService.updateSupplier(data)
       .then((result) => {
         dispatch(updateSupplier(result.data));
         setOpen(false);
       })
       .catch((error) => axiosUIErrorHandler(error, toast))
       .finally(() => {
-        setIsCreatingNewSupplier(false);
+        setIsUpdatingSupplier(false);
       });
   };
 
@@ -125,7 +121,7 @@ export default function UpdateSupplierDialog({
           <div className="flex-1">
             <FormContent
               onSubmit={onSubmit}
-              isCreatingNewSupplier={isCreatingNewSupplier}
+              isCreatingNewSupplier={isUpdatingSupplier}
               setOpen={setOpen}
               supplier={supplier}
             />
