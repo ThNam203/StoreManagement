@@ -10,21 +10,24 @@ import lombok.*;
 @Builder
 
 @Entity
-@Table(name = "purchase_order_detail")
-public class PurchaseOrderDetail {
+@Table(name = "purchase_return_detail")
+public class PurchaseReturnDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private int quantity;
-    private int price;
+    private int supplyPrice;
+    private int returnPrice;
     private int discount;
+    private int total;
+    private String unit;
     private String note;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "purchase_order_id")
-    private PurchaseOrder purchaseOrder;
+    @JoinColumn(name = "purchase_return_id")
+    private PurchaseReturn purchaseReturn;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private Product product;
 }

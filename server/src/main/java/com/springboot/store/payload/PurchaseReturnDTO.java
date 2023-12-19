@@ -11,16 +11,16 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class PurchaseOrderDTO {
+public class PurchaseReturnDTO {
     private int id;
     private int subtotal;
     private int discount;
     private int total;
     private String note;
-    private String paymentMethod;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdDate;
-    private List<PurchaseOrderDetailDTO> purchaseOrderDetail;
+    private List<PurchaseReturnDetailDTO> purchaseReturnDetails;
+    private Integer purchaseOrderId;
     private Integer staffId;
     private Integer supplierId;
 }

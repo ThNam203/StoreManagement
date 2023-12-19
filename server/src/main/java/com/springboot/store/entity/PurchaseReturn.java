@@ -13,8 +13,8 @@ import java.util.List;
 @Builder
 
 @Entity
-@Table(name = "purchase_order")
-public class PurchaseOrder {
+@Table(name = "purchase_return")
+public class PurchaseReturn {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -22,11 +22,14 @@ public class PurchaseOrder {
     private int discount;
     private int total;
     private String note;
-    private String paymentMethod;
     private Date createdDate;
 
-    @OneToMany(mappedBy = "purchaseOrder", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PurchaseOrderDetail> purchaseOrderDetail;
+    @OneToMany(mappedBy = "purchaseReturn", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PurchaseReturnDetail> purchaseReturnDetails;
+
+    @ManyToOne
+    @JoinColumn(name = "purchase_order_id")
+    private PurchaseOrder purchaseOrder;
 
     @ManyToOne
     @JoinColumn(name = "staff_id")

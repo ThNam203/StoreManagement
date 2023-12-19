@@ -70,6 +70,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         purchaseOrder.setDiscount(purchaseOrderDTO.getDiscount());
         purchaseOrder.setTotal(purchaseOrderDTO.getTotal());
         purchaseOrder.setNote(purchaseOrderDTO.getNote());
+        purchaseOrder.setPaymentMethod(purchaseOrderDTO.getPaymentMethod());
         purchaseOrder.setCreatedDate(purchaseOrderDTO.getCreatedDate());
 
         if (purchaseOrderDTO.getStaffId() != null) {
