@@ -173,34 +173,37 @@ const DetailSupplierTab = ({
           </div>
         </div>
       </div>
-      <UpdateSupplierDialog
-        DialogTrigger={
-          <Button variant={"green"} disabled={disableDeleteButton}>
-            <PenLine size={16} className="mr-2" />
-            Update
-            {disableDeleteButton ? <LoadingCircle /> : null}
-          </Button>
-        }
-        supplier={supplier}
-      />
-      <Button
-        variant={"red"}
-        onClick={(e) => {
-          setDisableDeleteButton(true);
-          SupplierService.deleteSupplier(supplier.id)
-            .then((result) => {
-              dispatch(deleteSupplier(supplier.id));
-              setShowTabs(false);
-            })
-            .catch((error) => axiosUIErrorHandler(error, toast))
-            .finally(() => setDisableDeleteButton(false));
-        }}
-        disabled={disableDeleteButton}
-      >
-        <Trash size={16} className="mr-2" />
-        Delete
-        {disableDeleteButton ? <LoadingCircle /> : null}
-      </Button>
+      <div className="flex flex-row items-center gap-2">
+        <div className="flex-1" />
+        <UpdateSupplierDialog
+          DialogTrigger={
+            <Button variant={"green"} disabled={disableDeleteButton}>
+              <PenLine size={16} className="mr-2" />
+              Update
+              {disableDeleteButton ? <LoadingCircle /> : null}
+            </Button>
+          }
+          supplier={supplier}
+        />
+        <Button
+          variant={"red"}
+          onClick={(e) => {
+            setDisableDeleteButton(true);
+            SupplierService.deleteSupplier(supplier.id)
+              .then((result) => {
+                dispatch(deleteSupplier(supplier.id));
+                setShowTabs(false);
+              })
+              .catch((error) => axiosUIErrorHandler(error, toast))
+              .finally(() => setDisableDeleteButton(false));
+          }}
+          disabled={disableDeleteButton}
+        >
+          <Trash size={16} className="mr-2" />
+          Delete
+          {disableDeleteButton ? <LoadingCircle /> : null}
+        </Button>
+      </div>
     </div>
   );
 };

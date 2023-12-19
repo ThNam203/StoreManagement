@@ -32,7 +32,7 @@ import { useToast } from "../ui/use-toast";
 import AddNewThing from "../ui/add_new_thing_dialog";
 import SupplierService from "@/services/supplier_service";
 import { addSupplierGroup } from "@/reducers/supplierGroupsReducer";
-import { addSupplier } from "@/reducers/suppliersReducer";
+import { addSupplier, updateSupplier } from "@/reducers/suppliersReducer";
 import { Supplier } from "@/entities/Supplier";
 
 const updateSupplierFormSchema = z.object({
@@ -90,7 +90,7 @@ export default function UpdateSupplierDialog({
     setIsCreatingNewSupplier(true);
     SupplierService.uploadSupplier(formData)
       .then((result) => {
-        dispatch(addSupplier(result.data));
+        dispatch(updateSupplier(result.data));
         setOpen(false);
       })
       .catch((error) => axiosUIErrorHandler(error, toast))
