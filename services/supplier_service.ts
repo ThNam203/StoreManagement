@@ -12,8 +12,11 @@ const uploadSupplierGroup = (groupName: string) => {
   });
 };
 
-const updateSupplier = (supplierData: FormData, supplierId: number) => {
-  return AxiosService.put<Supplier>(`/api/suppliers/${supplierId}`, supplierData);
+const updateSupplier = (supplierData: Supplier) => {
+  return AxiosService.put<Supplier>(
+    `/api/suppliers/${supplierData.id}`,
+    supplierData,
+  );
 };
 
 const getAllSupplierGroups = () => {
@@ -29,12 +32,12 @@ const deleteSupplier = (supplierId: number) => {
 };
 
 const SupplierService = {
-    uploadSupplier,
-    uploadSupplierGroup,
-    updateSupplier,
-    getAllSupplierGroups,
-    getAllSuppliers,
-    deleteSupplier,
+  uploadSupplier,
+  uploadSupplierGroup,
+  updateSupplier,
+  getAllSupplierGroups,
+  getAllSuppliers,
+  deleteSupplier,
 };
 
 export default SupplierService;
