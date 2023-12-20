@@ -88,12 +88,21 @@ public class StockCheckServiceImpl implements StockCheckService {
         StockCheck stockCheck = stockCheckRepository.findById(id).orElseThrow(() -> new CustomException("Stock check not found", HttpStatus.NOT_FOUND));
         stockCheck.setNote(stockCheckDTO.getNote());
         if (stockCheckDTO.getProducts() != null) {
+            stockCheck.getProducts().forEach(stockCheckDetail -> {
+                Product product = productRepository.findById(stockCheckDetail.getProduct().getId()).orElseThrow(() -> new CustomException("Product not found", HttpStatus.NOT_FOUND));
+                product.setStock(product.getStock() - stockCheckDetail.getCountedStock());
+                productRepository.save(product);
+            });
+
             List<StockCheckDetail> stockCheckDetails = stockCheckDTO.getProducts()
                     .stream()
                     .map(stockCheckDetailDTO -> {
                         StockCheckDetail stockCheckDetail = StockCheckDetailMapper.toStockCheckDetail(stockCheckDetailDTO);
-                        stockCheckDetail.setProduct(productRepository.findById(stockCheckDetailDTO.getProductId())
-                                .orElseThrow(() -> new CustomException("Product not found with id" + stockCheckDetailDTO.getProductId(), HttpStatus.NOT_FOUND)));
+                        Product product = productRepository.findById(stockCheckDetailDTO.getProductId())
+                                .orElseThrow(() -> new CustomException("Product not found with id" + stockCheckDetailDTO.getProductId(), HttpStatus.NOT_FOUND));
+                        product.setStock(stockCheckDetail.getCountedStock());
+                        productRepository.save(product);
+                        stockCheckDetail.setProduct(product);
                         stockCheckDetail.setStockCheck(stockCheck);
                         return stockCheckDetail;
                     })

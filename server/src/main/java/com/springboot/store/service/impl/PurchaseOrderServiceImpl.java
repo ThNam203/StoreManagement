@@ -1,5 +1,6 @@
 package com.springboot.store.service.impl;
 
+import com.springboot.store.entity.Product;
 import com.springboot.store.entity.PurchaseOrder;
 import com.springboot.store.entity.PurchaseOrderDetail;
 import com.springboot.store.exception.CustomException;
@@ -54,7 +55,10 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             List<PurchaseOrderDetail> purchaseOrderDetails = purchaseOrderDTO.getPurchaseOrderDetail().stream().map(purchaseOrderDetailDTO -> {
                 PurchaseOrderDetail purchaseOrderDetail = PurchaseOrderDetailMapper.toPurchaseOrderDetail(purchaseOrderDetailDTO);
                 purchaseOrderDetail.setPurchaseOrder(purchaseOrder);
-                purchaseOrderDetail.setProduct(productRepository.findById(purchaseOrderDetailDTO.getProductId()).orElseThrow(() -> new CustomException("Product not found", HttpStatus.NOT_FOUND)));
+                Product product = productRepository.findById(purchaseOrderDetailDTO.getProductId()).orElseThrow(() -> new CustomException("Product not found", HttpStatus.NOT_FOUND));
+                product.setStock(product.getStock() + purchaseOrderDetailDTO.getQuantity());
+                productRepository.save(product);
+                purchaseOrderDetail.setProduct(product);
                 return purchaseOrderDetail;
             }).toList();
             purchaseOrder.setPurchaseOrderDetail(purchaseOrderDetails);
@@ -82,10 +86,19 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         }
 
         if (purchaseOrderDTO.getPurchaseOrderDetail() != null) {
+            purchaseOrder.getPurchaseOrderDetail().forEach(purchaseOrderDetail -> {
+                Product product = productRepository.findById(purchaseOrderDetail.getProduct().getId()).orElseThrow(() -> new CustomException("Product not found", HttpStatus.NOT_FOUND));
+                product.setStock(product.getStock() - purchaseOrderDetail.getQuantity());
+                productRepository.save(product);
+            });
+
             List<PurchaseOrderDetail> purchaseOrderDetails = purchaseOrderDTO.getPurchaseOrderDetail().stream().map(purchaseOrderDetailDTO -> {
                 PurchaseOrderDetail purchaseOrderDetail = PurchaseOrderDetailMapper.toPurchaseOrderDetail(purchaseOrderDetailDTO);
                 purchaseOrderDetail.setPurchaseOrder(purchaseOrder);
-                purchaseOrderDetail.setProduct(productRepository.findById(purchaseOrderDetailDTO.getProductId()).orElseThrow(() -> new CustomException("Product not found", HttpStatus.NOT_FOUND)));
+                Product product = productRepository.findById(purchaseOrderDetailDTO.getProductId()).orElseThrow(() -> new CustomException("Product not found", HttpStatus.NOT_FOUND));
+                product.setStock(product.getStock() + purchaseOrderDetailDTO.getQuantity());
+                productRepository.save(product);
+                purchaseOrderDetail.setProduct(product);
                 return purchaseOrderDetail;
             }).toList();
             purchaseOrder.getPurchaseOrderDetail().clear();
