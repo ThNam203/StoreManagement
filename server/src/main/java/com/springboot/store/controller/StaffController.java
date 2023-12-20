@@ -1,5 +1,6 @@
 package com.springboot.store.controller;
 
+import com.springboot.store.entity.Staff;
 import com.springboot.store.payload.StaffRequest;
 import com.springboot.store.payload.StaffResponse;
 import com.springboot.store.service.StaffService;
@@ -32,6 +33,12 @@ public class StaffController {
     public ResponseEntity<StaffResponse> createStaff(@Valid @RequestPart("data") StaffRequest newStaff, @RequestPart(value = "file", required = false) MultipartFile file) {
         StaffResponse staffResponse = staffService.createStaff(newStaff, file);
         return new ResponseEntity<>(staffResponse, null, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<StaffResponse> getCurrentStaff() {
+        Staff staff = staffService.getAuthorizedStaff();
+        return new ResponseEntity<>(staffService.getStaffById(staff.getId()), null, HttpStatus.OK);
     }
 
     // get all staffs
