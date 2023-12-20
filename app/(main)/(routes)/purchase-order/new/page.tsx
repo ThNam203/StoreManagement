@@ -18,10 +18,18 @@ import { setStaffs } from "@/reducers/staffReducer";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
 import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
 import { Staff } from "@/entities/Staff";
-import { Check, CheckCircle, User, UserCircle } from "lucide-react";
+import { Check, CheckCircle, Group, User, UserCircle } from "lucide-react";
 import CustomCombobox from "@/components/component/CustomCombobox";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { Supplier } from "@/entities/Supplier";
+import SupplierService from "@/services/supplier_service";
+import { setSuppliers } from "@/reducers/suppliersReducer";
+import { Button } from "@/components/ui/button";
+import ProductService from "@/services/product_service";
+import { setProducts } from "@/reducers/productsReducer";
+import PurchaseOrderService from "@/services/purchaseOrderService";
+import LoadingCircle from "@/components/ui/loading_circle";
 
 const ProductSearchItemView: (product: Product) => React.ReactNode = (
   product: Product,
@@ -65,18 +73,24 @@ export default function NewPurchaseOrderPage() {
   const { toast } = useToast();
 
   const staffs = useAppSelector((state) => state.staffs.value);
-  // TODO: not nullable
-  const [staff, setStaff] = useState<Staff | null>(null);
+  const suppliers = useAppSelector((state) => state.suppliers.value);
+  // TODO: staff not nullable
+  const profile = useAppSelector((state) => state.profile.value)
+  const [staff, setStaff] = useState<Staff | null>(profile);
+  const [supplier, setSupplier] = useState<Supplier | null>(null);
   const [createdDate, setCreatedDate] = useState<Date>(new Date());
   const [staffSearch, setStaffSearch] = useState<string>("");
-
-  console.log(format(createdDate, "yyyy/MM/dd'T'HH:mm"));
+  const [discount, setDiscount] = useState<number>(0);
 
   useEffect(() => {
     dispatch(showPreloader());
     const fetchData = async () => {
       const staffs = await StaffService.getAllStaffs();
       dispatch(setStaffs(staffs.data));
+      const suppliers = await SupplierService.getAllSuppliers();
+      dispatch(setSuppliers(suppliers.data));
+      const products = await ProductService.getAllProducts();
+      dispatch(setProducts(products.data));
     };
 
     fetchData()
@@ -98,6 +112,7 @@ export default function NewPurchaseOrderPage() {
           productId: product.id,
           productName: product.name,
           unit: product.salesUnits.name,
+          note: "",
         },
       ]);
     else onDetailQuantityChanged(product.id, foundProduct.quantity + 1);
@@ -117,6 +132,19 @@ export default function NewPurchaseOrderPage() {
     );
   };
 
+  const onDetailNoteChanged = (productId: number, newNote: string) => {
+    setDetails((prev) =>
+      prev.map((detail) => {
+        return detail.productId === productId
+          ? {
+              ...detail,
+              note: newNote,
+            }
+          : detail;
+      }),
+    );
+  };
+
   const deleteRows = async (data: NewPurchaseOrderDetail[]) => {
     const productIds = data.map((d) => d.productId);
     setDetails((prev) =>
@@ -126,22 +154,36 @@ export default function NewPurchaseOrderPage() {
   };
 
   const onCompleteButtonClick = async () => {
-    // await PurchaseOrderService.uploadPurchaseOrder({
-    //   purchaseOrderDetail: details.map(v => ({...v})),
-    //   subtotal: number,
-    //   discount: number;
-    //   total: number;
-    //   note: string;
-    //   createdDate: string;
-    //   purchaseOrderDetail: PurchaseOrderDetail[];
-    //   staffId: number;
-    //   supplierId: number;
-    // })
-    //   .then((result) => {
-    //     router.push("/purchase-order");
-    //   })
-    //   .catch((e) => axiosUIErrorHandler(e, toast))
-    //   .finally(() => setIsCompleting(false));
+    if (!supplier) return toast({
+      variant:"destructive",
+      description: "Please choose a supplier!"
+    })
+
+    if (!staff) return toast({
+      variant:"destructive",
+      description: "Please choose a staff!"
+    })
+
+    if (details.length === 0) return toast({
+      variant:"destructive",
+      description: "Purchase order is empty!"
+    })
+
+    await PurchaseOrderService.uploadPurchaseOrder({
+      purchaseOrderDetail: details.map(v => ({...v})),
+      subtotal: details.map((v) => v.price * v.quantity - v.discount).reduce((a, b) => a + b, 0),
+      discount: discount,
+      total: details.map((v) => v.price * v.quantity - v.discount).reduce((a, b) => a + b, 0) - discount,
+      note: note,
+      createdDate: format(createdDate, "yyyy-MM-dd HH:mm:ss"),
+      staffId: staff?.id,
+      supplierId: supplier?.id,
+    })
+      .then((result) => {
+        router.push("/purchase-order");
+      })
+      .catch((e) => axiosUIErrorHandler(e, toast))
+      .finally(() => setIsCompleting(false));
   };
 
   const MSearchView = (
@@ -164,12 +206,12 @@ export default function NewPurchaseOrderPage() {
   return (
     <div className="flex flex-row gap-2">
       <div className="flex flex-1 flex-col gap-2 bg-white p-4">
-        <h2 className="my-4 flex-1 text-start text-2xl font-bold">
-          Create new stock check
+        <h2 className="my-4 text-start text-2xl font-bold">
+          New purchase order
         </h2>
         <CustomDatatable
           data={details}
-          columns={purchaseOrderDetailTableColumns(onDetailQuantityChanged)}
+          columns={purchaseOrderDetailTableColumns(onDetailQuantityChanged, onDetailNoteChanged)}
           columnTitles={purchaseOrderDetailColumnTitles}
           config={{
             alternativeSearchInput: MSearchView,
@@ -177,7 +219,7 @@ export default function NewPurchaseOrderPage() {
           }}
         />
       </div>
-      <div className="flex w-[300px] flex-col gap-4 bg-white p-2">
+      <div className="flex h-[calc(100vh-1rem)] w-[300px] flex-col gap-4 bg-white p-2">
         <div className="flex">
           <CustomCombobox<Staff>
             searchPlaceholder={"Find staff..."}
@@ -192,27 +234,93 @@ export default function NewPurchaseOrderPage() {
             }
             onItemClick={setStaff}
             startIcon={<UserCircle size={16} />}
+            className="flex-1"
           />
           <input
             type="datetime-local"
             value={format(createdDate, "yyyy-MM-dd'T'HH:mm")}
+            onChange={(e) => setCreatedDate(e.currentTarget.valueAsDate ?? new Date())}
             className="ml-1 border px-1 text-[0.7rem]"
           ></input>
         </div>
+        <CustomCombobox<Supplier>
+          searchPlaceholder={"Find supplier..."}
+          value={supplier}
+          choices={suppliers}
+          valueView={SupplierView}
+          itemSearchView={(choice) => SupplierSearchView(choice, staff)}
+          onSearchChange={setStaffSearch}
+          filter={(st) =>
+            st.id.toString().includes(staffSearch) ||
+            st.name.includes(staffSearch) ||
+            st.phoneNumber.includes(staffSearch)
+          }
+          onItemClick={setSupplier}
+          startIcon={<Group size={16} />}
+        />
+        <div className="flex items-center justify-between">
+          <p className="text-sm">Sub-Total</p>
+          <p>
+            {details
+              .map((v) => v.price * v.quantity - v.discount)
+              .reduce((a, b) => a + b, 0)}
+          </p>
+        </div>
+        <div className="flex items-center justify-between">
+          <p className="text-sm">Discount</p>
+          <input
+            type="number"
+            className="w-[100px] border-b outline-none focus-visible:border-b-black text-end"
+            value={discount}
+            onChange={(e) =>
+              setDiscount(
+                isNaN(e.currentTarget.valueAsNumber)
+                  ? 0
+                  : e.currentTarget.valueAsNumber,
+              )
+            }
+          />
+        </div>
+        <div className="flex items-center justify-between">
+          <p className="text-sm">Total</p>
+          <p className="text-xl font-bold">
+            {details
+              .map((v) => v.price * v.quantity - v.discount)
+              .reduce((a, b) => a + b, 0) - discount}
+          </p>
+        </div>
         <Input
-          showBorderOnFocus={false}
           placeholder="Note..."
-          className="w-full md:max-w-[500px]"
+          className="h-[50px] w-full"
           value={note}
           onChange={(e) => setNote(e.currentTarget.value)}
         />
+        <div className="flex-1"></div>
+        <Button
+          variant={"green"}
+          className="h-16 tracking-wide"
+          onClick={onCompleteButtonClick}
+          >COMPLETE{isCompleting ? <LoadingCircle/> : null}
+        </Button>
       </div>
     </div>
   );
 }
 
-const CreatorView = (staff: Staff): React.ReactNode => {
-  return <p className="whitespace-nowrap text-xs">{staff.name}</p>;
+const CreatorView = (staff: Staff | null): React.ReactNode => {
+  return (
+    <div className="flex-1">
+      <p className=" whitespace-nowrap text-xs">{staff?.name ?? ""}</p>
+    </div>
+  );
+};
+
+const SupplierView = (supplier: Supplier | null): React.ReactNode => {
+  return (
+    <p className="flex-1 whitespace-nowrap px-2 text-xs">
+      {supplier?.name || ""}
+    </p>
+  );
 };
 
 const StaffSearchView = (
@@ -223,7 +331,7 @@ const StaffSearchView = (
   return (
     <div
       className={cn(
-        "flex cursor-pointer items-center justify-between px-1",
+        "flex cursor-pointer items-center justify-between px-1 hover:bg-green-100",
         chosen ? "bg-green-200" : "",
       )}
     >
@@ -232,6 +340,27 @@ const StaffSearchView = (
         <p className="text-xs">Id: {staff.id}</p>
       </div>
       {chosen ? <Check size={16} color="green" /> : null}
+    </div>
+  );
+};
+
+const SupplierSearchView = (
+  supplier: Supplier,
+  chosenSupplier: Staff | null,
+): React.ReactNode => {
+  const chosen = chosenSupplier && supplier.id === chosenSupplier.id;
+  return (
+    <div
+      className={cn(
+        "flex cursor-pointer items-center justify-between px-1 hover:bg-green-100",
+        chosen ? "bg-green-200" : "",
+      )}
+    >
+      <div>
+        <p className="text-sm">{supplier.name}</p>
+        <p className="text-xs">Id: {supplier.id}</p>
+      </div>
+      <p className="text-sm">{supplier.phoneNumber}</p>
     </div>
   );
 };

@@ -171,7 +171,6 @@ export default function NewStockCheckPage() {
         <div className="flex flex-col gap-4 bg-white p-4 md:flex-row">
           <div className="min-w-0 flex-1" />
           <Input
-            showBorderOnFocus={false}
             placeholder="Note..."
             className="w-full md:max-w-[500px]"
             value={note}

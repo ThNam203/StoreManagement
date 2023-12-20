@@ -11,6 +11,8 @@ import { useAppDispatch, useAppSelector } from "@/hooks";
 import Preloader from "@/components/ui/preloader";
 import { Toaster } from "@/components/ui/toaster";
 import StaffService from "@/services/staff_service";
+import ProfileService from "@/services/profileService";
+import { setProfile } from "@/reducers/profileReducer";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
@@ -27,9 +29,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 
 const GlobalState = ({ children }: { children: React.ReactNode }) => {
   const [gotUserInfo, setGotUserInfo] = useState(false);
+  const dispatch = useAppDispatch()
   useEffect(() => {
     const getUserInfo = async () => {
-      // TODO: get user info
+      const profile = await ProfileService.getProfile()
+      dispatch(setProfile(profile.data))
       setGotUserInfo(true);
     };
     getUserInfo();

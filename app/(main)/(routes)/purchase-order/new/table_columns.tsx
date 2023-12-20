@@ -4,10 +4,11 @@ import {
   defaultIndexColumn,
   defaultSelectColumn,
 } from "@/components/ui/my_table_default_column";
+import scrollbar_style from "@/styles/scrollbar.module.css";
 import { Product } from "@/entities/Product";
 import { cn } from "@/lib/utils";
 import { Column, ColumnDef, Getter, Row, Table } from "@tanstack/react-table";
-import { Minus, Plus } from "lucide-react";
+import { Minus, Pencil, Plus } from "lucide-react";
 import { useState } from "react";
 
 export type NewPurchaseOrderDetail = {
@@ -15,6 +16,7 @@ export type NewPurchaseOrderDetail = {
   productName: string;
   unit: string;
   quantity: number;
+  note: string;
   price: number;
   discount: number;
 };
@@ -30,6 +32,7 @@ export const purchaseOrderDetailColumnTitles = {
 
 export const purchaseOrderDetailTableColumns = (
   onQuantityChanged: (productId: number, newQuantity: number) => any,
+  onNoteChanged: (productId: number, newNote: string) => any,
 ): ColumnDef<NewPurchaseOrderDetail>[] => {
   const columns: ColumnDef<NewPurchaseOrderDetail>[] = [
     defaultSelectColumn<NewPurchaseOrderDetail>(),
@@ -39,6 +42,7 @@ export const purchaseOrderDetailTableColumns = (
   for (let key in purchaseOrderDetailColumnTitles) {
     let col: ColumnDef<NewPurchaseOrderDetail>;
     if (key === "quantity") col = quantityColumn(onQuantityChanged);
+    else if (key === "productName") col = productNameColumn(onNoteChanged);
     else
       col = defaultColumn<NewPurchaseOrderDetail>(
         key,
@@ -47,8 +51,43 @@ export const purchaseOrderDetailTableColumns = (
     columns.push(col);
   }
 
+  columns.push(totalColumn());
+
   return columns;
 };
+
+function totalColumn(
+  disableSorting: boolean = false,
+): ColumnDef<NewPurchaseOrderDetail> {
+  const col: ColumnDef<NewPurchaseOrderDetail> = {
+    accessorKey: "total",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Total" />
+    ),
+    cell: ({ row }) => {
+      return (
+        <p className="text-[0.8rem] font-bold">
+          {row.original.quantity * row.original.price - row.original.discount}
+        </p>
+      );
+    },
+  };
+  return col;
+}
+
+function productNameColumn(
+  onNoteChanged: (productId: number, newNote: string) => any,
+  disableSorting: boolean = false,
+): ColumnDef<NewPurchaseOrderDetail> {
+  const col: ColumnDef<NewPurchaseOrderDetail> = {
+    accessorKey: "productName",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Product Name" />
+    ),
+    cell: ({ row }) => ProductNameCell(row.original, onNoteChanged),
+  };
+  return col;
+}
 
 function quantityColumn(
   onQuantityChanged: (productId: number, newQuantity: number) => any,
@@ -63,6 +102,34 @@ function quantityColumn(
   };
   return col;
 }
+
+const ProductNameCell = (
+  detail: NewPurchaseOrderDetail,
+  onNoteChanged: (productId: number, newNote: string) => any,
+) => {
+  const [showNoteEditor, setShowNoteEditor] = useState(false);
+  return (
+    <div className="flex flex-col">
+      <p className="text-[0.8rem]">{detail.productName}</p>
+      <div className="relative">
+        {showNoteEditor ? <textarea
+              className={cn("resize-none", scrollbar_style.scrollbar)}
+              placeholder="note..."
+              autoFocus
+              onBlur={(e) => {
+                onNoteChanged(detail.productId, e.currentTarget.value)
+                setShowNoteEditor(false)
+              }}
+            /> : <div className="flex items-center" onClick={() => setShowNoteEditor(true)}>
+          <p className="text-xs text-gray-500">
+            {detail.note.length > 0 ? detail.note : "note..."}
+          </p>
+          <Pencil size={10} className="ml-1"/>
+        </div>}
+      </div>
+    </div>
+  );
+};
 
 const QuantityCell = ({
   getValue,
@@ -86,7 +153,7 @@ const QuantityCell = ({
         }}
         className={cn(
           "rounded-full hover:bg-slate-300",
-          row.original.quantity > 1 ? "visible" : "invisible",
+          row.original.quantity > 1 ? "" : "hidden",
         )}
       />
       <input

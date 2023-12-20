@@ -20,7 +20,7 @@ export default function CustomCombobox<T>({
   searchPlaceholder: string;
   value: T | null;
   choices: T[];
-  valueView: (choice: T) => React.ReactNode;
+  valueView: (choice: T | null) => React.ReactNode;
   itemSearchView: (choice: T) => React.ReactNode;
   onSearchChange?: (value: string) => any;
   filter?: (choice: T) => boolean;
@@ -37,21 +37,20 @@ export default function CustomCombobox<T>({
       className={cn("relative min-h-[40px] rounded-sm border p-2", className)}
     >
       <div
-        className="flex h-full cursor-pointer items-center gap-[2px]"
+        className="flex h-full cursor-pointer flex-row items-center gap-[2px]"
         onClick={() => setShowSearch((prev) => !prev)}
       >
         {startIcon}
-        <div className="min-w-[60px] overflow-hidden">
-          {value ? valueView(value) : null}
-        </div>
+        {valueView(value)}
         {showSearch ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
       </div>
       {showSearch ? (
-        <div className="absolute left-0 right-0 top-full min-w-[200px] overflow-hidden rounded-sm bg-white shadow-[0px_0px_5px_1px_#A8A8A8]">
+        <div className="absolute left-0 right-0 top-full z-10 min-w-[200px] overflow-hidden rounded-sm bg-white shadow-[0px_0px_5px_1px_#A8A8A8]">
           <div className={"flex flex-row items-center !border-b-0 bg-white"}>
             <Search size={20} color={"rgb(156 163 175)"} className="ml-2" />
             <Input
               placeholder={searchPlaceholder}
+              autoFocus
               className={
                 "h-[35px] w-full border-0 focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0"
               }

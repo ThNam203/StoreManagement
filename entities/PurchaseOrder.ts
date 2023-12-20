@@ -14,6 +14,7 @@ export type PurchaseOrderDetail = {
   id: number;
   quantity: number;
   price: number;
+  note: string;
   discount: number;
   productId: number;
 };
