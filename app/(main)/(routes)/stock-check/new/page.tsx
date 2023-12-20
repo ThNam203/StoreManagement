@@ -1,7 +1,7 @@
 "use client";
 import { CustomDatatable } from "@/components/component/custom_datatable";
 import PropertiesString from "@/components/ui/properties_string_view";
-import SearchView from "@/components/ui/search_view";
+import SearchView from "@/components/component/SearchView";
 import { Product } from "@/entities/Product";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { useState } from "react";

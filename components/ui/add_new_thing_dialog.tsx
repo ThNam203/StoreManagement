@@ -35,8 +35,8 @@ const AddNewThing = ({
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
-          <div className="flex flex-row items-center text-sm gap-3 !my-4">
-            <label htmlFor="alert_input" className="font-semibold w-36">
+          <div className="!my-4 flex flex-row items-center gap-3 text-sm">
+            <label htmlFor="alert_input" className="w-36 font-semibold">
               {placeholder}
             </label>
             <input
@@ -67,7 +67,7 @@ const AddNewThing = ({
           </Button>
           <AlertDialogCancel
             className={
-              "bg-red-400 hover:bg-red-500 border-none text-white hover:text-white !h-[35px]"
+              "!h-[35px] border-none bg-red-400 text-white hover:bg-red-500 hover:text-white"
             }
             disabled={isLoading}
           >

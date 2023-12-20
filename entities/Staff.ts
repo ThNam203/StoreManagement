@@ -2,7 +2,7 @@ import { SalarySetting } from "./SalarySetting";
 
 export type Staff = {
   avatar: string;
-  id: any;
+  id: number;
   name: string;
   phoneNumber: string;
   cccd: string;

@@ -3,9 +3,11 @@ package com.springboot.store.auth;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springboot.store.entity.*;
 import com.springboot.store.exception.CustomException;
+import com.springboot.store.payload.StaffResponse;
 import com.springboot.store.repository.*;
 import com.springboot.store.service.JwtService;
 import com.springboot.store.service.StaffPositionService;
+import com.springboot.store.service.StaffService;
 import com.springboot.store.utils.Role;
 import com.springboot.store.utils.TokenType;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,6 +15,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,10 +27,11 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
+    private final StaffService staffService;
+    private final JwtService jwtService;
     private final StaffRepository staffRepository;
     private final TokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final StaffRoleRepository staffRoleRepository;
     private final StoreRepository storeRepository;
@@ -39,7 +43,7 @@ public class AuthenticationService {
     private final SupplierGroupRepository supplierGroupRepository;
     private final StaffPositionRepository staffPositionRepository;
 
-    public AuthenticationResponse register(RegisterRequest request) {
+    public StaffResponse register(RegisterRequest request, HttpServletResponse response) {
 
         if (staffRepository.existsByEmail(request.getEmail())) {
             throw new CustomException("Email already in use", HttpStatus.BAD_REQUEST);
@@ -64,13 +68,24 @@ public class AuthenticationService {
         var refreshToken = jwtService.generateRefreshToken(staff);
         saveUserToken(staff, refreshToken);
 
-        return AuthenticationResponse.builder()
-                .accessToken(jwtToken)
-                .refreshToken(refreshToken)
+        ResponseCookie cookie = jwtService.generateCookie(jwtToken);
+        ResponseCookie refreshCookie = jwtService.generateRefreshCookie(refreshToken);
+
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+
+
+        return StaffResponse.builder()
+                .id(staff.getId())
+                .name(staff.getName())
+                .email(staff.getEmail())
+                .role(staff.getStaffRole().getName())
                 .build();
     }
 
-    public AuthenticationResponse authenticate(AuthenticationRequest request) {
+    public StaffResponse authenticate(
+            AuthenticationRequest request,
+            HttpServletResponse response) {
         // check email and password
         var user = staffRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new CustomException("Invalid username/password supplied", HttpStatus.UNPROCESSABLE_ENTITY));
@@ -90,10 +105,13 @@ public class AuthenticationService {
         revokeAllUserTokens(user);
         saveUserToken(user, refreshToken);
 
-        return AuthenticationResponse.builder()
-                .accessToken(jwtToken)
-                .refreshToken(refreshToken)
-                .build();
+        ResponseCookie cookie = jwtService.generateCookie(jwtToken);
+        ResponseCookie refreshCookie = jwtService.generateRefreshCookie(refreshToken);
+
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+
+        return staffService.getStaffById(user.getId());
     }
 
     private void saveUserToken(Staff user, String jwtToken) {
