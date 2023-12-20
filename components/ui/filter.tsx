@@ -29,7 +29,7 @@ import React, { StrictMode, useCallback, useEffect, useState } from "react";
 import { Input } from "./input";
 import { ScrollArea } from "./scroll-area";
 import format from "date-fns/format";
-import { TimeFilterType, removeCharNotANum } from "@/utils";
+import { TimeFilterType, formatNumberInput, removeCharNotANum } from "@/utils";
 import Preloader from "./preloader";
 
 const ChoicesFilter = ({
@@ -723,7 +723,7 @@ const RangeFilter = ({
   firstPlaceholder = "Value",
   secondLabel = "To",
   secondPlaceholder = "Value",
-  alwaysOpen,
+  alwaysOpen = false,
   range = { startValue: 0, endValue: 0 },
   className,
   onValuesChanged,
@@ -758,13 +758,13 @@ const RangeFilter = ({
             <div className="flex flex-row items-center justify-between space-x-2">
               <Label className="w-[50px]">{firstLabel}</Label>
               <Input
+                type="number"
                 className="w-full focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0"
                 placeholder={firstPlaceholder}
                 onChange={(e) => {
-                  removeCharNotANum(e);
                   if (onValuesChanged)
                     onValuesChanged({
-                      startValue: Number.parseInt(e.target.value),
+                      startValue: formatNumberInput(e),
                       endValue: range.endValue,
                     });
                 }}
@@ -773,14 +773,14 @@ const RangeFilter = ({
             <div className="flex flex-row items-center justify-between space-x-2">
               <Label className="w-[50px]">{secondLabel}</Label>
               <Input
+                type="number"
                 className="w-full focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0"
                 placeholder={secondPlaceholder}
                 onChange={(e) => {
-                  removeCharNotANum(e);
                   if (onValuesChanged)
                     onValuesChanged({
                       startValue: range.startValue,
-                      endValue: Number.parseInt(e.target.value),
+                      endValue: formatNumberInput(e),
                     });
                 }}
               />

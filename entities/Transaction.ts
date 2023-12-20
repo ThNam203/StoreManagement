@@ -26,6 +26,7 @@ export enum TargetType {
   CUSTOMER = "Customer",
   SUPPLIER = "Supplier",
   STAFF = "Staff",
+  OTHER = "Other",
 }
 
 export enum Status {

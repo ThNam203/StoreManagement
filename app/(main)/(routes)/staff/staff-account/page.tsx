@@ -1,6 +1,10 @@
 "use client";
 
-import { PageWithFilters, SearchFilter } from "@/components/ui/filter";
+import {
+  PageWithFilters,
+  RangeFilter,
+  SearchFilter,
+} from "@/components/ui/filter";
 import { useToast } from "@/components/ui/use-toast";
 import { Staff } from "@/entities/Staff";
 import { useAppDispatch, useAppSelector } from "@/hooks";
@@ -13,7 +17,7 @@ import {
 } from "@/reducers/staffReducer";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
 import StaffService from "@/services/staff_service";
-import { handleMultipleFilter } from "@/utils";
+import { handleMultipleFilter, handleRangeNumFilter } from "@/utils";
 import {
   convertStaffReceived,
   convertStaffToSent,
@@ -58,13 +62,20 @@ export default function StaffInfoPage() {
   const [multiFilter, setMultiFilter] = useState({
     position: [] as string[],
   });
+  const [rangeNumFilter, setRangeNumFilter] = useState({
+    salaryDebt: {
+      startValue: 0,
+      endValue: 0,
+    },
+  });
 
   useEffect(() => {
     var filteredList = [...staffList];
     filteredList = handleMultipleFilter(multiFilter, filteredList);
+    filteredList = handleRangeNumFilter(rangeNumFilter, filteredList);
 
     setFilteredStaffList([...filteredList]);
-  }, [multiFilter, staffList]);
+  }, [multiFilter, rangeNumFilter, staffList]);
 
   const addNewStaff = async (value: Staff, avatar: File | null) => {
     try {
@@ -143,6 +154,13 @@ export default function StaffInfoPage() {
   const updatePositionMultiFilter = (values: string[]) => {
     setMultiFilter((prev) => ({ ...prev, position: values }));
   };
+  const updateSalaryDebtRangeNumFilter = (range: {
+    startValue: number;
+    endValue: number;
+  }) => {
+    console.log("range", range);
+    setRangeNumFilter((prev) => ({ ...prev, salaryDebt: range }));
+  };
 
   const handleCalculateSalary = async (rowIndex: number) => {
     try {
@@ -170,6 +188,11 @@ export default function StaffInfoPage() {
         chosenValues={multiFilter.position}
         choices={Array.from(new Set(staffList.map((staff) => staff.position)))}
         onValuesChanged={updatePositionMultiFilter}
+      />
+      <RangeFilter
+        title="Salary debt"
+        range={rangeNumFilter.salaryDebt}
+        onValuesChanged={updateSalaryDebtRangeNumFilter}
       />
     </div>,
   ];
