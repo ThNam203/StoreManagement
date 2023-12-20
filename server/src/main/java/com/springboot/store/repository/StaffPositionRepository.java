@@ -1,6 +1,7 @@
 package com.springboot.store.repository;
 
 import com.springboot.store.entity.StaffPosition;
+import com.springboot.store.entity.Store;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -13,5 +14,5 @@ public interface StaffPositionRepository extends JpaRepository<StaffPosition, In
 
     Optional<StaffPosition> findByName(String name);
 
-    boolean existsByName(String name);
+    boolean existsByNameAndStore(String name, Store store);
 }
