@@ -10,6 +10,7 @@ import { AttendanceRecord, DailyShift, Shift } from "@/entities/Attendance";
 import { BonusUnit, SalaryType } from "@/entities/SalarySetting";
 import { Staff } from "@/entities/Staff";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { format } from "date-fns";
 
 import * as XLSX from "xlsx";
 
@@ -392,6 +393,10 @@ const formatNumberInput = (e: React.ChangeEvent<HTMLInputElement>) => {
   return num;
 };
 
+const formatDate = (date: Date) => {
+  return format(date, "MM/dd/yyyy");
+};
+
 const createRangeDate = (range: { startDate: Date; endDate: Date }): Date[] => {
   const rangeDate: Date[] = [];
   range.startDate.setHours(0, 0, 0, 0);
@@ -425,5 +430,6 @@ export {
   handleTimeFilter,
   removeCharNotANum,
   formatNumberInput,
+  formatDate,
   createRangeDate,
 };

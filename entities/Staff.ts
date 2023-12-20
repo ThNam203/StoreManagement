@@ -25,10 +25,7 @@ export enum Sex {
 }
 
 export type Paycheck = {
-  workingPeriod: {
-    startDate: Date;
-    endDate: Date;
-  };
+  workingPeriod: string;
   totalSalary: number;
   paid: number;
   needToPay: number;

@@ -31,7 +31,7 @@ export type DatatableConfig<TData> = {
   defaultVisibilityState?: {
     [key: string]: boolean;
   };
-  className?: string,
+  className?: string;
 };
 
 const defaultConfig: DatatableConfig<any> = {
@@ -64,7 +64,7 @@ export function CustomDatatable<TData>({
   infoTabs,
   buttons,
   config,
-  meta
+  meta,
 }: CustomDatatableProps<TData>) {
   config = { ...defaultConfig, ...config };
 
@@ -72,7 +72,7 @@ export function CustomDatatable<TData>({
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
-    config?.defaultVisibilityState ?? {}
+    config?.defaultVisibilityState ?? {},
   );
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [filterInput, setFilterInput] = useState("");
@@ -103,14 +103,19 @@ export function CustomDatatable<TData>({
 
   return (
     <div ref={tableContainerRef} className="w-full space-y-2">
-      <div className={cn("flex py-4 flex-col gap-2 md:flex-row md:gap-0 md:items-center md:justify-between", config.className)}>
+      <div
+        className={cn(
+          "flex flex-col gap-2 md:flex-row md:items-center md:justify-between md:gap-0",
+          config.className,
+        )}
+      >
         {!config.showDefaultSearchInput ||
         config.alternativeSearchInput ? null : (
           <Input
             placeholder="Search anything..."
             value={filterInput}
             onChange={(event) => setFilterInput(event.target.value)}
-            className="max-w-sm"
+            className="max-w-sm py-4"
           />
         )}
         {config.alternativeSearchInput}
@@ -123,7 +128,7 @@ export function CustomDatatable<TData>({
               onClick={() => {
                 setIsDeletingCodes(true);
                 config!.onDeleteRowsBtnClick!(
-                  table.getSelectedRowModel().rows.map((row) => row.original)
+                  table.getSelectedRowModel().rows.map((row) => row.original),
                 )
                   .then(() => table.toggleAllRowsSelected(false))
                   .finally(() => setIsDeletingCodes(false));
@@ -140,19 +145,22 @@ export function CustomDatatable<TData>({
               Export Excel
             </Button>
           ) : null}
-          {config.showDataTableViewOptions ? <DataTableViewOptions
-            title="Columns"
-            table={table}
-            columnHeaders={columnTitles}
-          /> : null}
+          {config.showDataTableViewOptions ? (
+            <DataTableViewOptions
+              title="Columns"
+              table={table}
+              columnHeaders={columnTitles}
+            />
+          ) : null}
         </div>
       </div>
+
       <CustomDataTableContent
         columns={columns}
         table={table}
         tableContainerRef={tableContainerRef}
         infoTabs={infoTabs}
-        showRowSelectedCounter={config.showRowSelectedCounter ?? true}
+        showRowSelectedCounter={!!config.showRowSelectedCounter}
       />
     </div>
   );
@@ -165,8 +173,10 @@ export const DefaultInformationCellDataTable = ({
   title: string;
   value: string | number | boolean;
 }) => {
-  return <div className="mb-2 flex flex-row border-b font-medium">
-    <p className="w-[120px] font-normal">{title}</p>
-    <p>{value}</p>
-  </div>;
+  return (
+    <div className="mb-2 flex flex-row border-b font-medium">
+      <p className="w-[120px] font-normal">{title}</p>
+      <p>{value}</p>
+    </div>
+  );
 };

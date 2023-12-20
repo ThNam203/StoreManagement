@@ -60,9 +60,16 @@ type Props = {
   submit: (values: Transaction) => void;
   open: boolean;
   setOpen: (open: boolean) => void;
+  staffNameList: string[];
 };
 
-export function MakeExpenseDialog({ data, submit, open, setOpen }: Props) {
+export function MakeExpenseDialog({
+  data,
+  submit,
+  open,
+  setOpen,
+  staffNameList,
+}: Props) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -118,7 +125,6 @@ export function MakeExpenseDialog({ data, submit, open, setOpen }: Props) {
   }
 
   const transactionTypes = Object.values(TransactionType);
-  const staffList = ["NGUYEN VAN A", "NGUYEN VAN B", "NGUYEN VAN C"];
   const targetTypes = Object.values(TargetType);
 
   return (
@@ -209,7 +215,7 @@ export function MakeExpenseDialog({ data, submit, open, setOpen }: Props) {
                           <FormLabel className="w-1/3">Creator</FormLabel>
                           <FormControl className="w-2/3">
                             <MyCombobox
-                              choices={staffList}
+                              choices={staffNameList}
                               defaultValue={field.value}
                               onValueChange={(val) => {
                                 form.setValue("creator", val);

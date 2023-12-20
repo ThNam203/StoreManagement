@@ -32,7 +32,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SalaryUnitTable } from "@/entities/SalarySetting";
 import { cn } from "@/lib/utils";
-import { formatPrice, getStaticRangeFilterTime } from "@/utils";
+import { formatDate, formatPrice, getStaticRangeFilterTime } from "@/utils";
 import { format, set } from "date-fns";
 import { Calculator, PenLine, Trash } from "lucide-react";
 import Image from "next/image";
@@ -49,6 +49,12 @@ import StaffService from "@/services/staff_service";
 import { useToast } from "@/components/ui/use-toast";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
 import { FilterMonth } from "@/components/ui/filter";
+import { CustomDatatable } from "@/components/component/custom_datatable";
+import {
+  paycheckColumnTitles,
+  paycheckDefaultVisibilityState,
+  paycheckTableColumns,
+} from "./table_columns";
 
 export function DataTable({
   data,
@@ -282,8 +288,11 @@ const CustomRow = ({
 
   useEffect(() => {
     let tempPaycheckList: Paycheck[] = [];
+    const range = getStaticRangeFilterTime(FilterMonth.ThisMonth);
+    const workingPeriod =
+      formatDate(range.startDate) + " - " + formatDate(range.endDate);
     tempPaycheckList.push({
-      workingPeriod: getStaticRangeFilterTime(FilterMonth.ThisMonth),
+      workingPeriod: workingPeriod,
       totalSalary: staff.salaryDebt,
       paid: 0,
       needToPay: staff.salaryDebt - 0,
@@ -556,7 +565,7 @@ const CustomRow = ({
                     </div>
                   </TabsContent>
                   <TabsContent value="paycheck">
-                    <div className="flex h-[300px] flex-col justify-between gap-4 py-2 pl-8 pr-4">
+                    {/* <div className="flex h-[300px] flex-col justify-between gap-4 py-2 pl-8 pr-4">
                       <div className="w-full overflow-hidden rounded-md">
                         <div className="flex w-full flex-row items-center justify-start gap-2 bg-blue-100 p-2">
                           <span className="w-[250px] text-sm font-semibold">
@@ -602,6 +611,34 @@ const CustomRow = ({
                           );
                         })}
                       </div>
+                      <div className="flex flex-row items-center gap-2">
+                        <div className="flex-1" />
+                        <Button
+                          variant={"green"}
+                          onClick={(e) => {
+                            if (onStaffCalculateSalaryButtonClicked)
+                              onStaffCalculateSalaryButtonClicked(row.index);
+                          }}
+                        >
+                          <Calculator size={16} className="mr-2" />
+                          Calculate salary
+                        </Button>
+                      </div>
+                    </div> */}
+                    <div className="flex h-[300px] flex-col justify-between gap-4 py-2 pl-8 pr-4">
+                      <CustomDatatable
+                        data={paycheckList}
+                        columns={paycheckTableColumns()}
+                        columnTitles={paycheckColumnTitles}
+                        config={{
+                          defaultVisibilityState:
+                            paycheckDefaultVisibilityState,
+                          showExportButton: false,
+                          showDefaultSearchInput: false,
+                          showDataTableViewOptions: false,
+                          showRowSelectedCounter: false,
+                        }}
+                      />
                       <div className="flex flex-row items-center gap-2">
                         <div className="flex-1" />
                         <Button
