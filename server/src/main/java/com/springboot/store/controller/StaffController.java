@@ -35,11 +35,6 @@ public class StaffController {
         return new ResponseEntity<>(staffResponse, null, HttpStatus.CREATED);
     }
 
-    @GetMapping("/me")
-    public ResponseEntity<StaffResponse> getCurrentStaff() {
-        Staff staff = staffService.getAuthorizedStaff();
-        return new ResponseEntity<>(staffService.getStaffById(staff.getId()), null, HttpStatus.OK);
-    }
 
     // get all staffs
     @GetMapping
@@ -50,6 +45,10 @@ public class StaffController {
     // get staff by id
     @GetMapping("/{id}")
     public ResponseEntity<StaffResponse> getStaffById(@PathVariable int id) {
+        if (id == 0) {
+            Staff staff = staffService.getAuthorizedStaff();
+            return new ResponseEntity<>(staffService.getStaffById(staff.getId()), null, HttpStatus.OK);
+        }
         return new ResponseEntity<>(staffService.getStaffById(id), null, HttpStatus.OK);
     }
 
