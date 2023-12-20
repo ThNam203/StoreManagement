@@ -282,17 +282,15 @@ public class StaffServiceImpl implements StaffService {
                 .email(staff.getEmail())
                 .cccd(staff.getCccd())
                 .phoneNumber(staff.getPhoneNumber())
-                .position(staff.getStaffPosition().getName())
                 .salaryDebt(staff.getSalaryDebt())
                 .sex(staff.getSex())
                 .address(staff.getAddress())
                 .note(staff.getNote())
                 .birthday(staff.getBirthday())
                 .createdAt(staff.getCreatedAt())
+                .position(staff.getStaffPosition() != null ? staff.getStaffPosition().getName() : null)
                 .avatar(staff.getAvatar() != null ? staff.getAvatar().getUrl() : null)
-                // if staffRole is not null, get name of staffRole
                 .role(staff.getStaffRole() != null ? staff.getStaffRole().getName() : null)
-                // if creator is not null, get name of creator
                 .creator(staff.getCreator() != null ? staff.getCreator().getId() : null)
                 .staffSalary(staff.getStaffSalary() != null ? staff.getStaffSalary() : null)
                 .build();

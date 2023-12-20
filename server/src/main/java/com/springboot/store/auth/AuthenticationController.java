@@ -28,14 +28,7 @@ public class AuthenticationController {
             @RequestBody RegisterRequest request,
             HttpServletResponse response
     ) {
-        AuthenticationResponse tokens = service.register(request);
-        ResponseCookie cookie = jwtService.generateCookie(tokens.getAccessToken());
-        ResponseCookie refreshCookie = jwtService.generateRefreshCookie(tokens.getRefreshToken());
-
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
-
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.register(request, response));
 
     }
     @PostMapping("/authenticate")
@@ -43,15 +36,8 @@ public class AuthenticationController {
             @RequestBody AuthenticationRequest request,
             HttpServletResponse response
     ) {
-        AuthenticationResponse tokens = service.authenticate(request);
-        ResponseCookie cookie = jwtService.generateCookie(tokens.getAccessToken());
-        ResponseCookie refreshCookie = jwtService.generateRefreshCookie(tokens.getRefreshToken());
-
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
-
         return ResponseEntity.ok()
-                .body(tokens);
+                .body(service.authenticate(request, response));
     }
 
     @PostMapping("/refresh-token")
