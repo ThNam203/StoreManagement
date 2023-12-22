@@ -10,6 +10,7 @@ import com.springboot.store.repository.DiscountCodeRepository;
 import com.springboot.store.repository.InvoiceRepository;
 import com.springboot.store.repository.ProductRepository;
 import com.springboot.store.service.DiscountService;
+import com.springboot.store.service.IncomeFormService;
 import com.springboot.store.service.InvoiceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -29,6 +30,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     private final ProductRepository productRepository;
     private final StaffServiceImpl staffService;
     private final DiscountService discountService;
+    private final IncomeFormService incomeFormService;
 
     @Override
     public InvoiceDTO getInvoiceById(int id) {
@@ -65,15 +67,15 @@ public class InvoiceServiceImpl implements InvoiceService {
 
         if (invoiceDTO.getInvoiceDetails() != null) {
             Set<InvoiceDetail> invoiceDetails = invoiceDTO.getInvoiceDetails()
-                            .stream()
-                            .map(invoiceDetailDTO -> InvoiceDetail.builder()
-                                    .quantity(invoiceDetailDTO.getQuantity())
-                                    .price(invoiceDetailDTO.getPrice())
-                                    .productId(invoiceDetailDTO.getProductId())
-                                    .description(invoiceDetailDTO.getDescription())
-                                    .build()
-                            )
-                            .collect(Collectors.toSet());
+                    .stream()
+                    .map(invoiceDetailDTO -> InvoiceDetail.builder()
+                            .quantity(invoiceDetailDTO.getQuantity())
+                            .price(invoiceDetailDTO.getPrice())
+                            .productId(invoiceDetailDTO.getProductId())
+                            .description(invoiceDetailDTO.getDescription())
+                            .build()
+                    )
+                    .collect(Collectors.toSet());
             invoice.setInvoiceDetails(invoiceDetails);
         }
 
@@ -87,6 +89,12 @@ public class InvoiceServiceImpl implements InvoiceService {
                         productRepository.save(product);
                     });
         }
+
+        //Create income form and link to this invoice
+        int idPayer = -1;
+        if (invoice.getCustomer() != null)
+            idPayer = invoice.getCustomer().getId();
+        incomeFormService.createIncomeForm("Customer", new Date(), invoice.getPaymentMethod(), (int) invoice.getTotal(), idPayer, "", "Income from Customer", invoice.getId());
         return InvoiceMapper.toInvoiceDTO(invoiceNew);
     }
 

@@ -1,6 +1,5 @@
 package com.springboot.store.payload;
 
-import com.springboot.store.entity.Staff;
 import lombok.*;
 
 import java.util.Date;
@@ -11,15 +10,15 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ExpenseFormDTO {
+public class IncomeFormDTO {
     private int id;
-    private String receiverType;
+    private String payerType;
     private Date date;
-    private String expenseType;
+    private String incomeType;
     private int value;
     private String creatorName;
-    private int idReceiver;
-    private String receiverName;
+    private int idPayer;
+    private String payerName;
     private String note;
     private String description;
     private int linkedFormId;

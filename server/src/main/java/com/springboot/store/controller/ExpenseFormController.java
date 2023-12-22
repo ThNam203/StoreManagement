@@ -37,4 +37,10 @@ public class ExpenseFormController {
         ExpenseFormDTO updatedExpenseForm = expenseFormService.updateExpenseForm(expenseFormId, expenseFormDTO);
         return ResponseEntity.ok(updatedExpenseForm);
     }
+
+    @DeleteMapping("/{expenseFormId}")
+    public ResponseEntity<Void> deleteExpenseForm(@PathVariable int expenseFormId) {
+        expenseFormService.deleteExpenseForm(expenseFormId);
+        return ResponseEntity.ok().build();
+    }
 }
