@@ -12,20 +12,20 @@ import java.util.Date;
 @Builder
 
 @Entity
-@Table(name = "expense_forms")
-public class ExpenseForm {
+@Table(name = "income_forms")
+public class IncomeForm {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     int id;
 
-    @Column(name = "receiver_type")
-    String receiverType;
+    @Column(name = "payer_type")
+    String payerType;
 
     @Column(name = "date")
     Date date;
 
-    @Column(name = "expense_type")
-    String expenseType;
+    @Column(name = "income_type")
+    String incomeType;
 
     @Column(name = "value")
     int value;
@@ -34,8 +34,8 @@ public class ExpenseForm {
     @JoinColumn(name = "creator_id")
     Staff creator;
 
-    @Column(name = "id_receiver")
-    int idReceiver;
+    @Column(name = "id_payer")
+    int idPayer;
 
     @Column(name = "note")
     String note;

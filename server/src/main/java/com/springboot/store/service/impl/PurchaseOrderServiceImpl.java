@@ -11,6 +11,7 @@ import com.springboot.store.repository.ProductRepository;
 import com.springboot.store.repository.PurchaseOrderRepository;
 import com.springboot.store.repository.StaffRepository;
 import com.springboot.store.repository.SupplierRepository;
+import com.springboot.store.service.ExpenseFormService;
 import com.springboot.store.service.PurchaseOrderService;
 import com.springboot.store.service.StaffService;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     private final StaffRepository staffRepository;
     private final SupplierRepository supplierRepository;
     private final ProductRepository productRepository;
+    private final ExpenseFormService expenseFormService;
 
     @Override
     public PurchaseOrderDTO getPurchaseOrder(int id) {
@@ -64,6 +66,9 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             purchaseOrder.setPurchaseOrderDetail(purchaseOrderDetails);
         }
 
+        //create ExpenseForm for purchase order
+        expenseFormService.createExpenseForm("Supplier", purchaseOrder.getCreatedDate(), purchaseOrder.getPaymentMethod(), purchaseOrder.getTotal(), purchaseOrder.getSupplier().getId(), purchaseOrder.getNote(), "Expense for Supplier", purchaseOrder.getId());
+        
         return PurchaseOrderMapper.toPurchaseOrderDTO(purchaseOrderRepository.save(purchaseOrder));
     }
 

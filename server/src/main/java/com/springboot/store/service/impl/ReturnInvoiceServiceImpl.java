@@ -12,6 +12,7 @@ import com.springboot.store.repository.CustomerRepository;
 import com.springboot.store.repository.InvoiceRepository;
 import com.springboot.store.repository.ProductRepository;
 import com.springboot.store.repository.ReturnInvoiceRepository;
+import com.springboot.store.service.ExpenseFormService;
 import com.springboot.store.service.ReturnInvoiceService;
 import com.springboot.store.service.StaffService;
 import lombok.RequiredArgsConstructor;
@@ -29,8 +30,10 @@ public class ReturnInvoiceServiceImpl implements ReturnInvoiceService {
     private final CustomerRepository customerRepository;
     private final InvoiceRepository invoiceRepository;
     private final ProductRepository productRepository;
+    private final ExpenseFormService expenseFormService;
 
     private final StaffService staffService;
+
     @Override
     public ReturnInvoiceDTO getReturnInvoiceById(int id) {
         ReturnInvoice returnInvoice = returnInvoiceRepository.findById(id).orElseThrow(() ->
@@ -64,20 +67,25 @@ public class ReturnInvoiceServiceImpl implements ReturnInvoiceService {
             returnInvoice.setReturnDetails(returnInvoiceDTO.getReturnDetails()
                     .stream()
                     .map(returnDetailDTO -> {
-                                ReturnDetail returnDetail = ReturnDetailMapper.toReturnDetail(returnDetailDTO);
-                                returnDetail.setReturnInvoice(returnInvoice);
-                                if (returnDetailDTO.getProductId() != null) {
-                                    Product product = productRepository.findById(returnDetailDTO.getProductId()).orElseThrow(() ->
-                                            new CustomException("Product not found", HttpStatus.NOT_FOUND));
-                                    product.setStock(product.getStock() + returnDetailDTO.getQuantity());
-                                    productRepository.save(product);
-                                    returnDetail.setProduct(product);
-                                }
-                                return returnDetail;
-                            })
+                        ReturnDetail returnDetail = ReturnDetailMapper.toReturnDetail(returnDetailDTO);
+                        returnDetail.setReturnInvoice(returnInvoice);
+                        if (returnDetailDTO.getProductId() != null) {
+                            Product product = productRepository.findById(returnDetailDTO.getProductId()).orElseThrow(() ->
+                                    new CustomException("Product not found", HttpStatus.NOT_FOUND));
+                            product.setStock(product.getStock() + returnDetailDTO.getQuantity());
+                            productRepository.save(product);
+                            returnDetail.setProduct(product);
+                        }
+                        return returnDetail;
+                    })
                     .collect(Collectors.toList()));
         }
         returnInvoiceRepository.save(returnInvoice);
+        int idReceiver = -1;
+        if (returnInvoice.getInvoice().getCustomer() != null)
+            idReceiver = returnInvoice.getInvoice().getCustomer().getId();
+        expenseFormService.createExpenseForm("Customer", new Date(), returnInvoice.getPaymentMethod(), returnInvoice.getTotal() - returnInvoice.getReturnFee(), idReceiver, returnInvoice.getNote(), "Expense for Customer", returnInvoice.getId());
+
         return ReturnInvoiceMapper.toReturnInvoiceDTO(returnInvoice);
     }
 
