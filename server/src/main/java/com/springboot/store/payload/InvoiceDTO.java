@@ -20,6 +20,7 @@ public class InvoiceDTO {
     private double discountValue;
     private double total;
     private String paymentMethod;
+    private String note;
     private String discountCode;
     private Set<InvoiceDetailDTO> invoiceDetails;
     private Integer customerId;

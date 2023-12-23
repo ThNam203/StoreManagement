@@ -15,6 +15,7 @@ public class InvoiceMapper {
                 .discountValue(invoice.getDiscountValue())
                 .total(invoice.getTotal())
                 .paymentMethod(invoice.getPaymentMethod())
+                .note(invoice.getNote())
                 .createdAt(invoice.getCreatedAt())
                 .customerId(invoice.getCustomer() == null ? null : invoice.getCustomer().getId())
                 .staffId(invoice.getStaff() == null ? null : invoice.getStaff().getId())
@@ -35,6 +36,7 @@ public class InvoiceMapper {
                 .discountValue(invoiceDTO.getDiscountValue())
                 .total(invoiceDTO.getTotal())
                 .paymentMethod(invoiceDTO.getPaymentMethod())
+                .note(invoiceDTO.getNote())
                 .createdAt(invoiceDTO.getCreatedAt())
                 .build();
     }

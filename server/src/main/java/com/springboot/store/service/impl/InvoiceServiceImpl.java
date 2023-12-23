@@ -98,6 +98,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         invoice.setSubTotal(invoiceDTO.getSubTotal());
         invoice.setTotal(invoiceDTO.getTotal());
         invoice.setPaymentMethod(invoiceDTO.getPaymentMethod());
+        invoice.setNote(invoiceDTO.getNote());
         invoice.setCreatedAt(new Date());
 
         if (invoiceDTO.getInvoiceDetails() != null) {

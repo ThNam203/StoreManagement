@@ -39,6 +39,9 @@ public class Invoice {
     @Column(name ="payment_method")
     private String paymentMethod;
 
+    @Column(name ="note")
+    private String note;
+
     @Column(name ="created_at")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdAt;

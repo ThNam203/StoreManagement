@@ -24,6 +24,7 @@ public class ProductDTO {
     private int stock;
     private int minStock;
     private int maxStock;
+    private Boolean isDeleted;
 
     private String location;
     private String productGroup;

@@ -48,6 +48,9 @@ public class Product {
     @Column(name = "max_stock")
     private int maxStock;
 
+    @Column(name = "is_deleted")
+    private boolean isDeleted;
+
     @OneToMany(cascade = CascadeType.ALL)
     private List<OriginalPrice> originalPrices;
 
