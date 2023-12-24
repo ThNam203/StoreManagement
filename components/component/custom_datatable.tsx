@@ -20,14 +20,16 @@ import CustomDataTableContent from "./custom_datatable_content";
 import { TabProps } from "./custom_datatable_row";
 import LoadingCircle from "../ui/loading_circle";
 import { cn } from "@/lib/utils";
+import { FileDown, FileUp } from "lucide-react";
 
 export type DatatableConfig<TData> = {
-  showExportButton?: boolean;
   showDefaultSearchInput?: boolean;
   alternativeSearchInput?: JSX.Element;
   showDataTableViewOptions?: boolean;
   showRowSelectedCounter?: boolean;
   onDeleteRowsBtnClick?: (dataToDelete: TData[]) => Promise<any>; // if null, remove button
+  onExportExcelBtnClick?: (table: ReactTable<TData>) => void; // if null, remove button
+  onImportExcelBtnClick?: (table: ReactTable<TData>) => void; // if null, remove button
   defaultVisibilityState?: {
     [key: string]: boolean;
   };
@@ -35,13 +37,14 @@ export type DatatableConfig<TData> = {
 };
 
 const defaultConfig: DatatableConfig<any> = {
-  showExportButton: true,
   showDefaultSearchInput: true,
   alternativeSearchInput: undefined,
   showDataTableViewOptions: true,
   showRowSelectedCounter: true,
   defaultVisibilityState: {},
   onDeleteRowsBtnClick: undefined,
+  onExportExcelBtnClick: undefined,
+  onImportExcelBtnClick: undefined,
   className: "",
 };
 
@@ -119,7 +122,7 @@ export function CustomDatatable<TData>({
           />
         )}
         {config.alternativeSearchInput}
-        <div className="flex flex-row gap-1">
+        <div className="flex flex-row gap-2">
           {config.onDeleteRowsBtnClick !== undefined &&
           table.getSelectedRowModel().rows.length > 0 ? (
             <Button
@@ -138,13 +141,29 @@ export function CustomDatatable<TData>({
             </Button>
           ) : null}
           {buttons}
-          {!config ||
-          config.showExportButton === undefined ||
-          config.showExportButton ? (
-            <Button variant={"blue"} onClick={() => {}}>
+          {config.onImportExcelBtnClick !== undefined ? (
+            <Button
+              variant={"green"}
+              onClick={() => {
+                config!.onImportExcelBtnClick!(table);
+              }}
+            >
+              <FileUp className="mr-2 h-4 w-4" />
+              Import
+            </Button>
+          ) : null}
+          {config.onExportExcelBtnClick !== undefined ? (
+            <Button
+              variant={"green"}
+              onClick={() => {
+                config!.onExportExcelBtnClick!(table);
+              }}
+            >
+              <FileDown className="mr-2" size={16} />
               Export Excel
             </Button>
           ) : null}
+
           {config.showDataTableViewOptions ? (
             <DataTableViewOptions
               title="Columns"

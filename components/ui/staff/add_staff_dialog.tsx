@@ -164,7 +164,6 @@ export function AddStaffDialog({
 
   useEffect(() => {
     if (open) resetValues(data);
-    console.log("render");
   }, [open]);
 
   const resetValues = (staff: Staff | null) => {
@@ -379,6 +378,7 @@ export function AddStaffDialog({
                               <FormControl className="w-2/3">
                                 <div>
                                   <DatePicker
+                                    value={field.value}
                                     onChange={(date) =>
                                       form.setValue("birthday", date)
                                     }

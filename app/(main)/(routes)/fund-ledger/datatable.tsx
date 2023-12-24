@@ -1,79 +1,31 @@
 "use client";
 
+import { CustomDatatable } from "@/components/component/custom_datatable";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { DataTableViewOptions } from "@/components/ui/my_table_column_visibility_toggle";
-import { DataTableContent } from "@/components/ui/my_table_content";
-import { FormType, Transaction } from "@/entities/Transaction";
-import { useAppSelector } from "@/hooks";
-import { exportExcel, formatPrice } from "@/utils";
-import {
-  ColumnFiltersState,
-  RowSelectionState,
-  SortingState,
-  VisibilityState,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
+import { MakeExpenseDialog } from "@/components/ui/fund-ledger/make_expense_dialog";
+import { MakeReceiptDialog } from "@/components/ui/fund-ledger/make_receipt_dialog";
+import { useToast } from "@/components/ui/use-toast";
+import { FormType, TargetType, Transaction } from "@/entities/Transaction";
+import { useAppDispatch, useAppSelector } from "@/hooks";
+import { cn } from "@/lib/utils";
+import { exportExcel, formatDate, formatPrice } from "@/utils";
+import { Row, Table } from "@tanstack/react-table";
 import { format } from "date-fns";
-import { FileDown } from "lucide-react";
+import { FolderOpen } from "lucide-react";
 import * as React from "react";
 import { ImportDailog } from "../../../../components/ui/my_import_dialog";
-import { columnHeader, columns } from "./columns";
-import { MakeExpenseDialog } from "./make_expense_dialog";
-import { MakeReceiptDialog } from "./make_receipt_dialog";
+import {
+  fundledgerColumnTitles,
+  fundledgerDefaultVisibilityState,
+  fundledgerTableColumns,
+} from "./table_columns";
 
 type Props = {
   data: Transaction[];
-  onSubmit: (values: Transaction) => void;
+  onSubmit: (values: Transaction, linkedFormId: any) => any;
 };
 
 export function DataTable({ data, onSubmit }: Props) {
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    [],
-  );
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({
-      id: true,
-      createdDate: true,
-      description: true,
-      formType: false,
-      transactionType: false,
-      targetName: true,
-      value: true,
-      creator: false,
-      targetType: false,
-      status: false,
-      note: false,
-    });
-  const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
-  const [filterInput, setFilterInput] = React.useState("");
-
-  const table = useReactTable({
-    data,
-    columns,
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
-    onGlobalFilterChange: setFilterInput,
-    state: {
-      sorting,
-      columnFilters,
-      columnVisibility,
-      rowSelection,
-      globalFilter: filterInput,
-    },
-  });
-
   const [selectedForm, setSelectedForm] = React.useState<Transaction | null>(
     null,
   );
@@ -82,11 +34,8 @@ export function DataTable({ data, onSubmit }: Props) {
   const staffList = useAppSelector((state) => state.staffs.value);
   const staffNameList = staffList.map((staff) => staff.name);
 
-  const handleSubmit = (values: Transaction) => {
-    if (onSubmit) onSubmit(values);
-  };
   //get header through id of column to export excel
-  const handleExportExcel = () => {
+  const handleExportExcel = (table: Table<Transaction>) => {
     //get id of visible column in datatable
     const visibleColumnIds = table
       .getVisibleFlatColumns()
@@ -96,7 +45,8 @@ export function DataTable({ data, onSubmit }: Props) {
     let toExport = data.map((dataRow, index) => {
       var row: object = {};
       visibleColumnIds.map((header) => {
-        const headerTitle = columnHeader[header as keyof typeof columnHeader];
+        const headerTitle =
+          fundledgerColumnTitles[header as keyof typeof fundledgerColumnTitles];
 
         if (headerTitle === "#") {
           row = {
@@ -146,7 +96,7 @@ export function DataTable({ data, onSubmit }: Props) {
   };
 
   const handleImportFile = (sheets: any[]) => {
-    const keys = Object.keys(columnHeader);
+    const keys = Object.keys(fundledgerColumnTitles);
     const newData = sheets.map((sheet: any[]) => {
       const convertedSheet = sheet.map((row) => {
         console.log("row", row);
@@ -154,7 +104,9 @@ export function DataTable({ data, onSubmit }: Props) {
         for (let key of keys) {
           const value =
             row[
-              columnHeader[key as keyof typeof columnHeader] as keyof typeof row
+              fundledgerColumnTitles[
+                key as keyof typeof fundledgerColumnTitles
+              ] as keyof typeof row
             ];
           console.log("value", value);
           if (value === undefined) {
@@ -170,103 +122,230 @@ export function DataTable({ data, onSubmit }: Props) {
     });
   };
 
+  const handleOpenExpenseForm = (transaction: Transaction | null) => {
+    setSelectedForm(transaction);
+    setOpenExpense(true);
+  };
+
+  const handleOpenReceiptForm = (transaction: Transaction | null) => {
+    setSelectedForm(transaction);
+    setOpenReceipt(true);
+  };
+
+  const [openImportDialog, setOpenImportDialog] = React.useState(false);
+
   const beginningFund = 200000000;
   const totalExpense = 1500000;
   const totalReceipt = 1000000;
 
   return (
-    <div className="w-full space-y-2">
-      <div className="flex items-center justify-between py-4">
-        <Input
-          placeholder="Search anything..."
-          value={filterInput}
-          onChange={(event) => setFilterInput(event.target.value)}
-          className="max-w-sm"
-        />
-        <div className="flex flex-row">
-          <div className="mr-2">
-            <Button
-              variant="default"
-              className="whitespace-nowrap"
-              onClick={() => {
-                setSelectedForm(null);
-                setOpenReceipt(true);
-              }}
-            >
-              Make Receipt
-            </Button>
-          </div>
-          <div className="mr-2">
-            <Button
-              variant="default"
-              className="whitespace-nowrap"
-              onClick={() => {
-                setSelectedForm(null);
-                setOpenReceipt(true);
-              }}
-            >
-              Make Expense
-            </Button>
-          </div>
-          <div className="mr-2">
-            <ImportDailog onImport={handleImportFile} />
-          </div>
-
-          <div className="mr-2">
-            <Button variant={"green"} onClick={handleExportExcel}>
-              <FileDown className="mr-2 h-4 w-4" />
-              Export
-            </Button>
-          </div>
-
-          <DataTableViewOptions
-            title="Columns"
-            table={table}
-            columnHeaders={columnHeader}
-            cols={2}
-            rowPerCols={6}
-          />
-          <MakeExpenseDialog
-            data={selectedForm}
-            submit={handleSubmit}
-            open={openExpense}
-            setOpen={setOpenExpense}
-            staffNameList={staffNameList}
-          />
-          <MakeReceiptDialog
-            data={selectedForm}
-            submit={handleSubmit}
-            open={openReceipt}
-            setOpen={setOpenReceipt}
-            staffNameList={staffNameList}
-          />
-        </div>
+    <div className="flex flex-col">
+      <div className="flex flex-row items-center justify-end gap-2 py-2">
+        <Button
+          variant="blue"
+          className="whitespace-nowrap"
+          onClick={() => handleOpenReceiptForm(null)}
+        >
+          Make Receipt
+        </Button>
+        <Button
+          variant="blue"
+          className="whitespace-nowrap"
+          onClick={() => handleOpenExpenseForm(null)}
+        >
+          Make Expense
+        </Button>
       </div>
-      <div className="grid grid-cols-7 gap-4 py-4">
-        <div className="col-span-1 col-start-4 text-right">
-          Beginning Fund <br />{" "}
-          <span className="font-bold">{formatPrice(beginningFund)}</span>
-        </div>
-        <div className="col-span-1 col-start-5 text-right">
-          Total Receipt <br />{" "}
-          <span className="font-bold text-[#005ac3]">
-            {formatPrice(totalExpense)}
-          </span>
-        </div>
-        <div className="col-span-1 col-start-6 text-right">
-          Total Expense <br />{" "}
-          <span className="font-bold text-[#be1c26]">
-            - {formatPrice(totalReceipt)}
-          </span>
-        </div>
-        <div className="col-span-1 col-start-7 text-right">
-          Remaining Fund <br />{" "}
-          <span className="font-bold text-[green]">
-            {formatPrice(beginningFund - (totalExpense - totalReceipt))}
-          </span>
-        </div>
-      </div>
-      <DataTableContent columns={columns} table={table} />
+      <CustomDatatable
+        data={data}
+        columns={fundledgerTableColumns()}
+        columnTitles={fundledgerColumnTitles}
+        infoTabs={[
+          {
+            render(row, setShowTabs) {
+              return (
+                <DetailFundledgerTab
+                  row={row}
+                  setShowTabs={setShowTabs}
+                  onOpenExpenseForm={handleOpenExpenseForm}
+                  onOpenReceiptForm={handleOpenReceiptForm}
+                />
+              );
+            },
+            tabName: "Infomation",
+          },
+        ]}
+        config={{
+          defaultVisibilityState: fundledgerDefaultVisibilityState,
+          onExportExcelBtnClick: handleExportExcel,
+          onImportExcelBtnClick: () => setOpenImportDialog(true),
+        }}
+      />
+      <ImportDailog
+        open={openImportDialog}
+        setOpen={setOpenImportDialog}
+        onImport={handleImportFile}
+      />
+      <MakeExpenseDialog
+        data={selectedForm}
+        open={openExpense}
+        setOpen={setOpenExpense}
+        submit={onSubmit}
+      />
+      <MakeReceiptDialog
+        data={selectedForm}
+        open={openReceipt}
+        setOpen={setOpenReceipt}
+        submit={onSubmit}
+      />
     </div>
   );
 }
+
+const DetailFundledgerTab = ({
+  row,
+  setShowTabs,
+  onOpenExpenseForm,
+  onOpenReceiptForm,
+}: {
+  row: Row<Transaction>;
+  setShowTabs: (value: boolean) => any;
+  onOpenExpenseForm?: (transaction: Transaction) => any;
+  onOpenReceiptForm?: (transaction: Transaction) => any;
+}) => {
+  const transaction = row.original;
+  //find the target of transaction
+  const strangerList = useAppSelector(
+    (state) => state.transactionStranger.value,
+  );
+  const staffList = useAppSelector((state) => state.staffs.value);
+  let target: {
+    phonenumber: string;
+    address: string;
+  } = { phonenumber: "", address: "" };
+  if (transaction.targetType === TargetType.STAFF) {
+    const staff = staffList.find((staff) => staff.id === transaction.targetId);
+    if (staff)
+      target = {
+        phonenumber: staff.phoneNumber,
+        address: staff.address,
+      };
+  } else if (transaction.targetType === TargetType.OTHER) {
+    const stranger = strangerList.find(
+      (stranger) => stranger.id === transaction.targetId,
+    );
+    if (stranger)
+      target = {
+        phonenumber: stranger.phoneNumber,
+        address: stranger.address,
+      };
+  }
+
+  const [disableDisableButton, setDisableDisableButton] = React.useState(false);
+  const [disableDeleteButton, setDisableDeleteButton] = React.useState(false);
+  const dispatch = useAppDispatch();
+  const { toast } = useToast();
+
+  return (
+    <div className="flex h-[300px] flex-col gap-4 px-4 py-2">
+      <div className="flex flex-row">
+        <div className="flex shrink-[5] grow-[5] flex-row gap-2 text-[0.8rem]">
+          <div className="flex flex-1 flex-col">
+            <RowInfo label="Form ID:" value={transaction.id} />
+            <RowInfo
+              label="Time:"
+              value={formatDate(transaction.time, "datetime")}
+            />
+            <RowInfo label="Value:" value={formatPrice(transaction.value)} />
+            <RowInfo
+              label={
+                transaction.formType === FormType.RECEIPT
+                  ? "Receiver:"
+                  : "Payer:"
+              }
+              value={transaction.targetName}
+            />
+            <RowInfo label="Phone number:" value={target.phonenumber} />
+            <RowInfo label="Address:" value={target.address} />
+          </div>
+          <div className="flex flex-1 flex-col">
+            <RowInfo label="Description:" value={transaction.description} />
+            <RowInfo label="Status:" value={transaction.status} />
+            <RowInfo label="Creator:" value={transaction.creator} />
+            <RowInfo
+              label={
+                transaction.formType === FormType.RECEIPT
+                  ? "Receiver type:"
+                  : "Expense type:"
+              }
+              value={transaction.targetType}
+            />
+            <RowInfo
+              label="Note:"
+              value={transaction.note}
+              showTextArea={true}
+            />
+          </div>
+        </div>
+      </div>
+      <div className="flex flex-row items-center gap-2">
+        <div className="flex-1" />
+        <Button
+          variant={"green"}
+          onClick={(e) => {
+            if (onOpenExpenseForm) onOpenExpenseForm(transaction);
+          }}
+        >
+          <FolderOpen size={16} className="mr-2" />
+          Open form
+        </Button>
+        {/* <Button
+          variant={"red"}
+          onClick={() => {
+            setContentConfirmDialog({
+              title: "Remove staff",
+              content: `All data of this staff will be removed. Are you sure you want to remove staff named '${staff.name}' ?`,
+              type: "warning",
+            });
+            setOpenConfirmDialog(true);
+          }}
+        >
+          <Trash size={16} className="mr-2" />
+          Remove
+          {isRemoving && <LoadingCircle></LoadingCircle>}
+        </Button> */}
+      </div>
+    </div>
+  );
+};
+
+const RowInfo = ({
+  label,
+  value,
+  showTextArea = false,
+}: {
+  label: string;
+  value: string;
+  showTextArea?: boolean;
+}) => {
+  return (
+    <div
+      className={cn(
+        "mb-2 font-medium",
+        showTextArea ? "" : "flex flex-row border-b",
+      )}
+    >
+      <p className="w-[100px] font-normal">{label}</p>
+      {showTextArea ? (
+        <textarea
+          readOnly
+          disabled
+          className={cn("h-[80px] w-full resize-none border-2 p-1")}
+          defaultValue={value}
+        ></textarea>
+      ) : (
+        <p>{value}</p>
+      )}
+    </div>
+  );
+};

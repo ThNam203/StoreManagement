@@ -25,7 +25,13 @@ import {
 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 import { Button } from "./button";
-import React, { StrictMode, useCallback, useEffect, useState } from "react";
+import React, {
+  StrictMode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { Input } from "./input";
 import { ScrollArea } from "./scroll-area";
 import format from "date-fns/format";
@@ -738,6 +744,9 @@ const RangeFilter = ({
   className?: string;
   onValuesChanged?: (range: { startValue: number; endValue: number }) => void;
 }) => {
+  const [showReset, setShowReset] = useState(false);
+  const startValueRef = useRef<HTMLInputElement>(null);
+  const endValueRef = useRef<HTMLInputElement>(null);
   return (
     <Accordion
       type="single"
@@ -754,14 +763,15 @@ const RangeFilter = ({
           </div>
         </AccordionTrigger>
         <AccordionContent className="overflow-hidden">
-          <div className="relative mb-4 flex flex-col space-y-2">
+          <div className="relative flex flex-col space-y-2">
             <div className="flex flex-row items-center justify-between space-x-2">
               <Label className="w-[50px]">{firstLabel}</Label>
               <Input
-                type="number"
+                ref={startValueRef}
                 className="w-full focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0"
                 placeholder={firstPlaceholder}
                 onChange={(e) => {
+                  setShowReset(true);
                   if (onValuesChanged)
                     onValuesChanged({
                       startValue: formatNumberInput(e),
@@ -773,10 +783,11 @@ const RangeFilter = ({
             <div className="flex flex-row items-center justify-between space-x-2">
               <Label className="w-[50px]">{secondLabel}</Label>
               <Input
-                type="number"
+                ref={endValueRef}
                 className="w-full focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0"
                 placeholder={secondPlaceholder}
                 onChange={(e) => {
+                  setShowReset(true);
                   if (onValuesChanged)
                     onValuesChanged({
                       startValue: range.startValue,
@@ -785,6 +796,21 @@ const RangeFilter = ({
                 }}
               />
             </div>
+            <p
+              className={cn(
+                "w-full cursor-pointer text-center text-sm text-blue-400 underline-offset-1 hover:underline",
+                showReset ? "" : "hidden",
+              )}
+              onClick={() => {
+                if (startValueRef.current) startValueRef.current.value = "";
+                if (endValueRef.current) endValueRef.current.value = "";
+                if (onValuesChanged)
+                  onValuesChanged({ startValue: NaN, endValue: NaN });
+                setShowReset(false);
+              }}
+            >
+              Reset
+            </p>
           </div>
         </AccordionContent>
       </AccordionItem>
@@ -812,9 +838,6 @@ const PageWithFilters = ({
 
     const mql = window.matchMedia("(min-width: 768px)");
     mql.addEventListener("change", screenObserver);
-
-    console.log("render");
-
     return () => {
       mql.removeEventListener("change", screenObserver);
     };

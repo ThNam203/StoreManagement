@@ -36,3 +36,10 @@ export type BonusAndPunish = {
   value: number;
   times: number;
 };
+
+export type ViolationAndReward = {
+  id: any;
+  name: string;
+  defaultValue: number;
+  type: string; // "Bonus" or "Punish"
+};

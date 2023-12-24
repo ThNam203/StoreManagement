@@ -25,35 +25,51 @@ import {
 import { useEffect, useState } from "react";
 import { DataTable } from "./datatable";
 import { setPositions } from "@/reducers/staffPositionReducer";
+import TransactionService from "@/services/transaction_service";
+import { convertExpenseFormReceived } from "@/utils/transactionApiUtils";
+import {
+  addTransactions,
+  setTransactions,
+} from "@/reducers/transactionReducer";
+import ShiftService from "@/services/shift_service";
+import { convertShiftReceived } from "@/utils/shiftApiUtils";
+import { setShifts } from "@/reducers/shiftReducer";
 
 export default function StaffInfoPage() {
   const dispatch = useAppDispatch();
   const { toast } = useToast();
-  const fetchStaffList = async () => {
-    dispatch(showPreloader());
-    try {
-      const res = await StaffService.getAllStaffs();
-      const staffReceived = res.data.map((staff) =>
-        convertStaffReceived(staff),
-      );
-      dispatch(setStaffs(staffReceived));
-    } catch (e) {
-      axiosUIErrorHandler(e, toast);
-    } finally {
-      dispatch(disablePreloader());
-    }
-  };
-  const fetchStaffPositionList = async () => {
-    try {
-      const res = await StaffService.getAllPositions();
-      dispatch(setPositions(res.data));
-    } catch (e) {
-      axiosUIErrorHandler(e, toast);
-    }
-  };
+
   useEffect(() => {
-    fetchStaffPositionList();
-    fetchStaffList();
+    const fetchData = async () => {
+      dispatch(showPreloader());
+      try {
+        const resPosition = await StaffService.getAllPositions();
+        dispatch(setPositions(resPosition.data));
+
+        const resStaff = await StaffService.getAllStaffs();
+        const staffReceived = resStaff.data
+          .map((staff) => convertStaffReceived(staff))
+          .filter((staff) => staff.role !== "OWNER");
+        dispatch(setStaffs(staffReceived));
+
+        const resExpenseForm = await TransactionService.getAllExpenseForms();
+        const expenseFormReceived = resExpenseForm.data.map((form) =>
+          convertExpenseFormReceived(form),
+        );
+        dispatch(setTransactions(expenseFormReceived));
+
+        const resShift = await ShiftService.getShiftsThisMonth();
+        const shiftReceived = resShift.data.map((shift) =>
+          convertShiftReceived(shift),
+        );
+        dispatch(setShifts(shiftReceived));
+      } catch (e) {
+        axiosUIErrorHandler(e, toast);
+      } finally {
+        dispatch(disablePreloader());
+      }
+    };
+    fetchData();
   }, []);
 
   const staffList = useAppSelector((state) => state.staffs.value);
@@ -64,8 +80,8 @@ export default function StaffInfoPage() {
   });
   const [rangeNumFilter, setRangeNumFilter] = useState({
     salaryDebt: {
-      startValue: 0,
-      endValue: 0,
+      startValue: NaN,
+      endValue: NaN,
     },
   });
 

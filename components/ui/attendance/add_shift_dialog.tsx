@@ -26,10 +26,7 @@ import { Info, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import {
-  ConfirmDialogType,
-  MyConfirmDialog,
-} from "../../../../../components/ui/my_confirm_dialog";
+import { ConfirmDialogType, MyConfirmDialog } from "../my_confirm_dialog";
 import { useToast } from "@/components/ui/use-toast";
 
 const formSchema = z.object({

@@ -18,6 +18,10 @@ import supplierGroupsReducer from "./reducers/supplierGroupsReducer";
 import suppliersReducer from "./reducers/suppliersReducer";
 import purchaseOrdersReducer from "./reducers/purchaseOrdersReducer";
 import profileReducer from "./reducers/profileReducer";
+import transactionStrangerReducer from "./reducers/transactionStrangerReducer";
+import transactionReducer from "./reducers/transactionReducer";
+import shiftViolationReducer from "./reducers/shiftViolationReducer";
+import shiftRewardReducer from "./reducers/shiftRewardReducer";
 
 const store = configureStore({
   reducer: {
@@ -40,6 +44,10 @@ const store = configureStore({
     supplierGroups: supplierGroupsReducer,
     purchaseOrders: purchaseOrdersReducer,
     profile: profileReducer,
+    transactionStranger: transactionStrangerReducer,
+    transactions: transactionReducer,
+    violations: shiftViolationReducer,
+    rewards: shiftRewardReducer,
   },
 });
 

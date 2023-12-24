@@ -469,7 +469,7 @@ const SideBar = ({
               title="Purchase Orders"
               className="!w-full"
               isCollapsed={isCollapsed}
-              href="/transaction/import-form"
+              href="/purchase-order"
             />,
             <SideBarButton
               key={4}

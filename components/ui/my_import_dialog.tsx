@@ -34,7 +34,11 @@ export function ImportDailog({
   askAndAns = templateAskAndAns,
   onImport,
   onChange,
+  open,
+  setOpen,
 }: {
+  open: boolean;
+  setOpen: (open: boolean) => void;
   askAndAns?: Array<{ question: string; options: Array<string> }>;
   onImport?: (data: any[]) => any;
   onChange?: (ans: Array<{ question: string; ans: string }>) => void;
@@ -69,13 +73,7 @@ export function ImportDailog({
   };
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant={"green"}>
-          <FileUp className="mr-2 h-4 w-4" />
-          Import
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="w-auto sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>Import from excel file</DialogTitle>
