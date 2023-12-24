@@ -21,8 +21,8 @@ public class ViolationAndRewardServiceImpl implements ViolationAndRewardService 
 
     @Override
     public List<ViolationAndRewardDTO> getAllViolationAndRewards() {
-        List<ViolationAndRewardDTO> violationAndRewardDTOS = violationAndRewardRepository.findAll().stream().map(violationAndReward -> modelMapper.map(violationAndReward, ViolationAndRewardDTO.class)).toList();
-        return violationAndRewardDTOS;
+        Staff staff = staffService.getAuthorizedStaff();
+        return violationAndRewardRepository.findByStoreId(staff.getStore().getId()).stream().map(violationAndReward -> modelMapper.map(violationAndReward, ViolationAndRewardDTO.class)).toList();
     }
 
     @Override
