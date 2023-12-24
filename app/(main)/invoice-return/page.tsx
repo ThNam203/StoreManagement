@@ -17,12 +17,12 @@ import { Invoice, InvoicePaymentMethod } from "@/entities/Invoice";
 import { faker } from "@faker-js/faker";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import InvoiceService from "@/services/invoice_service";
+import InvoiceService from "@/services/invoiceService";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
 import { useToast } from "@/components/ui/use-toast";
 import createInvoicePdf from "./createInvoicePdf";
 import LoadingCircle from "@/components/ui/loading_circle";
-import DiscountService from "@/services/discount_service";
+import DiscountService from "@/services/discountService";
 import { setInvoices } from "@/reducers/invoicesReducer";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -32,13 +32,13 @@ import {
   ReturnInvoiceServer,
 } from "@/entities/ReturnInvoice";
 import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
-import ProductService from "@/services/product_service";
+import ProductService from "@/services/productService";
 import { setProducts } from "@/reducers/productsReducer";
-import CustomerService from "@/services/customer_service";
+import CustomerService from "@/services/customerService";
 import { setCustomers } from "@/reducers/customersReducer";
 import { setDiscounts } from "@/reducers/discountsReducer";
 import { setReturnInvoices } from "@/reducers/returnInvoicesReducer";
-import ReturnInvoiceService from "@/services/return_invoice_service";
+import ReturnInvoiceService from "@/services/returnInvoiceService";
 import { formatNumberInput } from "@/utils";
 
 export default function InvoiceReturnPage() {
@@ -171,7 +171,7 @@ export default function InvoiceReturnPage() {
     setIsCompletingReturn(true);
     await ReturnInvoiceService.uploadReturnInvoice(submitInvoice)
       .then((response) => {
-        createInvoicePdf(returnInvoice!, products)
+        createInvoicePdf(returnInvoice!, products);
         router.back();
       })
       .catch((e) => {
@@ -306,8 +306,7 @@ export default function InvoiceReturnPage() {
             <p>
               Total cost:{" "}
               <span className="font-semibold">
-                {returnInvoice.subTotal}{" "}
-                VNĐ
+                {returnInvoice.subTotal} VNĐ
               </span>
             </p>
           </div>

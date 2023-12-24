@@ -26,7 +26,7 @@ import {
   AlertDialogTrigger,
 } from "../ui/alert-dialog";
 import { useEffect, useState } from "react";
-import CustomerService from "@/services/customer_service";
+import CustomerService from "@/services/customerService";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { addCustomer, updateCustomer } from "@/reducers/customersReducer";
 import { axiosUIErrorHandler } from "@/services/axios_utils";

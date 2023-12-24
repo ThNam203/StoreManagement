@@ -26,7 +26,7 @@ import {
   AlertDialogTrigger,
 } from "../ui/alert-dialog";
 import { useEffect, useState } from "react";
-import CustomerService from "@/services/customer_service";
+import CustomerService from "@/services/customerService";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { addCustomer } from "@/reducers/customersReducer";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
@@ -79,7 +79,10 @@ export default function NewCustomerDialog({
   const onSubmit = (values: z.infer<typeof newCustomerFormSchema>) => {
     const formData = new FormData();
     if (file) formData.append("file", file);
-    formData.append("data", new Blob([JSON.stringify(values)], { type: "application/json" }));
+    formData.append(
+      "data",
+      new Blob([JSON.stringify(values)], { type: "application/json" }),
+    );
     setIsCreatingNewCustomer(true);
     CustomerService.uploadCustomer(formData)
       .then((result) => {
@@ -94,26 +97,28 @@ export default function NewCustomerDialog({
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger className={triggerClassname} asChild>{DialogTrigger}</AlertDialogTrigger>
+      <AlertDialogTrigger className={triggerClassname} asChild>
+        {DialogTrigger}
+      </AlertDialogTrigger>
       <AlertDialogContent
-        className="max-w-[960px] !w-[500px] md:!w-[600px]"
+        className="!w-[500px] max-w-[960px] md:!w-[600px]"
         asChild
       >
         <div
           className={cn(
-            "rounded-md max-h-[95%] w-full flex flex-col p-4 bg-white overflow-y-auto",
-            scrollbar_style.scrollbar
+            "flex max-h-[95%] w-full flex-col overflow-y-auto rounded-md bg-white p-4",
+            scrollbar_style.scrollbar,
           )}
         >
-          <div className="flex flex-row items-center justify-between mb-2">
-            <h3 className="font-semibold text-base">Add new customer</h3>
+          <div className="mb-2 flex flex-row items-center justify-between">
+            <h3 className="text-base font-semibold">Add new customer</h3>
             <X
               size={24}
-              className="hover:cursor-pointer rounded-full hover:bg-slate-200 p-1"
+              className="rounded-full p-1 hover:cursor-pointer hover:bg-slate-200"
               onClick={() => setOpen(false)}
             />
           </div>
-          <div className="flex flex-col md:flex-row gap-8">
+          <div className="flex flex-col gap-8 md:flex-row">
             <FormImage onImageChosen={onFileChanged} />
             <div className="flex-1">
               <FormContent
@@ -143,13 +148,13 @@ const FormImage = ({
   }, []);
 
   return (
-    <div className="flex flex-row gap-4 md:flex-col items-center">
+    <div className="flex flex-row items-center gap-4 md:flex-col">
       <div className="relative">
-        <div className="min-w-[100px] max-w-[100px] !h-[100px] rounded-full flex items-center justify-center overflow-hidden bg-slate-200">
+        <div className="flex !h-[100px] min-w-[100px] max-w-[100px] items-center justify-center overflow-hidden rounded-full bg-slate-200">
           <img
             className={cn(
               "object-contain",
-              file ? "w-full h-full" : "h-10 w-10"
+              file ? "h-full w-full" : "h-10 w-10",
             )}
             src={file ? URL.createObjectURL(file) : "/ic_user.png"}
           />
@@ -169,7 +174,7 @@ const FormImage = ({
       <div className="w-full">
         <Label
           htmlFor="customer_img_input"
-          className="w-full max-w-[150px] flex items-center justify-center rounded-md text-center hover:cursor-pointer bg-transparent hover:bg-[#00b43e] border border-[#00b43e] h-[35px] text-black hover:text-white font-semibold text-[0.8rem]"
+          className="flex h-[35px] w-full max-w-[150px] items-center justify-center rounded-md border border-[#00b43e] bg-transparent text-center text-[0.8rem] font-semibold text-black hover:cursor-pointer hover:bg-[#00b43e] hover:text-white"
         >
           Choose Image
         </Label>
@@ -203,7 +208,7 @@ const FormContent = ({
   isCreatingNewCustomer: boolean;
 }) => {
   const { toast } = useToast();
-  const customerGroups = useAppSelector((state) => state.customerGroups.value)
+  const customerGroups = useAppSelector((state) => state.customerGroups.value);
   const form = useForm<z.infer<typeof newCustomerFormSchema>>({
     resolver: zodResolver(newCustomerFormSchema),
     defaultValues: {
@@ -224,11 +229,11 @@ const FormContent = ({
   const addNewCustomerGroup = async (groupName: string) => {
     try {
       const data = await CustomerService.uploadCustomerGroup(groupName);
-      dispatch(addCustomerGroup(data.data))
+      dispatch(addCustomerGroup(data.data));
       return Promise.resolve();
     } catch (e) {
       axiosUIErrorHandler(e, toast);
-      return Promise.reject(e)
+      return Promise.reject(e);
     }
   };
 
@@ -244,15 +249,15 @@ const FormContent = ({
           control={form.control}
           name="name"
           render={({ field }) => (
-            <FormItem className="flex flex-row mb-2">
-              <FormLabel className="flex flex-col w-[150px] text-black justify-center">
+            <FormItem className="mb-2 flex flex-row">
+              <FormLabel className="flex w-[150px] flex-col justify-center text-black">
                 <div className="flex flex-row items-center gap-2">
                   <h5 className="text-sm">Customer name</h5>
                 </div>
                 <FormMessage className="mr-2 text-xs" />
               </FormLabel>
               <FormControl>
-                <Input className="flex-1 !m-0" {...field} />
+                <Input className="!m-0 flex-1" {...field} />
               </FormControl>
             </FormItem>
           )}
@@ -261,15 +266,15 @@ const FormContent = ({
           control={form.control}
           name="email"
           render={({ field }) => (
-            <FormItem className="flex flex-row mb-2">
-              <FormLabel className="flex flex-col w-[150px] text-black justify-center">
+            <FormItem className="mb-2 flex flex-row">
+              <FormLabel className="flex w-[150px] flex-col justify-center text-black">
                 <div className="flex flex-row items-center gap-2">
                   <h5 className="text-sm">Email</h5>
                 </div>
                 <FormMessage className="mr-2 text-xs" />
               </FormLabel>
               <FormControl>
-                <Input className="flex-1 !m-0" {...field} />
+                <Input className="!m-0 flex-1" {...field} />
               </FormControl>
             </FormItem>
           )}
@@ -278,15 +283,15 @@ const FormContent = ({
           control={form.control}
           name="phoneNumber"
           render={({ field }) => (
-            <FormItem className="flex flex-row mb-2">
-              <FormLabel className="flex flex-col w-[150px] text-black justify-center">
+            <FormItem className="mb-2 flex flex-row">
+              <FormLabel className="flex w-[150px] flex-col justify-center text-black">
                 <div className="flex flex-row items-center gap-2">
                   <h5 className="text-sm">Phone number</h5>
                 </div>
                 <FormMessage className="mr-2 text-xs" />
               </FormLabel>
               <FormControl>
-                <Input className="flex-1 !m-0" {...field} />
+                <Input className="!m-0 flex-1" {...field} />
               </FormControl>
             </FormItem>
           )}
@@ -295,15 +300,15 @@ const FormContent = ({
           control={form.control}
           name="address"
           render={({ field }) => (
-            <FormItem className="flex flex-row mb-2">
-              <FormLabel className="flex flex-col w-[150px] text-black justify-center">
+            <FormItem className="mb-2 flex flex-row">
+              <FormLabel className="flex w-[150px] flex-col justify-center text-black">
                 <div className="flex flex-row items-center gap-2">
                   <h5 className="text-sm">Address</h5>
                 </div>
                 <FormMessage className="mr-2 text-xs" />
               </FormLabel>
               <FormControl>
-                <Input className="flex-1 !m-0" {...field} />
+                <Input className="!m-0 flex-1" {...field} />
               </FormControl>
             </FormItem>
           )}
@@ -312,26 +317,24 @@ const FormContent = ({
           control={form.control}
           name="customerGroup"
           render={({ field }) => (
-            <FormItem className="flex flex-row mb-2">
-              <FormLabel className="flex flex-col w-[150px] text-black justify-center">
+            <FormItem className="mb-2 flex flex-row">
+              <FormLabel className="flex w-[150px] flex-col justify-center text-black">
                 <div className="flex flex-row items-center gap-2">
                   <h5 className="text-sm">Customer group</h5>
                 </div>
                 <FormMessage className="mr-2 text-xs" />
               </FormLabel>
               <FormControl>
-                <div className="flex flex-row flex-1 min-h-[40px] border border-input rounded-md !m-0 items-center">
-                  <div className="w-full h-full flex-1">
+                <div className="!m-0 flex min-h-[40px] flex-1 flex-row items-center rounded-md border border-input">
+                  <div className="h-full w-full flex-1">
                     <SearchAndChooseButton
                       value={field.value}
                       placeholder="---Choose group---"
                       searchPlaceholder="Search group..."
                       onValueChanged={(val) => {
-                        form.setValue(
-                          "customerGroup",
-                          val,
-                          { shouldValidate: true }
-                        );
+                        form.setValue("customerGroup", val, {
+                          shouldValidate: true,
+                        });
                       }}
                       choices={customerGroups.map((v) => v.name)}
                     />
@@ -352,8 +355,8 @@ const FormContent = ({
           control={form.control}
           name="birthday"
           render={({ field }) => (
-            <FormItem className="flex flex-row mb-2">
-              <FormLabel className="flex flex-col min-w-[150px] max-w-[150px] text-black justify-center">
+            <FormItem className="mb-2 flex flex-row">
+              <FormLabel className="flex min-w-[150px] max-w-[150px] flex-col justify-center text-black">
                 <div className="flex flex-row items-center gap-2">
                   <h5 className="text-sm">Birthday</h5>
                 </div>
@@ -369,8 +372,8 @@ const FormContent = ({
           control={form.control}
           name="sex"
           render={({ field }) => (
-            <FormItem className="flex flex-row mb-3">
-              <FormLabel className="flex flex-col w-[150px] text-black justify-center">
+            <FormItem className="mb-3 flex flex-row">
+              <FormLabel className="flex w-[150px] flex-col justify-center text-black">
                 <div className="flex flex-row items-center gap-2">
                   <h5 className="text-sm">Sex</h5>
                 </div>
@@ -399,19 +402,19 @@ const FormContent = ({
             </FormItem>
           )}
         />
-        <div className="border rounded-sm mb-4">
+        <div className="mb-4 rounded-sm border">
           <FormField
             control={form.control}
             name="description"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel className="text-black justify-center text-sm bg-gray-200 p-3">
+                <FormLabel className="justify-center bg-gray-200 p-3 text-sm text-black">
                   <h5 className="text-sm">Description</h5>
                   <FormMessage className="mr-2 text-xs" />
                 </FormLabel>
                 <FormControl className="border-none">
                   <Textarea
-                    className="flex-1 resize-none p-2 !mt-0 min-h-[100px] !rounded-none focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0"
+                    className="!mt-0 min-h-[100px] flex-1 resize-none !rounded-none p-2 focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0"
                     onKeyDown={(e) => e.stopPropagation()}
                     {...field}
                   />
@@ -425,18 +428,18 @@ const FormContent = ({
           <Button
             variant={"green"}
             type="submit"
-            className="px-4 min-w-[150px] uppercase"
+            className="min-w-[150px] px-4 uppercase"
             disabled={isCreatingNewCustomer}
           >
             Save
             <LoadingCircle
-              className={"!w-4 ml-4 " + (isCreatingNewCustomer ? "" : "hidden")}
+              className={"ml-4 !w-4 " + (isCreatingNewCustomer ? "" : "hidden")}
             />
           </Button>
           <Button
             variant={"green"}
             type="button"
-            className="px-4 min-w-[150px] bg-gray-400 hover:bg-gray-500 uppercase"
+            className="min-w-[150px] bg-gray-400 px-4 uppercase hover:bg-gray-500"
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();

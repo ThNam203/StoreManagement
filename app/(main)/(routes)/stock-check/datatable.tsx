@@ -135,7 +135,6 @@ const DetailTab = ({
         columnTitles={stockCheckDetailTitles}
         columns={stockCheckDetailColumns()}
         config={{
-          showExportButton: false,
           showDataTableViewOptions: false,
           showDefaultSearchInput: false,
           className: "py-0",

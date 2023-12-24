@@ -61,7 +61,7 @@ import {
 } from "@/components/ui/sheet";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import InvoiceService from "@/services/invoice_service";
+import InvoiceService from "@/services/invoiceService";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
 import { useToast } from "@/components/ui/use-toast";
 import createInvoicePdf from "./createInvoicePdf";
@@ -83,14 +83,14 @@ import SearchView from "@/components/component/SearchView";
 import PropertiesString from "@/components/ui/properties_string_view";
 import { Customer } from "@/entities/Customer";
 import { decode } from "punycode";
-import DiscountService from "@/services/discount_service";
+import DiscountService from "@/services/discountService";
 import { Discount, DiscountCode } from "@/entities/Discount";
 import { format, isAfter, isBefore } from "date-fns";
 import { addInvoice } from "@/reducers/invoicesReducer";
 import * as invoiceReducer from "@/reducers/invoicesReducer";
 import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
-import ProductService from "@/services/product_service";
-import CustomerService from "@/services/customer_service";
+import ProductService from "@/services/productService";
+import CustomerService from "@/services/customerService";
 import { setProducts } from "@/reducers/productsReducer";
 import { setCustomers } from "@/reducers/customersReducer";
 import { setDiscounts } from "@/reducers/discountsReducer";
@@ -153,7 +153,7 @@ const CustomerSearchItemView: (customer: Customer) => React.ReactNode = (
     <div className="m-1 flex flex-row items-center gap-2 rounded-sm p-1 hover:cursor-pointer hover:bg-blue-200">
       <img
         className="h-10 w-10 border object-contain object-center"
-        src={customer.image.url ?? "/ic_user.png"}
+        src={customer.image?.url ?? "/ic_user.png"}
       />
       <div className="flex flex-1 flex-col text-sm">
         <p>Name: {customer.name}</p>

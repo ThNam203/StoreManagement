@@ -1,5 +1,5 @@
 import { PurchaseOrder } from "@/entities/PurchaseOrder";
-import AxiosService from "./axios_service";
+import AxiosService from "./axiosService";
 import { Axios } from "axios";
 
 const getAllPurchaseOrders = async () => {
@@ -10,18 +10,13 @@ const uploadPurchaseOrder = (data: any) => {
   return AxiosService.post<PurchaseOrder>("/api/purchase-orders", data);
 };
 
-const updatePurchaseOrder = (data: PurchaseOrder) => {
-  return AxiosService.put<PurchaseOrder>(`/api/stock-checks/${data.id}`, data);
-};
-
 const deletePurchaseOrder = (purchaseOrderId: number) => {
-  return AxiosService.delete(`/api/stock-checks/${purchaseOrderId}`);
+  return AxiosService.delete(`/api/purchase-orders/${purchaseOrderId}`);
 };
 
 const PurchaseOrderService = {
   getAllPurchaseOrders,
   uploadPurchaseOrder,
-  updatePurchaseOrder,
   deletePurchaseOrder,
 };
 

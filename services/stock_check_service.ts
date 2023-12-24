@@ -3,7 +3,7 @@ import {
   StockCheckDetail,
   StockCheckResponse,
 } from "@/entities/StockCheck";
-import AxiosService from "./axios_service";
+import AxiosService from "./axiosService";
 
 const transformStockCheckResponse = (
   rawStockCheck: StockCheckResponse,
@@ -55,7 +55,10 @@ const uploadNewStockCheck = async (data: {
   note: string;
 }) => {
   try {
-    const result = await AxiosService.post<StockCheckResponse>("/api/stock-checks", data);
+    const result = await AxiosService.post<StockCheckResponse>(
+      "/api/stock-checks",
+      data,
+    );
     return Promise.resolve(transformStockCheckResponse(result.data));
   } catch (e) {
     return Promise.reject(e);

@@ -1,11 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 import scrollbar_style from "@/styles/scrollbar.module.css";
-import {
-  Table as ReactTable,
-  flexRender,
-  Row,
-} from "@tanstack/react-table";
+import { Table as ReactTable, flexRender, Row } from "@tanstack/react-table";
 import { Product } from "@/entities/Product";
 import {
   customerColumnTitles,
@@ -21,10 +17,10 @@ import LoadingCircle from "@/components/ui/loading_circle";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
 import { useToast } from "@/components/ui/use-toast";
 import { CustomDatatable } from "@/components/component/custom_datatable";
-import InvoiceService from "@/services/invoice_service";
+import InvoiceService from "@/services/invoiceService";
 import { deleteInvoice } from "@/reducers/invoicesReducer";
 import { Customer } from "@/entities/Customer";
-import CustomerService from "@/services/customer_service";
+import CustomerService from "@/services/customerService";
 import UpdateCustomerDialog from "@/components/component/update_customer_dialog";
 import { deleteCustomer } from "@/reducers/customersReducer";
 

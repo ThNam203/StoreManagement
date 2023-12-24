@@ -1,5 +1,5 @@
 import { Position, Staff } from "@/entities/Staff";
-import AxiosService from "./axios_service";
+import AxiosService from "./axiosService";
 
 const getAllStaffs = () => {
   return AxiosService.get<Staff[]>("/api/staffs");

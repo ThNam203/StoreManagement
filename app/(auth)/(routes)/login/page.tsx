@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import AuthService from "@/services/auth_service";
+import AuthService from "@/services/authService";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
@@ -29,9 +29,9 @@ export const loginFormSchema = z.object({
     .max(50)
     .regex(
       new RegExp(
-        /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i
+        /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i,
       ),
-      "Invalid email address"
+      "Invalid email address",
     ),
   password: z
     .string()
@@ -80,14 +80,14 @@ export default function LogIn() {
   }
 
   return (
-    <div className="flex flex-col h-auto p-8 shadow-2xl rounded-md">
+    <div className="flex h-auto flex-col rounded-md p-8 shadow-2xl">
       <h4 className="text-lg font-bold">Log in</h4>
-      <p className="text-gray-500 text-sm mb-6">
+      <p className="mb-6 text-sm text-gray-500">
         to continue to start using website
       </p>
       <Button
         variant={"ghost"}
-        className="border border-solid border-slate-200 group"
+        className="group border border-solid border-slate-200"
       >
         <Image
           width={20}
@@ -99,12 +99,12 @@ export default function LogIn() {
         <ArrowRightCircle
           width={16}
           height={16}
-          className="text-gray-500 invisible group-hover:visible"
+          className="invisible text-gray-500 group-hover:visible"
         />
       </Button>
-      <div className="flex flex-row m-4 items-center justify-center">
+      <div className="m-4 flex flex-row items-center justify-center">
         <Separator className="flex-1" />
-        <p className="flex-[0.5] text-sm text-gray-500 text-center">or</p>
+        <p className="flex-[0.5] text-center text-sm text-gray-500">or</p>
         <Separator className="flex-1" />
       </div>
       <Form {...form}>
@@ -137,19 +137,19 @@ export default function LogIn() {
           />
           <Button
             type="submit"
-            className="my-4 w-full bg-indigo-400 hover:bg-indigo-600 text-white uppercase text-sm"
+            className="my-4 w-full bg-indigo-400 text-sm uppercase text-white hover:bg-indigo-600"
             disabled={isLoggingIn}
           >
             Log In
             <LoadingCircle
-              className={"!w-4 ml-4 " + (isLoggingIn ? "" : "hidden")}
+              className={"ml-4 !w-4 " + (isLoggingIn ? "" : "hidden")}
             />
           </Button>
         </form>
       </Form>
       <p className="ml-auto mr-6 text-xs">
         No account?{" "}
-        <Link className="text-blue-500 underline font-bold" href={"/register"}>
+        <Link className="font-bold text-blue-500 underline" href={"/register"}>
           Sign up
         </Link>
       </p>

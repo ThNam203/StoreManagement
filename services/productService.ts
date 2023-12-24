@@ -5,7 +5,7 @@ import {
   ProductLocation,
   ProductProperty,
 } from "@/entities/Product";
-import AxiosService from "./axios_service";
+import AxiosService from "./axiosService";
 
 const createNewGroup = (value: string) => {
   return AxiosService.post<ProductGroup>("/api/product-groups", {

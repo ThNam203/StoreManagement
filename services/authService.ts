@@ -1,5 +1,5 @@
 import { loginFormSchema } from "@/app/(auth)/(routes)/login/page";
-import AxiosService from "./axios_service";
+import AxiosService from "./axiosService";
 import { registerFormSchema } from "@/app/(auth)/(routes)/register/page";
 import z from "zod";
 
@@ -11,7 +11,7 @@ const Register = (values: z.infer<typeof registerFormSchema>) => {
       email: values.email,
       password: values.password,
     },
-    { withCredentials: true }
+    { withCredentials: true },
   );
 };
 
@@ -23,7 +23,7 @@ const Login = (values: z.infer<typeof loginFormSchema>) => {
       password: values.password,
     },
     { withCredentials: true },
-  )
+  );
 };
 
 const AuthService = {

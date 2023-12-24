@@ -178,7 +178,7 @@ export default function CustomCombobox<T>({
       </div>
       <div
         className={cn(
-          "absolute left-0 right-0 top-full z-10 mt-2 min-w-[200px] overflow-hidden rounded-sm bg-white shadow-[0px_0px_5px_1px_#A8A8A8] duration-100 ease-linear",
+          "absolute left-0 right-0 top-full z-10 mt-1 min-w-[200px] overflow-hidden rounded-sm bg-white shadow-[0px_0px_5px_1px_#A8A8A8] duration-100 ease-linear",
           showSearch ? "visible" : "hidden",
         )}
       >

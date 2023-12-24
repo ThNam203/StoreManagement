@@ -9,9 +9,9 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 import {
-  NewPurchaseOrderDetail,
-  purchaseOrderDetailColumnTitles,
-  purchaseOrderDetailTableColumns,
+  NewPurchaseReturnDetail,
+  purchaseReturnDetailColumnTitles,
+  purchaseReturnDetailTableColumns,
 } from "./table_columns";
 import StaffService from "@/services/staff_service";
 import { setStaffs } from "@/reducers/staffReducer";
@@ -30,6 +30,7 @@ import ProductService from "@/services/productService";
 import { setProducts } from "@/reducers/productsReducer";
 import PurchaseOrderService from "@/services/purchaseOrderService";
 import LoadingCircle from "@/components/ui/loading_circle";
+import PurchaseReturnService from "@/services/purchaseReturnService";
 
 const ProductSearchItemView: (product: Product) => React.ReactNode = (
   product: Product,
@@ -66,7 +67,7 @@ export default function NewPurchaseOrderPage() {
   const products = useAppSelector((state) => state.products.value);
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const [details, setDetails] = useState<NewPurchaseOrderDetail[]>([]);
+  const [details, setDetails] = useState<NewPurchaseReturnDetail[]>([]);
   const [productSearch, setProductSearch] = useState("");
   const [note, setNote] = useState("");
   const [isCompleting, setIsCompleting] = useState(false);
@@ -107,11 +108,11 @@ export default function NewPurchaseOrderPage() {
         ...prev,
         {
           quantity: 1,
-          price: product.originalPrice,
-          discount: 0,
+          supplyPrice: product.originalPrice,
           productId: product.id,
           productName: product.name,
           unit: product.salesUnits.name,
+          returnPrice: product.originalPrice,
           note: "",
         },
       ]);
@@ -145,7 +146,20 @@ export default function NewPurchaseOrderPage() {
     );
   };
 
-  const deleteRows = async (data: NewPurchaseOrderDetail[]) => {
+  const onDetailReturnPriceChanged = (productId: number, newPrice: number) => {
+    setDetails((prev) =>
+      prev.map((detail) => {
+        return detail.productId === productId
+          ? {
+              ...detail,
+              returnPrice: newPrice,
+            }
+          : detail;
+      }),
+    );
+  };
+
+  const deleteRows = async (data: NewPurchaseReturnDetail[]) => {
     const productIds = data.map((d) => d.productId);
     setDetails((prev) =>
       prev.filter((detail) => productIds.includes(detail.productId)),
@@ -169,26 +183,26 @@ export default function NewPurchaseOrderPage() {
     if (details.length === 0)
       return toast({
         variant: "destructive",
-        description: "Purchase order is empty!",
+        description: "Purchase return is empty!",
       });
 
-    await PurchaseOrderService.uploadPurchaseOrder({
-      purchaseOrderDetail: details.map((v) => ({ ...v })),
+    await PurchaseReturnService.uploadPurchaseReturn({
+      purchaseReturnDetails: details.map((v) => ({ ...v })),
       subtotal: details
-        .map((v) => v.price * v.quantity - v.discount)
+        .map((v) => v.returnPrice * v.quantity)
         .reduce((a, b) => a + b, 0),
       discount: discount,
       total:
         details
-          .map((v) => v.price * v.quantity - v.discount)
+          .map((v) => v.returnPrice * v.quantity)
           .reduce((a, b) => a + b, 0) - discount,
       note: note,
       createdDate: format(createdDate, "yyyy-MM-dd HH:mm:ss"),
-      staffId: staff?.id,
+      staffId: staff.id,
       supplierId: supplier?.id,
     })
       .then((result) => {
-        router.push("/purchase-order");
+        router.push("/purchase-return");
       })
       .catch((e) => axiosUIErrorHandler(e, toast))
       .finally(() => setIsCompleting(false));
@@ -215,15 +229,16 @@ export default function NewPurchaseOrderPage() {
     <div className="flex flex-row gap-2">
       <div className="flex flex-1 flex-col gap-2 bg-white p-4">
         <h2 className="my-4 text-start text-2xl font-bold">
-          New purchase order
+          New purchase return
         </h2>
         <CustomDatatable
           data={details}
-          columns={purchaseOrderDetailTableColumns(
+          columns={purchaseReturnDetailTableColumns(
             onDetailQuantityChanged,
             onDetailNoteChanged,
+            onDetailReturnPriceChanged,
           )}
-          columnTitles={purchaseOrderDetailColumnTitles}
+          columnTitles={purchaseReturnDetailColumnTitles}
           config={{
             alternativeSearchInput: MSearchView,
             onDeleteRowsBtnClick: deleteRows,
@@ -275,7 +290,7 @@ export default function NewPurchaseOrderPage() {
           <p className="text-sm">Sub-Total</p>
           <p>
             {details
-              .map((v) => v.price * v.quantity - v.discount)
+              .map((v) => v.supplyPrice * v.quantity)
               .reduce((a, b) => a + b, 0)}
           </p>
         </div>
@@ -298,7 +313,7 @@ export default function NewPurchaseOrderPage() {
           <p className="text-sm">Total</p>
           <p className="text-xl font-bold">
             {details
-              .map((v) => v.price * v.quantity - v.discount)
+              .map((v) => v.supplyPrice * v.quantity)
               .reduce((a, b) => a + b, 0) - discount}
           </p>
         </div>

@@ -24,7 +24,7 @@ import { DateRangePicker } from "react-date-range";
 import { useState } from "react";
 import DiscountService, {
   UploadDiscountDataType,
-} from "@/services/discount_service";
+} from "@/services/discountService";
 import { addDiscount } from "@/reducers/discountsReducer";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
 import { format } from "date-fns";

@@ -35,6 +35,7 @@ import {
   FileBarChart2,
   Percent,
   PercentCircle,
+  Banknote,
 } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
@@ -84,6 +85,7 @@ enum IconNames {
   FileBarChart2,
   Percent,
   PercentCircle,
+  BankNote
 }
 
 const LucideIcons = (iconName: IconNames, isCollapsed: boolean | null) => {
@@ -163,6 +165,8 @@ const LucideIcons = (iconName: IconNames, isCollapsed: boolean | null) => {
       return <Percent size={iconSize} className={iconClasses} />;
     case IconNames.PercentCircle:
       return <PercentCircle size={iconSize} className={iconClasses} />;
+    case IconNames.BankNote:
+      return <Banknote size={iconSize} className={iconClasses} />;
   }
 };
 
@@ -477,7 +481,7 @@ const SideBar = ({
               title="Purchase Returns"
               className="!w-full"
               isCollapsed={isCollapsed}
-              href="/purchase-returns"
+              href="/purchase-return"
             />,
             <SideBarButton
               key={5}
@@ -489,6 +493,14 @@ const SideBar = ({
             />,
           ]}
           isCollapsed={isCollapsed}
+        />
+
+        <SideBarButton
+          iconName={IconNames.BankNote}
+          title="Fund Ledger"
+          className=""
+          isCollapsed={isCollapsed}
+          href="/fund-ledger"
         />
 
         <SideBarAccordion

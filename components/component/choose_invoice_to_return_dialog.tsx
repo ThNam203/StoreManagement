@@ -67,7 +67,6 @@ export default function ChooseInvoiceToReturnDialog({
           columnTitles={columnTitles}
           config={{
             showDataTableViewOptions: false,
-            showExportButton: false,
           }}
         />
       </div>

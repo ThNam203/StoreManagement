@@ -1,5 +1,5 @@
 import { Customer, CustomerGroup } from "@/entities/Customer";
-import AxiosService from "./axios_service";
+import AxiosService from "./axiosService";
 
 const uploadCustomer = (data: any) => {
   return AxiosService.post<Customer>("/api/customers", data, {
@@ -15,7 +15,10 @@ const uploadCustomerGroup = (groupName: string) => {
 };
 
 const updateCustomer = (customerData: FormData, customerId: number) => {
-  return AxiosService.put<Customer>(`/api/customers/${customerId}`, customerData);
+  return AxiosService.put<Customer>(
+    `/api/customers/${customerId}`,
+    customerData,
+  );
 };
 
 const getAllCustomerGroups = () => {
@@ -36,7 +39,7 @@ const CustomerService = {
   uploadCustomerGroup,
   getAllCustomerGroups,
   deleteCustomer,
-  updateCustomer
+  updateCustomer,
 };
 
 export default CustomerService;

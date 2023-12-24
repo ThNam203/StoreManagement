@@ -9,7 +9,7 @@ import { CatalogDatatable } from "./datatable";
 import { NewProductView } from "@/components/ui/catalog/new_product_form";
 import { Button } from "@/components/ui/button";
 import { ChevronRight, Lock, PenLine, Plus, Trash } from "lucide-react";
-import ProductService from "@/services/product_service";
+import ProductService from "@/services/productService";
 import { useToast } from "@/components/ui/use-toast";
 import { UpdateProductView } from "@/components/ui/catalog/update_product_form";
 import { axiosUIErrorHandler } from "@/services/axios_utils";

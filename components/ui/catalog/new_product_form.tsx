@@ -45,7 +45,7 @@ import {
 } from "@/components/ui/accordion";
 import { useToast } from "@/components/ui/use-toast";
 import { Textarea } from "../textarea";
-import ProductService from "@/services/product_service";
+import ProductService from "@/services/productService";
 import { RadioGroup, RadioGroupItem } from "../radio-group";
 import { Label } from "../label";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
@@ -129,7 +129,7 @@ const newProductFormSchema = z.object({
         id: z.number(),
         key: z.string().min(1, "Missing property name!"),
         values: z.array(z.string()).min(1, "Propety needs at least 1 value"),
-      })
+      }),
     )
     .nullable(),
   units: z.object({
@@ -162,7 +162,7 @@ const newProductFormSchema = z.object({
             .max(Number.MAX_VALUE, {
               message: `Price must be less than ${Number.MAX_VALUE}`,
             }),
-        })
+        }),
       )
       .optional(),
   }),
@@ -200,7 +200,7 @@ const newProductFormSchema = z.object({
         .max(Number.MAX_VALUE, {
           message: `Stock must be less than ${Number.MAX_VALUE}`,
         }),
-    })
+    }),
   ),
 });
 
@@ -225,16 +225,16 @@ export const NewProductView = ({
 }) => {
   const { toast } = useToast();
   const productLocationChoices = useAppSelector(
-    (state) => state.productLocations.value
+    (state) => state.productLocations.value,
   );
   const productGroupChoices = useAppSelector(
-    (state) => state.productGroups.value
+    (state) => state.productGroups.value,
   );
   const productBrandChoices = useAppSelector(
-    (state) => state.productBrands.value
+    (state) => state.productBrands.value,
   );
   const productPropertyChoices = useAppSelector(
-    (state) => state.productProperties.value
+    (state) => state.productProperties.value,
   );
   const [productPropertyInputValues, setProductPropertyInputValues] = useState<
     string[]
@@ -332,7 +332,7 @@ export const NewProductView = ({
 
     if (properties) {
       properties = properties.filter(
-        (pro: any) => pro.key.length > 0 && pro.values.length > 0
+        (pro: any) => pro.key.length > 0 && pro.values.length > 0,
       );
       properties.forEach((pro: any) => {
         if (pro.values.length > 0) propertiesLength *= pro.values.length;
@@ -421,7 +421,7 @@ export const NewProductView = ({
     form.setValue(
       "images",
       chosenImageFiles.map((file) => (file ? URL.createObjectURL(file) : null)),
-      { shouldValidate: true }
+      { shouldValidate: true },
     );
     setChosenImageFiles(chosenImageFiles);
   };
@@ -434,7 +434,7 @@ export const NewProductView = ({
       values: string[];
       key: string;
     }[],
-    index: number
+    index: number,
   ): void {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -469,7 +469,7 @@ export const NewProductView = ({
   function onProductPropertyValueDelete(
     index: number,
     deleteIndex: number,
-    fieldValue: { id: number; values: string[]; key: string }[]
+    fieldValue: { id: number; values: string[]; key: string }[],
   ) {
     fieldValue[index].values.splice(deleteIndex, 1);
 
@@ -534,7 +534,7 @@ export const NewProductView = ({
     const dataForm: any = new FormData();
     dataForm.append(
       "data",
-      new Blob([JSON.stringify(data)], { type: "application/json" })
+      new Blob([JSON.stringify(data)], { type: "application/json" }),
     );
 
     chosenImageFiles
@@ -554,18 +554,18 @@ export const NewProductView = ({
   }
 
   return (
-    <div className="fixed top-0 left-0 w-screen h-screen flex items-center justify-center bg-black bg-opacity-30 z-[10]">
+    <div className="fixed left-0 top-0 z-[10] flex h-screen w-screen items-center justify-center bg-black bg-opacity-30">
       <div
         className={cn(
-          "rounded-md max-h-[95%] w-[95%] max-w-[960px] flex flex-col p-4 bg-white overflow-y-auto",
-          scrollbar_style.scrollbar
+          "flex max-h-[95%] w-[95%] max-w-[960px] flex-col overflow-y-auto rounded-md bg-white p-4",
+          scrollbar_style.scrollbar,
         )}
       >
-        <div className="flex flex-row items-center justify-between mb-4">
-          <h3 className="font-semibold text-base">Add new product</h3>
+        <div className="mb-4 flex flex-row items-center justify-between">
+          <h3 className="text-base font-semibold">Add new product</h3>
           <X
             size={24}
-            className="hover:cursor-pointer rounded-full hover:bg-slate-200 p-1"
+            className="rounded-full p-1 hover:cursor-pointer hover:bg-slate-200"
             onClick={() => onChangeVisibility(false)}
           />
         </div>
@@ -576,14 +576,14 @@ export const NewProductView = ({
               if (e.key === "Enter") e.preventDefault();
             }}
           >
-            <div className="flex flex-col md:flex-row w-full h-full md:gap-4">
+            <div className="flex h-full w-full flex-col md:flex-row md:gap-4">
               <div className="flex-1">
                 <FormField
                   control={form.control}
                   name="barcode"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row mb-2">
-                      <FormLabel className="flex flex-col w-[150px] text-black justify-center">
+                    <FormItem className="mb-2 flex flex-row">
+                      <FormLabel className="flex w-[150px] flex-col justify-center text-black">
                         <div className="flex flex-row items-center gap-2">
                           <h5 className="text-sm">Barcode</h5>
                           <Info size={16} />
@@ -592,7 +592,7 @@ export const NewProductView = ({
                       </FormLabel>
                       <FormControl>
                         <Input
-                          className="flex-1 !m-0"
+                          className="!m-0 flex-1"
                           {...field}
                           onBlur={() =>
                             updateSameTypeProducts(form.getValues())
@@ -606,8 +606,8 @@ export const NewProductView = ({
                   control={form.control}
                   name="name"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row mb-2">
-                      <FormLabel className="flex flex-col w-[150px] text-black justify-center">
+                    <FormItem className="mb-2 flex flex-row">
+                      <FormLabel className="flex w-[150px] flex-col justify-center text-black">
                         <div className="flex flex-row items-center gap-2">
                           <h5 className="text-sm">Product name</h5>
                           <Info size={16} />
@@ -615,7 +615,7 @@ export const NewProductView = ({
                         <FormMessage className="mr-2 text-xs" />
                       </FormLabel>
                       <FormControl>
-                        <Input className="flex-1 !m-0" {...field} />
+                        <Input className="!m-0 flex-1" {...field} />
                       </FormControl>
                     </FormItem>
                   )}
@@ -624,8 +624,8 @@ export const NewProductView = ({
                   control={form.control}
                   name="productGroup"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row mb-2">
-                      <FormLabel className="flex flex-col w-[150px] text-black justify-center">
+                    <FormItem className="mb-2 flex flex-row">
+                      <FormLabel className="flex w-[150px] flex-col justify-center text-black">
                         <div className="flex flex-row items-center gap-2">
                           <h5 className="text-sm">Product group</h5>
                           <Info size={16} />
@@ -633,8 +633,8 @@ export const NewProductView = ({
                         <FormMessage className="mr-2 text-xs" />
                       </FormLabel>
                       <FormControl>
-                        <div className="flex flex-row flex-1 min-h-[40px] border border-input rounded-md !m-0 items-center">
-                          <div className="w-full h-full flex-1">
+                        <div className="!m-0 flex min-h-[40px] flex-1 flex-row items-center rounded-md border border-input">
+                          <div className="h-full w-full flex-1">
                             <SearchAndChooseButton
                               value={field.value}
                               placeholder="---Choose group---"
@@ -643,7 +643,7 @@ export const NewProductView = ({
                                 form.setValue(
                                   "productGroup",
                                   val === null ? "" : val,
-                                  { shouldValidate: true }
+                                  { shouldValidate: true },
                                 );
                               }}
                               choices={productGroupChoices.map((v) => v.name)}
@@ -665,8 +665,8 @@ export const NewProductView = ({
                   control={form.control}
                   name="productBrand"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row mb-2">
-                      <FormLabel className="flex flex-col w-[150px] text-black justify-center">
+                    <FormItem className="mb-2 flex flex-row">
+                      <FormLabel className="flex w-[150px] flex-col justify-center text-black">
                         <div className="flex flex-row items-center gap-2">
                           <h5 className="text-sm">Product brand</h5>
                           <Info size={16} />
@@ -674,8 +674,8 @@ export const NewProductView = ({
                         <FormMessage className="mr-2 text-xs" />
                       </FormLabel>
                       <FormControl>
-                        <div className="flex flex-row flex-1 min-h-[40px] border border-input rounded-md !m-0 items-center">
-                          <div className="w-full h-full flex-1">
+                        <div className="!m-0 flex min-h-[40px] flex-1 flex-row items-center rounded-md border border-input">
+                          <div className="h-full w-full flex-1">
                             <SearchAndChooseButton
                               value={field.value}
                               placeholder="---Choose brand---"
@@ -704,8 +704,8 @@ export const NewProductView = ({
                   control={form.control}
                   name="location"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row mb-2">
-                      <FormLabel className="flex flex-col w-[150px] text-black justify-center">
+                    <FormItem className="mb-2 flex flex-row">
+                      <FormLabel className="flex w-[150px] flex-col justify-center text-black">
                         <div className="flex flex-row items-center gap-2">
                           <h5 className="text-sm">Location</h5>
                           <Info size={16} />
@@ -713,8 +713,8 @@ export const NewProductView = ({
                         <FormMessage className="mr-2 text-xs" />
                       </FormLabel>
                       <FormControl>
-                        <div className="flex flex-row flex-1 min-h-[40px] border border-input rounded-md !m-0 items-center">
-                          <div className="w-full h-full flex-1">
+                        <div className="!m-0 flex min-h-[40px] flex-1 flex-row items-center rounded-md border border-input">
+                          <div className="h-full w-full flex-1">
                             <SearchAndChooseButton
                               value={field.value}
                               placeholder="---Choose location---"
@@ -725,7 +725,7 @@ export const NewProductView = ({
                                 });
                               }}
                               choices={productLocationChoices.map(
-                                (v) => v.name
+                                (v) => v.name,
                               )}
                             />
                           </div>
@@ -745,21 +745,21 @@ export const NewProductView = ({
                   control={form.control}
                   name="weight"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row mb-2">
-                      <FormLabel className="flex flex-col w-[150px] text-black justify-center">
+                    <FormItem className="mb-2 flex flex-row">
+                      <FormLabel className="flex w-[150px] flex-col justify-center text-black">
                         <div className="flex flex-row items-center gap-2">
                           <h5 className="text-sm">Weight</h5>
                           <Info size={16} />
                         </div>
                         <FormMessage className="mr-2 text-xs" />
                       </FormLabel>
-                      <FormControl className="flex flex-row items-center flex-1 !mt-0">
+                      <FormControl className="!mt-0 flex flex-1 flex-row items-center">
                         <div className="focus-visible:outline-none">
                           <Input
                             type="number"
                             min={0}
                             step={0.001}
-                            className="flex-1 !m-0 text-end"
+                            className="!m-0 flex-1 text-end"
                             {...field}
                             onChange={(e) => {
                               form.setValue(
@@ -767,7 +767,7 @@ export const NewProductView = ({
                                 isNaN(e.target.valueAsNumber)
                                   ? 0
                                   : e.target.valueAsNumber,
-                                { shouldValidate: false }
+                                { shouldValidate: false },
                               );
                             }}
                           />
@@ -783,8 +783,8 @@ export const NewProductView = ({
                   control={form.control}
                   name="originalPrice"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row mb-2">
-                      <FormLabel className="flex flex-col w-[150px] text-black justify-center">
+                    <FormItem className="mb-2 flex flex-row">
+                      <FormLabel className="flex w-[150px] flex-col justify-center text-black">
                         <div className="flex flex-row items-center gap-2">
                           <h5 className="text-sm">Original price</h5>
                           <Info size={16} />
@@ -793,14 +793,14 @@ export const NewProductView = ({
                       </FormLabel>
                       <FormControl>
                         <Input
-                          className="flex-1 !m-0 text-end"
+                          className="!m-0 flex-1 text-end"
                           defaultValue={field.value}
                           onChange={(e) => {
                             const number = formatNumberInput(e);
                             form.setValue(
                               "originalPrice",
                               isNaN(number) ? 0 : number,
-                              { shouldValidate: true }
+                              { shouldValidate: true },
                             );
                           }}
                           onBlur={() =>
@@ -815,8 +815,8 @@ export const NewProductView = ({
                   control={form.control}
                   name="productPrice"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row mb-2">
-                      <FormLabel className="flex flex-col w-[150px] text-black justify-center">
+                    <FormItem className="mb-2 flex flex-row">
+                      <FormLabel className="flex w-[150px] flex-col justify-center text-black">
                         <div className="flex flex-row items-center gap-2">
                           <h5 className="text-sm">Product price</h5>
                           <Info size={16} />
@@ -825,14 +825,14 @@ export const NewProductView = ({
                       </FormLabel>
                       <FormControl>
                         <Input
-                          className="flex-1 !m-0 text-end"
+                          className="!m-0 flex-1 text-end"
                           defaultValue={field.value}
                           onChange={(e) => {
                             const number = formatNumberInput(e);
                             form.setValue(
                               "productPrice",
                               isNaN(number) ? 0 : number,
-                              { shouldValidate: true }
+                              { shouldValidate: true },
                             );
                           }}
                           onBlur={updatePriceUnits}
@@ -845,8 +845,8 @@ export const NewProductView = ({
                   control={form.control}
                   name="stock"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row mb-2">
-                      <FormLabel className="flex flex-col w-[150px] text-black justify-center">
+                    <FormItem className="mb-2 flex flex-row">
+                      <FormLabel className="flex w-[150px] flex-col justify-center text-black">
                         <div className="flex flex-row items-center gap-2">
                           <h5 className="text-sm">Stock</h5>
                           <Info size={16} />
@@ -855,7 +855,7 @@ export const NewProductView = ({
                       </FormLabel>
                       <FormControl>
                         <Input
-                          className="flex-1 !m-0 text-end"
+                          className="!m-0 flex-1 text-end"
                           defaultValue={field.value}
                           onChange={(e) => {
                             const number = formatNumberInput(e);
@@ -875,8 +875,8 @@ export const NewProductView = ({
                   control={form.control}
                   name="minStock"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row mb-2">
-                      <FormLabel className="flex flex-col w-[150px] text-black justify-center">
+                    <FormItem className="mb-2 flex flex-row">
+                      <FormLabel className="flex w-[150px] flex-col justify-center text-black">
                         <div className="flex flex-row items-center gap-2">
                           <h5 className="text-sm">Min stock</h5>
                           <Info size={16} />
@@ -885,14 +885,14 @@ export const NewProductView = ({
                       </FormLabel>
                       <FormControl>
                         <Input
-                          className="flex-1 !m-0 text-end"
+                          className="!m-0 flex-1 text-end"
                           defaultValue={field.value}
                           onChange={(e) => {
                             const number = formatNumberInput(e);
                             form.setValue(
                               "minStock",
                               isNaN(number) ? 0 : number,
-                              { shouldValidate: true }
+                              { shouldValidate: true },
                             );
                           }}
                         />
@@ -904,8 +904,8 @@ export const NewProductView = ({
                   control={form.control}
                   name="maxStock"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row mb-2">
-                      <FormLabel className="flex flex-col w-[150px] text-black justify-center">
+                    <FormItem className="mb-2 flex flex-row">
+                      <FormLabel className="flex w-[150px] flex-col justify-center text-black">
                         <div className="flex flex-row items-center gap-2">
                           <h5 className="text-sm">Max stock</h5>
                           <Info size={16} />
@@ -914,14 +914,14 @@ export const NewProductView = ({
                       </FormLabel>
                       <FormControl>
                         <Input
-                          className="flex-1 !m-0 text-end"
+                          className="!m-0 flex-1 text-end"
                           defaultValue={field.value}
                           onChange={(e) => {
                             const number = formatNumberInput(e);
                             form.setValue(
                               "maxStock",
                               isNaN(number) ? 0 : number,
-                              { shouldValidate: true }
+                              { shouldValidate: true },
                             );
                           }}
                         />
@@ -933,8 +933,8 @@ export const NewProductView = ({
                   control={form.control}
                   name="status"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row mb-2">
-                      <FormLabel className="flex flex-col w-[150px] text-black justify-center">
+                    <FormItem className="mb-2 flex flex-row">
+                      <FormLabel className="flex w-[150px] flex-col justify-center text-black">
                         <div className="flex flex-row items-center gap-2">
                           <h5 className="text-sm">Status</h5>
                           <Info size={16} />
@@ -990,7 +990,7 @@ export const NewProductView = ({
                 )}
               />
             </div>
-            <div className="border rounded-sm mb-4">
+            <div className="mb-4 rounded-sm border">
               <FormField
                 control={form.control}
                 name="productProperties"
@@ -999,7 +999,7 @@ export const NewProductView = ({
                     <FormControl>
                       <Accordion type="single" collapsible>
                         <AccordionItem value="item-1">
-                          <AccordionTrigger className="text-sm bg-gray-200 p-3">
+                          <AccordionTrigger className="bg-gray-200 p-3 text-sm">
                             <div className="flex flex-row gap-10">
                               <p>Product properties</p>
                               <NewProductPropertiesInputErrorFormMessage />
@@ -1038,7 +1038,7 @@ export const NewProductView = ({
                                                   }
                                                   onUpdateSuccess={(
                                                     newVal,
-                                                    valId
+                                                    valId,
                                                   ) => {
                                                     const newValue =
                                                       field.value!.map((v) =>
@@ -1047,23 +1047,23 @@ export const NewProductView = ({
                                                               ...v,
                                                               key: newVal,
                                                             }
-                                                          : v
+                                                          : v,
                                                       );
 
                                                     form.setValue(
                                                       "productProperties",
-                                                      newValue
+                                                      newValue,
                                                     );
                                                   }}
                                                   onDeleteSuccess={(
-                                                    propertyId
+                                                    propertyId,
                                                   ) => {
                                                     form.setValue(
                                                       "productProperties",
                                                       field.value!.filter(
                                                         (v) =>
-                                                          v.id !== propertyId
-                                                      )
+                                                          v.id !== propertyId,
+                                                      ),
                                                     );
                                                   }}
                                                 ></UpdatePropertyView>
@@ -1072,14 +1072,14 @@ export const NewProductView = ({
                                           </PopoverTrigger>
                                           <PopoverContent
                                             className={cn(
-                                              "p-0 max-h-[200px] overflow-auto",
-                                              scrollbar_style.scrollbar
+                                              "max-h-[200px] overflow-auto p-0",
+                                              scrollbar_style.scrollbar,
                                             )}
                                           >
                                             {productPropertyChoices.length ===
                                             0 ? (
-                                              <div className="p-2 hover:bg-slate-300 rounded-sm flex flex-row justify-between items-center">
-                                                <p className="text-sm select-none">
+                                              <div className="flex flex-row items-center justify-between rounded-sm p-2 hover:bg-slate-300">
+                                                <p className="select-none text-sm">
                                                   No properties!
                                                 </p>
                                               </div>
@@ -1089,7 +1089,7 @@ export const NewProductView = ({
                                                   return (
                                                     <div
                                                       key={choiceIndex}
-                                                      className="p-2 hover:bg-slate-300 rounded-sm hover:cursor-pointer flex flex-row justify-between items-center"
+                                                      className="flex flex-row items-center justify-between rounded-sm p-2 hover:cursor-pointer hover:bg-slate-300"
                                                       onClick={() => {
                                                         let newFormProperties: any;
                                                         if (
@@ -1105,19 +1105,19 @@ export const NewProductView = ({
 
                                                           form.setValue(
                                                             "productProperties",
-                                                            newFormProperties
+                                                            newFormProperties,
                                                           );
                                                         } else if (
                                                           !field.value!.every(
                                                             (
                                                               fieldVal,
-                                                              fieldIdx
+                                                              fieldIdx,
                                                             ) => {
                                                               return (
                                                                 fieldVal.key !==
                                                                 choice.name
                                                               );
-                                                            }
+                                                            },
                                                           )
                                                         ) {
                                                           toast({
@@ -1137,7 +1137,7 @@ export const NewProductView = ({
 
                                                           form.setValue(
                                                             "productProperties",
-                                                            newFormProperties
+                                                            newFormProperties,
                                                           );
                                                         }
                                                         // important
@@ -1147,7 +1147,7 @@ export const NewProductView = ({
                                                             newFormProperties,
                                                         };
                                                         updateSameTypeProducts(
-                                                          newFormData
+                                                          newFormData,
                                                         );
                                                       }}
                                                     >
@@ -1160,17 +1160,17 @@ export const NewProductView = ({
                                                       ) : null}
                                                     </div>
                                                   );
-                                                }
+                                                },
                                               )
                                             )}
                                           </PopoverContent>
                                         </Popover>
-                                        <div className="flex flex-row flex-wrap items-center ml-8 flex-1 gap-1">
+                                        <div className="ml-8 flex flex-1 flex-row flex-wrap items-center gap-1">
                                           {value.values.map(
                                             (keyVal, keyIdx) => (
                                               <div
                                                 key={keyIdx}
-                                                className="flex flex-row p-1 bg-blue-400 text-white rounded-md items-center gap-[2px]"
+                                                className="flex flex-row items-center gap-[2px] rounded-md bg-blue-400 p-1 text-white"
                                               >
                                                 <p>{keyVal}</p>
                                                 <X
@@ -1181,12 +1181,12 @@ export const NewProductView = ({
                                                     onProductPropertyValueDelete(
                                                       index,
                                                       keyIdx,
-                                                      field.value!
+                                                      field.value!,
                                                     );
                                                   }}
                                                 />
                                               </div>
-                                            )
+                                            ),
                                           )}
                                           <Input
                                             placeholder="Type value and enter"
@@ -1198,12 +1198,12 @@ export const NewProductView = ({
                                                 (prev) => {
                                                   prev[index] = e.target.value;
                                                   return [...prev];
-                                                }
+                                                },
                                               );
                                             }}
                                             onBlur={() =>
                                               updateSameTypeProducts(
-                                                form.getValues()
+                                                form.getValues(),
                                               )
                                             }
                                             onKeyDown={(e) => {
@@ -1213,31 +1213,31 @@ export const NewProductView = ({
                                                   index
                                                 ],
                                                 field.value!,
-                                                index
+                                                index,
                                               );
                                             }}
-                                            className="h-[35px] w-[200px] rounded-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 border-0 border-b"
+                                            className="h-[35px] w-[200px] rounded-none border-0 border-b focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
                                           />
                                         </div>
                                         <Trash
                                           size={16}
-                                          className="hover:cursor-pointer mr-1"
+                                          className="mr-1 hover:cursor-pointer"
                                           fill="black"
                                           onClick={(e) => {
                                             const newProperties =
                                               field.value!.filter(
-                                                (_, idx) => idx !== index
+                                                (_, idx) => idx !== index,
                                               );
 
                                             form.setValue(
                                               "productProperties",
-                                              newProperties
+                                              newProperties,
                                             );
                                             setProductPropertyInputValues(
                                               (prev) =>
                                                 prev.filter(
-                                                  (_, idx) => idx !== index
-                                                )
+                                                  (_, idx) => idx !== index,
+                                                ),
                                             );
 
                                             updateSameTypeProducts({
@@ -1254,7 +1254,7 @@ export const NewProductView = ({
                             <div className="flex flex-row">
                               <Button
                                 variant={"green"}
-                                className="border ml-1 mt-2 h-[35px]"
+                                className="ml-1 mt-2 h-[35px] border"
                                 type="button"
                                 onClick={(e) => {
                                   let newVal: {
@@ -1301,7 +1301,7 @@ export const NewProductView = ({
                 )}
               />
             </div>
-            <div className="border rounded-sm mb-4">
+            <div className="mb-4 rounded-sm border">
               <FormField
                 control={form.control}
                 name="units"
@@ -1310,7 +1310,7 @@ export const NewProductView = ({
                     <FormControl>
                       <Accordion type="single" collapsible>
                         <AccordionItem value="item-1">
-                          <AccordionTrigger className="text-sm bg-gray-200 p-3">
+                          <AccordionTrigger className="bg-gray-200 p-3 text-sm">
                             <div className="flex flex-row gap-10">
                               <p>Product units</p>
                               <NewProductUnitInputErrorFormMessage />
@@ -1318,7 +1318,7 @@ export const NewProductView = ({
                           </AccordionTrigger>
                           <AccordionContent>
                             <div className="flex flex-col">
-                              <div className="flex flex-row m-2 ml-4 items-center gap-4">
+                              <div className="m-2 ml-4 flex flex-row items-center gap-4">
                                 <p>Base unit</p>
                                 <Input
                                   value={field.value?.baseUnit}
@@ -1329,7 +1329,7 @@ export const NewProductView = ({
                                         baseUnit: e.target.value,
                                         otherUnits: field.value?.otherUnits,
                                       },
-                                      { shouldValidate: true }
+                                      { shouldValidate: true },
                                     );
                                   }}
                                   onBlur={() =>
@@ -1348,7 +1348,7 @@ export const NewProductView = ({
                                         originalPrice={value.originalPrice}
                                         onUnitNameBlur={() =>
                                           updateSameTypeProducts(
-                                            form.getValues()
+                                            form.getValues(),
                                           )
                                         }
                                         onExchangeValueBlur={() =>
@@ -1369,7 +1369,7 @@ export const NewProductView = ({
                                             "units.otherUnits",
                                             [...field.value!.otherUnits!],
 
-                                            { shouldValidate: true }
+                                            { shouldValidate: true },
                                           );
                                         }}
                                         onPriceChanged={(val: number) => {
@@ -1387,11 +1387,11 @@ export const NewProductView = ({
                                                 ...field.value!.otherUnits!,
                                               ],
                                             },
-                                            { shouldValidate: true }
+                                            { shouldValidate: true },
                                           );
                                         }}
                                         onOriginalPriceChanged={(
-                                          val: number
+                                          val: number,
                                         ) => {
                                           const newObj = {
                                             ...field.value!.otherUnits![index],
@@ -1407,11 +1407,11 @@ export const NewProductView = ({
                                                 ...field.value!.otherUnits!,
                                               ],
                                             },
-                                            { shouldValidate: true }
+                                            { shouldValidate: true },
                                           );
                                         }}
                                         onExchangeValueChanged={(
-                                          val: number
+                                          val: number,
                                         ) => {
                                           const newObj = {
                                             ...field.value!.otherUnits![index],
@@ -1427,7 +1427,7 @@ export const NewProductView = ({
                                                 ...field.value!.otherUnits!,
                                               ],
                                             },
-                                            { shouldValidate: true }
+                                            { shouldValidate: true },
                                           );
                                         }}
                                         onRemoveClick={() => {
@@ -1435,7 +1435,7 @@ export const NewProductView = ({
                                             baseUnit: field.value!.baseUnit,
                                             otherUnits:
                                               field.value!.otherUnits!.filter(
-                                                (_, idx) => idx !== index
+                                                (_, idx) => idx !== index,
                                               ),
                                           };
                                           form.setValue("units", newUnits, {
@@ -1454,7 +1454,7 @@ export const NewProductView = ({
                             <Button
                               variant={"green"}
                               type="button"
-                              className="border ml-4 mt-2 h-[35px]"
+                              className="ml-4 mt-2 h-[35px] border"
                               onClick={(e) => {
                                 e.preventDefault();
                                 if (
@@ -1464,7 +1464,7 @@ export const NewProductView = ({
                                   form.setError(
                                     "units",
                                     { message: "Please specify base unit!" },
-                                    { shouldFocus: true }
+                                    { shouldFocus: true },
                                   );
                                   return;
                                 }
@@ -1504,27 +1504,27 @@ export const NewProductView = ({
               render={({ field }) => {
                 if (!field.value || field.value.length === 0) return <></>;
                 return (
-                  <FormItem className="flex flex-col space-y-0 mb-4">
-                    <FormLabel className="text-black justify-center text-sm bg-gray-200 p-3 rounded-t-sm">
+                  <FormItem className="mb-4 flex flex-col space-y-0">
+                    <FormLabel className="justify-center rounded-t-sm bg-gray-200 p-3 text-sm text-black">
                       <h5 className="text-sm">Same type products</h5>
                       <FormMessage className="mr-2 text-xs" />
                     </FormLabel>
                     <FormControl>
-                      <div className="border rounded-b-sm pb-2">
+                      <div className="rounded-b-sm border pb-2">
                         <SameTypeProductView
                           properties={field.value
                             .filter(
-                              (val) => val.productProperties !== undefined
+                              (val) => val.productProperties !== undefined,
                             )
                             .map((val) => val.productProperties!)}
                           units={field.value
                             .filter((val) => val.unit !== undefined)
                             .map((val) => val.unit.name!)}
                           originalPrices={field.value.map(
-                            (val) => val.originalPrice
+                            (val) => val.originalPrice,
                           )}
                           productPrices={field.value.map(
-                            (val) => val.productPrice
+                            (val) => val.productPrice,
                           )}
                           barcodes={field.value.map((val) => val.barcode)}
                           stocks={field.value.map((val) => val.stock)}
@@ -1555,19 +1555,19 @@ export const NewProductView = ({
                 );
               }}
             />
-            <div className="border rounded-sm mb-4">
+            <div className="mb-4 rounded-sm border">
               <FormField
                 control={form.control}
                 name="description"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel className="text-black justify-center text-sm bg-gray-200 p-3">
+                    <FormLabel className="justify-center bg-gray-200 p-3 text-sm text-black">
                       <h5 className="text-sm">Description</h5>
                       <FormMessage className="mr-2 text-xs" />
                     </FormLabel>
                     <FormControl className="border-none">
                       <Textarea
-                        className="flex-1 resize-none p-2 !mt-0 min-h-[100px] !rounded-none focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0"
+                        className="!mt-0 min-h-[100px] flex-1 resize-none !rounded-none p-2 focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0"
                         onKeyDown={(e) => e.stopPropagation()}
                         {...field}
                       />
@@ -1576,19 +1576,19 @@ export const NewProductView = ({
                 )}
               />
             </div>
-            <div className="border rounded-sm mb-4">
+            <div className="mb-4 rounded-sm border">
               <FormField
                 control={form.control}
                 name="note"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel className="text-black justify-center text-sm bg-gray-200 p-3">
+                    <FormLabel className="justify-center bg-gray-200 p-3 text-sm text-black">
                       <h5 className="text-sm">Note</h5>
                       <FormMessage className="mr-2 text-xs" />
                     </FormLabel>
                     <FormControl className="border-none">
                       <Textarea
-                        className="flex-1 resize-none  p-2 !mt-0 min-h-[100px] !rounded-none focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0"
+                        className="!mt-0 min-h-[100px]  flex-1 resize-none !rounded-none p-2 focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0"
                         {...field}
                       />
                     </FormControl>
@@ -1601,20 +1601,20 @@ export const NewProductView = ({
               <Button
                 variant={"green"}
                 type="submit"
-                className="px-4 min-w-[150px] uppercase"
+                className="min-w-[150px] px-4 uppercase"
                 disabled={isCreatingNewProduct}
               >
                 Save
                 <LoadingCircle
                   className={
-                    "!w-4 ml-4 " + (isCreatingNewProduct ? "" : "hidden")
+                    "ml-4 !w-4 " + (isCreatingNewProduct ? "" : "hidden")
                   }
                 />
               </Button>
               <Button
                 variant={"green"}
                 type="button"
-                className="px-4 min-w-[150px] bg-gray-400 hover:bg-gray-500 uppercase"
+                className="min-w-[150px] bg-gray-400 px-4 uppercase hover:bg-gray-500"
                 onClick={(e) => {
                   e.stopPropagation();
                   e.preventDefault();
@@ -1662,8 +1662,8 @@ const ProductNewUnitView = ({
   onRemoveClick: () => void;
 }) => {
   return (
-    <div className="flex flex-row items-center gap-4 text-[0.85rem] ml-4 mb-2">
-      <div className="flex flex-col flex-1">
+    <div className="mb-2 ml-4 flex flex-row items-center gap-4 text-[0.85rem]">
+      <div className="flex flex-1 flex-col">
         <p className="font-semibold">Unit name</p>
         <input
           value={unitName}
@@ -1672,7 +1672,7 @@ const ProductNewUnitView = ({
           onBlur={onUnitNameBlur}
         />
       </div>
-      <div className="flex flex-col flex-1">
+      <div className="flex flex-1 flex-col">
         <p className="font-semibold">Exchange value</p>
         <input
           type="number"
@@ -1683,7 +1683,7 @@ const ProductNewUnitView = ({
           className="border-b border-blue-300 p-1 text-end"
         />
       </div>
-      <div className="flex flex-col flex-1">
+      <div className="flex flex-1 flex-col">
         <p className="font-semibold">Original price</p>
         <input
           value={originalPrice}
@@ -1694,7 +1694,7 @@ const ProductNewUnitView = ({
           className="border-b border-blue-300 p-1 text-end"
         />
       </div>
-      <div className="flex flex-col flex-1">
+      <div className="flex flex-1 flex-col">
         <p className="font-semibold">Price</p>
         <input
           value={price}
@@ -1745,21 +1745,21 @@ const SameTypeProductView = ({
   onRemoveClick: (index: number) => any;
 }) => {
   return (
-    <div className="flex flex-col items-center gap-3 text-[0.8rem] p-1 w-full">
-      <div className="flex flex-row w-full gap-2">
-        <p className="font-semibold text-center flex-1">Property</p>
-        <p className="font-semibold text-center flex-1">Unit</p>
-        <p className="font-semibold text-center flex-1">Barcode</p>
-        <p className="font-semibold text-center flex-1">Original price</p>
-        <p className="font-semibold text-center flex-1">Product price</p>
-        <p className="font-semibold text-center flex-1">Stock</p>
+    <div className="flex w-full flex-col items-center gap-3 p-1 text-[0.8rem]">
+      <div className="flex w-full flex-row gap-2">
+        <p className="flex-1 text-center font-semibold">Property</p>
+        <p className="flex-1 text-center font-semibold">Unit</p>
+        <p className="flex-1 text-center font-semibold">Barcode</p>
+        <p className="flex-1 text-center font-semibold">Original price</p>
+        <p className="flex-1 text-center font-semibold">Product price</p>
+        <p className="flex-1 text-center font-semibold">Stock</p>
         <div className="w-[50px]" /> {/* for trash bin*/}
       </div>
       {originalPrices.map((_, idx) => {
         return (
           <div
             key={idx}
-            className="flex flex-row w-full gap-2 items-center justify-center"
+            className="flex w-full flex-row items-center justify-center gap-2"
           >
             {(() => {
               let str = "";
@@ -1788,7 +1788,7 @@ const SameTypeProductView = ({
                   value={barcodes[idx]}
                   placeholder="Generate automatically"
                   onChange={(e) => onBarcodeChanged(e.target.value, idx)}
-                  className="border-b border-blue-300 p-1 text-end flex-1 min-w-[0px]"
+                  className="min-w-[0px] flex-1 border-b border-blue-300 p-1 text-end"
                 />
               );
             })()}
@@ -1801,7 +1801,7 @@ const SameTypeProductView = ({
                   onChange={(e) =>
                     onOriginalPriceChanged(e.target.valueAsNumber, idx)
                   }
-                  className="border-b border-blue-300 p-1 text-end flex-1 min-w-[0px]"
+                  className="min-w-[0px] flex-1 border-b border-blue-300 p-1 text-end"
                 />
               );
             })()}
@@ -1814,7 +1814,7 @@ const SameTypeProductView = ({
                   onChange={(e) =>
                     onProductPriceChanged(e.target.valueAsNumber, idx)
                   }
-                  className="border-b border-blue-300 p-1 text-end flex-1 min-w-[0px]"
+                  className="min-w-[0px] flex-1 border-b border-blue-300 p-1 text-end"
                 />
               );
             })()}
@@ -1825,13 +1825,13 @@ const SameTypeProductView = ({
                   type="number"
                   min={0}
                   onChange={(e) => onStockChanged(e.target.valueAsNumber, idx)}
-                  className="border-b border-blue-300 p-1 text-end flex-1 min-w-[0px]"
+                  className="min-w-[0px] flex-1 border-b border-blue-300 p-1 text-end"
                 />
               );
             })()}
             <Trash
               size={16}
-              className="hover:cursor-pointer w-[50px]"
+              className="w-[50px] hover:cursor-pointer"
               fill="black"
               onClick={(e) => {
                 e.preventDefault();
@@ -1864,8 +1864,8 @@ const NewProductPropertiesInputErrorFormMessage = React.forwardRef<
       message = customError[i].key
         ? customError[i].key.message
         : customError[i].values
-        ? customError[i].values.message
-        : null;
+          ? customError[i].values.message
+          : null;
       break;
     }
   }
@@ -1907,10 +1907,10 @@ const NewProductUnitInputErrorFormMessage = React.forwardRef<
         message = customError.otherUnits[i].unitName
           ? customError.otherUnits[i].unitName.message
           : customError.otherUnits[i].exchangeValue
-          ? customError.otherUnits[i].exchangeValue.message
-          : customError.otherUnits[i].price
-          ? customError.otherUnits[i].price.message
-          : null;
+            ? customError.otherUnits[i].exchangeValue.message
+            : customError.otherUnits[i].price
+              ? customError.otherUnits[i].price.message
+              : null;
         break;
       }
     }
@@ -1954,7 +1954,7 @@ const ButtonAddNewThing = ({
       <AlertDialogTrigger>
         <Button
           variant={"green"}
-          className="border ml-4 mt-2 h-[35px]"
+          className="ml-4 mt-2 h-[35px] border"
           type="button"
         >
           {triggerTitle}
@@ -1963,8 +1963,8 @@ const ButtonAddNewThing = ({
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
-          <div className="flex flex-row items-center text-sm gap-3 !my-4">
-            <label htmlFor="alert_input" className="font-semibold w-36">
+          <div className="!my-4 flex flex-row items-center gap-3 text-sm">
+            <label htmlFor="alert_input" className="w-36 font-semibold">
               {placeholder}
             </label>
             <input
@@ -1980,11 +1980,11 @@ const ButtonAddNewThing = ({
             variant={"green"}
             onClick={async (e) => {
               setIsLoading(true);
-              onAddClick(value).then((e) => {
-                onOpenChange(false);
-              })
-              .finally(() => setIsLoading(false))
-              
+              onAddClick(value)
+                .then((e) => {
+                  onOpenChange(false);
+                })
+                .finally(() => setIsLoading(false));
             }}
             disabled={isLoading}
             className="!h-[35px]"
@@ -1994,7 +1994,7 @@ const ButtonAddNewThing = ({
           </Button>
           <AlertDialogCancel
             className={
-              "bg-red-400 hover:bg-red-500 text-white hover:text-white !h-[35px]"
+              "!h-[35px] bg-red-400 text-white hover:bg-red-500 hover:text-white"
             }
             disabled={isLoading}
           >
@@ -2036,8 +2036,8 @@ const UpdatePropertyView = ({
       <AlertDialogContent onClick={(e) => e.stopPropagation()}>
         <AlertDialogHeader>
           <AlertDialogTitle>Change property</AlertDialogTitle>
-          <div className="flex flex-row items-center text-sm gap-3 !my-4">
-            <label htmlFor="alert_input" className="font-semibold w-36">
+          <div className="!my-4 flex flex-row items-center gap-3 text-sm">
+            <label htmlFor="alert_input" className="w-36 font-semibold">
               Property&apos;s name
             </label>
 
@@ -2089,7 +2089,7 @@ const UpdatePropertyView = ({
           </Button>
           <AlertDialogCancel
             className={
-              "bg-red-400 hover:bg-red-500 text-white hover:text-white !h-[35px]"
+              "!h-[35px] bg-red-400 text-white hover:bg-red-500 hover:text-white"
             }
             disabled={isLoading}
           >
@@ -2113,7 +2113,7 @@ const UpdatePropertyView = ({
 
 type CartesianResult = Record<string, string>;
 function cartesian(
-  input: { values: string[]; key: string }[]
+  input: { values: string[]; key: string }[],
 ): CartesianResult[] {
   const inputObj: Record<string, any[]> = {};
   input.forEach((value) => {

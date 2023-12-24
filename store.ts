@@ -22,6 +22,7 @@ import transactionStrangerReducer from "./reducers/transactionStrangerReducer";
 import transactionReducer from "./reducers/transactionReducer";
 import shiftViolationReducer from "./reducers/shiftViolationReducer";
 import shiftRewardReducer from "./reducers/shiftRewardReducer";
+import purchaseReturnsReducer from "./reducers/purchaseReturnsReducer";
 
 const store = configureStore({
   reducer: {
@@ -43,6 +44,7 @@ const store = configureStore({
     suppliers: suppliersReducer,
     supplierGroups: supplierGroupsReducer,
     purchaseOrders: purchaseOrdersReducer,
+    purchaseReturns: purchaseReturnsReducer,
     profile: profileReducer,
     transactionStranger: transactionStrangerReducer,
     transactions: transactionReducer,

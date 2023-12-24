@@ -8,12 +8,12 @@ import { useAppDispatch, useAppSelector } from "@/hooks";
 import NewDiscountForm from "@/components/ui/discount/new_discount_form";
 import UpdateDiscountForm from "@/components/ui/discount/update_discount_form";
 import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
-import DiscountService from "@/services/discount_service";
+import DiscountService from "@/services/discountService";
 import { setDiscounts } from "@/reducers/discountsReducer";
 import { da } from "date-fns/locale";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
 import { useToast } from "@/components/ui/use-toast";
-import ProductService from "@/services/product_service";
+import ProductService from "@/services/productService";
 import { setProducts } from "@/reducers/productsReducer";
 import { setGroups } from "@/reducers/productGroupsReducer";
 
@@ -25,26 +25,26 @@ export default function DiscountPage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    dispatch(showPreloader())
+    dispatch(showPreloader());
     const getData = async () => {
       try {
         const discounts = await DiscountService.getAllDiscounts();
-        dispatch(setDiscounts(discounts.data))
+        dispatch(setDiscounts(discounts.data));
 
         const products = await ProductService.getAllProducts();
-        dispatch(setProducts(products.data))     
+        dispatch(setProducts(products.data));
 
         const productGroups = await ProductService.getAllGroups();
-        dispatch(setGroups(productGroups.data))
+        dispatch(setGroups(productGroups.data));
       } catch (e) {
-        axiosUIErrorHandler(e, toast)
+        axiosUIErrorHandler(e, toast);
       } finally {
-        dispatch(disablePreloader())
+        dispatch(disablePreloader());
       }
-    }
+    };
 
-    getData()
-  }, [])
+    getData();
+  }, []);
 
   const onUpdateButtonClick = (position: number) => {
     setUpdatePosition(position);
@@ -57,8 +57,16 @@ export default function DiscountPage() {
       filters={[]}
       headerButtons={[<NewDiscountButton key={1} />]}
     >
-      <DiscountDatatable data={discounts} onUpdateButtonClick={onUpdateButtonClick} />
-      {updateOpen ? <UpdateDiscountForm discount={discounts[updatePosition]} setOpen={setUpdateOpen}/> : null}
+      <DiscountDatatable
+        data={discounts}
+        onUpdateButtonClick={onUpdateButtonClick}
+      />
+      {updateOpen ? (
+        <UpdateDiscountForm
+          discount={discounts[updatePosition]}
+          setOpen={setUpdateOpen}
+        />
+      ) : null}
     </PageWithFilters>
   );
 }

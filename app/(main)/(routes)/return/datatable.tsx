@@ -33,7 +33,10 @@ import { useAppDispatch, useAppSelector } from "@/hooks";
 import LoadingCircle from "@/components/ui/loading_circle";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
 import { useToast } from "@/components/ui/use-toast";
-import { CustomDatatable, DefaultInformationCellDataTable } from "@/components/component/custom_datatable";
+import {
+  CustomDatatable,
+  DefaultInformationCellDataTable,
+} from "@/components/component/custom_datatable";
 import { defaultColumn } from "@/components/ui/my_table_default_column";
 import { DataTableColumnHeader } from "@/components/ui/my_table_column_header";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context";
@@ -42,7 +45,7 @@ import {
   ReturnInvoiceDetailServer,
   ReturnInvoiceServer,
 } from "@/entities/ReturnInvoice";
-import ReturnInvoiceService from "@/services/return_invoice_service";
+import ReturnInvoiceService from "@/services/returnInvoiceService";
 import { deleteReturnInvoice } from "@/reducers/returnInvoicesReducer";
 
 export function ReturnDatatable({
@@ -60,7 +63,7 @@ export function ReturnDatatable({
   ): Promise<void> {
     const promises = dataToDelete.map(async (returnInvoice) => {
       await ReturnInvoiceService.deleteReturnInvoice(returnInvoice.id);
-      return dispatch(deleteReturnInvoice(returnInvoice.id))
+      return dispatch(deleteReturnInvoice(returnInvoice.id));
     });
 
     try {
@@ -130,11 +133,23 @@ const DetailInvoiceTab = ({
       <div className="flex flex-row gap-2">
         <div className="flex flex-1 flex-row text-[0.8rem]">
           <div className="flex flex-1 flex-col gap-1 pr-4">
-            <DefaultInformationCellDataTable title="Invoice id:" value={invoice.id} />
-            <DefaultInformationCellDataTable title="Created at:" value={invoice.createdAt} />
+            <DefaultInformationCellDataTable
+              title="Invoice id:"
+              value={invoice.id}
+            />
+            <DefaultInformationCellDataTable
+              title="Created at:"
+              value={invoice.createdAt}
+            />
           </div>
           <div className="flex flex-1 flex-col gap-1 pr-4">
-            <DefaultInformationCellDataTable title="Staff id:" value={staffs.find(s => s.id === invoice.staffId)?.name ?? "Not found"} />
+            <DefaultInformationCellDataTable
+              title="Staff id:"
+              value={
+                staffs.find((s) => s.id === invoice.staffId)?.name ??
+                "Not found"
+              }
+            />
             <div>
               <p className="mb-2">Note</p>
               <textarea
@@ -154,7 +169,6 @@ const DetailInvoiceTab = ({
         columnTitles={returnDetailTitles}
         columns={returnDetailColumns()}
         config={{
-          showExportButton: false,
           showDataTableViewOptions: false,
           showDefaultSearchInput: false,
           className: "py-0",

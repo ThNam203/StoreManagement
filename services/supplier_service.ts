@@ -1,5 +1,5 @@
 import { Supplier, SupplierGroup } from "@/entities/Supplier";
-import AxiosService from "./axios_service";
+import AxiosService from "./axiosService";
 
 const uploadSupplier = (data: any) => {
   return AxiosService.post<Supplier>("/api/suppliers", data);

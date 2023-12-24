@@ -35,12 +35,12 @@ import { cn } from "@/lib/utils";
 import { ChevronRight, Code, Lock, PenLine, Trash } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { deleteProduct, updateProduct } from "@/reducers/productsReducer";
-import ProductService from "@/services/product_service";
+import ProductService from "@/services/productService";
 import LoadingCircle from "@/components/ui/loading_circle";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
 import { useToast } from "@/components/ui/use-toast";
 import { Discount, DiscountCode } from "@/entities/Discount";
-import DiscountService from "@/services/discount_service";
+import DiscountService from "@/services/discountService";
 import { deleteDiscount, updateDiscount } from "@/reducers/discountsReducer";
 import {
   defaultColumn,
@@ -75,13 +75,15 @@ export function DiscountDatatable({ data, onUpdateButtonClick }: Props) {
 
   async function deleteDiscounts(dataToDelete: Discount[]): Promise<void> {
     const promises = dataToDelete.map((discount) => {
-      return DiscountService.deleteDiscount(discount.id).then((_) => dispatch(deleteDiscount(discount.id)));
+      return DiscountService.deleteDiscount(discount.id).then((_) =>
+        dispatch(deleteDiscount(discount.id)),
+      );
     });
 
     try {
       Promise.allSettled(promises).then((deletedData) => {
         const successfullyDeleted = deletedData.map(
-          (data) => data.status === "fulfilled"
+          (data) => data.status === "fulfilled",
         );
         toast({
           description: `Deleted ${
@@ -211,13 +213,18 @@ const DetailTab = ({
               )}
             >
               {discount.productIds?.map((productId, productIdx) => {
-                const product = products.find((product) => product.id === productId)!
+                const product = products.find(
+                  (product) => product.id === productId,
+                )!;
                 return (
                   <p
                     key={productIdx}
                     className="mb-1 mr-1 rounded-md bg-blue-400 p-1 text-xs text-white"
                   >
-                    {product.name}{product.propertiesString ? ` (${product.propertiesString})` : ""}
+                    {product.name}
+                    {product.propertiesString
+                      ? ` (${product.propertiesString})`
+                      : ""}
                   </p>
                 );
               })}
@@ -384,10 +391,15 @@ const CodeEditTab = ({ discount }: { discount: Discount }) => {
             disabled={isGeneratingCodes}
             onClick={(e) => {
               if (isNaN(codeAmountInput)) return;
-              if ((discount.discountCodes?.length ?? 0) + codeAmountInput > discount.amount) return toast({
-                variant: "destructive",
-                description: "The amount of discount codes exceeds the allowed limit"
-              })
+              if (
+                (discount.discountCodes?.length ?? 0) + codeAmountInput >
+                discount.amount
+              )
+                return toast({
+                  variant: "destructive",
+                  description:
+                    "The amount of discount codes exceeds the allowed limit",
+                });
 
               setIsGeneratingCodes(true);
               DiscountService.generateDiscountCodes(

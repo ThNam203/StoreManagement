@@ -7,7 +7,7 @@ import { useAppDispatch, useAppSelector } from "@/hooks";
 import { setInvoices } from "@/reducers/invoicesReducer";
 import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
-import InvoiceService from "@/services/invoice_service";
+import InvoiceService from "@/services/invoiceService";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";

@@ -41,7 +41,7 @@ import { cn } from "@/lib/utils";
 import { ChevronRight, Lock, PenLine, Trash, Undo2 } from "lucide-react";
 import { useAppDispatch } from "@/hooks";
 import { deleteProduct, updateProduct } from "@/reducers/productsReducer";
-import ProductService from "@/services/product_service";
+import ProductService from "@/services/productService";
 import LoadingCircle from "@/components/ui/loading_circle";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
 import { useToast } from "@/components/ui/use-toast";
@@ -50,7 +50,7 @@ import {
   DefaultInformationCellDataTable,
 } from "@/components/component/custom_datatable";
 import { Invoice, InvoiceDetail } from "@/entities/Invoice";
-import InvoiceService from "@/services/invoice_service";
+import InvoiceService from "@/services/invoiceService";
 import { format } from "date-fns";
 import { defaultColumn } from "@/components/ui/my_table_default_column";
 import { DataTableColumnHeader } from "@/components/ui/my_table_column_header";

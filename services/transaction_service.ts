@@ -1,4 +1,4 @@
-import AxiosService from "./axios_service";
+import AxiosService from "./axiosService";
 import { Stranger, Transaction } from "@/entities/Transaction";
 
 const getAllExpenseForms = () => {

@@ -20,7 +20,7 @@ import Link from "next/link";
 import { useToast } from "@/components/ui/use-toast";
 import { useState } from "react";
 import LoadingCircle from "@/components/ui/loading_circle";
-import AuthService from "@/services/auth_service";
+import AuthService from "@/services/authService";
 
 export const registerFormSchema = z.object({
   firstName: z
@@ -34,9 +34,9 @@ export const registerFormSchema = z.object({
     .max(50)
     .regex(
       new RegExp(
-        /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i
+        /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i,
       ),
-      "Invalid email address"
+      "Invalid email address",
     ),
   password: z
     .string()
@@ -61,9 +61,9 @@ export default function SignUp() {
 
   function onSubmit(values: z.infer<typeof registerFormSchema>) {
     setIsRegistering(true);
-      AuthService.Register(values)
+    AuthService.Register(values)
       .then((response) => {
-        router.push('/overview')
+        router.push("/overview");
       })
       .catch((error) => {
         if (error.response) {
@@ -87,12 +87,12 @@ export default function SignUp() {
   }
 
   return (
-    <div className="flex flex-col h-auto p-8 shadow-2xl rounded-md">
+    <div className="flex h-auto flex-col rounded-md p-8 shadow-2xl">
       <h4 className="text-lg font-bold">Create your account</h4>
-      <p className="text-gray-500 text-sm mb-6">to start using the website</p>
+      <p className="mb-6 text-sm text-gray-500">to start using the website</p>
       <Button
         variant={"ghost"}
-        className="border border-solid border-slate-200 group"
+        className="group border border-solid border-slate-200"
       >
         <Image
           width={20}
@@ -104,12 +104,12 @@ export default function SignUp() {
         <ArrowRightCircle
           width={16}
           height={16}
-          className="text-gray-500 invisible group-hover:visible"
+          className="invisible text-gray-500 group-hover:visible"
         />
       </Button>
-      <div className="flex flex-row m-4 items-center justify-center">
+      <div className="m-4 flex flex-row items-center justify-center">
         <Separator className="flex-1" />
-        <p className="flex-[0.5] text-sm text-gray-500 text-center">or</p>
+        <p className="flex-[0.5] text-center text-sm text-gray-500">or</p>
         <Separator className="flex-1" />
       </div>
       <Form {...form}>
@@ -124,7 +124,7 @@ export default function SignUp() {
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
-                  <FormMessage className="text-xs mt-5" />
+                  <FormMessage className="mt-5 text-xs" />
                 </FormItem>
               )}
             />
@@ -149,7 +149,7 @@ export default function SignUp() {
               <FormItem>
                 <FormLabel className="text-black">Email address</FormLabel>
                 <FormControl>
-                  <Input {...field} className="w-full"/>
+                  <Input {...field} className="w-full" />
                 </FormControl>
                 <FormMessage className="text-xs" />
               </FormItem>
@@ -170,19 +170,19 @@ export default function SignUp() {
           />
           <Button
             type="submit"
-            className="my-4 w-full bg-indigo-400 hover:bg-indigo-600 text-white uppercase text-sm"
+            className="my-4 w-full bg-indigo-400 text-sm uppercase text-white hover:bg-indigo-600"
             disabled={isRegistering}
           >
             Sign Up
             <LoadingCircle
-              className={"!w-4 ml-4 " + (isRegistering ? "" : "hidden")}
+              className={"ml-4 !w-4 " + (isRegistering ? "" : "hidden")}
             />
           </Button>
         </form>
       </Form>
       <p className="ml-auto mr-6 text-xs">
         Have an account?{" "}
-        <Link className="text-blue-500 underline font-bold" href={"/login"}>
+        <Link className="font-bold text-blue-500 underline" href={"/login"}>
           Login
         </Link>
       </p>

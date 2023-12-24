@@ -41,7 +41,7 @@ import { cn } from "@/lib/utils";
 import { ChevronRight, Lock, PenLine, Trash } from "lucide-react";
 import { useAppDispatch } from "@/hooks";
 import { deleteProduct, updateProduct } from "@/reducers/productsReducer";
-import ProductService from "@/services/product_service";
+import ProductService from "@/services/productService";
 import LoadingCircle from "@/components/ui/loading_circle";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
 import { useToast } from "@/components/ui/use-toast";

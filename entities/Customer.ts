@@ -13,7 +13,7 @@ export type Customer = {
   image: {
     id: number,
     url: string,
-  };
+  } | null;
 };
 
 export type CustomerGroup = {

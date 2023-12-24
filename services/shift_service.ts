@@ -1,5 +1,5 @@
 import { DailyShift, Shift, ViolationAndReward } from "@/entities/Attendance";
-import AxiosService from "./axios_service";
+import AxiosService from "./axiosService";
 
 const getShiftsByRange = (range: { startDate: Date; endDate: Date }) => {
   return AxiosService.get<Shift[]>(

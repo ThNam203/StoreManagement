@@ -1,4 +1,4 @@
-import AxiosService from "./axios_service";
+import AxiosService from "./axiosService";
 import { Discount, DiscountCode } from "@/entities/Discount";
 
 export type UploadDiscountDataType = {
@@ -33,17 +33,21 @@ const deleteDiscount = (discountId: number) => {
 
 const generateDiscountCodes = (discountId: number, amount: number) => {
   return AxiosService.post<DiscountCode[]>(
-    `/api/discounts/${discountId}/generate?amount=${amount}`
+    `/api/discounts/${discountId}/generate?amount=${amount}`,
   );
 };
 
 const deleteDiscountCodes = (discountId: number, codeIds: number[]) => {
-  return AxiosService.delete(`/api/discounts/${discountId}/code`, { data: codeIds });
+  return AxiosService.delete(`/api/discounts/${discountId}/code`, {
+    data: codeIds,
+  });
 };
 
 const getDiscountCodeInformation = (discountCode: string) => {
-  return AxiosService.get<Discount>(`/api/discounts/code?value=${discountCode}`)
-}
+  return AxiosService.get<Discount>(
+    `/api/discounts/code?value=${discountCode}`,
+  );
+};
 
 const DiscountService = {
   uploadNewDiscount,
@@ -52,7 +56,7 @@ const DiscountService = {
   deleteDiscount,
   generateDiscountCodes,
   deleteDiscountCodes,
-  getDiscountCodeInformation
+  getDiscountCodeInformation,
 };
 
 export default DiscountService;

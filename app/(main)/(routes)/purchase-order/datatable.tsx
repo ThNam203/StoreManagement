@@ -18,7 +18,6 @@ import { Button } from "@/components/ui/button";
 import { PenLine, Trash } from "lucide-react";
 import LoadingCircle from "@/components/ui/loading_circle";
 import StockCheckService from "@/services/stock_check_service";
-import { deleteStockCheck } from "@/reducers/stockChecksReducer";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
 import { ColumnDef, Row } from "@tanstack/react-table";
 import { defaultColumn } from "@/components/ui/my_table_default_column";
@@ -38,8 +37,8 @@ export function PurchaseOrderDatatable({ data }: { data: PurchaseOrder[] }) {
     dataToDelete: PurchaseOrder[],
   ): Promise<void> {
     const promises = dataToDelete.map((purchaseOrder) => {
-      return StockCheckService.deleteStockCheck(purchaseOrder.id).then((_) =>
-        dispatch(deleteStockCheck(purchaseOrder.id)),
+      return PurchaseOrderService.deletePurchaseOrder(purchaseOrder.id).then((_) =>
+        dispatch(deletePurchaseOrder(purchaseOrder.id)),
       );
     });
 
@@ -111,7 +110,7 @@ const DetailTab = ({
         <div className="flex flex-1 flex-row text-[0.8rem]">
           <div className="flex flex-1 flex-col gap-2 pr-4">
             <DefaultInformationCellDataTable
-              title="Check Id:"
+              title="Purchase Order Id:"
               value={purchaseOrder.id}
             />
             <DefaultInformationCellDataTable
@@ -142,7 +141,6 @@ const DetailTab = ({
         columnTitles={purchaseOrderDetailColumnTitles}
         columns={purchaseOrderDetailTableColumns()}
         config={{
-          showExportButton: false,
           showDataTableViewOptions: false,
           showDefaultSearchInput: false,
           className: "py-0",
