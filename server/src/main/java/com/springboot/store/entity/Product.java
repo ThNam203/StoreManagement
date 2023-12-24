@@ -49,7 +49,7 @@ public class Product {
     private int maxStock;
 
     @Column(name = "is_deleted")
-    private boolean isDeleted;
+    private Boolean isDeleted;
 
     @OneToMany(cascade = CascadeType.ALL)
     private List<OriginalPrice> originalPrices;

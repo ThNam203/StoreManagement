@@ -23,7 +23,7 @@ public class ProductMapper {
                 .weight(product.getWeight())
                 .minStock(product.getMinStock())
                 .maxStock(product.getMaxStock())
-                .isDeleted(product.isDeleted())
+                .isDeleted(product.getIsDeleted())
                 .location(product.getLocation() != null ?
                         product.getLocation().getName() : null)
                 .images(product.getImages() != null ?
@@ -57,7 +57,7 @@ public class ProductMapper {
                 .weight(productDTO.getWeight())
                 .minStock(productDTO.getMinStock())
                 .maxStock(productDTO.getMaxStock())
-                .isDeleted(productDTO.getIsDeleted())
+                .isDeleted(productDTO.getIsDeleted() != null ? productDTO.getIsDeleted() : false)
                 .stock(productDTO.getStock())
                 .status(productDTO.getStatus())
                 .build();

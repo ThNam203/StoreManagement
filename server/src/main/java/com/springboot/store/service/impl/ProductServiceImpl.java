@@ -210,7 +210,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void deleteProduct(int id) {
         Product product = productRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Product not found with id: " + id));
-        product.setDeleted(true);
+        product.setIsDeleted(true);
         productRepository.save(product);
     }
 
