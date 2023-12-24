@@ -31,6 +31,14 @@ export type Paycheck = {
   needToPay: number;
 };
 
+export type SimpleTransaction = {
+  id: any;
+  time: Date;
+  description: string;
+  value: number;
+  salaryDebt: number;
+};
+
 export type WorkSchedule = {
   date: Date;
   shiftName: string;

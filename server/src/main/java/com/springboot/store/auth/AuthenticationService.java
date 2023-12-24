@@ -42,6 +42,7 @@ public class AuthenticationService {
     private final CustomerGroupRepository customerGroupRepository;
     private final SupplierGroupRepository supplierGroupRepository;
     private final StaffPositionRepository staffPositionRepository;
+    private final ViolationAndRewardRepository violationAndRewardRepository;
 
     public StaffResponse register(RegisterRequest request, HttpServletResponse response) {
 
@@ -352,5 +353,16 @@ public class AuthenticationService {
                 SupplierGroup.builder().name("Epicurean Exchange Group").store(store).build()
         );
         supplierGroupRepository.saveAll(supplierGroups);
+
+        // TODO: create default bonus and punish
+        List<ViolationAndReward> violationAndRewards = List.of(
+                ViolationAndReward.builder().name("Go to work late").type("Punish").defaultValue(100000).store(store).build(),
+                ViolationAndReward.builder().name("Early leave").type("Punish").defaultValue(100000).store(store).build(),
+                ViolationAndReward.builder().name("Unexcused absence").type("Punish").defaultValue(100000).store(store).build(),
+                ViolationAndReward.builder().name("Good attitude").type("Bonus").defaultValue(100000).store(store).build(),
+                ViolationAndReward.builder().name("Good performance").type("Bonus").defaultValue(100000).store(store).build()
+        );
+        violationAndRewardRepository.saveAll(violationAndRewards);
+
     }
 }

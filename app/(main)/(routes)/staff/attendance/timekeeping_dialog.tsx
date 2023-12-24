@@ -1,48 +1,67 @@
+import CustomCombobox from "@/components/component/CustomCombobox";
+import { AddNewViolationOrRewardDailog } from "@/components/ui/attendance/addViolationOrRewardDialog";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-} from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import LoadingCircle from "@/components/ui/loading_circle";
+import { MyCombobox } from "@/components/ui/my_combobox";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/components/ui/use-toast";
 import {
   AttendanceRecord,
   BonusAndPunish,
   DailyShift,
-  Shift,
-  Status,
+  ViolationAndReward,
 } from "@/entities/Attendance";
-import { Staff } from "@/entities/Staff";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { format, set } from "date-fns";
-import { ChevronDown, ChevronUp, Info, PlusCircle, Trash } from "lucide-react";
-import { use, useEffect, useRef, useState } from "react";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MyCombobox } from "@/components/ui/my_combobox";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { fi, is } from "date-fns/locale";
-import { ne } from "@faker-js/faker";
+import { useAppSelector } from "@/hooks";
 import { cn } from "@/lib/utils";
+import { addReward } from "@/reducers/shiftRewardReducer";
+import { addViolation } from "@/reducers/shiftViolationReducer";
+import { axiosUIErrorHandler } from "@/services/axios_utils";
+import ShiftService from "@/services/shift_service";
 import { formatNumberInput, formatPrice } from "@/utils";
-import LoadingCircle from "@/components/ui/loading_circle";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { add, format } from "date-fns";
+import { Check, PlusCircle, Trash } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { useDispatch } from "react-redux";
+import * as z from "zod";
 import {
   ConfirmDialogType,
   MyConfirmDialog,
 } from "../../../../../components/ui/my_confirm_dialog";
+
+const OptionView = (option: string): React.ReactNode => {
+  return <p className="whitespace-nowrap text-xs">{option}</p>;
+};
+
+const OptionSearchView = (
+  option: string,
+  selectedOption: string | null,
+): React.ReactNode => {
+  const chosen = selectedOption && selectedOption === option;
+  return (
+    <div
+      className={cn(
+        "flex cursor-pointer items-center justify-between px-1",
+        chosen ? "bg-green-100" : "",
+      )}
+    >
+      <div>
+        <p className="px-1 py-2 text-sm">{option}</p>
+      </div>
+      {chosen ? <Check size={16} color="green" /> : null}
+    </div>
+  );
+};
 
 const formSchema = z.object({
   note: z.string(),
@@ -91,6 +110,8 @@ export function TimeKeepingDialog({
       rewardList: [],
     },
   });
+  const { toast } = useToast();
+  const dispatch = useDispatch();
   const [isAdding, setIsAdding] = useState(false);
   const [isRemoving, setIsRemoving] = useState(false);
   const [punishList, setPunishList] = useState<BonusAndPunish[]>([
@@ -100,32 +121,29 @@ export function TimeKeepingDialog({
       times: NaN,
     },
   ]);
-  const [punishTypeList, setPunishTypeList] = useState<string[]>([
-    "Go to work late",
-    "Early leave",
-    "Unexcused absence",
-  ]);
-  const [rewardList, setRewardList] = useState<BonusAndPunish[]>([
+  const violationList = useAppSelector((state) => state.violations.value);
+  const violationNames = violationList.map((violation) => violation.name);
+  const rewardList = useAppSelector((state) => state.rewards.value);
+  const rewardNames = rewardList.map((reward) => reward.name);
+  const [bonusList, setBonusList] = useState<BonusAndPunish[]>([
     {
       name: "",
       value: NaN,
       times: NaN,
     },
   ]);
-  const [rewardTypeList, setRewardTypeList] = useState<string[]>([
-    "No absence",
-    "Good attitude",
-  ]);
-  const [openAddPunishDialog, setOpenAddPunishDialog] = useState(false);
-  const punishTypeInputRef = useRef<HTMLInputElement>(null);
-  const [openAddRewardDialog, setOpenAddRewardDialog] = useState(false);
-  const rewardTypeInputRef = useRef<HTMLInputElement>(null);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   const [contentConfirmDialog, setContentConfirmDialog] = useState({
     title: "",
     content: "",
     type: "warning" as ConfirmDialogType,
   });
+  const [openAddViolationOrRewardDialog, setOpenAddViolationOrRewardDialog] =
+    useState(false);
+  const [selectedItem, setSelectedItem] = useState<ViolationAndReward | null>(
+    null,
+  );
+  const [selectedType, setSelectedType] = useState<"Bonus" | "Punish">("Bonus");
 
   const resetValues = (attendanceRecord: AttendanceRecord | null) => {
     setIsAdding(false);
@@ -136,7 +154,7 @@ export function TimeKeepingDialog({
       form.setValue("punishList", attendanceRecord.bonus);
       form.setValue("rewardList", attendanceRecord.punish);
       setPunishList(attendanceRecord.punish);
-      setRewardList(attendanceRecord.bonus);
+      setBonusList(attendanceRecord.bonus);
       console.log("form set value", form.getValues());
     } else resetToEmptyForm();
   };
@@ -150,7 +168,7 @@ export function TimeKeepingDialog({
         times: NaN,
       },
     ]);
-    setRewardList([
+    setBonusList([
       {
         name: "",
         value: NaN,
@@ -166,8 +184,8 @@ export function TimeKeepingDialog({
     form.setValue("punishList", punishList);
   }, [punishList]);
   useEffect(() => {
-    form.setValue("rewardList", rewardList);
-  }, [rewardList]);
+    form.setValue("rewardList", bonusList);
+  }, [bonusList]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     console.log("get in submit");
@@ -213,83 +231,28 @@ export function TimeKeepingDialog({
     }
   };
 
-  const handleAddingNewPunishType = () => {
-    if (!punishTypeInputRef.current) return;
-    if (punishTypeInputRef.current?.value === "") return;
-    if (punishTypeList.includes(punishTypeInputRef.current?.value)) return;
-    setPunishTypeList((prev) => [...prev, punishTypeInputRef.current?.value!]);
-    setOpenAddPunishDialog(false);
+  const addNewViolationOrReward = async (value: ViolationAndReward) => {
+    try {
+      const res = await ShiftService.createViolationAndReward(value);
+      if (value.type === "Punish") dispatch(addViolation(res.data));
+      else dispatch(addReward(res.data));
+      return Promise.resolve(res.data);
+    } catch (e) {
+      axiosUIErrorHandler(e, toast);
+      return Promise.reject(e);
+    }
   };
-  const handleAddingNewRewardType = () => {
-    if (!rewardTypeInputRef.current) return;
-    if (rewardTypeInputRef.current?.value === "") return;
-    if (rewardTypeList.includes(rewardTypeInputRef.current?.value)) return;
-    setRewardTypeList((prev) => [...prev, rewardTypeInputRef.current?.value!]);
-    setOpenAddRewardDialog(false);
+  const handleOpenViolationOrRewardDialog = (
+    data: ViolationAndReward | null,
+    type: "Bonus" | "Punish",
+  ) => {
+    setSelectedType(type);
+    setSelectedItem(data);
+    setOpenAddViolationOrRewardDialog(true);
   };
-
-  const addNewPunishDailog = (
-    <Dialog open={openAddPunishDialog} onOpenChange={setOpenAddPunishDialog}>
-      <DialogTrigger asChild>
-        <PlusCircle className="h-4 w-4 opacity-50 hover:cursor-pointer hover:opacity-100" />
-      </DialogTrigger>
-      <DialogContent
-        className="flex h-[200px] w-[600px] flex-col justify-between"
-        onInteractOutside={(e) => e.preventDefault()}
-      >
-        <DialogHeader>
-          <DialogTitle>Add a new type of punishment</DialogTitle>
-        </DialogHeader>
-
-        <div className="flex flex-row items-center justify-start">
-          <Label htmlFor="name" className="w-[100px]">
-            Type
-          </Label>
-          <Input ref={punishTypeInputRef} className="w-[300px]" />
-        </div>
-        <DialogFooter>
-          <Button
-            variant={"green"}
-            type="button"
-            onClick={handleAddingNewPunishType}
-          >
-            Save
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-  const addNewRewardDailog = (
-    <Dialog open={openAddRewardDialog} onOpenChange={setOpenAddRewardDialog}>
-      <DialogTrigger asChild>
-        <PlusCircle className="h-4 w-4 opacity-50 hover:cursor-pointer hover:opacity-100" />
-      </DialogTrigger>
-      <DialogContent
-        className="flex h-[200px] w-[600px] flex-col justify-between"
-        onInteractOutside={(e) => e.preventDefault()}
-      >
-        <DialogHeader>
-          <DialogTitle>Add a new type of reward</DialogTitle>
-        </DialogHeader>
-
-        <div className="flex flex-row items-center justify-start">
-          <Label htmlFor="name" className="w-[100px]">
-            Type
-          </Label>
-          <Input ref={rewardTypeInputRef} className="w-[300px]" />
-        </div>
-        <DialogFooter>
-          <Button
-            variant={"green"}
-            type="button"
-            onClick={handleAddingNewRewardType}
-          >
-            Save
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
+  const handleAddVIolationOrReward = (value: ViolationAndReward) => {
+    return addNewViolationOrReward(value);
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -351,7 +314,7 @@ export function TimeKeepingDialog({
                     />
                   </div>
                   <Tabs defaultValue="time-keeping" className="w-full">
-                    <TabsList>
+                    <TabsList className="flex w-full flex-row items-center justify-start">
                       <TabsTrigger value="time-keeping">
                         Time keeping
                       </TabsTrigger>
@@ -390,7 +353,7 @@ export function TimeKeepingDialog({
                     </TabsContent>
                     <TabsContent value="punish">
                       <div className="flex flex-col items-start">
-                        <div className="flex w-full flex-col overflow-hidden rounded-md">
+                        <div className="flex w-full flex-col rounded-sm">
                           <div className="flex w-full flex-row items-center justify-start bg-blue-100 p-2">
                             <span className="test-sm w-[300px] font-semibold">
                               Type of punishment
@@ -414,22 +377,48 @@ export function TimeKeepingDialog({
                                 )}
                               >
                                 <div className="w-[300px]">
-                                  <MyCombobox
-                                    choices={punishTypeList}
-                                    placeholder="Choose type of violation"
-                                    defaultValue={punish.name}
-                                    className="w-[250px]"
-                                    onValueChange={(val) => {
+                                  <CustomCombobox<string>
+                                    placeholder="Select violation"
+                                    searchPlaceholder={"Find violation..."}
+                                    value={punish.name}
+                                    choices={violationNames}
+                                    valueView={OptionView}
+                                    showSearchInput={false}
+                                    className="bg-white"
+                                    itemSearchView={(choice) =>
+                                      OptionSearchView(choice, punish.name)
+                                    }
+                                    endIcon={
+                                      <PlusCircle
+                                        className="h-4 w-4 opacity-50 hover:cursor-pointer hover:opacity-100"
+                                        onClick={() =>
+                                          handleOpenViolationOrRewardDialog(
+                                            null,
+                                            "Punish",
+                                          )
+                                        }
+                                      />
+                                    }
+                                    onItemClick={(val) => {
+                                      const violation = violationList.find(
+                                        (violation) => violation.name === val,
+                                      );
+                                      let applyValue = 0;
+                                      if (violation)
+                                        applyValue = violation.defaultValue;
                                       const newPunishList: BonusAndPunish[] = [
                                         ...punishList,
                                       ].map((punish, i) =>
                                         i === index
-                                          ? { ...punish, name: val }
+                                          ? {
+                                              ...punish,
+                                              name: val,
+                                              value: applyValue,
+                                            }
                                           : punish,
                                       );
                                       setPunishList(newPunishList);
                                     }}
-                                    endIcon={addNewPunishDailog}
                                   />
                                 </div>
                                 <div className="flex w-[100px] flex-row justify-end gap-2">
@@ -516,7 +505,7 @@ export function TimeKeepingDialog({
                     </TabsContent>
                     <TabsContent value="reward">
                       <div className="flex flex-col items-start">
-                        <div className="flex w-full flex-col overflow-hidden rounded-md">
+                        <div className="flex w-full flex-col rounded-sm">
                           <div className="flex w-full flex-row items-center justify-start bg-blue-100 p-2">
                             <span className="test-sm w-[300px] font-semibold">
                               Type of reward
@@ -531,7 +520,7 @@ export function TimeKeepingDialog({
                               Total
                             </span>
                           </div>
-                          {rewardList.map((reward, index) => {
+                          {bonusList.map((bonus, index) => {
                             return (
                               <div
                                 key={index}
@@ -540,23 +529,49 @@ export function TimeKeepingDialog({
                                 )}
                               >
                                 <div className="w-[300px]">
-                                  <MyCombobox
-                                    choices={rewardTypeList}
-                                    placeholder="Choose type of reward"
-                                    defaultValue={reward.name}
-                                    className="w-[250px]"
-                                    onValueChange={(val) => {
+                                  <CustomCombobox<string>
+                                    placeholder="Select reward"
+                                    searchPlaceholder={"Find reward..."}
+                                    value={bonus.name}
+                                    choices={rewardNames}
+                                    valueView={OptionView}
+                                    showSearchInput={false}
+                                    className=" bg-white"
+                                    itemSearchView={(choice) =>
+                                      OptionSearchView(choice, bonus.name)
+                                    }
+                                    endIcon={
+                                      <PlusCircle
+                                        className="h-4 w-4 opacity-50 hover:cursor-pointer hover:opacity-100"
+                                        onClick={() =>
+                                          handleOpenViolationOrRewardDialog(
+                                            null,
+                                            "Bonus",
+                                          )
+                                        }
+                                      />
+                                    }
+                                    onItemClick={(val) => {
+                                      const reward = rewardList.find(
+                                        (reward) => reward.name === val,
+                                      );
+                                      let applyValue = 0;
+                                      if (reward)
+                                        applyValue = reward.defaultValue;
                                       const newRewardList: BonusAndPunish[] = [
-                                        ...rewardList,
+                                        ...bonusList,
                                       ].map((reward, i) =>
                                         i === index
-                                          ? { ...reward, name: val }
+                                          ? {
+                                              ...reward,
+                                              name: val,
+                                              value: applyValue,
+                                            }
                                           : reward,
                                       );
 
-                                      setRewardList(newRewardList);
+                                      setBonusList(newRewardList);
                                     }}
-                                    endIcon={addNewRewardDailog}
                                   />
                                 </div>
                                 <div className="flex w-[100px] flex-row justify-end gap-2">
@@ -564,15 +579,15 @@ export function TimeKeepingDialog({
                                     className="w-[50px] text-right text-sm"
                                     placeholder="0"
                                     defaultValue={
-                                      reward.times ? reward.times : ""
+                                      bonus.times ? bonus.times : ""
                                     }
                                     onChange={(val) => {
                                       const newRewardList: BonusAndPunish[] = [
-                                        ...rewardList,
+                                        ...bonusList,
                                       ];
                                       newRewardList[index].times =
                                         formatNumberInput(val);
-                                      setRewardList(newRewardList);
+                                      setBonusList(newRewardList);
                                     }}
                                   />
                                 </div>
@@ -581,11 +596,11 @@ export function TimeKeepingDialog({
                                     className="w-[100px] text-right text-sm"
                                     placeholder="0"
                                     defaultValue={
-                                      reward.value ? reward.value : ""
+                                      bonus.value ? bonus.value : ""
                                     }
                                     onChange={(val) => {
                                       const newRewardList: BonusAndPunish[] = [
-                                        ...rewardList,
+                                        ...bonusList,
                                       ];
                                       newRewardList[index].value =
                                         formatNumberInput(val);
@@ -593,16 +608,16 @@ export function TimeKeepingDialog({
                                         "newRewardList",
                                         newRewardList,
                                       );
-                                      setRewardList(newRewardList);
+                                      setBonusList(newRewardList);
                                     }}
                                   />
                                 </div>
                                 <div className="flex w-[150px] flex-row justify-end">
                                   <p>
                                     {formatPrice(
-                                      isNaN(reward.times * reward.value)
+                                      isNaN(bonus.times * bonus.value)
                                         ? 0
-                                        : reward.times * reward.value,
+                                        : bonus.times * bonus.value,
                                     )}
                                   </p>
                                 </div>
@@ -612,10 +627,10 @@ export function TimeKeepingDialog({
                                     size={16}
                                     onClick={() => {
                                       const newRewardList: BonusAndPunish[] =
-                                        rewardList.filter(
-                                          (reward, i) => i !== index,
+                                        bonusList.filter(
+                                          (bonus, i) => i !== index,
                                         );
-                                      setRewardList(newRewardList);
+                                      setBonusList(newRewardList);
                                     }}
                                     className="cursor-pointer opacity-60 hover:opacity-100"
                                   ></Trash>
@@ -630,14 +645,14 @@ export function TimeKeepingDialog({
                           className="mt-3"
                           onClick={() => {
                             const newRewardList: BonusAndPunish[] = [
-                              ...rewardList,
+                              ...bonusList,
                             ];
                             newRewardList.push({
                               name: "",
                               value: NaN,
                               times: NaN,
                             });
-                            setRewardList(newRewardList);
+                            setBonusList(newRewardList);
                           }}
                         >
                           + Add reward
@@ -702,6 +717,13 @@ export function TimeKeepingDialog({
             handleRemoveAttendanceRecord();
           }}
           onCancel={() => setOpenConfirmDialog(false)}
+        />
+        <AddNewViolationOrRewardDailog
+          data={selectedItem}
+          type={selectedType}
+          open={openAddViolationOrRewardDialog}
+          setOpen={setOpenAddViolationOrRewardDialog}
+          submit={handleAddVIolationOrReward}
         />
       </DialogContent>
     </Dialog>

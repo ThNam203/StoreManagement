@@ -177,8 +177,11 @@ function handleTimeFilter<T>(
         filterControl[key as keyof typeof filterControl] ===
         TimeFilterType.RangeTime
       ) {
+        console.log("key", key);
+        console.log("row", row);
         let value = row[key as keyof typeof row];
         let range = rangeTimeFilter[key as keyof typeof rangeTimeFilter];
+        console.log("value", value);
         if (value instanceof Date && range !== undefined && range !== null) {
           if (!isInRangeTime(value, range)) return false;
         } else return false;
@@ -387,14 +390,18 @@ const formatNumberInput = (e: React.ChangeEvent<HTMLInputElement>) => {
   const formattedValue = new Intl.NumberFormat("vi-VN", {
     style: "decimal",
   }).format(num);
-  console.log("format value", formattedValue);
 
   e.currentTarget.value = formattedValue;
   return num;
 };
 
-const formatDate = (date: Date) => {
-  return format(date, "MM/dd/yyyy");
+type DateType = "date" | "datetime" | "time";
+const formatDate = (date: Date, type: DateType = "date") => {
+  const convertDate = new Date(date);
+  if (!convertDate) return "";
+  if (type === "date") return format(convertDate, "MM/dd/yyyy");
+  if (type === "datetime") return format(convertDate, "MM/dd/yyyy hh:mm a");
+  return format(convertDate, "hh:mm a");
 };
 
 const createRangeDate = (range: { startDate: Date; endDate: Date }): Date[] => {

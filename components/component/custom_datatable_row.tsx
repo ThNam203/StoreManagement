@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 export interface TabProps<TData> {
   render: (
     row: Row<TData>,
-    setShowTabs: (value: boolean) => any
+    setShowTabs: (value: boolean) => any,
   ) => React.JSX.Element;
   tabName: string;
 }
@@ -40,8 +40,8 @@ export default function CustomDatatableRow<TData, TValue>({
           setShowInfoRow((prev) => !prev);
         }}
         className={cn(
-          "hover:cursor-pointer relative",
-          showInfoRow ? "!border-b-0" : ""
+          "relative hover:cursor-pointer",
+          showInfoRow ? "!border-b-0" : "",
         )}
       >
         {row.getVisibleCells().map((cell: any) => (
@@ -57,8 +57,8 @@ export default function CustomDatatableRow<TData, TValue>({
         ))}
         <td
           className={cn(
-            "absolute left-0 right-0 bottom-0 top-0",
-            showInfoRow && tabs ? "border-t-2 border-green-400" : "hidden"
+            "absolute bottom-0 left-0 right-0 top-0",
+            showInfoRow && tabs ? "border-t-2 border-green-400" : "hidden",
           )}
         ></td>
       </TableRow>
@@ -68,21 +68,21 @@ export default function CustomDatatableRow<TData, TValue>({
           {/* maintain odd - even row */}
           <tr>
             <td colSpan={row.getVisibleCells().length} className="p-0">
-              <div className={cn("border-b-2 border-green-400 border-t-0")}>
+              <div className={cn("border-b-2 border-t-0 border-green-400")}>
                 <div
                   style={{
                     width: borderWidth,
                   }}
                 >
-                  <div className="flex flex-row gap-2 w-full bg-green-200 px-2">
+                  <div className="flex w-full flex-row gap-2 bg-green-200 px-2">
                     {tabs.map((tab, tabIdx) => (
                       <div
                         key={tabIdx}
                         className={cn(
-                          "flex flex-row items-center justify-center hover:cursor-pointer p-2 px-4 rounded-t-sm h-full ease-linear duration-200",
+                          "flex h-full flex-row items-center justify-center rounded-t-sm p-2 px-4 duration-200 ease-linear hover:cursor-pointer",
                           showTabIndex === tabIdx
-                            ? "bg-white text-black font-semibold"
-                            : ""
+                            ? "bg-white font-semibold text-black"
+                            : "",
                         )}
                         onClick={(e) => setShowTabIndex(tabIdx)}
                       >
@@ -90,7 +90,7 @@ export default function CustomDatatableRow<TData, TValue>({
                       </div>
                     ))}
                   </div>
-                  <div className="pt-0 flex flex-col gap-4 p-2">
+                  <div className="flex flex-col gap-4 p-2 pt-0">
                     {tabs.length > showTabIndex
                       ? tabs[showTabIndex].render(row, setShowInfoRow)
                       : null}

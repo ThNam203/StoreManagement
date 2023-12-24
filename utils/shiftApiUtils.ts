@@ -120,7 +120,6 @@ const convertDailyShiftReceived = (value: any) => {
 };
 
 const convertShiftReceived = (value: any): Shift => {
-  console.log("value", value);
   const shift: Shift = {
     id: value.id,
     name: value.name,

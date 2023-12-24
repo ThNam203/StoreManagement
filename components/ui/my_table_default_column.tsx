@@ -11,11 +11,12 @@ import { Button } from "./button";
 import { ReactNode } from "react";
 import { Checkbox } from "./checkbox";
 import format from "date-fns/format";
+import { formatDate, formatPrice } from "@/utils";
 
 function defaultColumn<T>(
   accessorKey: string,
   columnHeader: object,
-  disableSorting: boolean = false
+  disableSorting: boolean = false,
 ): ColumnDef<T> {
   const col: ColumnDef<T> = {
     accessorKey: accessorKey,
@@ -27,12 +28,15 @@ function defaultColumn<T>(
     ),
     cell: ({ row }) => {
       const value: ReactNode = row.getValue(accessorKey);
-      const formatedValue: ReactNode =
-        value instanceof Date
-          ? accessorKey.toLowerCase().includes("birth")
-            ? format(value, "dd/MM/yyyy")
-            : format(value, "dd/MM/yyyy hh:mm a")
-          : value;
+      let formatedValue: ReactNode = "";
+      if (value instanceof Date) formatedValue = formatDate(value, "datetime");
+      else if (
+        typeof value === "number" &&
+        accessorKey !== "phoneNumber" &&
+        accessorKey !== "cccd"
+      )
+        formatedValue = formatPrice(value);
+      else formatedValue = value;
 
       return <p className="text-[0.8rem]">{formatedValue}</p>;
     },
@@ -75,8 +79,6 @@ function defaultConfigColumn<T>(): ColumnDef<T> {
     cell: ({ row, table }) => {
       const rowData = row.original;
 
-      const handleDeleteRow = (id: any) => {};
-
       return (
         <div className="text-right">
           <DropdownMenu>
@@ -101,7 +103,7 @@ function defaultConfigColumn<T>(): ColumnDef<T> {
 
 function getColumns<T>(
   columnHeader: object,
-  hasConfigColumn?: boolean
+  hasConfigColumn?: boolean,
 ): ColumnDef<T>[] {
   const columns: ColumnDef<T>[] = [
     defaultSelectColumn<T>(),

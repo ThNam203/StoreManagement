@@ -29,50 +29,54 @@ import {
 import { FileDown, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { DisplayType, Table } from "./attendance_table";
-import { ButtonGroup } from "./button_group";
-import { MyDateRangePicker } from "./my_date_range_picker";
-import { SetTimeDialog } from "./set_time_dialog";
+import { ButtonGroup } from "../../../../../components/ui/attendance/button_group";
+import { MyDateRangePicker } from "../../../../../components/ui/attendance/my_date_range_picker";
+import { SetTimeDialog } from "../../../../../components/ui/attendance/set_time_dialog";
 import { convertStaffReceived } from "@/utils/staffApiUtils";
 import StaffService from "@/services/staff_service";
 import { setStaffs } from "@/reducers/staffReducer";
+import { setViolations } from "@/reducers/shiftViolationReducer";
+import { setRewards } from "@/reducers/shiftRewardReducer";
 
 export default function Attendance() {
   const dispatch = useAppDispatch();
   const { toast } = useToast();
 
-  const fetchShiftList = async () => {
-    dispatch(showPreloader());
-    try {
-      const res = await ShiftService.getShiftsThisMonth();
-      const shiftReceived = res.data.map((shift) =>
-        convertShiftReceived(shift),
-      );
-      dispatch(setShifts(shiftReceived));
-    } catch (e) {
-      axiosUIErrorHandler(e, toast);
-    } finally {
-      dispatch(disablePreloader());
-    }
-  };
-
-  const fetchStaffList = async () => {
-    dispatch(showPreloader());
-    try {
-      const res = await StaffService.getAllStaffs();
-      const staffReceived = res.data.map((staff) =>
-        convertStaffReceived(staff),
-      );
-      dispatch(setStaffs(staffReceived));
-    } catch (e) {
-      axiosUIErrorHandler(e, toast);
-    } finally {
-      dispatch(disablePreloader());
-    }
-  };
-
   useEffect(() => {
-    fetchShiftList();
-    fetchStaffList();
+    const fetchData = async () => {
+      dispatch(showPreloader());
+      try {
+        const resShift = await ShiftService.getShiftsThisMonth();
+        const shiftReceived = resShift.data.map((shift) =>
+          convertShiftReceived(shift),
+        );
+        dispatch(setShifts(shiftReceived));
+
+        const resStaff = await StaffService.getAllStaffs();
+        const staffReceived = resStaff.data.map((staff) =>
+          convertStaffReceived(staff),
+        );
+        dispatch(
+          setStaffs(staffReceived.filter((staff) => staff.role !== "OWNER")),
+        );
+
+        const resViolationAndReward =
+          await ShiftService.getViolationAndRewardList();
+        const violations = resViolationAndReward.data.filter(
+          (item) => item.type === "Punish",
+        );
+        const rewards = resViolationAndReward.data.filter(
+          (item) => item.type === "Bonus",
+        );
+        dispatch(setViolations(violations));
+        dispatch(setRewards(rewards));
+      } catch (e) {
+        axiosUIErrorHandler(e, toast);
+      } finally {
+        dispatch(disablePreloader());
+      }
+    };
+    fetchData();
   }, []);
 
   const [range, setRange] = useState<{ startDate: Date; endDate: Date }>(
