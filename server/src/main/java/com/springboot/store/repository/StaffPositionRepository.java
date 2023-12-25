@@ -12,7 +12,7 @@ public interface StaffPositionRepository extends JpaRepository<StaffPosition, In
 
     void deleteByName(String name);
 
-    Optional<StaffPosition> findByName(String name);
+    Optional<StaffPosition> findByNameAndStoreId(String name, int storeId);
 
     boolean existsByNameAndStore(String name, Store store);
 }

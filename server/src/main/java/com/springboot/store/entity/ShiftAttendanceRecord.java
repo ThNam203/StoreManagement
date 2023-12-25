@@ -32,9 +32,9 @@ public class ShiftAttendanceRecord {
     @Column(name = "note")
     private String note;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<StaffBonusSalary> bonusSalaryList;
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<StaffPunishSalary> punishSalaryList;
 
     @ManyToOne()

@@ -56,7 +56,7 @@ public class StaffServiceImpl implements StaffService {
         staff.setCreatedAt(new Date());
         staff.setCreator(creator);
         staff.setStore(creator.getStore());
-        staff.setStaffPosition(staffPositionRepository.findByName(newStaff.getPosition()).orElseThrow());
+        staff.setStaffPosition(staffPositionRepository.findByNameAndStoreId(newStaff.getPosition(), creator.getStore().getId()).orElseThrow());
 
         //check if cccd is duplicate and valid
         if (newStaff.getCccd() != null && newStaff.getCccd().length() == 12 && staffRepository.existsByCccd(newStaff.getCccd())) {
@@ -135,7 +135,7 @@ public class StaffServiceImpl implements StaffService {
         staff.setSex(staffRequest.getSex());
         staff.setBirthday(staffRequest.getBirthday());
         staff.setEmail(staffRequest.getEmail());
-        staff.setStaffPosition(staffPositionRepository.findByName(staffRequest.getPosition()).orElseThrow());
+        staff.setStaffPosition(staffPositionRepository.findByNameAndStoreId(staffRequest.getPosition(), creator.getStore().getId()).orElseThrow());
         staff.setSalaryDebt(staffRequest.getSalaryDebt());
         staff.setStaffRole(staffRequest.getRole() != null
                 ? staffRoleRepository.findByNameAndStoreId(staffRequest.getRole(), storeId).orElseThrow()
