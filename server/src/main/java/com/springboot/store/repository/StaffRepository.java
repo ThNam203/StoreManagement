@@ -24,4 +24,7 @@ public interface StaffRepository extends JpaRepository<Staff, Integer> {
     @Query("SELECT s FROM Staff s WHERE s.staffRole.name != 'Owner'")
     List<Staff> findAllStaffsWithRoleNotOwner();
 
+    //get all staff id by store id
+    @Query("SELECT s.id FROM Staff s WHERE s.store.id = :storeId")
+    List<Integer> findAllStaffIdByStoreId(@org.springframework.data.repository.query.Param("storeId") Integer storeId);
 }
