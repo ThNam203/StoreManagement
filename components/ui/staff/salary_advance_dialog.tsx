@@ -115,7 +115,7 @@ export function SalaryAdvanceDialog({
   data: Transaction | null;
   historyData?: Transaction[];
   staff: Staff;
-  submit?: (transaction: Transaction, linkedFormId: any) => any;
+  submit?: (transaction: Transaction) => any;
 }) {
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
@@ -140,13 +140,14 @@ export function SalaryAdvanceDialog({
       targetName: staff.name,
       status: Status.PAID,
       note: values.note ? values.note : "",
+      linkFormId: -1,
     };
     console.log("before submit", expense);
 
     if (submit) {
       setIsLoading(true);
       try {
-        await submit(expense, -1);
+        await submit(expense);
       } catch (e) {
         console.log(e);
       } finally {

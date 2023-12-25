@@ -59,7 +59,7 @@ const formSchema = z.object({
 
 type Props = {
   data: Transaction | null;
-  submit: (values: Transaction, linkedFormId: any) => any;
+  submit: (values: Transaction) => any;
   open: boolean;
   setOpen: (open: boolean) => void;
 };
@@ -162,12 +162,13 @@ export function MakeExpenseDialog({ data, submit, open, setOpen }: Props) {
       targetName: values.targetName,
       status: Status.PAID,
       note: values.note ? values.note : "",
+      linkFormId: -1,
     };
     console.log("before submit", expense);
 
     if (submit) {
       try {
-        await submit(expense, -1);
+        await submit(expense);
       } catch (e) {
         console.log(e);
       } finally {
@@ -217,7 +218,9 @@ export function MakeExpenseDialog({ data, submit, open, setOpen }: Props) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent onInteractOutside={(e) => e.preventDefault()}>
         <DialogHeader>
-          <DialogTitle>Create expense form</DialogTitle>
+          <DialogTitle>
+            {data ? "Expense form" : "Create expense form"}
+          </DialogTitle>
         </DialogHeader>
         <div className="w-full">
           <Form {...form}>

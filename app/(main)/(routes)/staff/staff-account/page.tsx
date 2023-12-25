@@ -34,6 +34,7 @@ import {
 import ShiftService from "@/services/shift_service";
 import { convertShiftReceived } from "@/utils/shiftApiUtils";
 import { setShifts } from "@/reducers/shiftReducer";
+import { setDetailPunishAndBonusList } from "@/reducers/staffPunishAndRewardReducer";
 
 export default function StaffInfoPage() {
   const dispatch = useAppDispatch();
@@ -63,6 +64,11 @@ export default function StaffInfoPage() {
           convertShiftReceived(shift),
         );
         dispatch(setShifts(shiftReceived));
+
+        const resDetailPunishAndBonus =
+          await ShiftService.getPunishAndBonusList();
+        const detailPunishAndBonusList = resDetailPunishAndBonus.data;
+        dispatch(setDetailPunishAndBonusList(detailPunishAndBonusList));
       } catch (e) {
         axiosUIErrorHandler(e, toast);
       } finally {

@@ -36,6 +36,17 @@ export type BonusAndPunish = {
   value: number;
   times: number;
 };
+export type DetailPunishAndBonus = {
+  name: string;
+  multiply: number;
+  value: number;
+};
+
+export type DetailPunishAndBonusList = {
+  staffId: any;
+  listBonus: DetailPunishAndBonus[];
+  listPunish: DetailPunishAndBonus[];
+};
 
 export type ViolationAndReward = {
   id: any;

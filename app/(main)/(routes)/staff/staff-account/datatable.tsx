@@ -17,7 +17,11 @@ import LoadingCircle from "@/components/ui/loading_circle";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { SalaryAdvanceDialog } from "@/components/ui/staff/salary_advance_dialog";
 import { useToast } from "@/components/ui/use-toast";
-import { Shift } from "@/entities/Attendance";
+import {
+  DetailPunishAndBonus,
+  DetailPunishAndBonusList,
+  Shift,
+} from "@/entities/Attendance";
 import { SalaryUnitTable } from "@/entities/SalarySetting";
 import {
   FormType,
@@ -41,7 +45,14 @@ import {
   convertExpenseFormToSent,
 } from "@/utils/transactionApiUtils";
 import { format } from "date-fns";
-import { Calculator, CreditCard, PenLine, Trash } from "lucide-react";
+import {
+  Calculator,
+  ChevronDown,
+  ChevronUp,
+  CreditCard,
+  PenLine,
+  Trash,
+} from "lucide-react";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -50,6 +61,9 @@ import {
   MyConfirmDialog,
 } from "../../../../../components/ui/my_confirm_dialog";
 import {
+  detailPunishAndBonusColumnTitles,
+  detailPunishAndBonusDefaultVisibilityState,
+  detailPunishAndBonusTableColumns,
   paycheckColumnTitles,
   paycheckDefaultVisibilityState,
   paycheckTableColumns,
@@ -93,6 +107,9 @@ export function DataTable({
 
   const shiftList = useAppSelector((state) => state.shift.value);
   const expenseForms = useAppSelector((state) => state.transactions.value);
+  const detailPunishAndBonusList = useAppSelector(
+    (state) => state.detailPunishAndBonusList.value,
+  );
   const [paycheckList, setPaycheckList] = React.useState<Paycheck[][]>([]);
   const [workScheduleList, setWorkScheduleList] = useState<WorkSchedule[][]>(
     [],
@@ -102,6 +119,12 @@ export function DataTable({
   );
   const [expenseFormsByStaff, setExpenseFormsByStaff] = useState<
     Transaction[][]
+  >([]);
+  const [detailPunishListByStaff, setDetailPunishListByStaff] = useState<
+    DetailPunishAndBonus[][]
+  >([]);
+  const [detailBonusListByStaff, setDetailBonusListByStaff] = useState<
+    DetailPunishAndBonus[][]
   >([]);
 
   const getPaycheckList = (staff: Staff, paid: number) => {
@@ -184,6 +207,33 @@ export function DataTable({
     });
     return tempExpenseFormsByStaff;
   };
+  const getDetailPunishByStaff = (
+    staff: Staff,
+    detailPunishAndBonusList: DetailPunishAndBonusList[],
+  ) => {
+    let tempDetailPunishByStaff: DetailPunishAndBonus[] = [];
+    detailPunishAndBonusList.forEach((detail) => {
+      if (detail.staffId === staff.id)
+        tempDetailPunishByStaff = tempDetailPunishByStaff.concat(
+          detail.listPunish,
+        );
+    });
+    return tempDetailPunishByStaff;
+  };
+
+  const getDetailBonusByStaff = (
+    staff: Staff,
+    detailPunishAndBonusList: DetailPunishAndBonusList[],
+  ) => {
+    let tempDetailBonusByStaff: DetailPunishAndBonus[] = [];
+    detailPunishAndBonusList.forEach((detail) => {
+      if (detail.staffId === staff.id)
+        tempDetailBonusByStaff = tempDetailBonusByStaff.concat(
+          detail.listBonus,
+        );
+    });
+    return tempDetailBonusByStaff;
+  };
 
   useEffect(() => {
     if (data.length > 0) {
@@ -191,6 +241,8 @@ export function DataTable({
       let tempWorkScheduleList: WorkSchedule[][] = [];
       let tempSalaryDebtList: SimpleTransaction[][] = [];
       let tempExpenseFormsByStaff: Transaction[][] = [];
+      let tempDetailBonusByStaff: DetailPunishAndBonus[][] = [];
+      let tempDetailPunishByStaff: DetailPunishAndBonus[][] = [];
       data.forEach((staff) => {
         const { tempSalaryDebtList: list, totalSalaryDebt } = getSalaryDebtList(
           staff,
@@ -206,13 +258,22 @@ export function DataTable({
             getStaticRangeFilterTime(FilterMonth.ThisMonth),
           ),
         );
+        tempDetailBonusByStaff.push(
+          getDetailBonusByStaff(staff, detailPunishAndBonusList),
+        );
+        tempDetailPunishByStaff.push(
+          getDetailPunishByStaff(staff, detailPunishAndBonusList),
+        );
       });
+
       setPaycheckList(tempPaycheckList);
       setWorkScheduleList(tempWorkScheduleList);
       setSalaryDebtList(tempSalaryDebtList);
       setExpenseFormsByStaff(tempExpenseFormsByStaff);
+      setDetailBonusListByStaff(tempDetailBonusByStaff);
+      setDetailPunishListByStaff(tempDetailPunishByStaff);
     }
-  }, [data, shiftList, expenseForms]);
+  }, [data, shiftList, expenseForms, detailPunishAndBonusList]);
 
   return (
     <div className="w-full space-y-2">
@@ -273,6 +334,8 @@ export function DataTable({
                   onStaffCalculateSalaryButtonClicked={
                     onStaffCalculateSalaryButtonClicked
                   }
+                  detailBonusList={detailBonusListByStaff[row.index]}
+                  detailPunishList={detailPunishListByStaff[row.index]}
                 />
               );
             },
@@ -527,26 +590,86 @@ const StaffPaycheckTab = ({
   row,
   setShowTabs,
   paycheckList,
+  detailBonusList,
+  detailPunishList,
   onStaffCalculateSalaryButtonClicked,
 }: {
   row: Row<Staff>;
   setShowTabs: (value: boolean) => any;
   paycheckList: Paycheck[];
+  detailPunishList: DetailPunishAndBonus[];
+  detailBonusList: DetailPunishAndBonus[];
   onStaffCalculateSalaryButtonClicked?: (rowIndex: number) => any;
 }) => {
+  const [showDetailPunishList, setShowDetailPunishList] = useState(false);
+  const [showDetailBonusList, setShowDetailBonusList] = useState(false);
   return (
     <div className="flex h-[300px] flex-col justify-between gap-4 py-2 pl-8 pr-4">
-      <CustomDatatable
-        data={paycheckList}
-        columns={paycheckTableColumns()}
-        columnTitles={paycheckColumnTitles}
-        config={{
-          defaultVisibilityState: paycheckDefaultVisibilityState,
-          showDefaultSearchInput: false,
-          showDataTableViewOptions: false,
-          showRowSelectedCounter: false,
-        }}
-      />
+      <ScrollArea className="h-250px pr-2">
+        <CustomDatatable
+          data={paycheckList}
+          columns={paycheckTableColumns()}
+          columnTitles={paycheckColumnTitles}
+          config={{
+            defaultVisibilityState: paycheckDefaultVisibilityState,
+            showDefaultSearchInput: false,
+            showDataTableViewOptions: false,
+            showRowSelectedCounter: false,
+          }}
+        />
+        <span
+          className="my-4 flex w-fit cursor-pointer flex-row items-center gap-2 font-semibold text-red-400 hover:opacity-80"
+          onClick={() => setShowDetailPunishList((prev) => !prev)}
+        >
+          Show detail punish list
+          {showDetailPunishList ? (
+            <ChevronUp size={16} />
+          ) : (
+            <ChevronDown size={16} />
+          )}
+        </span>
+        {showDetailPunishList ? (
+          <CustomDatatable<DetailPunishAndBonus>
+            data={detailPunishList}
+            columns={detailPunishAndBonusTableColumns()}
+            columnTitles={detailPunishAndBonusColumnTitles}
+            config={{
+              defaultVisibilityState:
+                detailPunishAndBonusDefaultVisibilityState,
+              showDefaultSearchInput: false,
+              showDataTableViewOptions: false,
+              showRowSelectedCounter: false,
+            }}
+          />
+        ) : null}
+
+        <span
+          className="my-4 flex w-fit cursor-pointer flex-row items-center gap-2 font-semibold text-blue-400 hover:opacity-80"
+          onClick={() => setShowDetailBonusList((prev) => !prev)}
+        >
+          Show detail bonus list
+          {showDetailBonusList ? (
+            <ChevronUp size={16} />
+          ) : (
+            <ChevronDown size={16} />
+          )}
+        </span>
+        {showDetailBonusList ? (
+          <CustomDatatable<DetailPunishAndBonus>
+            data={detailBonusList}
+            columns={detailPunishAndBonusTableColumns()}
+            columnTitles={detailPunishAndBonusColumnTitles}
+            config={{
+              defaultVisibilityState:
+                detailPunishAndBonusDefaultVisibilityState,
+              showDefaultSearchInput: false,
+              showDataTableViewOptions: false,
+              showRowSelectedCounter: false,
+            }}
+          />
+        ) : null}
+      </ScrollArea>
+
       <div className="flex flex-row items-center gap-2">
         <div className="flex-1" />
         <Button
@@ -585,12 +708,12 @@ const StaffSalaryDebtTab = ({
     setOpenSalaryAdvanceDialog(true);
   };
 
-  const createPayment = async (value: Transaction, linkedFormId: number) => {
+  const createPayment = async (value: Transaction) => {
     try {
-      const paymentToSent = convertExpenseFormToSent(value, linkedFormId);
+      const paymentToSent = convertExpenseFormToSent(value);
       const res = await TransactionService.createNewExpenseForm(paymentToSent);
-      const convertPayment = convertExpenseFormReceived(res.data);
-      dispatch(addTransaction(convertPayment));
+      const convertedPayment = convertExpenseFormReceived(res.data);
+      dispatch(addTransaction(convertedPayment));
       return Promise.resolve();
     } catch (e) {
       axiosUIErrorHandler(e, toast);
@@ -598,8 +721,8 @@ const StaffSalaryDebtTab = ({
     }
   };
 
-  const handleCreatePayment = (value: Transaction, linkedFormId: number) => {
-    return createPayment(value, linkedFormId);
+  const handleCreatePayment = (value: Transaction) => {
+    return createPayment(value);
   };
   return (
     <div className="flex h-[300px] flex-col justify-between gap-4 py-2 pl-8 pr-4">

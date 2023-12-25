@@ -4,6 +4,7 @@ import {
   Stranger,
   Transaction,
 } from "@/entities/Transaction";
+import { formatID } from ".";
 
 const convertStrangerToSent = (value: Stranger) => {
   const converted = {
@@ -29,10 +30,7 @@ const convertStrangerReceived = (value: any) => {
   return stranger;
 };
 
-const convertExpenseFormToSent = (
-  value: Transaction,
-  linkedFormId: number = -1,
-) => {
+const convertExpenseFormToSent = (value: Transaction) => {
   const converted = {
     receiverType: value.targetType,
     expenseType: value.transactionType,
@@ -41,7 +39,7 @@ const convertExpenseFormToSent = (
     note: value.note,
     date: value.time.toISOString(),
     description: value.description,
-    linkedFormId: linkedFormId,
+    linkedFormId: value.linkFormId,
   };
   console.log("sent", converted);
   return converted;
@@ -61,17 +59,52 @@ const convertExpenseFormReceived = (value: any) => {
     description: value.description,
     formType: FormType.EXPENSE,
     status: Status.PAID,
+    linkFormId: value.linkedFormId,
   };
 
   console.log("received", converted);
   return converted;
 };
 
-const convertReceiptFormToSent = (value: Transaction) => {};
+const convertReceiptFormToSent = (value: Transaction) => {
+  const converted = {
+    payerType: value.targetType,
+    incomeType: value.transactionType,
+    value: value.value,
+    idPayer: value.targetId,
+    note: value.note,
+    date: value.time.toISOString(),
+    description: value.description,
+    linkedFormId: value.linkFormId,
+  };
+  console.log("sent", converted);
+  return converted;
+};
+const convertReceiptFormReceived = (value: any) => {
+  const converted: Transaction = {
+    id: value.id,
+    targetType: value.payerType,
+    time: new Date(value.date),
+    transactionType: value.incomeType,
+    value: value.value,
+    creator: value.creatorName,
+    targetId: value.idPayer,
+    targetName: value.payerName,
+    note: value.note,
+    description: value.description,
+    formType: FormType.RECEIPT,
+    status: Status.PAID,
+    linkFormId: value.linkedFormId,
+  };
 
+  console.log("received", converted);
+  return converted;
+};
 export {
   convertStrangerReceived,
   convertStrangerToSent,
   convertExpenseFormToSent,
   convertExpenseFormReceived,
+  convertReceiptFormToSent,
+  convertReceiptFormReceived,
 };

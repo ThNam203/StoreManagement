@@ -14,30 +14,30 @@ const deleteExpenseForm = (id: any) => {
   return AxiosService.delete("api/expenses/" + id);
 };
 const getAllReceiptForms = () => {
-  return AxiosService.get<Transaction[]>("api/receipts");
+  return AxiosService.get<Transaction[]>("api/incomes");
 };
 const createNewReceiptForm = (data: any) => {
-  return AxiosService.post<Transaction>("api/receipts", data);
+  return AxiosService.post<Transaction>("api/incomes", data);
 };
 const updateReceiptForm = (id: any, data: any) => {
-  return AxiosService.put<Transaction>("api/receipts/" + id, data);
+  return AxiosService.put<Transaction>("api/incomes/" + id, data);
 };
 const deleteReceiptForm = (id: any) => {
-  return AxiosService.delete("api/receipts/" + id);
+  return AxiosService.delete("api/incomes/" + id);
 };
 
 const getAllStrangers = () => {
-  return AxiosService.get<Stranger[]>("/api/strangers");
+  return AxiosService.get<Stranger[]>("api/strangers");
 };
 
 const createNewStranger = (data: any) => {
-  return AxiosService.post<Stranger>("/api/strangers", data);
+  return AxiosService.post<Stranger>("api/strangers", data);
 };
 const updateStranger = (id: any, data: any) => {
-  return AxiosService.put<Stranger>("/api/strangers/" + id, data);
+  return AxiosService.put<Stranger>("api/strangers/" + id, data);
 };
 const deleteStranger = (id: any) => {
-  return AxiosService.delete("/api/strangers/" + id);
+  return AxiosService.delete("api/strangers/" + id);
 };
 const TransactionService = {
   getAllExpenseForms,

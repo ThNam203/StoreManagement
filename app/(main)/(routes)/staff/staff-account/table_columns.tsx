@@ -6,7 +6,11 @@ import {
   defaultIndexColumn,
   defaultSelectColumn,
 } from "@/components/ui/my_table_default_column";
-import { BonusAndPunish } from "@/entities/Attendance";
+import {
+  BonusAndPunish,
+  DetailPunishAndBonus,
+  ViolationAndReward,
+} from "@/entities/Attendance";
 import {
   Paycheck,
   SimpleTransaction,
@@ -253,6 +257,34 @@ export const detailSalaryDebtTableColumns =
     for (let key in detailSalaryDebtColumnTitles) {
       columns.push(
         defaultColumn<DetailSalaryDebt>(key, detailSalaryDebtColumnTitles),
+      );
+    }
+
+    return columns;
+  };
+
+export const detailPunishAndBonusDefaultVisibilityState = {
+  name: true,
+  multiply: true,
+  value: true,
+};
+
+export const detailPunishAndBonusColumnTitles = {
+  name: "Name",
+  multiply: "Times",
+  value: "Value",
+};
+
+export const detailPunishAndBonusTableColumns =
+  (): ColumnDef<DetailPunishAndBonus>[] => {
+    const columns: ColumnDef<DetailPunishAndBonus>[] = [];
+
+    for (let key in detailPunishAndBonusColumnTitles) {
+      columns.push(
+        defaultColumn<DetailPunishAndBonus>(
+          key,
+          detailPunishAndBonusColumnTitles,
+        ),
       );
     }
 

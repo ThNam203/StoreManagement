@@ -59,7 +59,7 @@ const formSchema = z.object({
 
 type Props = {
   data: Transaction | null;
-  submit: (values: Transaction, linkedFormId: any) => any;
+  submit: (values: Transaction) => any;
   open: boolean;
   setOpen: (open: boolean) => void;
 };
@@ -163,12 +163,13 @@ export function MakeReceiptDialog({ data, submit, open, setOpen }: Props) {
       targetName: values.targetName,
       status: Status.PAID,
       note: values.note ? values.note : "",
+      linkFormId: -1,
     };
     console.log("before submit", receipt);
 
     if (submit) {
       try {
-        await submit(receipt, -1);
+        await submit(receipt);
       } catch (e) {
         console.log(e);
       } finally {
@@ -218,7 +219,9 @@ export function MakeReceiptDialog({ data, submit, open, setOpen }: Props) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent onInteractOutside={(e) => e.preventDefault()}>
         <DialogHeader>
-          <DialogTitle>Create receipt form</DialogTitle>
+          <DialogTitle>
+            {data ? "Receipt form" : "Create receipt form"}
+          </DialogTitle>
         </DialogHeader>
         <div className="w-full">
           <Form {...form}>

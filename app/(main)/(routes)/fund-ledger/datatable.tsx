@@ -8,10 +8,10 @@ import { useToast } from "@/components/ui/use-toast";
 import { FormType, TargetType, Transaction } from "@/entities/Transaction";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { cn } from "@/lib/utils";
-import { exportExcel, formatDate, formatPrice } from "@/utils";
+import { exportExcel, formatDate, formatPrice, revertID } from "@/utils";
 import { Row, Table } from "@tanstack/react-table";
 import { format } from "date-fns";
-import { FolderOpen } from "lucide-react";
+import { FolderOpen, Trash } from "lucide-react";
 import * as React from "react";
 import { ImportDailog } from "../../../../components/ui/my_import_dialog";
 import {
@@ -19,13 +19,23 @@ import {
   fundledgerDefaultVisibilityState,
   fundledgerTableColumns,
 } from "./table_columns";
+import {
+  ConfirmDialogType,
+  MyConfirmDialog,
+} from "@/components/ui/my_confirm_dialog";
+import LoadingCircle from "@/components/ui/loading_circle";
+import TransactionService from "@/services/transaction_service";
+import { deleteTransaction } from "@/reducers/transactionReducer";
+import { axiosUIErrorHandler } from "@/services/axios_utils";
 
 type Props = {
   data: Transaction[];
-  onSubmit: (values: Transaction, linkedFormId: any) => any;
+  onSubmit: (values: Transaction) => any;
 };
 
 export function DataTable({ data, onSubmit }: Props) {
+  const dispatch = useAppDispatch();
+  const { toast } = useToast();
   const [selectedForm, setSelectedForm] = React.useState<Transaction | null>(
     null,
   );
@@ -132,6 +142,26 @@ export function DataTable({ data, onSubmit }: Props) {
     setOpenReceipt(true);
   };
 
+  const removeForm = async (id: any, type: FormType) => {
+    try {
+      if (type === FormType.RECEIPT)
+        await TransactionService.deleteReceiptForm(id);
+      else if (type === FormType.EXPENSE)
+        await TransactionService.deleteExpenseForm(id);
+      console.log(id);
+      dispatch(deleteTransaction({ id: id, type: type }));
+      return Promise.resolve();
+    } catch (e) {
+      axiosUIErrorHandler(e, toast);
+      return Promise.reject(e);
+    }
+  };
+
+  const handleRemoveForm = (transaction: Transaction) => {
+    const prefix = transaction.formType === FormType.EXPENSE ? "EF" : "RF";
+    return removeForm(revertID(transaction.id, prefix), transaction.formType);
+  };
+
   const [openImportDialog, setOpenImportDialog] = React.useState(false);
 
   const beginningFund = 200000000;
@@ -169,6 +199,7 @@ export function DataTable({ data, onSubmit }: Props) {
                   setShowTabs={setShowTabs}
                   onOpenExpenseForm={handleOpenExpenseForm}
                   onOpenReceiptForm={handleOpenReceiptForm}
+                  onRemoveForm={handleRemoveForm}
                 />
               );
             },
@@ -207,11 +238,13 @@ const DetailFundledgerTab = ({
   setShowTabs,
   onOpenExpenseForm,
   onOpenReceiptForm,
+  onRemoveForm,
 }: {
   row: Row<Transaction>;
   setShowTabs: (value: boolean) => any;
   onOpenExpenseForm?: (transaction: Transaction) => any;
   onOpenReceiptForm?: (transaction: Transaction) => any;
+  onRemoveForm?: (transaction: Transaction) => any;
 }) => {
   const transaction = row.original;
   //find the target of transaction
@@ -240,11 +273,14 @@ const DetailFundledgerTab = ({
         address: stranger.address,
       };
   }
-
-  const [disableDisableButton, setDisableDisableButton] = React.useState(false);
-  const [disableDeleteButton, setDisableDeleteButton] = React.useState(false);
-  const dispatch = useAppDispatch();
   const { toast } = useToast();
+  const [openConfirmDialog, setOpenConfirmDialog] = React.useState(false);
+  const [isRemoving, setIsRemoving] = React.useState(false);
+  const [contentConfirmDialog, setContentConfirmDialog] = React.useState({
+    title: "",
+    content: "",
+    type: "warning" as ConfirmDialogType,
+  });
 
   return (
     <div className="flex h-[300px] flex-col gap-4 px-4 py-2">
@@ -260,8 +296,8 @@ const DetailFundledgerTab = ({
             <RowInfo
               label={
                 transaction.formType === FormType.RECEIPT
-                  ? "Receiver:"
-                  : "Payer:"
+                  ? "Payer:"
+                  : "Receiver:"
               }
               value={transaction.targetName}
             />
@@ -293,28 +329,61 @@ const DetailFundledgerTab = ({
         <Button
           variant={"green"}
           onClick={(e) => {
-            if (onOpenExpenseForm) onOpenExpenseForm(transaction);
+            if (transaction.formType === FormType.RECEIPT) {
+              if (onOpenReceiptForm) onOpenReceiptForm(transaction);
+            } else if (transaction.formType === FormType.EXPENSE) {
+              if (onOpenExpenseForm) onOpenExpenseForm(transaction);
+            }
           }}
         >
           <FolderOpen size={16} className="mr-2" />
           Open form
         </Button>
-        {/* <Button
+        <Button
           variant={"red"}
           onClick={() => {
             setContentConfirmDialog({
-              title: "Remove staff",
-              content: `All data of this staff will be removed. Are you sure you want to remove staff named '${staff.name}' ?`,
+              title:
+                transaction.formType === FormType.RECEIPT
+                  ? "Remove receipt form"
+                  : "Remove expense form",
+              content: `Are you sure you want to remove this form ?`,
               type: "warning",
             });
             setOpenConfirmDialog(true);
           }}
+          className={cn(transaction.linkFormId === -1 ? "visible" : "hidden")}
         >
           <Trash size={16} className="mr-2" />
           Remove
           {isRemoving && <LoadingCircle></LoadingCircle>}
-        </Button> */}
+        </Button>
       </div>
+      <MyConfirmDialog
+        open={openConfirmDialog}
+        setOpen={setOpenConfirmDialog}
+        title={contentConfirmDialog.title}
+        content={contentConfirmDialog.content}
+        type={contentConfirmDialog.type}
+        onAccept={async () => {
+          setOpenConfirmDialog(false);
+          setShowTabs(false);
+
+          if (onRemoveForm) {
+            setIsRemoving(true);
+            try {
+              await onRemoveForm(transaction).then(() => {
+                setIsRemoving(false);
+              });
+            } catch (e) {
+              axiosUIErrorHandler(e, toast);
+            } finally {
+              setIsRemoving(false);
+            }
+          }
+        }}
+        onCancel={() => setOpenConfirmDialog(false)}
+      />
     </div>
   );
 };

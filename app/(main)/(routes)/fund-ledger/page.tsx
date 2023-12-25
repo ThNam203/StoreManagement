@@ -23,7 +23,11 @@ import {
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
 import { setStaffs } from "@/reducers/staffReducer";
-import { addTransaction, setTransactions } from "@/reducers/transactionReducer";
+import {
+  addTransaction,
+  addTransactions,
+  setTransactions,
+} from "@/reducers/transactionReducer";
 import { setStrangers } from "@/reducers/transactionStrangerReducer";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
 import StaffService from "@/services/staff_service";
@@ -38,6 +42,8 @@ import { convertStaffReceived } from "@/utils/staffApiUtils";
 import {
   convertExpenseFormReceived,
   convertExpenseFormToSent,
+  convertReceiptFormReceived,
+  convertReceiptFormToSent,
   convertStrangerReceived,
 } from "@/utils/transactionApiUtils";
 
@@ -80,12 +86,17 @@ export default function SalesPage() {
     dispatch(showPreloader());
     const fetchData = async () => {
       try {
-        const resTransactionForm =
-          await TransactionService.getAllExpenseForms();
-        const transactionList = resTransactionForm.data.map((form) =>
+        const resExpenseForm = await TransactionService.getAllExpenseForms();
+        const expenseList = resExpenseForm.data.map((form) =>
           convertExpenseFormReceived(form),
         );
-        dispatch(setTransactions(transactionList));
+        dispatch(setTransactions(expenseList));
+
+        const resReceiptForm = await TransactionService.getAllReceiptForms();
+        const receiptList = resReceiptForm.data.map((form) =>
+          convertReceiptFormReceived(form),
+        );
+        dispatch(addTransactions(receiptList));
 
         const resStaff = await StaffService.getAllStaffs();
         const staffReceived = resStaff.data.map((staff) =>
@@ -110,9 +121,9 @@ export default function SalesPage() {
     fetchData();
   }, []);
 
-  const addExpenseForm = async (value: Transaction, linkedFormId: any) => {
+  const addExpenseForm = async (value: Transaction) => {
     try {
-      const convertedToSent = convertExpenseFormToSent(value, linkedFormId);
+      const convertedToSent = convertExpenseFormToSent(value);
       const res =
         await TransactionService.createNewExpenseForm(convertedToSent);
       const expense = convertExpenseFormReceived(res.data);
@@ -123,13 +134,13 @@ export default function SalesPage() {
       return Promise.reject();
     }
   };
-  const addReceiptForm = async (value: Transaction, linkedFormId: any) => {
+  const addReceiptForm = async (value: Transaction) => {
     try {
-      const convertedToSent = convertExpenseFormToSent(value, linkedFormId);
+      const convertedToSent = convertReceiptFormToSent(value);
       const res =
-        await TransactionService.createNewExpenseForm(convertedToSent);
-      const expense = convertExpenseFormReceived(res.data);
-      dispatch(addTransaction(expense));
+        await TransactionService.createNewReceiptForm(convertedToSent);
+      const receipt = convertReceiptFormReceived(res.data);
+      dispatch(addTransaction(receipt));
       return Promise.resolve();
     } catch (e) {
       axiosUIErrorHandler(e, toast);
@@ -161,8 +172,9 @@ export default function SalesPage() {
   ]);
 
   //function
-  function handleFormSubmit(values: Transaction, linkedFormId: any) {
-    return addExpenseForm(values, linkedFormId);
+  function handleFormSubmit(value: Transaction) {
+    if (value.formType === FormType.EXPENSE) return addExpenseForm(value);
+    return addReceiptForm(value);
   }
 
   const updateTimeRangeTimeFilter = (range: {

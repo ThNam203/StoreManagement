@@ -11,6 +11,7 @@ export type Transaction = {
   time: Date;
   status: Status;
   note: string;
+  linkFormId: number;
 };
 
 export enum TransactionType {
@@ -49,9 +50,9 @@ export enum TransactionDesc {
   EXPENSE_CUSTOMER = "Expense for customer",
   EXPENSE_SUPPLIER = "Expense for supplier",
   EXPENSE_OTHER = "Expense for other",
-  RECEIPT_CUSTOMER = "Receipt from customer",
-  RECEIPT_SUPPLIER = "Receipt from supplier",
-  RECEIPT_OTHER = "Receipt from other",
+  RECEIPT_CUSTOMER = "Income from customer",
+  RECEIPT_SUPPLIER = "Income from supplier",
+  RECEIPT_OTHER = "Income from other",
 }
 
 export type DetailSalaryDebt = {

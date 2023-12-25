@@ -1,4 +1,10 @@
-import { DailyShift, Shift, ViolationAndReward } from "@/entities/Attendance";
+import {
+  BonusAndPunish,
+  DailyShift,
+  DetailPunishAndBonusList,
+  Shift,
+  ViolationAndReward,
+} from "@/entities/Attendance";
 import AxiosService from "./axiosService";
 
 const getShiftsByRange = (range: { startDate: Date; endDate: Date }) => {
@@ -55,6 +61,12 @@ const deleteViolationAndReward = (id: any) => {
   return AxiosService.delete("/api/violation-and-rewards/" + id);
 };
 
+const getPunishAndBonusList = () => {
+  return AxiosService.get<DetailPunishAndBonusList[]>(
+    "/api/reports/bonus-and-punish",
+  );
+};
+
 const ShiftService = {
   getShiftsByRange,
   getShiftsThisMonth,
@@ -68,6 +80,7 @@ const ShiftService = {
   createViolationAndReward,
   updateViolationAndReward,
   deleteViolationAndReward,
+  getPunishAndBonusList,
 };
 
 export default ShiftService;

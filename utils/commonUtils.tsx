@@ -372,7 +372,10 @@ const removeCharNotANum = (e: any) => {
 };
 
 const formatID = (id: number, prefix: string) => {
-  return `${prefix}${id.toString().padStart(4, "0")}`;
+  return `${prefix}${id.toString()}`;
+};
+const revertID = (id: string, prefix: string) => {
+  return id.replace(prefix, "");
 };
 
 const formatPrice = (price: number) => {
@@ -424,6 +427,7 @@ export {
   exportExcel,
   importExcel,
   formatID,
+  revertID,
   formatPrice,
   getMinMaxOfListTime,
   getStaticRangeFilterTime,

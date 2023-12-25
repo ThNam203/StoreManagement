@@ -13,7 +13,7 @@ import lombok.*;
 @Table(name = "violations_and_rewards")
 public class ViolationAndReward {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     @Column(name = "name")

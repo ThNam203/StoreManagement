@@ -161,20 +161,8 @@ export function TimeKeepingDialog({
 
   const resetToEmptyForm = () => {
     form.reset();
-    setPunishList([
-      {
-        name: "",
-        value: NaN,
-        times: NaN,
-      },
-    ]);
-    setBonusList([
-      {
-        name: "",
-        value: NaN,
-        times: NaN,
-      },
-    ]);
+    setPunishList([]);
+    setBonusList([]);
   };
 
   useEffect(() => {
@@ -406,7 +394,7 @@ export function TimeKeepingDialog({
                                       let applyValue = 0;
                                       if (violation)
                                         applyValue = violation.defaultValue;
-                                      const newPunishList: BonusAndPunish[] = [
+                                      let newPunishList: BonusAndPunish[] = [
                                         ...punishList,
                                       ].map((punish, i) =>
                                         i === index
@@ -429,11 +417,16 @@ export function TimeKeepingDialog({
                                       punish.times ? punish.times : ""
                                     }
                                     onChange={(val) => {
-                                      const newPunishList: BonusAndPunish[] = [
+                                      let newPunishList: BonusAndPunish[] = [
                                         ...punishList,
-                                      ];
-                                      newPunishList[index].times =
-                                        formatNumberInput(val);
+                                      ].map((punish, i) =>
+                                        i === index
+                                          ? {
+                                              ...punish,
+                                              times: formatNumberInput(val),
+                                            }
+                                          : punish,
+                                      );
                                       setPunishList(newPunishList);
                                     }}
                                   />
@@ -446,11 +439,16 @@ export function TimeKeepingDialog({
                                       punish.value ? punish.value : ""
                                     }
                                     onChange={(val) => {
-                                      const newPunishList: BonusAndPunish[] = [
+                                      let newPunishList: BonusAndPunish[] = [
                                         ...punishList,
-                                      ];
-                                      newPunishList[index].value =
-                                        formatNumberInput(val);
+                                      ].map((punish, i) =>
+                                        i === index
+                                          ? {
+                                              ...punish,
+                                              value: formatNumberInput(val),
+                                            }
+                                          : punish,
+                                      );
                                       setPunishList(newPunishList);
                                     }}
                                   />
@@ -558,7 +556,7 @@ export function TimeKeepingDialog({
                                       let applyValue = 0;
                                       if (reward)
                                         applyValue = reward.defaultValue;
-                                      const newRewardList: BonusAndPunish[] = [
+                                      let newRewardList: BonusAndPunish[] = [
                                         ...bonusList,
                                       ].map((reward, i) =>
                                         i === index
@@ -582,11 +580,16 @@ export function TimeKeepingDialog({
                                       bonus.times ? bonus.times : ""
                                     }
                                     onChange={(val) => {
-                                      const newRewardList: BonusAndPunish[] = [
+                                      let newRewardList: BonusAndPunish[] = [
                                         ...bonusList,
-                                      ];
-                                      newRewardList[index].times =
-                                        formatNumberInput(val);
+                                      ].map((reward, i) =>
+                                        i === index
+                                          ? {
+                                              ...reward,
+                                              times: formatNumberInput(val),
+                                            }
+                                          : reward,
+                                      );
                                       setBonusList(newRewardList);
                                     }}
                                   />
@@ -599,14 +602,15 @@ export function TimeKeepingDialog({
                                       bonus.value ? bonus.value : ""
                                     }
                                     onChange={(val) => {
-                                      const newRewardList: BonusAndPunish[] = [
+                                      let newRewardList: BonusAndPunish[] = [
                                         ...bonusList,
-                                      ];
-                                      newRewardList[index].value =
-                                        formatNumberInput(val);
-                                      console.log(
-                                        "newRewardList",
-                                        newRewardList,
+                                      ].map((reward, i) =>
+                                        i === index
+                                          ? {
+                                              ...reward,
+                                              value: formatNumberInput(val),
+                                            }
+                                          : reward,
                                       );
                                       setBonusList(newRewardList);
                                     }}
