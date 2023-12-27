@@ -14,7 +14,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -32,74 +34,46 @@ public class ListBonusAndPunishForStaffServiceImpl implements ListBonusAndPunish
         for (Integer staffId : staffIds) {
             ListBonusAndPunishForStaffDTO listBonusAndPunishForStaffDTO = new ListBonusAndPunishForStaffDTO();
             listBonusAndPunishForStaffDTO.setStaffId(staffId);
-            List<ShiftAttendanceRecord> shiftAttendanceRecords = shiftAttendanceRecordRepository.findByStaffId(staffId);
-            List<ListBonusForStaffDTO> listBonus = new ArrayList<>();
-            List<ListPunishForStaffDTO> listPunish = new ArrayList<>();
-            // get list bonus and punish
+            List<ShiftAttendanceRecord> shiftAttendanceRecords = shiftAttendanceRecordRepository.findByStaffIdAndDateInThisMonthAndBonusAndPunishNotNull(staffId);
+            Map<String, ListBonusForStaffDTO> bonusMap = new HashMap<>();
+            Map<String, ListPunishForStaffDTO> punishMap = new HashMap<>();
             for (ShiftAttendanceRecord shiftAttendanceRecord : shiftAttendanceRecords) {
                 if (shiftAttendanceRecord.getBonusSalaryList() != null) {
                     for (StaffBonusSalary staffBonusSalary : shiftAttendanceRecord.getBonusSalaryList()) {
-                        if (listBonus.isEmpty()) {
-                            ListBonusForStaffDTO listBonusForStaffDTO = new ListBonusForStaffDTO();
-                            listBonusForStaffDTO.setName(staffBonusSalary.getName());
-                            listBonusForStaffDTO.setValue(staffBonusSalary.getValue() * staffBonusSalary.getMultiply());
-                            listBonusForStaffDTO.setMultiply(listBonusForStaffDTO.getMultiply() + 1);
-                            listBonus.add(listBonusForStaffDTO);
-                        } else {
-                            boolean check = false;
-                            for (ListBonusForStaffDTO listBonusForStaffDTO : listBonus) {
-                                if (listBonusForStaffDTO.getName().equals(staffBonusSalary.getName())) {
-                                    listBonusForStaffDTO.setValue(listBonusForStaffDTO.getValue() + staffBonusSalary.getValue() * staffBonusSalary.getMultiply());
-                                    listBonusForStaffDTO.setMultiply(listBonusForStaffDTO.getMultiply() + 1);
-                                    check = true;
-                                    break;
-                                }
-                            }
-                            if (!check) {
-                                ListBonusForStaffDTO listBonusForStaffDTO = new ListBonusForStaffDTO();
-                                listBonusForStaffDTO.setName(staffBonusSalary.getName());
-                                listBonusForStaffDTO.setValue(staffBonusSalary.getValue() * staffBonusSalary.getMultiply());
-                                listBonusForStaffDTO.setMultiply(listBonusForStaffDTO.getMultiply() + 1);
-                                listBonus.add(listBonusForStaffDTO);
-                            }
-                        }
-
+                        ListBonusForStaffDTO bonus = bonusMap.computeIfAbsent(staffBonusSalary.getName(), name -> createNewBonusForStaffDTO(name, staffBonusSalary));
+                        updateBonusForStaffDTO(bonus, staffBonusSalary);
                     }
                 }
                 if (shiftAttendanceRecord.getPunishSalaryList() != null) {
                     for (StaffPunishSalary staffPunishSalary : shiftAttendanceRecord.getPunishSalaryList()) {
-                        if (listPunish.isEmpty()) {
-                            ListPunishForStaffDTO listPunishForStaffDTO = new ListPunishForStaffDTO();
-                            listPunishForStaffDTO.setName(staffPunishSalary.getName());
-                            listPunishForStaffDTO.setValue(staffPunishSalary.getValue() * staffPunishSalary.getMultiply());
-                            listPunishForStaffDTO.setMultiply(listPunishForStaffDTO.getMultiply() + 1);
-                            listPunish.add(listPunishForStaffDTO);
-                        } else {
-                            boolean check = false;
-                            for (ListPunishForStaffDTO listPunishForStaffDTO : listPunish) {
-                                if (listPunishForStaffDTO.getName().equals(staffPunishSalary.getName())) {
-                                    listPunishForStaffDTO.setValue(listPunishForStaffDTO.getValue() + staffPunishSalary.getValue() * staffPunishSalary.getMultiply());
-                                    listPunishForStaffDTO.setMultiply(listPunishForStaffDTO.getMultiply() + 1);
-                                    check = true;
-                                    break;
-                                }
-                            }
-                            if (!check) {
-                                ListPunishForStaffDTO listPunishForStaffDTO = new ListPunishForStaffDTO();
-                                listPunishForStaffDTO.setName(staffPunishSalary.getName());
-                                listPunishForStaffDTO.setValue(staffPunishSalary.getValue() * staffPunishSalary.getMultiply());
-                                listPunishForStaffDTO.setMultiply(listPunishForStaffDTO.getMultiply() + 1);
-                                listPunish.add(listPunishForStaffDTO);
-                            }
-                        }
-
+                        ListPunishForStaffDTO punish = punishMap.computeIfAbsent(staffPunishSalary.getName(), name -> createNewPunishForStaffDTO(name, staffPunishSalary));
+                        updatePunishForStaffDTO(punish, staffPunishSalary);
                     }
                 }
             }
-            listBonusAndPunishForStaffDTO.setListBonus(listBonus);
-            listBonusAndPunishForStaffDTO.setListPunish(listPunish);
+            listBonusAndPunishForStaffDTO.setListBonus(new ArrayList<>(bonusMap.values()));
+            listBonusAndPunishForStaffDTO.setListPunish(new ArrayList<>(punishMap.values()));
             listReturn.add(listBonusAndPunishForStaffDTO);
         }
         return listReturn;
     }
+
+    private ListBonusForStaffDTO createNewBonusForStaffDTO(String name, StaffBonusSalary staffBonusSalary) {
+        return new ListBonusForStaffDTO(name, 1, staffBonusSalary.getValue() * staffBonusSalary.getMultiply());
+    }
+
+    private void updateBonusForStaffDTO(ListBonusForStaffDTO bonus, StaffBonusSalary staffBonusSalary) {
+        bonus.setValue(bonus.getValue() + staffBonusSalary.getValue() * staffBonusSalary.getMultiply());
+        bonus.setMultiply(bonus.getMultiply() + 1);
+    }
+
+    private ListPunishForStaffDTO createNewPunishForStaffDTO(String name, StaffPunishSalary staffPunishSalary) {
+        return new ListPunishForStaffDTO(name, 1, staffPunishSalary.getValue() * staffPunishSalary.getMultiply());
+    }
+
+    private void updatePunishForStaffDTO(ListPunishForStaffDTO punish, StaffPunishSalary staffPunishSalary) {
+        punish.setValue(punish.getValue() + staffPunishSalary.getValue() * staffPunishSalary.getMultiply());
+        punish.setMultiply(punish.getMultiply() + 1);
+    }
+
 }
