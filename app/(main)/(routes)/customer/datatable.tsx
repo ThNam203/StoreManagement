@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { ChevronRight, Lock, PenLine, Trash, Undo2 } from "lucide-react";
-import { useAppDispatch } from "@/hooks";
+import { useAppDispatch, useAppSelector } from "@/hooks";
 import LoadingCircle from "@/components/ui/loading_circle";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
 import { useToast } from "@/components/ui/use-toast";
@@ -81,6 +81,7 @@ const DetailCustomerTab = ({
   setShowTabs: (value: boolean) => any;
 }) => {
   const customer = row.original;
+  const staffs = useAppSelector((state) => state.staffs.value);
   const [disableDeleteButton, setDisableDeleteButton] = useState(false);
   const dispatch = useAppDispatch();
   const { toast } = useToast();
@@ -89,7 +90,7 @@ const DetailCustomerTab = ({
     <div className="py-2">
       <div className="flex flex-row gap-2">
         <div className="w-[300px] bg-contain bg-center">
-          <img src={customer.image.url ?? "/default-user-avatar.png"} />
+          <img src={customer.image?.url ?? "/default-user-avatar.png"} />
         </div>
         <div className="flex flex-1 flex-row text-[0.8rem]">
           <div className="flex flex-1 flex-col gap-1 pr-4">
@@ -125,8 +126,8 @@ const DetailCustomerTab = ({
             </div>
             {/* TODO: CHANGE CREATORID -> NAME */}
             <div className="mb-2 flex flex-row border-b font-medium">
-              <p className="w-[120px] font-normal">Creator Id</p>
-              <p>{customer.creator}</p>
+              <p className="w-[120px] font-normal">Creator</p>
+              <p>{staffs.find((s) => s.id === customer.creatorId)?.name ?? "NOT FOUND"}</p>
             </div>
             <div>
               <p className="mb-2">Note</p>

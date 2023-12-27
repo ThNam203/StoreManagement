@@ -161,12 +161,16 @@ export default function InvoiceReturnPage() {
     delete submitInvoice.createdAt;
     delete submitInvoice.staffId;
     delete submitInvoice.subTotal;
-    delete submitInvoice.total;
-    if (submitInvoice.returnDetails)
+
+    if (submitInvoice.returnDetails) {
+      submitInvoice.returnDetails = submitInvoice.returnDetails.filter(
+        (v: any) => v.quantity > 0,
+      );
       submitInvoice.returnDetails.forEach((v: any) => {
         delete v.id;
         delete v.maxQuantity;
       });
+    }
 
     setIsCompletingReturn(true);
     await ReturnInvoiceService.uploadReturnInvoice(submitInvoice)
@@ -195,7 +199,10 @@ export default function InvoiceReturnPage() {
         return {
           ...prev!,
           subTotal: subTotal,
-          total: subTotal - prev!.discountValue + prev!.returnFee,
+          total:
+            subTotal - prev!.discountValue - prev!.returnFee < 0
+              ? 0
+              : subTotal - prev!.discountValue - prev!.returnFee,
         };
       });
   }, [

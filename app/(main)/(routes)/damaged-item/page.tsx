@@ -6,24 +6,29 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
-import { setPurchaseReturns } from "@/reducers/purchaseReturnsReducer";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
-import PurchaseReturnService from "@/services/purchaseReturnService";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { PurchaseReturnDatatable } from "./datatable";
+import { DamagedItemsDatatable } from "./datatable";
+import DamagedItemService from "@/services/damagedItemService";
+import { setDamagedItemDocuments } from "@/reducers/damagedItemsReducer";
+import StaffService from "@/services/staff_service";
+import { setStaffs } from "@/reducers/staffReducer";
 
-export default function PurchaseReturnPage() {
+export default function DamagedItemsPage() {
   const dispatch = useAppDispatch();
   const { toast } = useToast();
   const router = useRouter();
-  const purchaseReturns = useAppSelector((state) => state.purchaseReturns.value);
+  const damagedItemDocuments = useAppSelector((state) => state.damagedItemDocuments.value);
 
   useEffect(() => {
     dispatch(showPreloader());
     const fetchData = async () => {
-      const purchaseReturns = await PurchaseReturnService.getAllPurchaseReturns();
-      dispatch(setPurchaseReturns(purchaseReturns.data));
+      const damagedItemDocuments = await DamagedItemService.getAllDamagedItemDocuments();
+      dispatch(setDamagedItemDocuments(damagedItemDocuments.data));
+
+      const staffs = await StaffService.getAllStaffs();
+      dispatch(setStaffs(staffs.data));
     };
 
     fetchData()
@@ -34,19 +39,19 @@ export default function PurchaseReturnPage() {
 
   return (
     <PageWithFilters
-      title="Purchase Return"
+      title="Damaged Items"
       filters={[]}
       headerButtons={[
         <Button
           key={1}
           variant={"green"}
-          onClick={() => router.push("/purchase-return/new")}
+          onClick={() => router.push("/damaged-item/new")}
         >
-          New purchase return
+          New document
         </Button>,
       ]}
     >
-      <PurchaseReturnDatatable data={purchaseReturns} />
+      <DamagedItemsDatatable data={damagedItemDocuments} />
     </PageWithFilters>
   );
 }

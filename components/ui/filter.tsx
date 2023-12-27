@@ -1,81 +1,111 @@
 "use client";
 
-import scrollbar_style from "../../styles/scrollbar.module.css";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { cn } from "@/lib/utils";
+import { TimeFilterType, formatNumberInput } from "@/utils";
+import format from "date-fns/format";
+import { CalendarDays, Check, Filter, Maximize2, XCircle } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
+import { DateRangePicker } from "react-date-range";
 import "react-date-range/dist/styles.css"; // main style file
 import "react-date-range/dist/theme/default.css"; // theme css file
+import scrollbar_style from "../../styles/scrollbar.module.css";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "./accordion";
-import { DateRangePicker } from "react-date-range";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Checkbox } from "./checkbox";
-import { cn } from "@/lib/utils";
-import {
-  CalendarDays,
-  Check,
-  Filter,
-  Maximize2,
-  PlusCircle,
-  X,
-  XCircle,
-} from "lucide-react";
-import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 import { Button } from "./button";
-import React, {
-  StrictMode,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { Checkbox } from "./checkbox";
 import { Input } from "./input";
+import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 import { ScrollArea } from "./scroll-area";
-import format from "date-fns/format";
-import { TimeFilterType, formatNumberInput, removeCharNotANum } from "@/utils";
-import Preloader from "./preloader";
 
-const ChoicesFilter = ({
+const SingleChoiceFilter = <T extends string | number>({
   title,
-  isSingleChoice,
-  showPlusButton,
   alwaysOpen,
   choices,
   className,
-  defaultValue,
-  defaultValues = [],
-  onPlusButtonClicked,
-  onSingleChoiceChanged,
-  onMultiChoicesChanged,
+  value,
+  onValueChanged,
 }: {
   title: string;
-  isSingleChoice: boolean;
-  showPlusButton?: boolean;
   alwaysOpen?: boolean;
-  choices: string[];
+  choices: T[];
   className?: string;
-  defaultValue?: string;
-  defaultValues?: string[];
-  onPlusButtonClicked?: () => void;
-  onSingleChoiceChanged?: (value: string) => void;
-  onMultiChoicesChanged?: (values: string[]) => void;
+  value?: T;
+  onValueChanged?: (value: T) => void;
+}) => {
+  return (
+    <Accordion
+      type="single"
+      collapsible={!alwaysOpen}
+      defaultValue="item-1"
+      className={cn("w-full rounded-md bg-white px-4", className)}
+    >
+      <AccordionItem value="item-1">
+        <AccordionTrigger showArrowFunc={alwaysOpen ? "hidden" : ""}>
+          <p className="flex-1 text-start text-[0.8rem] font-bold leading-4">
+            {title}
+          </p>
+        </AccordionTrigger>
+        <AccordionContent>
+          <RadioGroup
+            className="gap-3 pb-2"
+            value={value ? value.toString() : undefined}
+            onValueChange={(val) => {
+              if (!onValueChanged) return;
+              if (typeof val === "string") onValueChanged(val as T);
+              else onValueChanged(Number(val) as T);
+            }}
+          >
+            {choices.map((choice, index) => (
+              <div key={index} className="flex items-center space-x-3">
+                <RadioGroupItem value={choice.toString()} id={title + index} />
+                <Label
+                  htmlFor={title + index}
+                  className="text-[0.8rem] font-normal hover:cursor-pointer"
+                >
+                  {choice}
+                </Label>
+              </div>
+            ))}
+          </RadioGroup>
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
+  );
+};
+
+const MultiChoicesFilter = <T extends string | number>({
+  title,
+  alwaysOpen,
+  choices,
+  className,
+  values = [],
+  onValueChanged,
+}: {
+  title: string;
+  alwaysOpen?: boolean;
+  choices: T[];
+  className?: string;
+  values?: T[];
+  onValueChanged?: (values: T[]) => void;
 }) => {
   const multiChoicesHandler = (
     checkedState: boolean | "indeterminate",
-    checkedValue: string,
+    checkedValue: T,
   ) => {
     if (checkedState === true) {
-      if (!defaultValues.includes(checkedValue))
-        defaultValues.push(checkedValue);
+      if (!values.includes(checkedValue)) values.push(checkedValue);
     } else {
-      const removePos = defaultValues.indexOf(checkedValue);
-      if (removePos != -1) defaultValues.splice(removePos, 1);
+      const removePos = values.indexOf(checkedValue);
+      if (removePos != -1) values.splice(removePos, 1);
     }
 
-    if (onMultiChoicesChanged) onMultiChoicesChanged(defaultValues);
+    if (onValueChanged) onValueChanged(values);
   };
 
   return (
@@ -87,65 +117,31 @@ const ChoicesFilter = ({
     >
       <AccordionItem value="item-1">
         <AccordionTrigger showArrowFunc={alwaysOpen ? "hidden" : ""}>
-          <div className="flex w-full flex-row items-center">
-            <p className="flex-1 text-start text-[0.8rem] font-bold leading-4">
-              {title}
-            </p>
-            {showPlusButton === true ? (
-              <PlusCircle
-                className={alwaysOpen ? "ml-2" : "mx-2"}
-                size={16}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (onPlusButtonClicked) onPlusButtonClicked();
-                }}
-              />
-            ) : null}
-          </div>
+          <p className="flex-1 text-start text-[0.8rem] font-bold leading-4">
+            {title}
+          </p>
         </AccordionTrigger>
         <AccordionContent>
-          {isSingleChoice ? (
-            <RadioGroup
-              className="gap-3 pb-2"
-              defaultValue={defaultValue}
-              onValueChange={(val) => {
-                if (onSingleChoiceChanged) onSingleChoiceChanged(val);
-              }}
-            >
-              {choices.map((choice, index) => (
-                <div key={index} className="flex items-center space-x-3">
-                  <RadioGroupItem value={choice} id={title + index} />
-                  <Label
-                    htmlFor={title + index}
-                    className="text-[0.8rem] font-normal hover:cursor-pointer"
-                  >
-                    {choice}
-                  </Label>
-                </div>
-              ))}
-            </RadioGroup>
-          ) : (
-            <div className="flex flex-col gap-3 pb-2">
-              {choices.map((choice, index) => (
-                <div key={index} className="flex items-center space-x-3">
-                  <Checkbox
-                    value={index}
-                    id={title + index}
-                    checked={defaultValues!.includes(choice)}
-                    onCheckedChange={(checkedState) =>
-                      multiChoicesHandler(checkedState, choice)
-                    }
-                  />
-                  <Label
-                    htmlFor={title + index}
-                    className="text-[0.8rem] font-normal hover:cursor-pointer"
-                  >
-                    {choice}
-                  </Label>
-                </div>
-              ))}
-            </div>
-          )}
+          <div className="flex flex-col gap-3 pb-2">
+            {choices.map((choice, index) => (
+              <div key={index} className="flex items-center space-x-3">
+                <Checkbox
+                  value={index}
+                  id={title + index}
+                  checked={values!.includes(choice)}
+                  onCheckedChange={(checkedState) =>
+                    multiChoicesHandler(checkedState, choice)
+                  }
+                />
+                <Label
+                  htmlFor={title + index}
+                  className="text-[0.8rem] font-normal hover:cursor-pointer"
+                >
+                  {choice}
+                </Label>
+              </div>
+            ))}
+          </div>
         </AccordionContent>
       </AccordionItem>
     </Accordion>
@@ -237,6 +233,9 @@ const TimeFilter = ({
   singleTimeValue = FilterYear.AllTime,
   singleTimeString,
   rangeTimeValue = { startDate: new Date(), endDate: new Date() },
+  onTimeFilterControlChanged,
+  onSingleTimeFilterChanged,
+  onRangeTimeFilterChanged,
   filterDay = [FilterDay.Today, FilterDay.LastDay],
   filterWeek = [FilterWeek.ThisWeek, FilterWeek.LastWeek, FilterWeek.Last7Days],
   filterMonth = [
@@ -246,9 +245,6 @@ const TimeFilter = ({
   ],
   filterQuarter = [FilterQuarter.ThisQuarter, FilterQuarter.LastQuarter],
   filterYear = [FilterYear.ThisYear, FilterYear.LastYear, FilterYear.AllTime],
-  onTimeFilterControlChanged,
-  onSingleTimeFilterChanged,
-  onRangeTimeFilterChanged,
 }: {
   title: string;
   className?: string;
@@ -257,17 +253,17 @@ const TimeFilter = ({
   singleTimeValue?: FilterTime;
   singleTimeString?: string;
   rangeTimeValue?: { startDate: Date; endDate: Date };
-  filterDay?: FilterDay[];
-  filterWeek?: FilterWeek[];
-  filterMonth?: FilterMonth[];
-  filterQuarter?: FilterQuarter[];
-  filterYear?: FilterYear[];
   onTimeFilterControlChanged: (timeFilterControl: TimeFilterType) => void;
   onSingleTimeFilterChanged?: (filterTime: FilterTime) => void;
   onRangeTimeFilterChanged?: (range: {
     startDate: Date;
     endDate: Date;
   }) => void;
+  filterDay?: FilterDay[];
+  filterWeek?: FilterWeek[];
+  filterMonth?: FilterMonth[];
+  filterQuarter?: FilterQuarter[];
+  filterYear?: FilterYear[];
 }) => {
   const [isSingleFilter, setIsSingleFilter] = useState(
     timeFilterControl === TimeFilterType.StaticRange,
@@ -428,9 +424,9 @@ const TimeFilter = ({
                 htmlFor={title + "2"}
                 className="flex-1 text-[0.8rem] font-normal hover:cursor-pointer"
               >
-                {format(rangeTimeValue.startDate, "dd/MM/yyyy") +
+                {format(rangeTimeValue.startDate, "MM/dd/yyyy") +
                   " - " +
-                  format(rangeTimeValue.endDate, "dd/MM/yyyy")}
+                  format(rangeTimeValue.endDate, "MM/dd/yyyy")}
               </Label>
               <Popover
                 open={isRangeFilterOpen}
@@ -723,6 +719,124 @@ const SearchFilter = ({
   );
 };
 
+type FilterObject = object & {
+  id: number;
+  displayString: string;
+};
+
+const SearchFilterObject = ({
+  title,
+  placeholder,
+  alwaysOpen,
+  values,
+  choices,
+  filter,
+  className,
+  onValuesChanged,
+}: {
+  title: string;
+  placeholder: string;
+  alwaysOpen?: boolean;
+  values: FilterObject[];
+  choices: FilterObject[];
+  filter: (value: FilterObject, searchInput: string) => boolean;
+  className?: string;
+  onValuesChanged?: (values: FilterObject[]) => void;
+}) => {
+  const [showSearchValue, setShowSearchvalue] = useState(false);
+  const [searchInput, setSearchInput] = useState("");
+
+  return (
+    <Accordion
+      type="single"
+      collapsible={!alwaysOpen}
+      defaultValue="item-1"
+      className={cn("w-full rounded-md bg-white px-4", className)}
+    >
+      <AccordionItem value="item-1">
+        <AccordionTrigger showArrowFunc={alwaysOpen ? "hidden" : ""}>
+          <div className="flex w-full flex-row items-center">
+            <p className="flex-1 text-start text-[0.8rem] font-bold leading-4">
+              {title}
+            </p>
+          </div>
+        </AccordionTrigger>
+        <AccordionContent className="overflow-hidden data-[state=open]:overflow-visible">
+          <div className="relative mb-4 flex flex-col">
+            <Input
+              className="w-full focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0"
+              placeholder={placeholder}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onFocus={() => setShowSearchvalue(true)}
+              onBlur={() => setShowSearchvalue(false)}
+            />
+
+            {showSearchValue ? (
+              <div
+                className={cn(
+                  "absolute left-0 top-[100%] z-[9] max-h-[200px] w-full overflow-y-auto shadow-sm shadow-gray-600",
+                  scrollbar_style.scrollbar,
+                )}
+              >
+                <ul>
+                  {choices
+                    .filter((value) => filter(value, searchInput.trim()))
+                    .map((value, idx) => {
+                      const isChosen =
+                        values.find((v) => v.id === value.id) !== undefined;
+                      return (
+                        <li
+                          key={idx}
+                          className="flex flex-row items-center bg-slate-100 p-2 hover:cursor-pointer hover:bg-slate-300"
+                          onClick={(e) => {
+                            if (!onValuesChanged) return;
+                            if (isChosen)
+                              onValuesChanged(
+                                values.filter((v) => v.id !== value.id),
+                              );
+                            else onValuesChanged([...values, value]);
+                            e.stopPropagation();
+                          }}
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                          }}
+                        >
+                          <p className="flex-1">{value.displayString}</p>
+                          {isChosen ? <Check size={16} /> : null}
+                        </li>
+                      );
+                    })}
+                </ul>
+              </div>
+            ) : null}
+          </div>
+          {values.map((val, idx) => (
+            <div
+              key={idx}
+              className="mb-3 flex flex-row items-center space-x-3"
+            >
+              <p className="flex-1 text-[0.8rem] font-normal hover:cursor-pointer">
+                {val.displayString}
+              </p>
+              <XCircle
+                size={16}
+                color="#FFFFFF"
+                fill="rgb(96 165 250)"
+                className="h-4 w-4 p-0 hover:cursor-pointer"
+                onClick={(e) => {
+                  if (onValuesChanged)
+                    onValuesChanged(values.filter((v) => v.id !== val.id));
+                }}
+              />
+            </div>
+          ))}
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
+  );
+};
+
 const RangeFilter = ({
   title,
   firstLabel = "From",
@@ -896,16 +1010,18 @@ const PageWithFilters = ({
 };
 
 export {
-  ChoicesFilter,
-  TimeFilter,
-  SecondaryTimeFilter,
-  SearchFilter,
-  RangeFilter,
-  PageWithFilters,
-  TimerFilterRangePicker,
+  SingleChoiceFilter,
+  MultiChoicesFilter,
   FilterDay,
   FilterMonth,
-  FilterWeek,
   FilterQuarter,
+  FilterWeek,
   FilterYear,
+  PageWithFilters,
+  RangeFilter,
+  SearchFilter,
+  SecondaryTimeFilter,
+  TimeFilter,
+  TimerFilterRangePicker,
+  SearchFilterObject,
 };

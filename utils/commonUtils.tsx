@@ -6,16 +6,10 @@ import {
   FilterWeek,
   FilterYear,
 } from "@/components/ui/filter";
-import { AttendanceRecord, DailyShift, Shift } from "@/entities/Attendance";
-import { BonusUnit, SalaryType } from "@/entities/SalarySetting";
-import { Staff } from "@/entities/Staff";
-import { axiosUIErrorHandler } from "@/services/axios_utils";
 import { format } from "date-fns";
-
 import * as XLSX from "xlsx";
 
 const exportExcel = (data: any[], nameSheet: string, nameFile: string) => {
-  console.log("data", data);
   return new Promise((resolve, reject) => {
     var wb = XLSX.utils.book_new();
     var ws = XLSX.utils.json_to_sheet(data);
@@ -47,7 +41,6 @@ const importExcel = async (file: any) => {
       importData.push(worksheet[sheetName]);
     }
   } catch (e) {
-    console.log(e);
     return Promise.reject(e);
   }
   return Promise.resolve(importData);
@@ -91,7 +84,6 @@ function handleSingleFilter<T>(
   const filterList = listToFilter.filter((row) => {
     const filterKeys = Object.keys(filter);
     for (let key of filterKeys) {
-      console.log("value", row[key as keyof typeof row]);
       if (
         filter[key as keyof typeof filter] === null ||
         filter[key as keyof typeof filter] === undefined
@@ -105,6 +97,46 @@ function handleSingleFilter<T>(
     }
     return true;
   });
+  return filterList;
+}
+
+type FilterCondition = {
+  [key: string]: any[] | any;
+};
+
+function handleChoiceFilters<T>(
+  filter: FilterCondition,
+  listToFilter: Array<T>,
+): Array<T> {
+  const filterList = listToFilter.filter((row) => {
+    const filterKeys = Object.keys(filter);
+
+    for (let key of filterKeys) {
+      const filterValue = filter[key];
+
+      if (Array.isArray(filterValue)) {
+        // Use handleMultipleFilter for array values
+        if (
+          filterValue.length > 0 &&
+          !filterValue.includes(row[key as keyof typeof row])
+        ) {
+          return false;
+        }
+      } else {
+        // Use handleSingleFilter for non-array values
+        if (
+          filterValue !== null &&
+          filterValue !== undefined &&
+          filterValue !== row[key as keyof typeof row]
+        ) {
+          return false;
+        }
+      }
+    }
+
+    return true;
+  });
+
   return filterList;
 }
 
@@ -173,20 +205,18 @@ function handleTimeFilter<T>(
   const filterList = listToFilter.filter((row) => {
     const filterKeys = Object.keys(filterControl);
     for (let key of filterKeys) {
+      let value = row[key as keyof typeof row];
+      
       if (
         filterControl[key as keyof typeof filterControl] ===
         TimeFilterType.RangeTime
       ) {
-        console.log("key", key);
-        console.log("row", row);
-        let value = row[key as keyof typeof row];
         let range = rangeTimeFilter[key as keyof typeof rangeTimeFilter];
-        console.log("value", value);
+
         if (value instanceof Date && range !== undefined && range !== null) {
           if (!isInRangeTime(value, range)) return false;
         } else return false;
       } else {
-        let value = row[key as keyof typeof row];
         let staticRange = staticRangeFilter[
           key as keyof typeof staticRangeFilter
         ] as FilterTime;
@@ -424,23 +454,24 @@ const createRangeDate = (range: { startDate: Date; endDate: Date }): Date[] => {
 };
 
 export {
+  createRangeDate,
   exportExcel,
-  importExcel,
+  formatDate,
   formatID,
-  revertID,
+  formatNumberInput,
   formatPrice,
   getMinMaxOfListTime,
   getStaticRangeFilterTime,
-  isInRangeNum,
-  isInRangeTime,
   handleMultipleFilter,
   handleRangeNumFilter,
   handleRangeTimeFilter,
   handleSingleFilter,
   handleStaticRangeFilter,
   handleTimeFilter,
+  importExcel,
+  isInRangeNum,
+  isInRangeTime,
   removeCharNotANum,
-  formatNumberInput,
-  formatDate,
-  createRangeDate,
+  revertID,
+  handleChoiceFilters,
 };

@@ -1,35 +1,36 @@
 "use client";
-import CustomCombobox from "@/components/component/CustomCombobox";
-import SearchView from "@/components/component/SearchView";
 import { CustomDatatable } from "@/components/component/custom_datatable";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import LoadingCircle from "@/components/ui/loading_circle";
 import PropertiesString from "@/components/ui/properties_string_view";
-import { useToast } from "@/components/ui/use-toast";
+import SearchView from "@/components/component/SearchView";
 import { Product } from "@/entities/Product";
-import { Staff } from "@/entities/Staff";
-import { Supplier } from "@/entities/Supplier";
 import { useAppDispatch, useAppSelector } from "@/hooks";
-import { cn } from "@/lib/utils";
-import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
-import { setProducts } from "@/reducers/productsReducer";
-import { setStaffs } from "@/reducers/staffReducer";
-import { setSuppliers } from "@/reducers/suppliersReducer";
-import { axiosUIErrorHandler } from "@/services/axios_utils";
-import ProductService from "@/services/productService";
-import PurchaseReturnService from "@/services/purchaseReturnService";
-import StaffService from "@/services/staff_service";
-import SupplierService from "@/services/supplier_service";
-import { format } from "date-fns";
-import { Check, Group, UserCircle } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
 import {
   NewPurchaseReturnDetail,
   purchaseReturnDetailColumnTitles,
   purchaseReturnDetailTableColumns,
 } from "./table_columns";
+import StaffService from "@/services/staff_service";
+import { setStaffs } from "@/reducers/staffReducer";
+import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
+import { Staff } from "@/entities/Staff";
+import { Check, CheckCircle, Group, User, UserCircle } from "lucide-react";
+import CustomCombobox from "@/components/component/CustomCombobox";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { Supplier } from "@/entities/Supplier";
+import SupplierService from "@/services/supplier_service";
+import { setSuppliers } from "@/reducers/suppliersReducer";
+import { Button } from "@/components/ui/button";
+import ProductService from "@/services/productService";
+import { setProducts } from "@/reducers/productsReducer";
+import PurchaseOrderService from "@/services/purchaseOrderService";
+import LoadingCircle from "@/components/ui/loading_circle";
+import PurchaseReturnService from "@/services/purchaseReturnService";
 
 const ProductSearchItemView: (product: Product) => React.ReactNode = (
   product: Product,
@@ -77,10 +78,8 @@ export default function NewPurchaseOrderPage() {
   // TODO: staff not nullable
   const profile = useAppSelector((state) => state.profile.value);
   const [staff, setStaff] = useState<Staff | null>(profile);
-  const [supplier, setSupplier] = useState<Supplier | null>(null);
   const [createdDate, setCreatedDate] = useState<Date>(new Date());
   const [staffSearch, setStaffSearch] = useState<string>("");
-  const [discount, setDiscount] = useState<number>(0);
 
   useEffect(() => {
     dispatch(showPreloader());
@@ -107,12 +106,11 @@ export default function NewPurchaseOrderPage() {
         ...prev,
         {
           quantity: 1,
-          supplyPrice: product.originalPrice,
           productId: product.id,
           productName: product.name,
           unit: product.salesUnits.name,
-          returnPrice: product.originalPrice,
           note: "",
+          price: product.originalPrice
         },
       ]);
     else onDetailQuantityChanged(product.id, foundProduct.quantity + 1);
@@ -167,12 +165,6 @@ export default function NewPurchaseOrderPage() {
   };
 
   const onCompleteButtonClick = async () => {
-    if (!supplier)
-      return toast({
-        variant: "destructive",
-        description: "Please choose a supplier!",
-      });
-
     if (!staff)
       return toast({
         variant: "destructive",
@@ -186,22 +178,13 @@ export default function NewPurchaseOrderPage() {
       });
 
     await PurchaseReturnService.uploadPurchaseReturn({
-      purchaseReturnDetails: details.map((v) => ({ ...v })),
-      subtotal: details
-        .map((v) => v.returnPrice * v.quantity)
-        .reduce((a, b) => a + b, 0),
-      discount: discount,
-      total:
-        details
-          .map((v) => v.returnPrice * v.quantity)
-          .reduce((a, b) => a + b, 0) - discount,
+      products: details.map((v) => ({ ...v })),
       note: note,
       createdDate: format(createdDate, "yyyy-MM-dd HH:mm:ss"),
-      staffId: staff.id,
-      supplierId: supplier?.id,
+      creatorId: staff.id,
     })
       .then((result) => {
-        router.push("/purchase-return");
+        router.push("/damaged-item");
       })
       .catch((e) => axiosUIErrorHandler(e, toast))
       .finally(() => setIsCompleting(false));
@@ -228,7 +211,7 @@ export default function NewPurchaseOrderPage() {
     <div className="flex flex-row gap-2">
       <div className="flex flex-1 flex-col gap-2 bg-white p-4">
         <h2 className="my-4 text-start text-2xl font-bold">
-          New purchase return
+          New damaged item document
         </h2>
         <CustomDatatable
           data={details}
@@ -270,50 +253,20 @@ export default function NewPurchaseOrderPage() {
             className="ml-1 border px-1 text-[0.7rem]"
           ></input>
         </div>
-        <CustomCombobox<Supplier>
-          searchPlaceholder={"Find supplier..."}
-          value={supplier}
-          choices={suppliers}
-          valueView={SupplierView}
-          itemSearchView={(choice) => SupplierSearchView(choice, staff)}
-          onSearchChange={setStaffSearch}
-          filter={(st) =>
-            st.id.toString().includes(staffSearch) ||
-            st.name.includes(staffSearch) ||
-            st.phoneNumber.includes(staffSearch)
-          }
-          onItemClick={setSupplier}
-          startIcon={<Group size={16} />}
-        />
         <div className="flex items-center justify-between">
-          <p className="text-sm">Sub-Total</p>
+          <p className="text-sm">Total quantity:</p>
           <p>
             {details
-              .map((v) => v.supplyPrice * v.quantity)
+              .map((v) => v.quantity)
               .reduce((a, b) => a + b, 0)}
           </p>
         </div>
         <div className="flex items-center justify-between">
-          <p className="text-sm">Discount</p>
-          <input
-            type="number"
-            className="w-[100px] border-b text-end outline-none focus-visible:border-b-black"
-            value={discount}
-            onChange={(e) =>
-              setDiscount(
-                isNaN(e.currentTarget.valueAsNumber)
-                  ? 0
-                  : e.currentTarget.valueAsNumber,
-              )
-            }
-          />
-        </div>
-        <div className="flex items-center justify-between">
-          <p className="text-sm">Total</p>
+          <p className="text-sm">Total damaged value:</p>
           <p className="text-xl font-bold">
             {details
-              .map((v) => v.supplyPrice * v.quantity)
-              .reduce((a, b) => a + b, 0) - discount}
+              .map((v) => v.price * v.quantity)
+              .reduce((a, b) => a + b, 0)}
           </p>
         </div>
         <Input
@@ -343,14 +296,6 @@ const CreatorView = (staff: Staff | null): React.ReactNode => {
   );
 };
 
-const SupplierView = (supplier: Supplier | null): React.ReactNode => {
-  return (
-    <p className="flex-1 whitespace-nowrap px-2 text-xs">
-      {supplier?.name || ""}
-    </p>
-  );
-};
-
 const StaffSearchView = (
   staff: Staff,
   chosenStaff: Staff | null,
@@ -368,27 +313,6 @@ const StaffSearchView = (
         <p className="text-xs">Id: {staff.id}</p>
       </div>
       {chosen ? <Check size={16} color="green" /> : null}
-    </div>
-  );
-};
-
-const SupplierSearchView = (
-  supplier: Supplier,
-  chosenSupplier: Staff | null,
-): React.ReactNode => {
-  const chosen = chosenSupplier && supplier.id === chosenSupplier.id;
-  return (
-    <div
-      className={cn(
-        "flex cursor-pointer items-center justify-between px-1 hover:bg-green-100",
-        chosen ? "bg-green-200" : "",
-      )}
-    >
-      <div>
-        <p className="text-sm">{supplier.name}</p>
-        <p className="text-xs">Id: {supplier.id}</p>
-      </div>
-      <p className="text-sm">{supplier.phoneNumber}</p>
     </div>
   );
 };

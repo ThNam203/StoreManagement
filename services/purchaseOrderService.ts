@@ -1,6 +1,5 @@
 import { PurchaseOrder } from "@/entities/PurchaseOrder";
 import AxiosService from "./axiosService";
-import { Axios } from "axios";
 
 const getAllPurchaseOrders = async () => {
   return AxiosService.get<PurchaseOrder[]>("/api/purchase-orders");
