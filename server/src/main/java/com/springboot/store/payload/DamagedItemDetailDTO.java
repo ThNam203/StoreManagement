@@ -11,4 +11,5 @@ public class DamagedItemDetailDTO {
     private int id;
     private Integer productId;
     private int damagedQuantity;
+    private int costPrice;
 }
