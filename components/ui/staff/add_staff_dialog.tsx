@@ -41,17 +41,45 @@ import { useAppSelector } from "@/hooks";
 import { addPosition, deletePosition } from "@/reducers/staffPositionReducer";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
 import StaffService from "@/services/staff_service";
-import { formatNumberInput, removeCharNotANum } from "@/utils";
-import { CircleDollarSign, Info, PlusCircle } from "lucide-react";
+import { formatDate, formatNumberInput, removeCharNotANum } from "@/utils";
+import { Check, CircleDollarSign, Info, PlusCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { ChooseImageButton } from "./choose_image";
+import CustomCombobox from "@/components/component/CustomCombobox";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { AddPositionDialog } from "./position_dialog";
+
+const OptionView = (option: string): React.ReactNode => {
+  return <p className="whitespace-nowrap text-xs">{option}</p>;
+};
+
+const OptionSearchView = (
+  option: string,
+  selectedOption: string | null,
+): React.ReactNode => {
+  const chosen = selectedOption && selectedOption === option;
+  return (
+    <div
+      className={cn(
+        "flex cursor-pointer items-center justify-between px-1",
+        chosen ? "bg-green-100" : "",
+      )}
+    >
+      <div>
+        <p className="px-1 py-2 text-sm">{option}</p>
+      </div>
+      {chosen ? <Check size={16} color="green" /> : null}
+    </div>
+  );
+};
 
 const createSchema = z.object({
   avatar: z.string().optional(),
   name: z.string().min(1, { message: "Name is missing" }),
-  birthday: z.date(),
+  birthday: z.string(),
   sex: z.string(),
   cccd: z.string().min(1, { message: "CCCD is missing" }),
   position: z.string().min(1, { message: "Position is missing" }),
@@ -68,7 +96,7 @@ const createSchema = z.object({
 const updateSchema = z.object({
   avatar: z.string().optional(),
   name: z.string().min(1, { message: "Name is missing" }),
-  birthday: z.date(),
+  birthday: z.string(),
   sex: z.string(),
   cccd: z.string().min(1, { message: "CCCD is missing" }),
   position: z.string().min(1, { message: "Position is missing" }),
@@ -86,17 +114,19 @@ export function AddStaffDialog({
   setOpen,
   data,
   submit,
+  title,
 }: {
   open: boolean;
   setOpen: (open: boolean) => void;
   data: Staff | null;
   submit: (values: Staff, avatar: File | null) => any;
+  title: string;
 }) {
   const form = useForm<z.infer<typeof createSchema>>({
     resolver: zodResolver(data ? updateSchema : createSchema),
     defaultValues: {
       avatar: undefined,
-      birthday: new Date(),
+      birthday: undefined,
       sex: Sex.MALE,
       salary: undefined,
       salaryType: SalaryType.ByShift,
@@ -113,7 +143,7 @@ export function AddStaffDialog({
       cccd: values.cccd,
       salaryDebt: 0,
       note: values.note ? values.note : "",
-      birthday: new Date(values.birthday),
+      birthday: convertStringToDate(values.birthday),
       sex: values.sex as Sex,
       email: values.email,
       password: values.password === "" ? null : values.password,
@@ -126,10 +156,8 @@ export function AddStaffDialog({
         salaryType: SalaryType.ByShift,
       },
     };
-    console.log("avatar", staffAvatar);
 
     if (submit) {
-      console.log("submit staff", newStaff);
       setIsLoading(true);
       try {
         await submit(newStaff, staffAvatar).then(() => {
@@ -147,7 +175,6 @@ export function AddStaffDialog({
   const dispatch = useDispatch();
   const rawPositionList = useAppSelector((state) => state.staffPositions.value);
   const positionList = rawPositionList.map((position) => position.name);
-  const positionInputRef = useRef<HTMLInputElement>(null);
   const [openAddPositionDialog, setOpenAddPositionDialog] = useState(false);
   const [salarySetting, setSalarySetting] = useState<SalarySetting>({
     salary: 0,
@@ -171,7 +198,7 @@ export function AddStaffDialog({
     if (staff) {
       form.setValue("avatar", staff.avatar ? staff.avatar : "");
       form.setValue("name", staff.name);
-      form.setValue("birthday", staff.birthday);
+      form.setValue("birthday", convertDateToString(staff.birthday));
       form.setValue("sex", staff.sex);
       form.setValue("cccd", staff.cccd);
       form.setValue("position", staff.position);
@@ -186,7 +213,6 @@ export function AddStaffDialog({
       salary: form.getValues("salary"),
       salaryType: form.getValues("salaryType"),
     });
-    console.log("form values", form.getValues());
   };
 
   const resetToEmptyForm = () => {
@@ -223,9 +249,7 @@ export function AddStaffDialog({
     }
   };
 
-  const handleAddingNewPosition = () => {
-    if (!positionInputRef.current) return;
-    const newPosition = positionInputRef.current?.value;
+  const handleAddingNewPosition = (newPosition: string) => {
     if (newPosition === "") {
       toast({
         variant: "destructive",
@@ -261,47 +285,26 @@ export function AddStaffDialog({
     setStaffAvatar(image);
   };
 
-  const addPositionDailog = (
-    <Dialog
-      open={openAddPositionDialog}
-      onOpenChange={setOpenAddPositionDialog}
-    >
-      <DialogTrigger asChild>
-        <PlusCircle className="h-4 w-4 opacity-50 hover:cursor-pointer hover:opacity-100" />
-      </DialogTrigger>
-      <DialogContent
-        className="sm:max-w-[425px]"
-        onInteractOutside={(e) => e.preventDefault()}
-      >
-        <DialogHeader>
-          <DialogTitle>Add a new position</DialogTitle>
-        </DialogHeader>
+  const convertDateToString = (date: Date) => {
+    const formated = format(date, "yyyy-MM-dd");
+    return formated;
+  };
 
-        <div className="grid grid-cols-6 items-center gap-4">
-          <Label htmlFor="name" className="grid-col-1 col-span-1 text-right">
-            Position
-          </Label>
-          <Input ref={positionInputRef} className="grid-col-2 col-span-5" />
-        </div>
-        <DialogFooter>
-          <Button
-            variant={"green"}
-            type="button"
-            onClick={handleAddingNewPosition}
-          >
-            Save
-            {isAddingNewPosition && <LoadingCircle></LoadingCircle>}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
+  const convertStringToDate = (date: string) => {
+    const split = date.split("-");
+    const formated = new Date(
+      Number(split[0]),
+      Number(split[1]) - 1,
+      Number(split[2]),
+    );
+    return formated;
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent onInteractOutside={(e) => e.preventDefault()}>
         <DialogHeader>
-          <DialogTitle>{data ? "Update staff" : "Add new staff"}</DialogTitle>
+          <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
 
         <div className="w-full">
@@ -311,7 +314,7 @@ export function AddStaffDialog({
               className="space-y-8 text-sm"
             >
               <Tabs defaultValue="infomation">
-                <TabsList>
+                <TabsList className="flex w-full flex-row items-center justify-start">
                   <TabsTrigger value="infomation">Infomation</TabsTrigger>
                   <TabsTrigger value="salary-setting">
                     Salary setting
@@ -376,14 +379,7 @@ export function AddStaffDialog({
                               </FormLabel>
 
                               <FormControl className="w-2/3">
-                                <div>
-                                  <DatePicker
-                                    value={field.value}
-                                    onChange={(date) =>
-                                      form.setValue("birthday", date)
-                                    }
-                                  />
-                                </div>
+                                <Input type="date" {...field} />
                               </FormControl>
                             </div>
                           </FormItem>
@@ -471,18 +467,27 @@ export function AddStaffDialog({
                                 </div>
                                 <FormMessage className="mr-2 text-xs" />
                               </FormLabel>
-                              <FormControl>
-                                <MyCombobox
-                                  defaultValue={field.value}
-                                  onValueChange={(val) => {
-                                    form.setValue("position", val);
-                                  }}
-                                  className="w-2/3"
-                                  placeholder="Search position..."
+                              <FormControl className="flex-1">
+                                <CustomCombobox<string>
+                                  placeholder="Select position"
+                                  searchPlaceholder={"Find position..."}
+                                  value={field.value}
                                   choices={positionList}
-                                  endIcon={addPositionDailog}
-                                  canRemoveOption={true}
-                                  onRemoveChoice={handleRemovePosition}
+                                  valueView={OptionView}
+                                  itemSearchView={(choice) =>
+                                    OptionSearchView(choice, field.value)
+                                  }
+                                  onItemClick={(val) =>
+                                    form.setValue("position", val)
+                                  }
+                                  endIcon={
+                                    <PlusCircle
+                                      className="h-4 w-4 opacity-50 hover:cursor-pointer hover:opacity-100"
+                                      onClick={() =>
+                                        setOpenAddPositionDialog(true)
+                                      }
+                                    />
+                                  }
                                 />
                               </FormControl>
                             </div>
@@ -719,6 +724,13 @@ export function AddStaffDialog({
             </form>
           </Form>
         </div>
+        <AddPositionDialog
+          open={openAddPositionDialog}
+          setOpen={setOpenAddPositionDialog}
+          data={null}
+          submit={handleAddingNewPosition}
+          title="Add new position"
+        />
       </DialogContent>
     </Dialog>
   );
