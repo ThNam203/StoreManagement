@@ -364,6 +364,7 @@ export function DataTable({
         setOpen={setOpenStaffDialog}
         submit={handleSubmit}
         data={selectedStaff}
+        title={selectedStaff ? "Update staff" : "Add new staff"}
       />
     </div>
   );
@@ -440,7 +441,7 @@ const StaffInfoTab = ({
             </div>
             <div className="mb-2 flex flex-row border-b font-medium">
               <p className="w-[100px] font-normal">Birthday:</p>
-              <p>{format(staff.birthday, "dd/MM/yyyy")}</p>
+              <p>{formatDate(staff.birthday)}</p>
             </div>
             <div className="mb-2 flex flex-row border-b font-medium">
               <p className="w-[100px] font-normal">Sex:</p>

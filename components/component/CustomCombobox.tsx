@@ -109,6 +109,7 @@ export default function CustomCombobox<T>({
   onSearchChange,
   startIcon,
   endIcon,
+  endIcons,
   showSearchInput = true,
   onItemClick,
   filter,
@@ -126,6 +127,7 @@ export default function CustomCombobox<T>({
   showSearchInput?: boolean;
   startIcon?: JSX.Element;
   endIcon?: JSX.Element;
+  endIcons?: JSX.Element[];
   className?: string;
 }) {
   let filteredChoices = filter ? choices.filter(filter) : choices;
@@ -175,6 +177,7 @@ export default function CustomCombobox<T>({
         </div>
 
         {endIcon}
+        {endIcons}
       </div>
       <div
         className={cn(
