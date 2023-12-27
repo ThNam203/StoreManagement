@@ -28,7 +28,11 @@ public class ViolationAndRewardServiceImpl implements ViolationAndRewardService 
     @Override
     public ViolationAndRewardDTO createViolationAndReward(ViolationAndRewardDTO violationAndRewardDTO) {
         Staff staff = staffService.getAuthorizedStaff();
-        ViolationAndReward violationAndReward = modelMapper.map(violationAndRewardDTO, ViolationAndReward.class);
+        ViolationAndReward violationAndReward = ViolationAndReward.builder()
+                .defaultValue(violationAndRewardDTO.getDefaultValue())
+                .name(violationAndRewardDTO.getName())
+                .type(violationAndRewardDTO.getType())
+                .build();
         violationAndReward.setStore(staff.getStore());
         violationAndReward = violationAndRewardRepository.save(violationAndReward);
         return modelMapper.map(violationAndReward, ViolationAndRewardDTO.class);

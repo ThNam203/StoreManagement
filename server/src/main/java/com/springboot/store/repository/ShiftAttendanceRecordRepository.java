@@ -12,4 +12,7 @@ public interface ShiftAttendanceRecordRepository extends JpaRepository<ShiftAtte
     List<ShiftAttendanceRecord> findByStaffIdAndDateInThisMonth(@Param("staffId") int staffId);
 
     List<ShiftAttendanceRecord> findByStaffId(int staffId);
+
+    @Query("SELECT s FROM ShiftAttendanceRecord s WHERE s.staffId = :staffId AND YEAR(s.date) = YEAR(CURRENT_DATE) AND MONTH(s.date) = MONTH(CURRENT_DATE) AND s.store IS NOT NULL AND s.dailyShift IS NOT NULL AND SIZE(s.bonusSalaryList) >0 AND SIZE(s.punishSalaryList)>0 ")
+    List<ShiftAttendanceRecord> findByStaffIdAndDateInThisMonthAndBonusAndPunishNotNull(@Param("staffId") int staffId);
 }
