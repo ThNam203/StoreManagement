@@ -7,6 +7,7 @@ import com.springboot.store.payload.RecordOfProductSellDTO;
 import com.springboot.store.repository.InvoiceRepository;
 import com.springboot.store.repository.ProductRepository;
 import com.springboot.store.repository.ReturnInvoiceRepository;
+import com.springboot.store.service.ProductService;
 import com.springboot.store.service.RecordOfProductSellService;
 import com.springboot.store.service.StaffService;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ public class RecordOfProductSellServiceImpl implements RecordOfProductSellServic
     private final InvoiceRepository invoiceRepository;
     private final ReturnInvoiceRepository returnInvoiceRepository;
     private final ProductRepository productRepository;
+    private final ProductService productService;
     private final StaffService staffService;
 
     @Override
@@ -27,11 +29,15 @@ public class RecordOfProductSellServiceImpl implements RecordOfProductSellServic
         int storeId = staffService.getAuthorizedStaff().getStore().getId();
         List<Invoice> invoices = invoiceRepository.findByStoreIdAndDate(storeId, date);
         List<ReturnInvoice> returnInvoices = returnInvoiceRepository.findByStoreIdAndDate(storeId, date);
+        //create new map to store all product
+        Map<Integer, Product> productMap = productService.getAllProductMap();
+        //Get all product and store in map
+
         Map<Integer, RecordOfProductSellDTO> recordOfProductSellDTOMap = new HashMap<>();
 
         for (Invoice invoice : invoices) {
             for (InvoiceDetail invoiceDetail : invoice.getInvoiceDetails()) {
-                RecordOfProductSellDTO recordOfProductSellDTO = recordOfProductSellDTOMap.computeIfAbsent(invoiceDetail.getProductId(), id -> createNewRecordOfProductSellDTO(id, invoiceDetail));
+                RecordOfProductSellDTO recordOfProductSellDTO = recordOfProductSellDTOMap.computeIfAbsent(invoiceDetail.getProductId(), id -> createNewRecordOfProductSellDTO(id, productMap.get(id)));
                 updateRecordOfProductSellDTOForInvoice(recordOfProductSellDTO, invoice, invoiceDetail);
             }
         }
@@ -46,14 +52,13 @@ public class RecordOfProductSellServiceImpl implements RecordOfProductSellServic
         return new ArrayList<>(recordOfProductSellDTOMap.values());
     }
 
-    private RecordOfProductSellDTO createNewRecordOfProductSellDTO(int productId, InvoiceDetail invoiceDetail) {
-        Product product = productRepository.findById(productId).orElseThrow(() -> new RuntimeException("Product not found"));
+    private RecordOfProductSellDTO createNewRecordOfProductSellDTO(int productId, Product product) {
         return new RecordOfProductSellDTO(productId, product.getName(), 0, 0, 0, 0, 0, new ArrayList<>(), new ArrayList<>());
     }
 
     private RecordOfProductSellDTO createNewRecordOfProductSellDTOFromReturn(int productId, ReturnDetail returnDetail) {
-        Product product = productRepository.findById(productId).orElseThrow(() -> new RuntimeException("Product not found"));
-        return new RecordOfProductSellDTO(productId, product.getName(), 0, 0, 0, 0, 0, new ArrayList<>(), new ArrayList<>());
+
+        return new RecordOfProductSellDTO(productId, returnDetail.getProduct().getName(), 0, 0, 0, 0, 0, new ArrayList<>(), new ArrayList<>());
     }
 
     private void updateRecordOfProductSellDTOForInvoice(RecordOfProductSellDTO recordOfProductSellDTO, Invoice invoice, InvoiceDetail invoiceDetail) {

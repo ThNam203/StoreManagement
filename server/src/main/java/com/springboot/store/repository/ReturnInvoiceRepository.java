@@ -33,4 +33,7 @@ public interface ReturnInvoiceRepository extends JpaRepository<ReturnInvoice, In
 
     @Query("SELECT s FROM ReturnInvoice s WHERE s.store.id = :storeId AND DATE(s.createdAt) = :date")
     List<ReturnInvoice> findByStoreIdAndDate(@Param("storeId") Integer storeId, @Param("date") @Temporal(TemporalType.DATE) Date date);
+
+    @Query("SELECT i FROM ReturnInvoice i WHERE i.store.id=:storeId AND i.createdAt BETWEEN :startDate AND :endDate")
+    List<ReturnInvoice> findByCreatedAtBetween(@Param("startDate") @Temporal(TemporalType.DATE) Date startDate, @Param("endDate") @Temporal(TemporalType.DATE) Date endDate, @Param("storeId") Integer storeId);
 }

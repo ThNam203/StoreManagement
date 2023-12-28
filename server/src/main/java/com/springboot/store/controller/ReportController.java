@@ -2,9 +2,11 @@ package com.springboot.store.controller;
 
 import com.springboot.store.payload.ListBonusAndPunishForStaffDTO;
 import com.springboot.store.payload.RecordOfProductSellDTO;
+import com.springboot.store.payload.RecordOfSaleDTO;
 import com.springboot.store.service.ListBonusAndPunishForStaffService;
 import com.springboot.store.service.ReportService;
 import com.springboot.store.service.RecordOfProductSellService;
+import com.springboot.store.service.RecordOfSaleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +27,7 @@ public class ReportController {
     private final ListBonusAndPunishForStaffService listBonusAndPunishForStaffService;
     private final ReportService reportService;
     private final RecordOfProductSellService recordOfProductSellService;
+    private final RecordOfSaleService recordOfSaleService;
 
     @GetMapping("/bonus-and-punish")
     public ResponseEntity<List<ListBonusAndPunishForStaffDTO>> getAllListBonusAndPunishForStaff() {
@@ -85,5 +88,14 @@ public class ReportController {
         Date date1 = formatter.parse(date, new java.text.ParsePosition(0));
         List<RecordOfProductSellDTO> recordOfProductSellDTOs = recordOfProductSellService.getAllRecordOfProductSell(date1);
         return ResponseEntity.ok(recordOfProductSellDTOs);
+    }
+
+    @GetMapping("/record-of-sale/{startDate}/{endDate}")
+    public ResponseEntity<List<RecordOfSaleDTO>> getAllRecordOfSale(@PathVariable String startDate, @PathVariable String endDate) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        Date startDate1 = formatter.parse(startDate, new java.text.ParsePosition(0));
+        Date endDate1 = formatter.parse(endDate, new java.text.ParsePosition(0));
+        List<RecordOfSaleDTO> recordOfSaleDTOs = recordOfSaleService.getAllRecordOfSale(startDate1, endDate1);
+        return ResponseEntity.ok(recordOfSaleDTOs);
     }
 }

@@ -3,6 +3,7 @@ package com.springboot.store.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -88,5 +89,17 @@ public class Product {
             result.append(property.toString()).append(", ");
         }
         return result.substring(0, result.length() - 2);
+    }
+
+    public OriginalPrice getOriginalPriceBeforeDate(Date date) {
+        OriginalPrice result = originalPrices.get(0);
+        for (int i = originalPrices.size() - 1; i >= 0; i--) {
+            OriginalPrice originalPrice = originalPrices.get(i);
+            if (originalPrice.getCreatedAt().before(date)) {
+                result = originalPrice;
+                break;
+            }
+        }
+        return result;
     }
 }
