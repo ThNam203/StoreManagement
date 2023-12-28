@@ -6,6 +6,7 @@ import com.springboot.store.payload.ProductDTO;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ProductService {
     ProductDTO getProductById(int id);
@@ -19,4 +20,6 @@ public interface ProductService {
     void deleteProduct(int id);
 
     void deleteAllProducts();
+
+    Map<Integer, Product> getAllProductMap();
 }

@@ -92,7 +92,7 @@ public class ProductServiceImpl implements ProductService {
             if (productDTO.getProductProperties() != null) {
                 List<ProductProperty> productProperties = productDTO.getProductProperties().stream()
                         .map(productPropertyDTO -> ProductProperty.builder()
-                                .propertyName(productPropertyNameRepository.findByNameAndStoreId(productPropertyDTO.getPropertyName(), staff.getStore().getId() )
+                                .propertyName(productPropertyNameRepository.findByNameAndStoreId(productPropertyDTO.getPropertyName(), staff.getStore().getId())
                                         .orElseThrow(() -> new EntityNotFoundException("Product property name not found with name: " + productPropertyDTO.getPropertyName())))
                                 .propertyValue(productPropertyDTO.getPropertyValue())
                                 .build())
@@ -217,6 +217,17 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void deleteAllProducts() {
         productRepository.deleteAll();
+    }
+
+    @Override
+    public Map<Integer, Product> getAllProductMap() {
+        int storeId = staffService.getAuthorizedStaff().getStore().getId();
+        List<Product> products = productRepository.findByStoreId(storeId);
+        Map<Integer, Product> productMap = new HashMap<>();
+        for (Product product : products) {
+            productMap.put(product.getId(), product);
+        }
+        return productMap;
     }
 
 }
