@@ -1,5 +1,6 @@
 package com.springboot.store.service.impl;
 
+import com.springboot.store.entity.Product;
 import com.springboot.store.entity.PurchaseReturn;
 import com.springboot.store.entity.PurchaseReturnDetail;
 import com.springboot.store.exception.CustomException;
@@ -55,7 +56,13 @@ public class PurchaseReturnServiceImpl implements PurchaseReturnService {
             List<PurchaseReturnDetail> purchaseReturnDetails = purchaseReturnDTO.getPurchaseReturnDetails().stream().map(purchaseReturnDetailDTO -> {
                 PurchaseReturnDetail purchaseReturnDetail = PurchaseReturnDetailMapper.toPurchaseReturnDetail(purchaseReturnDetailDTO);
                 purchaseReturnDetail.setPurchaseReturn(purchaseReturn);
-                purchaseReturnDetail.setProduct(productRepository.findById(purchaseReturnDetailDTO.getProductId()).orElseThrow(() -> new CustomException("Product not found", HttpStatus.NOT_FOUND)));
+                Product product = productRepository.findById(purchaseReturnDetailDTO.getProductId()).orElseThrow(() -> new CustomException("Product not found", HttpStatus.NOT_FOUND));
+                if (product.getStock() < purchaseReturnDetailDTO.getQuantity()) {
+                    throw new CustomException("Product stock is not enough", HttpStatus.BAD_REQUEST);
+                }
+                product.setStock(product.getStock() - purchaseReturnDetailDTO.getQuantity());
+                productRepository.save(product);
+                purchaseReturnDetail.setProduct(product);
                 return purchaseReturnDetail;
             }).toList();
             purchaseReturn.setPurchaseReturnDetails(purchaseReturnDetails);
@@ -80,11 +87,40 @@ public class PurchaseReturnServiceImpl implements PurchaseReturnService {
         if (purchaseReturnDTO.getPurchaseOrderId() != null) {
             purchaseReturn.setPurchaseOrder(purchaseOrderRepository.findById(purchaseReturnDTO.getPurchaseOrderId()).orElseThrow(() -> new CustomException("Purchase order not found", HttpStatus.NOT_FOUND)));
         }
+
+        if (purchaseReturnDTO.getPurchaseReturnDetails() != null) {
+            purchaseReturn.getPurchaseReturnDetails().forEach(purchaseReturnDetail -> {
+                Product product = productRepository.findById(purchaseReturnDetail.getProduct().getId()).orElseThrow(() -> new CustomException("Product not found", HttpStatus.NOT_FOUND));
+                product.setStock(product.getStock() + purchaseReturnDetail.getQuantity());
+                productRepository.save(product);
+            });
+
+            List<PurchaseReturnDetail> purchaseReturnDetails = purchaseReturnDTO.getPurchaseReturnDetails().stream().map(purchaseReturnDetailDTO -> {
+                PurchaseReturnDetail purchaseReturnDetail = PurchaseReturnDetailMapper.toPurchaseReturnDetail(purchaseReturnDetailDTO);
+                purchaseReturnDetail.setPurchaseReturn(purchaseReturn);
+                Product product = productRepository.findById(purchaseReturnDetailDTO.getProductId()).orElseThrow(() -> new CustomException("Product not found", HttpStatus.NOT_FOUND));
+                if (product.getStock() < purchaseReturnDetailDTO.getQuantity()) {
+                    throw new CustomException("Product stock is not enough", HttpStatus.BAD_REQUEST);
+                }
+                product.setStock(product.getStock() - purchaseReturnDetailDTO.getQuantity());
+                productRepository.save(product);
+                purchaseReturnDetail.setProduct(product);
+                return purchaseReturnDetail;
+            }).toList();
+            purchaseReturn.setPurchaseReturnDetails(purchaseReturnDetails);
+        }
+
         if (purchaseReturnDTO.getPurchaseReturnDetails() != null) {
             List<PurchaseReturnDetail> purchaseReturnDetails = purchaseReturnDTO.getPurchaseReturnDetails().stream().map(purchaseReturnDetailDTO -> {
                 PurchaseReturnDetail purchaseReturnDetail = PurchaseReturnDetailMapper.toPurchaseReturnDetail(purchaseReturnDetailDTO);
                 purchaseReturnDetail.setPurchaseReturn(purchaseReturn);
-                purchaseReturnDetail.setProduct(productRepository.findById(purchaseReturnDetailDTO.getProductId()).orElseThrow(() -> new CustomException("Product not found", HttpStatus.NOT_FOUND)));
+                Product product = productRepository.findById(purchaseReturnDetailDTO.getProductId()).orElseThrow(() -> new CustomException("Product not found", HttpStatus.NOT_FOUND));
+                if (product.getStock() < purchaseReturnDetailDTO.getQuantity()) {
+                    throw new CustomException("Product stock is not enough", HttpStatus.BAD_REQUEST);
+                }
+                product.setStock(product.getStock() - purchaseReturnDetailDTO.getQuantity());
+                productRepository.save(product);
+                purchaseReturnDetail.setProduct(product);
                 return purchaseReturnDetail;
             }).toList();
             purchaseReturn.getPurchaseReturnDetails().clear();
