@@ -13,6 +13,6 @@ public class InvoiceInRecordOfProductSellDTO {
 
     private Date date;
     private String customerName;
-    private int quantity;
-    private int total;
+    private double quantity;
+    private double total;
 }

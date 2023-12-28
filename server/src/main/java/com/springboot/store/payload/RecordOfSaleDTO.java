@@ -11,7 +11,7 @@ import java.util.Date;
 @Builder
 public class RecordOfSaleDTO {
     Date date;
-    long total = 0;
-    long originalPrice = 0;
-    long income = 0;
+    double total = 0;
+    double originalPrice = 0;
+    double income = 0;
 }
