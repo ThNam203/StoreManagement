@@ -20,8 +20,6 @@ public class StockCheckDetail {
     @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
-    private String productName;
-    private String productProperties;
 
     private int countedStock;
     private int realStock;
