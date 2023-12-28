@@ -10,7 +10,7 @@ import { ColumnDef, Getter, Row } from "@tanstack/react-table";
 import { Minus, Pencil, Plus } from "lucide-react";
 import { useState } from "react";
 
-export type NewPurchaseReturnDetail = {
+export type NewDamagedItemDetail = {
   productId: number;
   productName: string;
   unit: string;
@@ -31,18 +31,18 @@ export const purchaseReturnDetailTableColumns = (
   onQuantityChanged: (productId: number, newQuantity: number) => any,
   onNoteChanged: (productId: number, newNote: string) => any,
   onReturnPriceChanged: (productId: number, newPrice: number) => any,
-): ColumnDef<NewPurchaseReturnDetail>[] => {
-  const columns: ColumnDef<NewPurchaseReturnDetail>[] = [
-    defaultSelectColumn<NewPurchaseReturnDetail>(),
-    defaultIndexColumn<NewPurchaseReturnDetail>(),
+): ColumnDef<NewDamagedItemDetail>[] => {
+  const columns: ColumnDef<NewDamagedItemDetail>[] = [
+    defaultSelectColumn<NewDamagedItemDetail>(),
+    defaultIndexColumn<NewDamagedItemDetail>(),
   ];
 
   for (let key in purchaseReturnDetailColumnTitles) {
-    let col: ColumnDef<NewPurchaseReturnDetail>;
+    let col: ColumnDef<NewDamagedItemDetail>;
     if (key === "quantity") col = quantityColumn(onQuantityChanged);
     else if (key === "productName") col = productNameColumn(onNoteChanged);
     else
-      col = defaultColumn<NewPurchaseReturnDetail>(
+      col = defaultColumn<NewDamagedItemDetail>(
         key,
         purchaseReturnDetailColumnTitles,
       );
@@ -56,8 +56,8 @@ export const purchaseReturnDetailTableColumns = (
 
 function totalColumn(
   disableSorting: boolean = false,
-): ColumnDef<NewPurchaseReturnDetail> {
-  const col: ColumnDef<NewPurchaseReturnDetail> = {
+): ColumnDef<NewDamagedItemDetail> {
+  const col: ColumnDef<NewDamagedItemDetail> = {
     accessorKey: "total",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Total value" />
@@ -76,8 +76,8 @@ function totalColumn(
 function productNameColumn(
   onNoteChanged: (productId: number, newNote: string) => any,
   disableSorting: boolean = false,
-): ColumnDef<NewPurchaseReturnDetail> {
-  const col: ColumnDef<NewPurchaseReturnDetail> = {
+): ColumnDef<NewDamagedItemDetail> {
+  const col: ColumnDef<NewDamagedItemDetail> = {
     accessorKey: "productName",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Product Name" />
@@ -90,8 +90,8 @@ function productNameColumn(
 function quantityColumn(
   onQuantityChanged: (productId: number, newQuantity: number) => any,
   disableSorting: boolean = false,
-): ColumnDef<NewPurchaseReturnDetail> {
-  const col: ColumnDef<NewPurchaseReturnDetail> = {
+): ColumnDef<NewDamagedItemDetail> {
+  const col: ColumnDef<NewDamagedItemDetail> = {
     accessorKey: "quantity",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Quantity" />
@@ -102,7 +102,7 @@ function quantityColumn(
 }
 
 const ProductNameCell = (
-  detail: NewPurchaseReturnDetail,
+  detail: NewDamagedItemDetail,
   onNoteChanged: (productId: number, newNote: string) => any,
 ) => {
   const [showNoteEditor, setShowNoteEditor] = useState(false);
@@ -135,7 +135,7 @@ const QuantityCell = ({
   onQuantityChanged,
 }: {
   getValue: Getter<number>;
-  row: Row<NewPurchaseReturnDetail>;
+  row: Row<NewDamagedItemDetail>;
   onQuantityChanged: (productId: number, countedStock: number) => any;
 }) => {
   const [value, setValue] = useState<number>(getValue());

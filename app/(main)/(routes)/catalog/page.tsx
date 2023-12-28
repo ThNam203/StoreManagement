@@ -213,7 +213,7 @@ export default function Catalog() {
       chosenValues={filterConditions.productGroup}
       choices={productGroups.map((group) => group.name)}
       onValuesChanged={updateProductGroupCondition}
-      className="mb-4"
+      className="mb-2"
     />,
     <SearchFilter
       key={2}
@@ -222,7 +222,7 @@ export default function Catalog() {
       chosenValues={filterConditions.productBrand}
       choices={productBrands.map((brand) => brand.name)}
       onValuesChanged={updateProductBrandCondition}
-      className="mb-4"
+      className="mb-2"
     />,
     <SearchFilter
       key={3}
@@ -231,7 +231,7 @@ export default function Catalog() {
       chosenValues={filterConditions.location}
       onValuesChanged={updateLocationCondition}
       choices={productLocations.map((v) => v.name)}
-      className="my-4"
+      className="mb-2"
     />,
     <SingleChoiceFilter
       key={4}
@@ -239,7 +239,7 @@ export default function Catalog() {
       choices={PRODUCT_STOCK_LEVEL_FILTERS}
       value={stockLevelCondition}
       onValueChanged={setStockLevelCondition}
-      className="my-4"
+      className="mb-2"
     />,
     <SingleChoiceFilter
       key={5}
@@ -247,7 +247,7 @@ export default function Catalog() {
       choices={PRODUCT_STATUSES_FILTERS}
       value={statusCondition}
       onValueChanged={setStatusCondition}
-      className="my-4"
+      className="mb-2"
     />
   ];
 

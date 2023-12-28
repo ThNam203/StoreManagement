@@ -459,7 +459,19 @@ export default function NewDiscountForm({
                           <FormMessage className="mr-2 text-xs" />
                         </FormLabel>
                         <FormControl>
-                          <Input className="!m-0 flex-1 text-end" {...field} />
+                          <Input
+                            className="!m-0 flex-1 text-end"
+                            value={field.value}
+                            ref={field.ref}
+                            type="number"
+                            onChange={(e) =>
+                              form.setValue(
+                                "minSubTotal",
+                                isNaN(e.currentTarget.valueAsNumber) ? 0 : e.currentTarget.valueAsNumber,
+                                { shouldValidate: true },
+                              )
+                            }
+                          />
                         </FormControl>
                       </FormItem>
                     )}

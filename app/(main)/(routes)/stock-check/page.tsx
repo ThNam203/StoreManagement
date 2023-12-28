@@ -1,6 +1,5 @@
 "use client";
 import {
-  ChoicesFilter,
   FilterTime,
   FilterYear,
   PageWithFilters,
@@ -19,11 +18,9 @@ import { setStockChecks } from "@/reducers/stockChecksReducer";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
 import { useToast } from "@/components/ui/use-toast";
 
-const creatorChoices = ["Nam", "Dat", "Son", "Khoi"];
-
 export default function StockCheck() {
-  const [filtersChoice, setFiltersChoice] = useState<{
-    time: {
+  const [filterConditions, setFilterConditions] = useState<{
+    createdDate: {
       timeFilterType: TimeFilterType;
       singleTime: FilterTime;
       rangeTime: {
@@ -31,10 +28,8 @@ export default function StockCheck() {
         endDate: Date;
       };
     };
-    status: string[];
-    creator: string[];
   }>({
-    time: {
+    createdDate: {
       timeFilterType: TimeFilterType.StaticRange,
       singleTime: FilterYear.AllTime,
       rangeTime: {
@@ -42,79 +37,60 @@ export default function StockCheck() {
         endDate: new Date(),
       },
     },
-    status: ["Pending", "Done balanced"],
-    creator: [],
   });
 
-  const updateSingleTimeFilter = (choice: FilterTime) =>
-    setFiltersChoice((prev) => ({
+  const updateCreatedDateCondition = (choice: FilterTime) =>
+    setFilterConditions((prev) => ({
       ...prev,
-      time: {
-        timeFilterType: TimeFilterType.StaticRange,
+      createdDate: {
+        ...prev.createdDate,
         singleTime: choice,
-        rangeTime: prev.time.rangeTime,
       },
     }));
-
-  const updateRangeTimeFilter = (choice: { startDate: Date; endDate: Date }) =>
-    setFiltersChoice((prev) => ({
+    
+  const updateCreatedDateRangeCondition = (choice: {startDate: Date, endDate: Date}) =>
+    setFilterConditions((prev) => ({
       ...prev,
-      time: {
-        timeFilterType: TimeFilterType.RangeTime,
-        singleTime: prev.time.singleTime,
+      createdDate: {
+        ...prev.createdDate,
         rangeTime: choice,
       },
     }));
-
-  const updateTimeFilterType = (choice: TimeFilterType) =>
-    setFiltersChoice((prev) => ({
+    
+    const updateCreatedDateControlCondition = (choice: TimeFilterType) =>
+    setFilterConditions((prev) => ({
       ...prev,
-      time: { ...prev.time, timeFilterType: choice },
+      createdDate: {
+        ...prev.createdDate,
+        timeFilterType: choice,
+      },
     }));
 
-  const updateCreatorFilter = (choices: string[]) => {
-    setFiltersChoice((prev) => ({
-      ...prev,
-      creator: choices,
-    }));
-  };
+  // const updateCreatorFilter = (choices: string[]) => {
+  //   setFiltersChoice((prev) => ({
+  //     ...prev,
+  //     creator: choices,
+  //   }));
+  // };
 
-  const updateStatusFilter = (choices: string[]) => {
-    setFiltersChoice((prev) => ({
-      ...prev,
-      status: choices,
-    }));
-  };
+  // const updateStatusFilter = (choices: string[]) => {
+  //   setFiltersChoice((prev) => ({
+  //     ...prev,
+  //     status: choices,
+  //   }));
+  // };
 
   const filters = [
     <TimeFilter
       key={1}
-      title="Price tables"
-      timeFilterControl={filtersChoice.time.timeFilterType}
-      singleTimeValue={filtersChoice.time.singleTime}
-      rangeTimeValue={filtersChoice.time.rangeTime}
-      onTimeFilterControlChanged={updateTimeFilterType}
-      onSingleTimeFilterChanged={updateSingleTimeFilter}
-      onRangeTimeFilterChanged={updateRangeTimeFilter}
+      title="Created Date"
+      timeFilterControl={filterConditions.createdDate.timeFilterType}
+      singleTimeValue={filterConditions.createdDate.singleTime}
+      rangeTimeValue={filterConditions.createdDate.rangeTime}
+      onTimeFilterControlChanged={updateCreatedDateControlCondition}
+      onSingleTimeFilterChanged={updateCreatedDateCondition}
+      onRangeTimeFilterChanged={updateCreatedDateRangeCondition}
       className="mb-4"
-    />,
-    <ChoicesFilter
-      key={2}
-      title="Status"
-      defaultValues={filtersChoice.status}
-      choices={["Pending", "Done balanced", "Cancelled"]}
-      isSingleChoice={false}
-      onMultiChoicesChanged={updateStatusFilter}
-      className="my-4"
-    />,
-    <SearchFilter
-      key={3}
-      placeholder="Find creator..."
-      title="Creator"
-      chosenValues={filtersChoice.creator}
-      choices={creatorChoices}
-      onValuesChanged={updateCreatorFilter}
-      className="my-4"
     />,
   ];
 

@@ -16,12 +16,7 @@ import { useState } from "react";
 import { DamagedItemDocument } from "@/entities/DamagedItemDocument";
 import DamagedItemService from "@/services/damagedItemService";
 import { deleteDamagedItemDocument } from "@/reducers/damagedItemsReducer";
-import { damagedItemDocumentColumnTitles, damagedItemDocumentColumns, damagedItemDocumentDetailColumnTitles, damagedItemDocumentDetailTableColumns } from "./table_columns";
-
-const visibilityState = {
-  creatorId: false,
-  createdDate: false,
-};
+import { damagedItemDocumentColumnTitles, damagedItemDocumentColumnVisibilityState, damagedItemDocumentColumns, damagedItemDocumentDetailColumnTitles, damagedItemDocumentDetailTableColumns } from "./table_columns";
 
 export function DamagedItemsDatatable({ data }: { data: DamagedItemDocument[] }) {
   const { toast } = useToast();
@@ -75,7 +70,7 @@ export function DamagedItemsDatatable({ data }: { data: DamagedItemDocument[] })
         },
       ]}
       config={{
-        defaultVisibilityState: visibilityState,
+        defaultVisibilityState: damagedItemDocumentColumnVisibilityState,
         onDeleteRowsBtnClick: deleteDamagedItemDocuments,
       }}
     />
@@ -104,7 +99,7 @@ const DetailTab = ({
         <div className="flex flex-1 flex-row text-[0.8rem]">
           <div className="flex flex-1 flex-col gap-2 pr-4">
             <DefaultInformationCellDataTable
-              title="Purchase Return Id:"
+              title="Document Id:"
               value={document.id}
             />
             <DefaultInformationCellDataTable
@@ -147,7 +142,7 @@ const DetailTab = ({
             <p className="w-48 text-end">Total quantity:</p>
             <p className="w-32 text-end font-semibold">
               {document.products
-                .map((v) => v.quantity)
+                .map((v) => v.damagedQuantity)
                 .reduce((a, b) => a + b, 0)}
             </p>
           </div>
@@ -155,7 +150,7 @@ const DetailTab = ({
             <p className="w-48 text-end">Total value:</p>
             <p className="w-32 text-end font-semibold">
               {document.products
-                .map((v) => v.price * v.quantity)
+                .map((v) => v.costPrice * v.damagedQuantity)
                 .reduce((a, b) => a + b, 0)}
             </p>
           </div>

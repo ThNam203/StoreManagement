@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button";
 import { SingleColumnChart } from "@/components/ui/column_chart";
 import {
-  ChoicesFilter,
   FilterTime,
   FilterWeek,
   PageWithFilters,
@@ -157,22 +156,6 @@ export default function CustomerReportLayout() {
 
   const filters = [
     <div key={1} className="flex flex-col space-y-2">
-      <ChoicesFilter
-        title="Display Type"
-        key={1}
-        isSingleChoice={true}
-        choices={Object.values(DisplayType)}
-        defaultValue={singleFilter.displayType}
-        onSingleChoiceChanged={updateDisplayTypeSingleFilter}
-      />
-      <ChoicesFilter
-        title="Concern"
-        key={1}
-        isSingleChoice={true}
-        choices={Object.values(Concern)}
-        defaultValue={singleFilter.concerns}
-        onSingleChoiceChanged={updateConcernSingleFilter}
-      />
       <TimeFilter
         title="Time"
         timeFilterControl={timeFilterControl.rangeDate}

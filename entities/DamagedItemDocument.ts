@@ -8,7 +8,7 @@ export type DamagedItemDocument = {
 
 export type DamagedItemDetail = {
     productId: number;
-    quantity: number;
-    price: number;
+    damagedQuantity: number;
+    costPrice: number;
 };
   
