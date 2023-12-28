@@ -11,11 +11,14 @@ const transformStockCheckResponse = (
   const products = rawStockCheck.products;
   const filledStockCheck = {
     ...rawStockCheck,
-    stock: products
-      .map((detail) => detail.price)
+    totalStock: products
+      .map((detail) => detail.realStock)
+      .reduce((prev, cur) => cur + prev, 0),
+    totalCountedStock: products
+      .map((detail) => detail.countedStock)
       .reduce((prev, cur) => cur + prev, 0),
     totalValue: products
-      .map((detail) => detail.countedStock)
+      .map((detail) => detail.countedStock * detail.price)
       .reduce((prev, cur) => cur + prev, 0),
     stockDifference: products
       .map((detail) => detail.countedStock - detail.realStock)

@@ -30,6 +30,7 @@ const visibilityState = {
 export function StockCheckDatatable({ data }: { data: StockCheck[] }) {
   const { toast } = useToast();
   const dispatch = useAppDispatch();
+
   async function deleteStockChecks(dataToDelete: StockCheck[]): Promise<void> {
     const promises = dataToDelete.map((stockCheck) => {
       return StockCheckService.deleteStockCheck(stockCheck.id).then((_) =>
@@ -94,6 +95,7 @@ const DetailTab = ({
   setShowInfoRow: (value: boolean) => any;
 }) => {
   const stockCheck: StockCheck = row.original;
+  const staffs = useAppSelector((state) => state.staffs.value);
   const [disableDisableButton, setDisableDisableButton] = useState(false);
   const [disableDeleteButton, setDisableDeleteButton] = useState(false);
   const dispatch = useAppDispatch();
@@ -114,7 +116,7 @@ const DetailTab = ({
             />
             <DefaultInformationCellDataTable
               title="Creator:"
-              value={stockCheck.creatorId}
+              value={staffs.find((v) => v.id === stockCheck.creatorId)?.name ?? "NOT FOUND"}
             />
           </div>
           <div className="flex flex-1 flex-col pr-4">

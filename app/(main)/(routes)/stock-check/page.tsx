@@ -1,70 +1,137 @@
 "use client";
+import { Button } from "@/components/ui/button";
 import {
   FilterTime,
   FilterYear,
   PageWithFilters,
-  SearchFilter,
+  RangeFilter,
   TimeFilter,
 } from "@/components/ui/filter";
-import { useEffect, useState } from "react";
-import { StockCheckDatatable } from "./datatable";
-import { TimeFilterType } from "@/utils";
-import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ui/use-toast";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
-import StockCheckService from "@/services/stock_check_service";
 import { setStockChecks } from "@/reducers/stockChecksReducer";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
-import { useToast } from "@/components/ui/use-toast";
+import StockCheckService from "@/services/stock_check_service";
+import { TimeFilterType, handleRangeNumFilter, handleTimeFilter } from "@/utils";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { StockCheckDatatable } from "./datatable";
+import StaffService from "@/services/staff_service";
+import { setStaffs } from "@/reducers/staffReducer";
 
 export default function StockCheck() {
-  const [filterConditions, setFilterConditions] = useState<{
-    createdDate: {
-      timeFilterType: TimeFilterType;
-      singleTime: FilterTime;
-      rangeTime: {
-        startDate: Date;
-        endDate: Date;
-      };
+  const dispatch = useAppDispatch();
+  const { toast } = useToast();
+  const router = useRouter();
+  const stockChecks = useAppSelector((state) => state.stockChecks.value);
+
+  useEffect(() => {
+    dispatch(showPreloader());
+    const fetchData = async () => {
+      const stockChecks = await StockCheckService.getAllStockChecks();
+      dispatch(setStockChecks(stockChecks));
+
+      const staffs = await StaffService.getAllStaffs();
+      dispatch(setStaffs(staffs.data));
     };
-  }>({
-    createdDate: {
-      timeFilterType: TimeFilterType.StaticRange,
-      singleTime: FilterYear.AllTime,
-      rangeTime: {
-        startDate: new Date(),
-        endDate: new Date(),
-      },
+
+    fetchData()
+      .then()
+      .catch((e) => axiosUIErrorHandler(e, toast))
+      .finally(() => dispatch(disablePreloader()));
+  }, []);
+
+  const [filteredStockChecks, setFilteredStockChecks] = useState(stockChecks);
+
+  const [timeConditionControls, setTimeConditionControls] = useState({
+    createdDate: TimeFilterType.StaticRange as TimeFilterType,
+  });
+  const [timeConditions, setTimeConditions] = useState({
+    createdDate: FilterYear.AllTime as FilterTime,
+  });
+  const [timeRangeConditions, setTimeRangeConditions] = useState({
+    createdDate: { startDate: new Date(), endDate: new Date() },
+  });
+  const [rangeConditions, setRangeConditions] = useState({
+    totalStock: {
+      startValue: NaN,
+      endValue: NaN,
+    },
+    totalValue: {
+      startValue: NaN,
+      endValue: NaN,
+    },
+    stockDifference: {
+      startValue: NaN,
+      endValue: NaN,
+    },
+    totalValueDifference: {
+      startValue: NaN,
+      endValue: NaN,
     },
   });
 
-  const updateCreatedDateCondition = (choice: FilterTime) =>
-    setFilterConditions((prev) => ({
+  const updateTotalValueRangeCondition = (condition: {
+    startValue: number;
+    endValue: number;
+  }) => {
+    setRangeConditions((prev) => ({
       ...prev,
-      createdDate: {
-        ...prev.createdDate,
-        singleTime: choice,
-      },
+      totalValue: condition,
     }));
-    
-  const updateCreatedDateRangeCondition = (choice: {startDate: Date, endDate: Date}) =>
-    setFilterConditions((prev) => ({
+  };
+
+  const updateTotalStockRangeCondition = (condition: {
+    startValue: number;
+    endValue: number;
+  }) => {
+    setRangeConditions((prev) => ({
       ...prev,
-      createdDate: {
-        ...prev.createdDate,
-        rangeTime: choice,
-      },
+      totalStock: condition,
     }));
-    
-    const updateCreatedDateControlCondition = (choice: TimeFilterType) =>
-    setFilterConditions((prev) => ({
+  };
+
+  const updateStockDifferenceRangeCondition = (condition: {
+    startValue: number;
+    endValue: number;
+  }) => {
+    setRangeConditions((prev) => ({
       ...prev,
-      createdDate: {
-        ...prev.createdDate,
-        timeFilterType: choice,
-      },
+      stockDifference: condition,
     }));
+  };
+
+  const updateTotalValueDifferenceRangeCondition = (condition: {
+    startValue: number;
+    endValue: number;
+  }) => {
+    setRangeConditions((prev) => ({
+      ...prev,
+      totalValueDifference: condition,
+    }));
+  };
+
+  const updateCreatedDateConditionControl = (control: TimeFilterType) => {
+    setTimeConditionControls((prev) => ({
+      createdDate: control,
+    }));
+  };
+
+  const updateCreatedDateCondition = (condition: FilterTime) => {
+    setTimeConditions((prev) => ({
+      createdDate: condition,
+    }));
+  };
+
+  const updateCreatedDateConditionRange = (condition: {
+    startDate: Date;
+    endDate: Date;
+  }) => {
+    setTimeRangeConditions((prev) => ({
+      createdDate: condition,
+    }));
+  };
 
   // const updateCreatorFilter = (choices: string[]) => {
   //   setFiltersChoice((prev) => ({
@@ -80,46 +147,75 @@ export default function StockCheck() {
   //   }));
   // };
 
+  useEffect(() => {
+    let filteredStockChecks = stockChecks;
+    filteredStockChecks = handleTimeFilter(
+      timeConditions,
+      timeRangeConditions,
+      timeConditionControls,
+      filteredStockChecks,
+    );
+    filteredStockChecks = handleRangeNumFilter(rangeConditions, filteredStockChecks)
+    setFilteredStockChecks(filteredStockChecks);
+  }, [timeConditions, timeRangeConditions, timeConditionControls, stockChecks, rangeConditions]);
+
   const filters = [
     <TimeFilter
-      key={1}
-      title="Created Date"
-      timeFilterControl={filterConditions.createdDate.timeFilterType}
-      singleTimeValue={filterConditions.createdDate.singleTime}
-      rangeTimeValue={filterConditions.createdDate.rangeTime}
-      onTimeFilterControlChanged={updateCreatedDateControlCondition}
+      key={2}
+      title="Created date"
+      className="mb-2"
+      timeFilterControl={timeConditionControls.createdDate}
+      singleTimeValue={timeConditions.createdDate}
+      rangeTimeValue={timeRangeConditions.createdDate}
+      onTimeFilterControlChanged={updateCreatedDateConditionControl}
       onSingleTimeFilterChanged={updateCreatedDateCondition}
-      onRangeTimeFilterChanged={updateCreatedDateRangeCondition}
-      className="mb-4"
+      onRangeTimeFilterChanged={updateCreatedDateConditionRange}
     />,
+    <RangeFilter
+      key={3}
+      title="Total Value"
+      className="mb-2"
+      range={rangeConditions.totalValue}
+      onValuesChanged={updateTotalValueRangeCondition}
+    />,
+    <RangeFilter
+      key={4}
+      title="Total Stock"
+      className="mb-2"
+      range={rangeConditions.totalStock}
+      onValuesChanged={updateTotalStockRangeCondition}
+    />,
+    <RangeFilter
+      key={5}
+      title="Stock Difference"
+      className="mb-2"
+      range={rangeConditions.stockDifference}
+      onValuesChanged={updateStockDifferenceRangeCondition}
+    />,
+    <RangeFilter
+      key={6}
+      title="Total Value Difference"
+      className="mb-2"
+      range={rangeConditions.totalValueDifference}
+      onValuesChanged={updateTotalValueDifferenceRangeCondition}
+      />,
   ];
-
-  const dispatch = useAppDispatch();
-  const { toast } = useToast();
-  const router = useRouter();
-  const stockChecks = useAppSelector((state) => state.stockChecks.value);
-
-  useEffect(() => {
-    dispatch(showPreloader())
-    const fetchData = async () => {
-      const stockChecks = await StockCheckService.getAllStockChecks()
-      dispatch(setStockChecks(stockChecks))
-    }
-
-    fetchData().then().catch(e => axiosUIErrorHandler(e, toast)).finally(() => dispatch(disablePreloader()))
-  }, [])
 
   return (
     <PageWithFilters
       title="Stock check"
       filters={filters}
       headerButtons={[
-        <Button key={1} variant={"green"} onClick={() => router.push("/stock-check/new")}>
+        <Button
+          key={1}
+          variant={"green"}
+          onClick={() => router.push("/stock-check/new")}
+        >
           New stock check
         </Button>,
       ]}
     >
-      <StockCheckDatatable data={stockChecks} />
+      <StockCheckDatatable data={filteredStockChecks} />
     </PageWithFilters>
   );
 }

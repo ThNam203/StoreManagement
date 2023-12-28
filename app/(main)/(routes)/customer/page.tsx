@@ -163,7 +163,7 @@ export default function InvoicePage() {
     />,
     <TimeFilter
       key={2}
-      title="Created Date"
+      title="Created date"
       className="mb-2"
       timeFilterControl={timeConditionControls.createdAt}
       singleTimeValue={timeConditions.createdAt}

@@ -137,7 +137,7 @@ export default function DiscountPage() {
   const filters = [
     <TimeFilter
       key={2}
-      title="Created Date"
+      title="Created date"
       className="mb-2"
       timeFilterControl={timeConditionControls.createdAt}
       singleTimeValue={timeConditions.createdAt}

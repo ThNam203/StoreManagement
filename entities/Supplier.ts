@@ -1,6 +1,11 @@
+export enum SupplierStatuses {
+  Active = "Active",
+  Disabled = "Disabled",
+}
+
 export type Supplier = {
   id: number;
-  name:string,
+  name: string,
   address: string,
   phoneNumber: string,
   email: string,

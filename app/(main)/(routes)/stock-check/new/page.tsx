@@ -1,32 +1,26 @@
 "use client";
-import { CustomDatatable } from "@/components/component/custom_datatable";
-import PropertiesString from "@/components/ui/properties_string_view";
 import SearchView from "@/components/component/SearchView";
+import CustomAlertDialog from "@/components/component/custom_alert_dialog";
+import { CustomDatatable } from "@/components/component/custom_datatable";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import PropertiesString from "@/components/ui/properties_string_view";
+import { useToast } from "@/components/ui/use-toast";
 import { Product } from "@/entities/Product";
+import { StockCheckDetail } from "@/entities/StockCheck";
 import { useAppDispatch, useAppSelector } from "@/hooks";
-import { useState } from "react";
+import { axiosUIErrorHandler } from "@/services/axios_utils";
+import StockCheckService from "@/services/stock_check_service";
+import { CheckCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import {
   stockCheckDetailColumnTitles,
   stockCheckDetailTableColumns,
 } from "./table_columns";
-import { StockCheckDetail } from "@/entities/StockCheck";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { CheckCircle } from "lucide-react";
-import StockCheckService from "@/services/stock_check_service";
-import LoadingCircle from "@/components/ui/loading_circle";
-import axios from "axios";
-import { axiosUIErrorHandler } from "@/services/axios_utils";
-import { useToast } from "@/components/ui/use-toast";
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import CustomAlertDialog from "@/components/component/custom_alert_dialog";
-import { addStockCheck } from "@/reducers/stockChecksReducer";
-import { useRouter } from "next/navigation";
+import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
+import ProductService from "@/services/productService";
+import { setProducts } from "@/reducers/productsReducer";
 
 const ProductSearchItemView: (product: Product) => React.ReactNode = (
   product: Product,
@@ -68,6 +62,21 @@ export default function NewStockCheckPage() {
   const [note, setNote] = useState("");
   const [isCompleting, setIsCompleting] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    dispatch(showPreloader());
+    const getData = async () => {
+      try {
+        const products = await ProductService.getAllProducts();
+        dispatch(setProducts(products.data));
+      } catch (e) {
+        axiosUIErrorHandler(e, toast);
+      }
+    };
+    getData().finally(() => {
+      dispatch(disablePreloader());
+    });
+  }, []);
 
   const onSearchViewProductClicked = (product: Product) => {
     const foundProduct = details.find(

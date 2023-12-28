@@ -1,10 +1,9 @@
-import { ProductProperty } from "./Product";
-
 export type StockCheck = {
   id: number;
   createdDate: string;
   creatorId: number;
-  stock: number;
+  totalCountedStock: number;
+  totalStock: number;
   totalValue: number;
   stockDifference: number;
   totalValueDifference: number;

@@ -1,4 +1,9 @@
 export type InvoicePaymentMethod = "Cash" | "Bank transfer" | "Card";
+export enum PAYMENT_METHODS {
+  Cash = "Cash",
+  BankTransfer = "Bank transfer",
+  Card = "Card",
+}
 
 export type Invoice = {
   id: number;
