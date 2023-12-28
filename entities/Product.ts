@@ -11,6 +11,7 @@ type Product = {
   description: string;
   propertiesString?: string;
   note: string;
+  isDeleted: boolean;
   minStock: number; // minstock
   maxStock: number; // maxstock
   productGroup: string;

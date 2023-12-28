@@ -126,7 +126,7 @@ export default function UpdateCustomerDialog({
           <div className="flex flex-col gap-8 md:flex-row">
             <FormImage
               onImageChosen={onFileChanged}
-              imageSrc={customer.image.url}
+              imageSrc={customer.image?.url}
             />
             <div className="flex-1">
               <FormContent

@@ -123,7 +123,7 @@ const ProductNameCell = (
                 setShowNoteEditor(false)
               }}
             /> : <div className="flex items-center" onClick={() => setShowNoteEditor(true)}>
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-gray-500 max-w-[150px] overflow-hidden">
             {detail.note.length > 0 ? detail.note : "note..."}
           </p>
           <Pencil size={10} className="ml-1"/>

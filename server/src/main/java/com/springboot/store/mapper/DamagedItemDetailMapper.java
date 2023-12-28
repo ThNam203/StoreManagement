@@ -9,11 +9,13 @@ public class DamagedItemDetailMapper {
                 .id(damagedItemDetail.getId())
                 .productId(damagedItemDetail.getProduct() == null ? null : damagedItemDetail.getProduct().getId())
                 .damagedQuantity(damagedItemDetail.getDamagedQuantity())
+                .costPrice(damagedItemDetail.getCostPrice())
                 .build();
     }
     public static DamagedItemDetail toDamagedItemDetail(DamagedItemDetailDTO damagedItemDetailDTO) {
         return DamagedItemDetail.builder()
                 .damagedQuantity(damagedItemDetailDTO.getDamagedQuantity())
+                .costPrice(damagedItemDetailDTO.getCostPrice())
                 .build();
     }
 }

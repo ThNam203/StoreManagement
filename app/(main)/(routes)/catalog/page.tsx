@@ -1,21 +1,19 @@
 "use client";
+import { Button } from "@/components/ui/button";
+import { NewProductView } from "@/components/ui/catalog/new_product_form";
+import { UpdateProductView } from "@/components/ui/catalog/update_product_form";
 import {
-  ChoicesFilter,
+  MultiChoicesFilter,
   PageWithFilters,
   SearchFilter,
+  SingleChoiceFilter,
 } from "@/components/ui/filter";
-import React, { useEffect, useState } from "react";
-import { CatalogDatatable } from "./datatable";
-import { NewProductView } from "@/components/ui/catalog/new_product_form";
-import { Button } from "@/components/ui/button";
-import { ChevronRight, Lock, PenLine, Plus, Trash } from "lucide-react";
-import ProductService from "@/services/productService";
 import { useToast } from "@/components/ui/use-toast";
-import { UpdateProductView } from "@/components/ui/catalog/update_product_form";
-import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { Product } from "@/entities/Product";
 import { useAppDispatch, useAppSelector } from "@/hooks";
-import { addGroup, setGroups } from "@/reducers/productGroupsReducer";
+import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
 import { addBrand, setBrands } from "@/reducers/productBrandsReducer";
+import { addGroup, setGroups } from "@/reducers/productGroupsReducer";
 import { addLocation, setLocations } from "@/reducers/productLocationsReducer";
 import * as productPropertiesActions from "@/reducers/productPropertiesReducer";
 import {
@@ -23,24 +21,33 @@ import {
   setProducts,
   updateProduct,
 } from "@/reducers/productsReducer";
-import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
-import { handleMultipleFilter, handleSingleFilter } from "@/utils";
-import { Product } from "@/entities/Product";
+import { axiosUIErrorHandler } from "@/services/axios_utils";
+import ProductService from "@/services/productService";
+import {
+  handleChoiceFilters,
+  handleMultipleFilter,
+  handleSingleFilter,
+} from "@/utils";
+import { Plus } from "lucide-react";
+import { useEffect, useState } from "react";
+import { CatalogDatatable } from "./datatable";
 
-const productInventoryThresholds = [
+const PRODUCT_STOCK_LEVEL_FILTERS = [
   "All",
   "Below threshold",
   "Exceeding threshold",
   "Available in inventory",
   "Out of stock",
 ];
-const productStatuses = ["Active", "Disabled", "All"];
+
+const PRODUCT_STATUSES_FILTERS = ["Active", "Disabled", "All"];
 
 export default function Catalog() {
   const { toast } = useToast();
   const dispatch = useAppDispatch();
   const products = useAppSelector((state) => state.products.value);
   const productGroups = useAppSelector((state) => state.productGroups.value);
+  const productBrands = useAppSelector((state) => state.productBrands.value);
   const productLocations = useAppSelector(
     (state) => state.productLocations.value,
   );
@@ -140,92 +147,108 @@ export default function Catalog() {
     }
   };
 
-  const [filteredProductList, setFilterSaleList] =
-    useState<Product[]>(products);
-  let [multiFilter, setMultiFilter] = useState({
-    // type: ["Goods"] as string[],
-    productGroup: [] as string[],
-    // supplier: [] as string[],
+  const [filterConditions, setFilterConditions] = useState({
     location: [] as string[],
+    productGroup: [] as string[],
+    productBrand: [] as string[],
   });
-  let [singleFileter, setSingleFilter] = useState({
-    // minStock: "All" as string | undefined,
-    // status: "All" as string | undefined,
-  });
+
+  const [stockLevelCondition, setStockLevelCondition] = useState("All");
+  const [statusCondition, setStatusCondition] = useState("All");
+
+  const updateLocationCondition = (values: string[]) => {
+    setFilterConditions((prevConditions) => ({
+      ...prevConditions,
+      location: values,
+    }));
+  };
+
+  const updateProductGroupCondition = (values: string[]) => {
+    setFilterConditions((prevConditions) => ({
+      ...prevConditions,
+      productGroup: values,
+    }));
+  };
+
+  const updateProductBrandCondition = (values: string[]) => {
+    setFilterConditions((prevConditions) => ({
+      ...prevConditions,
+      productBrand: values,
+    }));
+  };
+
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>(
+    products.filter((product) => !product.isDeleted),
+  );
 
   useEffect(() => {
     let filteredList = [...products];
-    console.log("multi filter", multiFilter);
-    filteredList = handleMultipleFilter<Product>(multiFilter, filteredList);
-    console.log("filtered list", filteredList);
-    filteredList = handleSingleFilter<Product>(singleFileter, filteredList);
+    filteredList = handleChoiceFilters(filterConditions, filteredList);
 
-    setFilterSaleList([...filteredList]);
-  }, [multiFilter, singleFileter, products]);
+    filteredList = filteredList.filter((product) => {
+      if (stockLevelCondition === "All") return true;
+      if (stockLevelCondition === "Below threshold")
+        return product.stock < product.minStock;
+      if (stockLevelCondition === "Exceeding threshold")
+        return product.stock > product.maxStock;
+      if (stockLevelCondition === "Available in inventory")
+        return product.stock > 0;
+      if (stockLevelCondition === "Out of stock") return product.stock === 0;
+    })
 
-  const updateTypeFilter = (choices: string[]) =>
-    setMultiFilter((prev) => ({ ...prev, type: choices }));
-  const updateProductGroupFilter = (choices: string[]) =>
-    setMultiFilter((prev) => ({ ...prev, productGroup: choices }));
-  const updateInventoryThresholdFilter = (choice: string) => {
-    // if (choice === "All") {
-    //   const newSingleFilter = { ...singleFileter };
-    //   delete newSingleFilter.minStock;
-    //   setSingleFilter(newSingleFilter);
-    // } else if (choice === "Below threshold") {
-    //   setSingleFilter((prev) => ({ ...prev, minStock: choice }));
-    // }
-    // setSingleFilter((prev) => ({ ...prev, minStock: choice }));
-  };
-  const updateSupplierFilter = (choices: string[]) =>
-    setMultiFilter((prev) => ({ ...prev, supplier: choices }));
-  const updateLocationFilter = (choices: string[]) =>
-    setMultiFilter((prev) => ({ ...prev, location: choices }));
-  const updateStatusFilter = (choice: string) => {
-    // if (choice === "All") {
-    //   const newSingleFilter = { ...singleFileter };
-    //   delete newSingleFilter.status;
-    //   setSingleFilter(newSingleFilter);
-    // } else setSingleFilter((prev) => ({ ...prev, status: choice }));
-  };
+    filteredList = filteredList.filter((product) => {
+      if (statusCondition === "All") return true;
+      if (statusCondition === product.status) return true;
+      return false;
+    })
+
+    setFilteredProducts([...filteredList]);
+  }, [filterConditions, products, statusCondition, stockLevelCondition]);
 
   const filters = [
     <SearchFilter
-      key={2}
+      key={1}
       placeholder="Find group..."
       title="Product group"
-      chosenValues={multiFilter.productGroup}
+      chosenValues={filterConditions.productGroup}
       choices={productGroups.map((group) => group.name)}
-      onValuesChanged={updateProductGroupFilter}
+      onValuesChanged={updateProductGroupCondition}
       className="mb-4"
     />,
-    // <ChoicesFilter
-    //   key={3}
-    //   title="Inventory"
-    //   isSingleChoice
-    //   defaultValue={singleFileter.minStock}
-    //   choices={productInventoryThresholds}
-    //   onSingleChoiceChanged={updateInventoryThresholdFilter}
-    //   className="my-4"
-    // />,
     <SearchFilter
-      key={5}
+      key={2}
+      placeholder="Find brand..."
+      title="Product brand"
+      chosenValues={filterConditions.productBrand}
+      choices={productBrands.map((brand) => brand.name)}
+      onValuesChanged={updateProductBrandCondition}
+      className="mb-4"
+    />,
+    <SearchFilter
+      key={3}
       title="Product position"
       placeholder="Find position..."
-      chosenValues={multiFilter.location}
-      onValuesChanged={updateLocationFilter}
+      chosenValues={filterConditions.location}
+      onValuesChanged={updateLocationCondition}
       choices={productLocations.map((v) => v.name)}
       className="my-4"
     />,
-    // <ChoicesFilter
-    //   key={6}
-    //   title="Product status"
-    //   isSingleChoice
-    //   defaultValue={singleFileter.status}
-    //   choices={productStatuses}
-    //   onSingleChoiceChanged={updateStatusFilter}
-    //   className="my-4"
-    // />,
+    <SingleChoiceFilter
+      key={4}
+      title="Stock level"
+      choices={PRODUCT_STOCK_LEVEL_FILTERS}
+      value={stockLevelCondition}
+      onValueChanged={setStockLevelCondition}
+      className="my-4"
+    />,
+    <SingleChoiceFilter
+      key={5}
+      title="Status"
+      choices={PRODUCT_STATUSES_FILTERS}
+      value={statusCondition}
+      onValueChanged={setStatusCondition}
+      className="my-4"
+    />
   ];
 
   const NewProductButton = () => {
@@ -255,7 +278,7 @@ export default function Catalog() {
       headerButtons={[<NewProductButton key={1} />]}
     >
       <CatalogDatatable
-        data={filteredProductList}
+        data={filteredProducts}
         onProductUpdateButtonClicked={onProductUpdateButtonClicked}
       />
       {showNewProductView ? (

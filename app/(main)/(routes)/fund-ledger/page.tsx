@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import { DataTable } from "./datatable";
 
 import {
-  ChoicesFilter,
   FilterTime,
   FilterWeek,
+  MultiChoicesFilter,
   PageWithFilters,
   RangeFilter,
   SearchFilter,
@@ -134,6 +134,7 @@ export default function SalesPage() {
       return Promise.reject();
     }
   };
+  
   const addReceiptForm = async (value: Transaction) => {
     try {
       const convertedToSent = convertReceiptFormToSent(value);
@@ -238,13 +239,12 @@ export default function SalesPage() {
         placeholder="Select creator"
         onValuesChanged={updateCreatorMultiFilter}
       />
-      <ChoicesFilter
+      <MultiChoicesFilter
         key={2}
         title="Transaction type"
         choices={Object.values(TransactionType)}
-        isSingleChoice={false}
-        defaultValues={multiFilter.transactionType}
-        onMultiChoicesChanged={updateTransactionTypeMultiFilter}
+        values={multiFilter.transactionType}
+        onValueChanged={updateTransactionTypeMultiFilter}
       />
       <SearchFilter
         key={7}
@@ -257,35 +257,32 @@ export default function SalesPage() {
         alwaysOpen
         onValuesChanged={updateTargetNameMultiFilter}
       />
-      <ChoicesFilter
+      <MultiChoicesFilter
         key={4}
         title="Status"
         choices={Object.values(Status)}
-        isSingleChoice={false}
-        defaultValues={multiFilter.status}
-        onMultiChoicesChanged={updateStatusMultiFilter}
+        values={multiFilter.status}
+        onValueChanged={updateStatusMultiFilter}
       />
       <RangeFilter
         title="Value"
         range={rangeNumFilter.value}
         onValuesChanged={updateValueRangeNumFilter}
       />
-      <ChoicesFilter
+      <MultiChoicesFilter
         key={3}
         title="Form type"
         choices={Object.values(FormType)}
-        isSingleChoice={false}
-        defaultValues={multiFilter.formType}
-        onMultiChoicesChanged={updateFormTypeMultiFilter}
+        values={multiFilter.formType}
+        onValueChanged={updateFormTypeMultiFilter}
       />
 
-      <ChoicesFilter
+      <MultiChoicesFilter
         key={6}
         title="Receiver/Payer type"
         choices={Object.values(TargetType)}
-        isSingleChoice={false}
-        defaultValues={multiFilter.targetType}
-        onMultiChoicesChanged={updateTargetTypeMultiFilter}
+        values={multiFilter.targetType}
+        onValueChanged={updateTargetTypeMultiFilter}
       />
     </div>,
   ];

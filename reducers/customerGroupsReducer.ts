@@ -7,7 +7,7 @@ export const customerGroupsSlice = createSlice({
     value: [] as CustomerGroup[],
   },
   reducers: {
-    setCustomerGroup: (state, action: PayloadAction<CustomerGroup[]>) => {
+    setCustomerGroups: (state, action: PayloadAction<CustomerGroup[]>) => {
       state.value = action.payload;
     },
     addCustomerGroup: (state, action: PayloadAction<CustomerGroup>) => {
@@ -30,7 +30,7 @@ export const customerGroupsSlice = createSlice({
 });
 
 export const {
-  setCustomerGroup,
+  setCustomerGroups,
   addCustomerGroup,
   addCustomerGroups,
   deleteCustomerGroup,

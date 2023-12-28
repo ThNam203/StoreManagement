@@ -489,7 +489,7 @@ const SideBar = ({
               title="Damaged Items"
               className="!w-full"
               isCollapsed={isCollapsed}
-              href="/damaged-products"
+              href="/damaged-item"
             />,
           ]}
           isCollapsed={isCollapsed}

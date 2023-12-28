@@ -4,49 +4,47 @@ import {
   defaultIndexColumn,
   defaultSelectColumn,
 } from "@/components/ui/my_table_default_column";
-import scrollbar_style from "@/styles/scrollbar.module.css";
-import { Product } from "@/entities/Product";
 import { cn } from "@/lib/utils";
-import { Column, ColumnDef, Getter, Row, Table } from "@tanstack/react-table";
+import scrollbar_style from "@/styles/scrollbar.module.css";
+import { ColumnDef, Getter, Row } from "@tanstack/react-table";
 import { Minus, Pencil, Plus } from "lucide-react";
 import { useState } from "react";
 
-export type NewPurchaseOrderDetail = {
+export type NewPurchaseReturnDetail = {
   productId: number;
   productName: string;
   unit: string;
   quantity: number;
   note: string;
   price: number;
-  discount: number;
 };
 
-export const purchaseOrderDetailColumnTitles = {
+export const purchaseReturnDetailColumnTitles = {
   productId: "Product Id",
   productName: "Product Name",
   unit: "Unit",
   quantity: "Quantity",
-  price: "Unit Price",
-  discount: "Discount",
+  price: "Original price"
 };
 
-export const purchaseOrderDetailTableColumns = (
+export const purchaseReturnDetailTableColumns = (
   onQuantityChanged: (productId: number, newQuantity: number) => any,
   onNoteChanged: (productId: number, newNote: string) => any,
-): ColumnDef<NewPurchaseOrderDetail>[] => {
-  const columns: ColumnDef<NewPurchaseOrderDetail>[] = [
-    defaultSelectColumn<NewPurchaseOrderDetail>(),
-    defaultIndexColumn<NewPurchaseOrderDetail>(),
+  onReturnPriceChanged: (productId: number, newPrice: number) => any,
+): ColumnDef<NewPurchaseReturnDetail>[] => {
+  const columns: ColumnDef<NewPurchaseReturnDetail>[] = [
+    defaultSelectColumn<NewPurchaseReturnDetail>(),
+    defaultIndexColumn<NewPurchaseReturnDetail>(),
   ];
 
-  for (let key in purchaseOrderDetailColumnTitles) {
-    let col: ColumnDef<NewPurchaseOrderDetail>;
+  for (let key in purchaseReturnDetailColumnTitles) {
+    let col: ColumnDef<NewPurchaseReturnDetail>;
     if (key === "quantity") col = quantityColumn(onQuantityChanged);
     else if (key === "productName") col = productNameColumn(onNoteChanged);
     else
-      col = defaultColumn<NewPurchaseOrderDetail>(
+      col = defaultColumn<NewPurchaseReturnDetail>(
         key,
-        purchaseOrderDetailColumnTitles,
+        purchaseReturnDetailColumnTitles,
       );
     columns.push(col);
   }
@@ -58,16 +56,16 @@ export const purchaseOrderDetailTableColumns = (
 
 function totalColumn(
   disableSorting: boolean = false,
-): ColumnDef<NewPurchaseOrderDetail> {
-  const col: ColumnDef<NewPurchaseOrderDetail> = {
+): ColumnDef<NewPurchaseReturnDetail> {
+  const col: ColumnDef<NewPurchaseReturnDetail> = {
     accessorKey: "total",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Total" />
+      <DataTableColumnHeader column={column} title="Total value" />
     ),
     cell: ({ row }) => {
       return (
         <p className="text-[0.8rem] font-bold">
-          {row.original.quantity * row.original.price - row.original.discount}
+          {row.original.quantity * row.original.price}
         </p>
       );
     },
@@ -78,8 +76,8 @@ function totalColumn(
 function productNameColumn(
   onNoteChanged: (productId: number, newNote: string) => any,
   disableSorting: boolean = false,
-): ColumnDef<NewPurchaseOrderDetail> {
-  const col: ColumnDef<NewPurchaseOrderDetail> = {
+): ColumnDef<NewPurchaseReturnDetail> {
+  const col: ColumnDef<NewPurchaseReturnDetail> = {
     accessorKey: "productName",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Product Name" />
@@ -92,8 +90,8 @@ function productNameColumn(
 function quantityColumn(
   onQuantityChanged: (productId: number, newQuantity: number) => any,
   disableSorting: boolean = false,
-): ColumnDef<NewPurchaseOrderDetail> {
-  const col: ColumnDef<NewPurchaseOrderDetail> = {
+): ColumnDef<NewPurchaseReturnDetail> {
+  const col: ColumnDef<NewPurchaseReturnDetail> = {
     accessorKey: "quantity",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Quantity" />
@@ -104,7 +102,7 @@ function quantityColumn(
 }
 
 const ProductNameCell = (
-  detail: NewPurchaseOrderDetail,
+  detail: NewPurchaseReturnDetail,
   onNoteChanged: (productId: number, newNote: string) => any,
 ) => {
   const [showNoteEditor, setShowNoteEditor] = useState(false);
@@ -137,7 +135,7 @@ const QuantityCell = ({
   onQuantityChanged,
 }: {
   getValue: Getter<number>;
-  row: Row<NewPurchaseOrderDetail>;
+  row: Row<NewPurchaseReturnDetail>;
   onQuantityChanged: (productId: number, countedStock: number) => any;
 }) => {
   const [value, setValue] = useState<number>(getValue());
@@ -174,5 +172,3 @@ const QuantityCell = ({
     </div>
   );
 };
-
-export const stockCheckDetailColumns = () => {};

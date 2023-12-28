@@ -21,7 +21,7 @@ import { useToast } from "@/components/ui/use-toast";
 import PurchaseOrderService from "@/services/purchaseOrderService";
 import { setPurchaseOrders } from "@/reducers/purchaseOrdersReducer";
 
-export default function StockCheck() {
+export default function PurchaseOrderPage() {
   const dispatch = useAppDispatch();
   const { toast } = useToast();
   const router = useRouter();

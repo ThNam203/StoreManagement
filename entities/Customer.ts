@@ -1,5 +1,5 @@
 export type Customer = {
-  id: any;
+  id: number;
   name: string;
   customerGroup: string;
   phoneNumber: string;
@@ -7,7 +7,7 @@ export type Customer = {
   sex: "Male" | "Female" | "Not to say";
   email: string;
   birthday: string;
-  creator: string;
+  creatorId: number;
   createdDate: Date;
   description: string;
   image: {

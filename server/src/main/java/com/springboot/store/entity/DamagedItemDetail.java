@@ -21,6 +21,8 @@ public class DamagedItemDetail {
 
     private int damagedQuantity;
 
+    private int costPrice;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "damaged_item_id")
     private DamagedItem damagedItem;
