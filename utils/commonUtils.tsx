@@ -224,7 +224,10 @@ function handleTimeFilter<T>(
         if (staticRange === FilterYear.AllTime) continue;
         if (value instanceof Date && range !== undefined && range !== null) {
           if (!isInRangeTime(value, range)) return false;
-        } else return false;
+        } else {
+          console.log(value, ' is date? ', value instanceof Date)
+          return false;
+        }
       }
     }
     return true;

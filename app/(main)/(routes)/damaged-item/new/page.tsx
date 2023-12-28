@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 import {
-  NewPurchaseReturnDetail,
+  NewDamagedItemDetail,
   purchaseReturnDetailColumnTitles,
   purchaseReturnDetailTableColumns,
 } from "./table_columns";
@@ -31,6 +31,7 @@ import { setProducts } from "@/reducers/productsReducer";
 import PurchaseOrderService from "@/services/purchaseOrderService";
 import LoadingCircle from "@/components/ui/loading_circle";
 import PurchaseReturnService from "@/services/purchaseReturnService";
+import DamagedItemService from "@/services/damagedItemService";
 
 const ProductSearchItemView: (product: Product) => React.ReactNode = (
   product: Product,
@@ -67,7 +68,7 @@ export default function NewPurchaseOrderPage() {
   const products = useAppSelector((state) => state.products.value);
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const [details, setDetails] = useState<NewPurchaseReturnDetail[]>([]);
+  const [details, setDetails] = useState<NewDamagedItemDetail[]>([]);
   const [productSearch, setProductSearch] = useState("");
   const [note, setNote] = useState("");
   const [isCompleting, setIsCompleting] = useState(false);
@@ -156,7 +157,7 @@ export default function NewPurchaseOrderPage() {
     );
   };
 
-  const deleteRows = async (data: NewPurchaseReturnDetail[]) => {
+  const deleteRows = async (data: NewDamagedItemDetail[]) => {
     const productIds = data.map((d) => d.productId);
     setDetails((prev) =>
       prev.filter((detail) => productIds.includes(detail.productId)),
@@ -171,14 +172,14 @@ export default function NewPurchaseOrderPage() {
         description: "Please choose a staff!",
       });
 
-    if (details.length === 0)
+    if (details.filter((v) => v.quantity > 0).length === 0)
       return toast({
         variant: "destructive",
-        description: "Purchase return is empty!",
+        description: "Document is empty!",
       });
 
-    await PurchaseReturnService.uploadPurchaseReturn({
-      products: details.map((v) => ({ ...v })),
+    await DamagedItemService.uploadDamagedItemDocument({
+      products: details.filter(v => v.quantity > 0).map((v) => ({ ...v })),
       note: note,
       createdDate: format(createdDate, "yyyy-MM-dd HH:mm:ss"),
       creatorId: staff.id,

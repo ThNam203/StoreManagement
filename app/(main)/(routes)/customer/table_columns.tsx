@@ -19,7 +19,7 @@ export const customerDefaultVisibilityState = {
   sex: false,
   email: false,
   birthday: false,
-  createdDate: false,
+  createdAt: false,
   description: false,
 }
 
@@ -33,7 +33,7 @@ export const customerColumnTitles = {
   email: "Email",
   creatorId: "Creator Id",
   birthday: "Birthday",
-  createdDate: "Created Date",
+  createdAt: "Created Date",
   description: "Description",
 };
 

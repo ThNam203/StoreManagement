@@ -10,11 +10,17 @@ import { DamagedItemDetail, DamagedItemDocument } from "@/entities/DamagedItemDo
 import { ColumnDef } from "@tanstack/react-table";
 
 export const damagedItemDocumentColumnTitles = {
-  id: "Order ID",
+  id: "Document ID",
   note: "Note",
-  price: "Original Price",
   createdDate: "Created Date",
   creatorId: "Creator",
+};
+
+export const damagedItemDocumentColumnVisibilityState = {
+  id: true,
+  note: false,
+  createdDate: true,
+  creatorId:true,
 };
 
 export const damagedItemDocumentColumns = (): ColumnDef<DamagedItemDocument>[] => {
@@ -30,15 +36,14 @@ export const damagedItemDocumentColumns = (): ColumnDef<DamagedItemDocument>[] =
     );
     columns.push(col);
   }
-
+  columns.push(totalColumn);
   return columns;
 };
 
 export const damagedItemDocumentDetailColumnTitles = {
   productId: "Product",
-  quantity: "Quantity",
-  supplyPrice: "Supply Price",
-  returnPrice: "Return Price",
+  damagedQuantity: "Quantity",
+  costPrice: "Cost Price",
 };
 
 export const damagedItemDocumentDetailTableColumns =
@@ -56,12 +61,12 @@ export const damagedItemDocumentDetailTableColumns =
         );
       columns.push(col);
     }
-    columns.push(totalColumn);
+    columns.push(detailTotalColumn);
 
     return columns;
   };
 
-const totalColumn: ColumnDef<DamagedItemDetail> = {
+const detailTotalColumn: ColumnDef<DamagedItemDetail> = {
   accessorKey: "total",
   header: ({ column }) => (
     <DataTableColumnHeader column={column} title="Total" />
@@ -70,7 +75,22 @@ const totalColumn: ColumnDef<DamagedItemDetail> = {
     const detail = row.original;
     return (
       <p className="text-[0.8rem]">
-        {detail.price * detail.quantity}
+        {detail.costPrice * detail.damagedQuantity}
+      </p>
+    );
+  },
+};
+
+const totalColumn: ColumnDef<DamagedItemDocument> = {
+  accessorKey: "total",
+  header: ({ column }) => (
+    <DataTableColumnHeader column={column} title="Total" />
+  ),
+  cell: ({ row }) => {
+    const document = row.original;
+    return (
+      <p className="text-[0.8rem]">
+        {document.products.map((detail) => detail.costPrice * detail.damagedQuantity).reduce((a, b) => a + b, 0)}
       </p>
     );
   },

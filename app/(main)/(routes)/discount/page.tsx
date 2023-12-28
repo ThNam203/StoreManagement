@@ -1,5 +1,5 @@
 "use client";
-import { PageWithFilters } from "@/components/ui/filter";
+import { FilterTime, FilterYear, PageWithFilters, RangeFilter, SearchFilterObject, SingleChoiceFilter, TimeFilter } from "@/components/ui/filter";
 import React, { useEffect, useState } from "react";
 import { DiscountDatatable } from "./datatable";
 import { Button } from "@/components/ui/button";
@@ -16,9 +16,16 @@ import { useToast } from "@/components/ui/use-toast";
 import ProductService from "@/services/productService";
 import { setProducts } from "@/reducers/productsReducer";
 import { setGroups } from "@/reducers/productGroupsReducer";
+import StaffService from "@/services/staff_service";
+import { setStaffs } from "@/reducers/staffReducer";
+import { TimeFilterType, handleRangeNumFilter } from "@/utils";
+
+const DISCOUNT_TYPES = ["Voucher", "Coupon", "All"]
+const DISCOUNT_STATUSES = ["Activating", "Disabled", "All"]
 
 export default function DiscountPage() {
   const discounts = useAppSelector((state) => state.discounts.value);
+  const staffs = useAppSelector((state) => state.staffs.value);
   const [updateOpen, setUpdateOpen] = useState(false);
   const [updatePosition, setUpdatePosition] = useState(0);
   const dispatch = useAppDispatch();
@@ -36,6 +43,9 @@ export default function DiscountPage() {
 
         const productGroups = await ProductService.getAllGroups();
         dispatch(setGroups(productGroups.data));
+
+        const staffs = await StaffService.getAllStaffs();
+        dispatch(setStaffs(staffs.data));
       } catch (e) {
         axiosUIErrorHandler(e, toast);
       } finally {
@@ -51,14 +61,151 @@ export default function DiscountPage() {
     setUpdateOpen(true);
   };
 
+  const [filteredDiscounts, setFilteredDiscounts] = useState(discounts);
+
+  const [timeConditionControls, setTimeConditionControls] = useState({
+    createdAt: TimeFilterType.StaticRange as TimeFilterType,
+    birthday: TimeFilterType.StaticRange as TimeFilterType,
+  });
+  const [timeConditions, setTimeConditions] = useState({
+    createdAt: FilterYear.AllTime as FilterTime,
+    birthday: FilterYear.AllTime as FilterTime,
+  });
+  const [timeRangeConditions, setTimeRangeConditions] = useState({
+    createdAt: { startDate: new Date(), endDate: new Date() },
+    birthday: { startDate: new Date(), endDate: new Date() },
+  });
+  const [creatorCondition, setCreatorCondition] = useState<
+    { id: number; name: string }[]
+  >([]);
+  const [typeCondition, setTypeCondition] = useState("All");
+  const [statusCondition, setStatusCondition] = useState("All");
+  const [valueRangeConditions, setValueRangeConditions] = useState({
+    value: {
+      startValue: NaN,
+      endValue: NaN,
+    },
+  });
+
+  const updateCreatedAtCondition = (value: FilterTime) => {
+    setTimeConditions({ ...timeConditions, createdAt: value });
+  };
+
+  const updateCreatedAtConditionRange = (value: {
+    startDate: Date;
+    endDate: Date;
+  }) => {
+    setTimeRangeConditions({ ...timeRangeConditions, createdAt: value });
+  };
+
+  const updateCreatedAtConditionControl = (value: TimeFilterType) => {
+    setTimeConditionControls({ ...timeConditionControls, createdAt: value });
+  }
+
+  useEffect(() => {
+    // let filteredCustomers = handleChoiceFilters(filterConditions, customers);
+    let filteredDiscounts = discounts;
+    filteredDiscounts = filteredDiscounts.filter((discount) => {
+      if (creatorCondition.length > 0) {
+        if (
+          !creatorCondition.some(
+            (creator) => creator.id === discount.creatorId,
+          )
+        ) {
+          return false;
+        }
+      }
+
+      if (typeCondition !== "All") {
+        if (typeCondition.toUpperCase() !== discount.type) {
+          return false;
+        }
+      }
+
+      if (statusCondition !== "All") {
+        if ((discount.status && statusCondition === "Disabled") || (!discount.status && statusCondition === "Activating")) {
+          return false;
+        }
+      }
+      
+      return true;
+    });
+    filteredDiscounts = handleRangeNumFilter(valueRangeConditions, filteredDiscounts)
+    setFilteredDiscounts(filteredDiscounts);
+  }, [timeConditions, timeRangeConditions, creatorCondition, discounts, typeCondition, valueRangeConditions, statusCondition]);
+
+  const filters = [
+    <TimeFilter
+      key={2}
+      title="Created Date"
+      className="mb-2"
+      timeFilterControl={timeConditionControls.createdAt}
+      singleTimeValue={timeConditions.createdAt}
+      rangeTimeValue={timeRangeConditions.createdAt}
+      onTimeFilterControlChanged={updateCreatedAtConditionControl}
+      onSingleTimeFilterChanged={updateCreatedAtCondition}
+      onRangeTimeFilterChanged={updateCreatedAtConditionRange}
+    />,
+    <SearchFilterObject
+      key={3}
+      placeholder="Find creator..."
+      title="Creator"
+      values={creatorCondition.map((creator) => ({
+        id: creator.id,
+        name: creator.name,
+        displayString: creator.name,
+      }))}
+      choices={staffs.map((group) => ({
+        id: group.id,
+        name: group.name,
+        displayString: group.name,
+      }))}
+      filter={(value: any, queryString: string) =>
+        value.id.toString().includes(queryString) ||
+        value.name.includes(queryString)
+      }
+      onValuesChanged={(values) =>
+        setCreatorCondition([
+          ...values.map((v: any) => {
+            return { id: v.id, name: v.name };
+          }),
+        ])
+      }
+      className="mb-2"
+    />,
+    <SingleChoiceFilter
+      key={4}
+      title="Type"
+      choices={DISCOUNT_TYPES}
+      value={typeCondition}
+      onValueChanged={(value) => setTypeCondition(value)}
+      className="mb-2"
+    />,
+    <RangeFilter
+      key={5}
+      title="Value"
+      range={valueRangeConditions.value}
+      onValuesChanged={(value) => setValueRangeConditions((prev) => ({ ...prev, value: value }))}
+      className="mb-2"
+    />,
+    <SingleChoiceFilter
+      key={6}
+      title="Status"
+      choices={DISCOUNT_STATUSES}
+      value={statusCondition}
+      onValueChanged={(value) => setStatusCondition(value)}
+      className="mb-2"
+    />
+  ]
+
   return (
     <PageWithFilters
       title="Discounts"
-      filters={[]}
+      filters={filters}
       headerButtons={[<NewDiscountButton key={1} />]}
     >
       <DiscountDatatable
-        data={discounts}
+        data={filteredDiscounts}
         onUpdateButtonClick={onUpdateButtonClick}
       />
       {updateOpen ? (

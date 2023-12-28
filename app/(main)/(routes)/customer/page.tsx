@@ -8,6 +8,7 @@ import {
   PageWithFilters,
   SearchFilter,
   SearchFilterObject,
+  SingleChoiceFilter,
   TimeFilter,
 } from "@/components/ui/filter";
 import { useToast } from "@/components/ui/use-toast";
@@ -26,7 +27,8 @@ import { CustomerDatatable } from "./datatable";
 import { TimeFilterType, handleChoiceFilters, handleTimeFilter } from "@/utils";
 import StaffService from "@/services/staff_service";
 import { setStaffs } from "@/reducers/staffReducer";
-import { Customer } from "@/entities/Customer";
+
+const SEX_CONDITIONS = ["Male", "Female", "Not to say", "All"];
 
 export default function InvoicePage() {
   const router = useRouter();
@@ -76,14 +78,19 @@ export default function InvoicePage() {
     customerGroup: [] as string[],
   });
 
+  const [sexCondition, setSexCondition] = useState<string>("All");
+
   const [timeConditionControls, setTimeConditionControls] = useState({
-    createdDate: TimeFilterType.StaticRange as TimeFilterType,
+    createdAt: TimeFilterType.StaticRange as TimeFilterType,
+    birthday: TimeFilterType.StaticRange as TimeFilterType,
   });
   const [timeConditions, setTimeConditions] = useState({
-    createdDate: FilterYear.AllTime as FilterTime,
+    createdAt: FilterYear.AllTime as FilterTime,
+    birthday: FilterYear.AllTime as FilterTime,
   });
   const [timeRangeConditions, setTimeRangeConditions] = useState({
-    createdDate: { startDate: new Date(), endDate: new Date() },
+    createdAt: { startDate: new Date(), endDate: new Date() },
+    birthday: { startDate: new Date(), endDate: new Date() },
   });
   const [customerCreatorCondition, setCustomerCreatorCondition] = useState<
     { id: number; name: string }[]
@@ -93,29 +100,38 @@ export default function InvoicePage() {
     setFilterConditions({ ...filterConditions, customerGroup: values });
   };
 
-  const updateCreatedDateCondition = (value: FilterTime) => {
-    setTimeConditions({ ...timeConditions, createdDate: value });
+  const updateCreatedAtCondition = (value: FilterTime) => {
+    setTimeConditions({ ...timeConditions, createdAt: value });
   };
 
-  const updateCreatedDateConditionRange = (value: {
+  const updateCreatedAtConditionRange = (value: {
     startDate: Date;
     endDate: Date;
   }) => {
-    setTimeRangeConditions({ ...timeRangeConditions, createdDate: value });
+    setTimeRangeConditions({ ...timeRangeConditions, createdAt: value });
   };
 
-  const updateCreatedDateConditionControl = (value: TimeFilterType) => {
-    setTimeConditionControls({ ...timeConditionControls, createdDate: value });
+  const updateCreatedAtConditionControl = (value: TimeFilterType) => {
+    setTimeConditionControls({ ...timeConditionControls, createdAt: value });
+  }
+
+  const updateBirthdayCondition = (value: FilterTime) => {
+    setTimeConditions({ ...timeConditions, birthday: value });
+  }
+
+  const updateBirthdayConditionRange = (value: {
+    startDate: Date;
+    endDate: Date;
+  }) => {
+    setTimeRangeConditions({ ...timeRangeConditions, birthday: value });
+  } 
+
+  const updateBirthdayConditionControl = (value: TimeFilterType) => {
+    setTimeConditionControls({ ...timeConditionControls, birthday: value });
   }
 
   useEffect(() => {
     let filteredCustomers = handleChoiceFilters(filterConditions, customers);
-    filteredCustomers = handleTimeFilter(
-      timeConditions,
-      timeRangeConditions,
-      timeConditionControls,
-      filteredCustomers,
-    );
     filteredCustomers = filteredCustomers.filter((customer) => {
       if (customerCreatorCondition.length > 0) {
         if (
@@ -127,11 +143,13 @@ export default function InvoicePage() {
         }
       }
 
+      if (customer.sex !== sexCondition && sexCondition !== "All") return false;
+      
       return true;
     });
 
     setFilteredCustomers(filteredCustomers);
-  }, [customers, filterConditions, customerCreatorCondition, timeConditions, timeRangeConditions, timeConditionControls]);
+  }, [customers, filterConditions, customerCreatorCondition, timeConditions, timeRangeConditions, timeConditionControls, sexCondition]);
 
   const filters = [
     <SearchFilter
@@ -141,18 +159,18 @@ export default function InvoicePage() {
       chosenValues={filterConditions.customerGroup}
       choices={customerGroups.map((group) => group.name)}
       onValuesChanged={updateProductGroupCondition}
-      className="mb-4"
+      className="mb-2"
     />,
     <TimeFilter
       key={2}
       title="Created Date"
-      className="mb-4"
-      timeFilterControl={timeConditionControls.createdDate}
-      singleTimeValue={timeConditions.createdDate}
-      rangeTimeValue={timeRangeConditions.createdDate}
-      onTimeFilterControlChanged={updateCreatedDateConditionControl}
-      onSingleTimeFilterChanged={updateCreatedDateCondition}
-      onRangeTimeFilterChanged={updateCreatedDateConditionRange}
+      className="mb-2"
+      timeFilterControl={timeConditionControls.createdAt}
+      singleTimeValue={timeConditions.createdAt}
+      rangeTimeValue={timeRangeConditions.createdAt}
+      onTimeFilterControlChanged={updateCreatedAtConditionControl}
+      onSingleTimeFilterChanged={updateCreatedAtCondition}
+      onRangeTimeFilterChanged={updateCreatedAtConditionRange}
     />,
     <SearchFilterObject
       key={3}
@@ -179,8 +197,27 @@ export default function InvoicePage() {
           }),
         ])
       }
-      className="mb-4"
+      className="mb-2"
     />,
+    <SingleChoiceFilter
+      key={4}
+      title="Sex"
+      choices={SEX_CONDITIONS}
+      value={sexCondition}
+      onValueChanged={setSexCondition}
+      className="mb-2"
+    />,
+    <TimeFilter
+      key={5}
+      title="Birthday"
+      className="mb-2"
+      timeFilterControl={timeConditionControls.birthday}
+      singleTimeValue={timeConditions.birthday}
+      rangeTimeValue={timeRangeConditions.birthday}
+      onTimeFilterControlChanged={updateBirthdayConditionControl}
+      onSingleTimeFilterChanged={updateBirthdayCondition}
+      onRangeTimeFilterChanged={updateBirthdayConditionRange}
+    />
   ];
 
   return (
