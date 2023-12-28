@@ -98,10 +98,10 @@ export default function InvoicePage() {
   return (
     <PageWithFilters
       title="Supplier"
-      filters={[]}
+      filters={filters}
       headerButtons={[<NewInvoiceButton key={1} />]}
     >
-      <SupplierDatatable data={suppliers} />
+      <SupplierDatatable data={filteredSuppliers} />
     </PageWithFilters>
   );
 }
