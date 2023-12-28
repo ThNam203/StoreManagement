@@ -63,7 +63,7 @@ public class RecordOfProductSellServiceImpl implements RecordOfProductSellServic
 
     private void updateRecordOfProductSellDTOForInvoice(RecordOfProductSellDTO recordOfProductSellDTO, Invoice invoice, InvoiceDetail invoiceDetail) {
         recordOfProductSellDTO.setQuantitySell(recordOfProductSellDTO.getQuantitySell() + invoiceDetail.getQuantity());
-        recordOfProductSellDTO.setTotalSell((int) (recordOfProductSellDTO.getTotalSell() + invoiceDetail.getQuantity() * invoiceDetail.getPrice()));
+        recordOfProductSellDTO.setTotalSell((recordOfProductSellDTO.getTotalSell() + invoiceDetail.getQuantity() * invoiceDetail.getPrice()));
         recordOfProductSellDTO.setTotal(recordOfProductSellDTO.getTotalSell() - recordOfProductSellDTO.getTotalReturn());
         InvoiceInRecordOfProductSellDTO invoiceInRecordOfProductSellDTO = getInvoiceInRecordOfProductSellDTO(invoice, invoiceDetail);
         recordOfProductSellDTO.getListInvoice().add(invoiceInRecordOfProductSellDTO);
@@ -81,7 +81,7 @@ public class RecordOfProductSellServiceImpl implements RecordOfProductSellServic
     private static InvoiceInRecordOfProductSellDTO getInvoiceInRecordOfProductSellDTO(Invoice invoice, InvoiceDetail invoiceDetail) {
         InvoiceInRecordOfProductSellDTO invoiceInRecordOfProductSellDTO = new InvoiceInRecordOfProductSellDTO();
         invoiceInRecordOfProductSellDTO.setQuantity(invoiceDetail.getQuantity());
-        invoiceInRecordOfProductSellDTO.setTotal((int) (invoiceDetail.getQuantity() * invoiceDetail.getPrice()));
+        invoiceInRecordOfProductSellDTO.setTotal((invoiceDetail.getQuantity() * invoiceDetail.getPrice()));
         if (invoice.getCustomer() != null)
             invoiceInRecordOfProductSellDTO.setCustomerName(invoice.getCustomer().getName());
         else

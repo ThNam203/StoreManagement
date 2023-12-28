@@ -9,7 +9,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class RecordOfProductSellDTO {
+public class RecordOfProductDTO {
     private int productId;
     private String name;
     private double quantitySell = 0;
@@ -17,6 +17,4 @@ public class RecordOfProductSellDTO {
     private double totalSell = 0;
     private double totalReturn = 0;
     private double total = 0;
-    private List<InvoiceInRecordOfProductSellDTO> listInvoice;
-    private List<ReturnInRecordOfProductSellDTO> listReturn;
 }

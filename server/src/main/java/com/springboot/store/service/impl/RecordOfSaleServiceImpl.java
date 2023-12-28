@@ -50,18 +50,18 @@ public class RecordOfSaleServiceImpl implements RecordOfSaleService {
             // Get invoices and return invoices for the current day
             List<Invoice> dailyInvoices = groupedInvoices.getOrDefault(currentDate, new ArrayList<>());
             List<ReturnInvoice> dailyReturnInvoices = groupedReturnInvoices.getOrDefault(currentDate, new ArrayList<>());
-            long originalPrice = 0;
-            long total = 0;
-            long income;
+            double originalPrice = 0;
+            double total = 0;
+            double income;
             for (Invoice invoice : dailyInvoices) {
                 for (InvoiceDetail invoiceDetail : invoice.getInvoiceDetails()) {
-                    originalPrice += (long) (productMap.get(invoiceDetail.getProductId()).getOriginalPriceBeforeDate(Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant())).getValue() * invoiceDetail.getQuantity());
+                    originalPrice += (productMap.get(invoiceDetail.getProductId()).getOriginalPriceBeforeDate(Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant())).getValue() * invoiceDetail.getQuantity());
                 }
-                total += (int) invoice.getTotal();
+                total += invoice.getTotal();
             }
             for (ReturnInvoice returnInvoice : dailyReturnInvoices) {
                 for (ReturnDetail returnDetail : returnInvoice.getReturnDetails()) {
-                    originalPrice -= (long) (returnDetail.getProduct().getOriginalPriceBeforeDate(Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant())).getValue() * returnDetail.getQuantity());
+                    originalPrice -= (returnDetail.getProduct().getOriginalPriceBeforeDate(Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant())).getValue() * returnDetail.getQuantity());
                 }
                 total -= returnInvoice.getTotal();
             }
