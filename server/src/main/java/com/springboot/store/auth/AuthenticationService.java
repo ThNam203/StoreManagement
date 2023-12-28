@@ -64,6 +64,10 @@ public class AuthenticationService {
         staff.setStaffRole(role);
         staff.setStore(store);
 
+        RoleSetting roleSetting = roleForOwner();
+        roleSetting.setOwner(staff);
+        staff.setRoleSetting(roleSetting);
+
         staffRepository.save(staff);
         var jwtToken = jwtService.generateToken(staff);
         var refreshToken = jwtService.generateRefreshToken(staff);
@@ -364,5 +368,24 @@ public class AuthenticationService {
         );
         violationAndRewardRepository.saveAll(violationAndRewards);
 
+    }
+
+    private RoleSetting roleForOwner() {
+        return RoleSetting.builder()
+                .overview(RolePermission.builder().read(true).create(true).update(true).delete(true).export(true).build())
+                .catalog(RolePermission.builder().read(true).create(true).update(true).delete(true).export(true).build())
+                .discount(RolePermission.builder().read(true).create(true).update(true).delete(true).export(true).build())
+                .stockCheck(RolePermission.builder().read(true).create(true).update(true).delete(true).export(true).build())
+                .invoice(RolePermission.builder().read(true).create(true).update(true).delete(true).export(true).build())
+                .returnInvoice(RolePermission.builder().read(true).create(true).update(true).delete(true).export(true).build())
+                .purchaseOrder(RolePermission.builder().read(true).create(true).update(true).delete(true).export(true).build())
+                .purchaseReturn(RolePermission.builder().read(true).create(true).update(true).delete(true).export(true).build())
+                .damageItems(RolePermission.builder().read(true).create(true).update(true).delete(true).export(true).build())
+                .fundLedger(RolePermission.builder().read(true).create(true).update(true).delete(true).export(true).build())
+                .customer(RolePermission.builder().read(true).create(true).update(true).delete(true).export(true).build())
+                .supplier(RolePermission.builder().read(true).create(true).update(true).delete(true).export(true).build())
+                .report(RolePermission.builder().read(true).create(true).update(true).delete(true).export(true).build())
+                .staff(RolePermission.builder().read(true).create(true).update(true).delete(true).export(true).build())
+                .build();
     }
 }

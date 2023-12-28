@@ -27,6 +27,7 @@ public class ReportController {
     private final RecordOfProductSellService recordOfProductSellService;
     private final RecordOfSaleService recordOfSaleService;
     private final RecordOfProductService recordOfProductService;
+    private final RecordOfSupplierService recordOfSupplierService;
 
     @GetMapping("/bonus-and-punish")
     public ResponseEntity<List<ListBonusAndPunishForStaffDTO>> getAllListBonusAndPunishForStaff() {
@@ -106,5 +107,13 @@ public class ReportController {
         Date endDate1 = formatter.parse(endDate, new java.text.ParsePosition(0));
         List<RecordOfProductDTO> recordOfProductDTOs = recordOfProductService.getAllRecordOfProduct(startDate1, endDate1);
         return ResponseEntity.ok(recordOfProductDTOs);
+    }
+
+    @GetMapping("/record-of-supplier/{startDate}/{endDate}")
+    public ResponseEntity<?> getAllRecordOfSupplier(@PathVariable String startDate, @PathVariable String endDate) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        Date startDate1 = formatter.parse(startDate, new java.text.ParsePosition(0));
+        Date endDate1 = formatter.parse(endDate, new java.text.ParsePosition(0));
+        return ResponseEntity.ok(recordOfSupplierService.getAllRecordOfSupplier(startDate1, endDate1));
     }
 }

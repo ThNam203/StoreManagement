@@ -88,6 +88,9 @@ public class Product {
         for (ProductProperty property : properties) {
             result.append(property.toString()).append(", ");
         }
+        if (result.length() <= 2) {
+            return "";
+        }
         return result.substring(0, result.length() - 2);
     }
 
