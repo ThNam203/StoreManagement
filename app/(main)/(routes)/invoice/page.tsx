@@ -20,7 +20,7 @@ import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { InvoiceDatatable } from "./datatable";
-import { TimeFilterType, handleRangeNumFilter } from "@/utils";
+import { TimeFilterType, handleDateCondition, handleRangeNumFilter } from "@/utils";
 import StaffService from "@/services/staff_service";
 import { setStaffs } from "@/reducers/staffReducer";
 import CustomerService from "@/services/customerService";
@@ -121,6 +121,16 @@ export default function InvoicePage() {
   useEffect(() => {
     let filteredInvoices = handleRangeNumFilter(rangeConditions, invoices);
     filteredInvoices = filteredInvoices.filter((invoice) => {
+      if (
+        !handleDateCondition(
+          timeConditions.createdAt,
+          timeRangeConditions.createdAt,
+          timeConditionControls.createdAt,
+          new Date(invoice.createdAt),
+        )
+      )
+        return false;
+
       if (
         customerCondition.length > 0 &&
         !customerCondition.some((customer) => customer.id === invoice.customerId)
@@ -259,7 +269,7 @@ export default function InvoicePage() {
     />,
     <TimeFilter
       key={5}
-      title="Birthday"
+      title="Created date"
       className="mb-2"
       timeFilterControl={timeConditionControls.createdAt}
       singleTimeValue={timeConditions.createdAt}

@@ -13,12 +13,13 @@ import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
 import { setStockChecks } from "@/reducers/stockChecksReducer";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
 import StockCheckService from "@/services/stock_check_service";
-import { TimeFilterType, handleRangeNumFilter, handleTimeFilter } from "@/utils";
+import { TimeFilterType, handleDateCondition, handleRangeNumFilter, handleTimeFilter } from "@/utils";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { StockCheckDatatable } from "./datatable";
 import StaffService from "@/services/staff_service";
 import { setStaffs } from "@/reducers/staffReducer";
+import { fi } from "date-fns/locale";
 
 export default function StockCheck() {
   const dispatch = useAppDispatch();
@@ -156,6 +157,19 @@ export default function StockCheck() {
       filteredStockChecks,
     );
     filteredStockChecks = handleRangeNumFilter(rangeConditions, filteredStockChecks)
+    filteredStockChecks = filteredStockChecks.filter((stockCheck) => {
+      if (
+        !handleDateCondition(
+          timeConditions.createdDate,
+          timeRangeConditions.createdDate,
+          timeConditionControls.createdDate,
+          new Date(stockCheck.createdDate),
+        )
+      )
+        return false;
+
+      return true;
+    })
     setFilteredStockChecks(filteredStockChecks);
   }, [timeConditions, timeRangeConditions, timeConditionControls, stockChecks, rangeConditions]);
 

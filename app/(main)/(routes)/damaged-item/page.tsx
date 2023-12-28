@@ -18,7 +18,7 @@ import DamagedItemService from "@/services/damagedItemService";
 import { setDamagedItemDocuments } from "@/reducers/damagedItemsReducer";
 import StaffService from "@/services/staff_service";
 import { setStaffs } from "@/reducers/staffReducer";
-import { TimeFilterType } from "@/utils";
+import { TimeFilterType, handleDateCondition } from "@/utils";
 
 export default function DamagedItemsPage() {
   const dispatch = useAppDispatch();
@@ -46,40 +46,50 @@ export default function DamagedItemsPage() {
   const [filteredDamagedItemDocuments, setFilteredDamagedItemDocuments] = useState(damagedItemDocuments);
 
   const [timeConditionControls, setTimeConditionControls] = useState({
-    createdAt: TimeFilterType.StaticRange as TimeFilterType,
+    createdDate: TimeFilterType.StaticRange as TimeFilterType,
     birthday: TimeFilterType.StaticRange as TimeFilterType,
   });
   const [timeConditions, setTimeConditions] = useState({
-    createdAt: FilterYear.AllTime as FilterTime,
+    createdDate: FilterYear.AllTime as FilterTime,
     birthday: FilterYear.AllTime as FilterTime,
   });
   const [timeRangeConditions, setTimeRangeConditions] = useState({
-    createdAt: { startDate: new Date(), endDate: new Date() },
+    createdDate: { startDate: new Date(), endDate: new Date() },
     birthday: { startDate: new Date(), endDate: new Date() },
   });
   const [creatorCondition, setCreatorCondition] = useState<
     { id: number; name: string }[]
   >([]);
 
-  const updateCreatedAtCondition = (value: FilterTime) => {
-    setTimeConditions({ ...timeConditions, createdAt: value });
+  const updateCreatedDateCondition = (value: FilterTime) => {
+    setTimeConditions({ ...timeConditions, createdDate: value });
   };
 
-  const updateCreatedAtConditionRange = (value: {
+  const updateCreatedDateConditionRange = (value: {
     startDate: Date;
     endDate: Date;
   }) => {
-    setTimeRangeConditions({ ...timeRangeConditions, createdAt: value });
+    setTimeRangeConditions({ ...timeRangeConditions, createdDate: value });
   };
 
-  const updateCreatedAtConditionControl = (value: TimeFilterType) => {
-    setTimeConditionControls({ ...timeConditionControls, createdAt: value });
+  const updateCreatedDateConditionControl = (value: TimeFilterType) => {
+    setTimeConditionControls({ ...timeConditionControls, createdDate: value });
   }
 
   useEffect(() => {
     // let filteredCustomers = handleChoiceFilters(filterConditions, customers);
     let filteredDamagedItemDocuments = damagedItemDocuments;
     filteredDamagedItemDocuments = filteredDamagedItemDocuments.filter((document) => {
+      if (
+        !handleDateCondition(
+          timeConditions.createdDate,
+          timeRangeConditions.createdDate,
+          timeConditionControls.createdDate,
+          new Date(document.createdDate),
+        )
+      )
+        return false;
+
       if (creatorCondition.length > 0) {
         if (
           !creatorCondition.some(
@@ -93,19 +103,19 @@ export default function DamagedItemsPage() {
       return true;
     });
     setFilteredDamagedItemDocuments(filteredDamagedItemDocuments);
-  }, [timeConditions, timeRangeConditions, creatorCondition, damagedItemDocuments]);
+  }, [timeConditions, timeRangeConditions, creatorCondition, damagedItemDocuments, staffs, timeConditionControls]);
 
   const filters = [
     <TimeFilter
       key={2}
       title="Created date"
       className="mb-2"
-      timeFilterControl={timeConditionControls.createdAt}
-      singleTimeValue={timeConditions.createdAt}
-      rangeTimeValue={timeRangeConditions.createdAt}
-      onTimeFilterControlChanged={updateCreatedAtConditionControl}
-      onSingleTimeFilterChanged={updateCreatedAtCondition}
-      onRangeTimeFilterChanged={updateCreatedAtConditionRange}
+      timeFilterControl={timeConditionControls.createdDate}
+      singleTimeValue={timeConditions.createdDate}
+      rangeTimeValue={timeRangeConditions.createdDate}
+      onTimeFilterControlChanged={updateCreatedDateConditionControl}
+      onSingleTimeFilterChanged={updateCreatedDateCondition}
+      onRangeTimeFilterChanged={updateCreatedDateConditionRange}
     />,
     <SearchFilterObject
       key={3}

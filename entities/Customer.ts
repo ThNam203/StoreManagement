@@ -8,7 +8,7 @@ export type Customer = {
   email: string;
   birthday: string;
   creatorId: number;
-  createdAt: Date;
+  createdAt: string;
   description: string;
   image: {
     id: number,
