@@ -38,6 +38,7 @@ public class RoleSettingServiceImpl implements RoleSettingService {
         roleSettingFromDB.setCustomer(modelMapper.map(roleSetting.getCustomer(), RolePermission.class));
         roleSettingFromDB.setSupplier(modelMapper.map(roleSetting.getSupplier(), RolePermission.class));
         roleSettingFromDB.setReport(modelMapper.map(roleSetting.getReport(), RolePermission.class));
+        roleSettingFromDB.setAttendance(modelMapper.map(roleSetting.getAttendance(), RolePermission.class));
         roleSettingFromDB.setStaff(modelMapper.map(roleSetting.getStaff(), RolePermission.class));
         roleSettingRepository.save(roleSettingFromDB);
     }
