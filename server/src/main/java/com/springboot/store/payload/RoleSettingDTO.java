@@ -10,6 +10,7 @@ import lombok.*;
 public class RoleSettingDTO {
     private int staffPositionId;
     private RolePermissionDTO overview;
+    private RolePermissionDTO attendance;
     private RolePermissionDTO catalog;
     private RolePermissionDTO discount;
     private RolePermissionDTO stockCheck;
