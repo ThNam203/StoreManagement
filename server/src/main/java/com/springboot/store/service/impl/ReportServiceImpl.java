@@ -105,7 +105,24 @@ public class ReportServiceImpl implements ReportService {
 
         salesReport.sort(Comparator.comparing(SalesReportWithProfit::getDate));
 
-        return salesReport;
+        List<SalesReportWithProfit> salesReportWithProfits = new ArrayList<>();
+        for (SalesReportWithProfit salesReportWithProfit : salesReport) {
+            boolean found = false;
+            for (SalesReportWithProfit salesReportWithProfit1 : salesReportWithProfits) {
+                if (DateUtils.isSameDay(salesReportWithProfit.getDate(), salesReportWithProfit1.getDate())) {
+                    salesReportWithProfit1.setRevenue(salesReportWithProfit1.getRevenue() + salesReportWithProfit.getRevenue());
+                    salesReportWithProfit1.setCostPrice(salesReportWithProfit1.getCostPrice() + salesReportWithProfit.getCostPrice());
+                    salesReportWithProfit1.setProfit(salesReportWithProfit1.getProfit() + salesReportWithProfit.getProfit());
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                salesReportWithProfits.add(salesReportWithProfit);
+            }
+        }
+
+        return salesReportWithProfits;
     }
 
     @Override
