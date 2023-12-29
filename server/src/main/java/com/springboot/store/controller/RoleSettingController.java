@@ -12,14 +12,14 @@ import org.springframework.web.bind.annotation.*;
 public class RoleSettingController {
     private final RoleSettingService roleSettingService;
 
-    @GetMapping("/{staffId}")
-    public ResponseEntity<?> getRoleSetting(@PathVariable int staffId) {
-        return ResponseEntity.ok(roleSettingService.getRoleSetting(staffId));
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getRoleSetting(@PathVariable int id) {
+        return ResponseEntity.ok(roleSettingService.getRoleSetting(id));
     }
 
-    @PutMapping("/{staffId}")
-    public ResponseEntity<?> savePermission(@PathVariable int staffId, @RequestBody RoleSettingDTO roleSettingDTO) {
-        return ResponseEntity.ok(roleSettingService.getRoleSetting(staffId));
+    @PutMapping("/{id}")
+    public ResponseEntity<?> savePermission(@PathVariable int id, @RequestBody RoleSettingDTO roleSettingDTO) {
+        return ResponseEntity.ok(roleSettingService.savePermission(id, roleSettingDTO));
     }
 
     @GetMapping
