@@ -82,10 +82,6 @@ public class Staff implements UserDetails {
     @JoinColumn(name = "store_id")
     private Store store;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JoinColumn(name = "role_setting_id", referencedColumnName = "id")
-    private RoleSetting roleSetting;
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return staffRole.getAuthorities();

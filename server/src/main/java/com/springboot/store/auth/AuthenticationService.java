@@ -44,6 +44,7 @@ public class AuthenticationService {
     private final StaffPositionRepository staffPositionRepository;
     private final ViolationAndRewardRepository violationAndRewardRepository;
 
+
     public StaffResponse register(RegisterRequest request, HttpServletResponse response) {
 
         if (staffRepository.existsByEmail(request.getEmail())) {
@@ -64,11 +65,11 @@ public class AuthenticationService {
         staff.setStaffRole(role);
         staff.setStore(store);
 
-        RoleSetting roleSetting = roleForOwner();
-        roleSetting.setOwner(staff);
-        staff.setRoleSetting(roleSetting);
-
+        StaffPosition staffPosition = staffPositionRepository.findByNameAndStoreId("Owner", store.getId()).orElseThrow();
+        staff.setStaffPosition(staffPosition);
         staffRepository.save(staff);
+
+
         var jwtToken = jwtService.generateToken(staff);
         var refreshToken = jwtService.generateRefreshToken(staff);
         saveUserToken(staff, refreshToken);
@@ -331,10 +332,31 @@ public class AuthenticationService {
         customerGroupRepository.saveAll(customerGroups);
         // TODO: create default staff positions
         List<StaffPosition> staffPositions = List.of(
-                StaffPosition.builder().name("Manager").store(store).build(),
-                StaffPosition.builder().name("Cashier").store(store).build(),
-                StaffPosition.builder().name("Guard").store(store).build(),
-                StaffPosition.builder().name("Cleaner").store(store).build()
+                StaffPosition.builder()
+                        .name("Owner")
+                        .roleSetting(roleForOwner(store))
+                        .store(store)
+                        .build(),
+                StaffPosition.builder()
+                        .name("Manager")
+                        .roleSetting(roleForManager(store))
+                        .store(store)
+                        .build(),
+                StaffPosition.builder()
+                        .name("Cashier")
+                        .roleSetting(roleForCashier(store))
+                        .store(store)
+                        .build(),
+                StaffPosition.builder()
+                        .name("Guard")
+                        .roleSetting(roleForGuard(store))
+                        .store(store)
+                        .build(),
+                StaffPosition.builder()
+                        .name("Warehouse Keeper")
+                        .roleSetting(roleForWarehouseKeeper(store))
+                        .store(store)
+                        .build()
         );
         staffPositionRepository.saveAll(staffPositions);
 
@@ -370,7 +392,7 @@ public class AuthenticationService {
 
     }
 
-    private RoleSetting roleForOwner() {
+    private RoleSetting roleForOwner(Store store) {
         return RoleSetting.builder()
                 .overview(RolePermission.builder().read(true).create(true).update(true).delete(true).export(true).build())
                 .catalog(RolePermission.builder().read(true).create(true).update(true).delete(true).export(true).build())
@@ -386,6 +408,88 @@ public class AuthenticationService {
                 .supplier(RolePermission.builder().read(true).create(true).update(true).delete(true).export(true).build())
                 .report(RolePermission.builder().read(true).create(true).update(true).delete(true).export(true).build())
                 .staff(RolePermission.builder().read(true).create(true).update(true).delete(true).export(true).build())
+                .attendance(RolePermission.builder().read(true).create(true).update(true).delete(true).export(true).build())
+                .store(store)
+                .build();
+    }
+    private RoleSetting roleForManager(Store store) {
+        return RoleSetting.builder()
+                .overview(RolePermission.builder().read(true).create(true).update(true).delete(true).export(true).build())
+                .catalog(RolePermission.builder().read(true).create(true).update(true).delete(true).export(true).build())
+                .discount(RolePermission.builder().read(true).create(true).update(true).delete(true).export(true).build())
+                .stockCheck(RolePermission.builder().read(true).create(true).update(true).delete(true).export(true).build())
+                .invoice(RolePermission.builder().read(true).create(true).update(true).delete(true).export(true).build())
+                .returnInvoice(RolePermission.builder().read(true).create(true).update(true).delete(true).export(true).build())
+                .purchaseOrder(RolePermission.builder().read(true).create(true).update(true).delete(true).export(true).build())
+                .purchaseReturn(RolePermission.builder().read(true).create(true).update(true).delete(true).export(true).build())
+                .damageItems(RolePermission.builder().read(true).create(true).update(true).delete(true).export(true).build())
+                .fundLedger(RolePermission.builder().read(true).create(true).update(true).delete(true).export(true).build())
+                .customer(RolePermission.builder().read(true).create(true).update(true).delete(true).export(true).build())
+                .supplier(RolePermission.builder().read(true).create(true).update(true).delete(true).export(true).build())
+                .report(RolePermission.builder().read(true).create(true).update(true).delete(true).export(true).build())
+                .staff(RolePermission.builder().read(true).create(true).update(true).delete(true).export(true).build())
+                .attendance(RolePermission.builder().read(true).create(true).update(true).delete(true).export(true).build())
+                .store(store)
+                .build();
+    }
+    private RoleSetting roleForCashier(Store store) {
+        return RoleSetting.builder()
+                .overview(RolePermission.builder().read(true).create(false).update(false).delete(false).export(true).build())
+                .catalog(RolePermission.builder().read(true).create(true).update(true).delete(true).export(true).build())
+                .discount(RolePermission.builder().read(true).create(false).update(false).delete(false).export(false).build())
+                .stockCheck(RolePermission.builder().read(false).create(false).update(false).delete(false).export(true).build())
+                .invoice(RolePermission.builder().read(true).create(true).update(false).delete(false).export(true).build())
+                .returnInvoice(RolePermission.builder().read(true).create(true).update(false).delete(false).export(true).build())
+                .purchaseOrder(RolePermission.builder().read(false).create(false).update(false).delete(false).export(true).build())
+                .purchaseReturn(RolePermission.builder().read(false).create(false).update(false).delete(false).export(true).build())
+                .damageItems(RolePermission.builder().read(true).create(false).update(false).delete(false).export(true).build())
+                .fundLedger(RolePermission.builder().read(false).create(false).update(false).delete(false).export(true).build())
+                .customer(RolePermission.builder().read(true).create(true).update(true).delete(false).export(true).build())
+                .supplier(RolePermission.builder().read(false).create(false).update(false).delete(false).export(true).build())
+                .report(RolePermission.builder().read(false).create(false).update(false).delete(false).export(false).build())
+                .staff(RolePermission.builder().read(false).create(false).update(false).delete(false).export(false).build())
+                .attendance(RolePermission.builder().read(true).create(false).update(false).delete(false).export(false).build())
+                .store(store)
+                .build();
+    }
+    private RoleSetting roleForGuard(Store store) {
+        return RoleSetting.builder()
+                .overview(RolePermission.builder().read(true).create(false).update(false).delete(false).export(false).build())
+                .catalog(RolePermission.builder().read(false).create(false).update(false).delete(false).export(false).build())
+                .discount(RolePermission.builder().read(false).create(false).update(false).delete(false).export(false).build())
+                .stockCheck(RolePermission.builder().read(false).create(false).update(false).delete(false).export(false).build())
+                .invoice(RolePermission.builder().read(false).create(false).update(false).delete(false).export(false).build())
+                .returnInvoice(RolePermission.builder().read(false).create(false).update(false).delete(false).export(false).build())
+                .purchaseOrder(RolePermission.builder().read(false).create(false).update(false).delete(false).export(false).build())
+                .purchaseReturn(RolePermission.builder().read(false).create(false).update(false).delete(false).export(false).build())
+                .damageItems(RolePermission.builder().read(false).create(false).update(false).delete(false).export(false).build())
+                .fundLedger(RolePermission.builder().read(false).create(false).update(false).delete(false).export(false).build())
+                .customer(RolePermission.builder().read(false).create(false).update(false).delete(false).export(false).build())
+                .supplier(RolePermission.builder().read(false).create(false).update(false).delete(false).export(false).build())
+                .report(RolePermission.builder().read(false).create(false).update(false).delete(false).export(false).build())
+                .staff(RolePermission.builder().read(false).create(false).update(false).delete(false).export(false).build())
+                .attendance(RolePermission.builder().read(false).create(false).update(false).delete(false).export(false).build())
+                .store(store)
+                .build();
+    }
+    private RoleSetting roleForWarehouseKeeper(Store store) {
+        return RoleSetting.builder()
+                .overview(RolePermission.builder().read(false).create(false).update(false).delete(false).export(false).build())
+                .catalog(RolePermission.builder().read(false).create(false).update(false).delete(false).export(false).build())
+                .discount(RolePermission.builder().read(false).create(false).update(false).delete(false).export(false).build())
+                .stockCheck(RolePermission.builder().read(true).create(true).update(false).delete(false).export(false).build())
+                .invoice(RolePermission.builder().read(false).create(false).update(false).delete(false).export(false).build())
+                .returnInvoice(RolePermission.builder().read(false).create(false).update(false).delete(false).export(false).build())
+                .purchaseOrder(RolePermission.builder().read(false).create(false).update(false).delete(false).export(false).build())
+                .purchaseReturn(RolePermission.builder().read(true).create(true).update(false).delete(false).export(false).build())
+                .damageItems(RolePermission.builder().read(true).create(true).update(false).delete(false).export(false).build())
+                .fundLedger(RolePermission.builder().read(false).create(false).update(false).delete(false).export(false).build())
+                .customer(RolePermission.builder().read(false).create(false).update(false).delete(false).export(false).build())
+                .supplier(RolePermission.builder().read(true).create(true).update(true).delete(true).export(false).build())
+                .report(RolePermission.builder().read(false).create(false).update(false).delete(false).export(false).build())
+                .staff(RolePermission.builder().read(false).create(false).update(false).delete(false).export(false).build())
+                .attendance(RolePermission.builder().read(true).create(false).update(false).delete(false).export(false).build())
+                .store(store)
                 .build();
     }
 }

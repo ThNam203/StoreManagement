@@ -22,4 +22,9 @@ public class RoleSettingController {
         roleSettingService.savePermission(staffId, roleSettingDTO);
         return ResponseEntity.ok("Permission saved successfully");
     }
+
+    @GetMapping
+    public ResponseEntity<?> getAllRoleSetting() {
+        return ResponseEntity.ok(roleSettingService.getAllRoleSetting());
+    }
 }

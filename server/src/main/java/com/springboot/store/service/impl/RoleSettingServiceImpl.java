@@ -12,6 +12,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class RoleSettingServiceImpl implements RoleSettingService {
@@ -20,12 +22,9 @@ public class RoleSettingServiceImpl implements RoleSettingService {
     private final StaffService staffService;
 
     @Override
-    public void savePermission(int staffId, RoleSettingDTO roleSetting) {
+    public void savePermission(int staffPositionId, RoleSettingDTO roleSetting) {
         RoleSetting roleSettingFromDB;
-        if (staffId == 0)
-            roleSettingFromDB = roleSettingRepository.findByOwnerId(staffService.getAuthorizedStaff().getId()).orElseThrow(() -> new CustomException("Role setting not found", HttpStatus.NOT_FOUND));
-        else
-            roleSettingFromDB = roleSettingRepository.findByOwnerId(staffId).orElseThrow(() -> new CustomException("Role setting not found", HttpStatus.NOT_FOUND));
+        roleSettingFromDB = roleSettingRepository.findByStaffPositionId(staffPositionId).orElseThrow(() -> new CustomException("Role setting not found", HttpStatus.NOT_FOUND));
         roleSettingFromDB.setOverview(modelMapper.map(roleSetting.getOverview(), RolePermission.class));
         roleSettingFromDB.setCatalog(modelMapper.map(roleSetting.getCatalog(), RolePermission.class));
         roleSettingFromDB.setDiscount(modelMapper.map(roleSetting.getDiscount(), RolePermission.class));
@@ -44,8 +43,15 @@ public class RoleSettingServiceImpl implements RoleSettingService {
     }
 
     @Override
-    public RoleSettingDTO getRoleSetting(int staffId) {
-        RoleSetting roleSetting = roleSettingRepository.findByOwnerId(staffId).orElseThrow(() -> new CustomException("Role setting not found", HttpStatus.NOT_FOUND));
+    public RoleSettingDTO getRoleSetting(int staffPositionId) {
+        RoleSetting roleSetting = roleSettingRepository.findByStaffPositionId(staffPositionId).orElseThrow(() -> new CustomException("Role setting not found", HttpStatus.NOT_FOUND));
         return modelMapper.map(roleSetting, RoleSettingDTO.class);
+    }
+
+    @Override
+    public List<RoleSettingDTO> getAllRoleSetting() {
+        int storeId = staffService.getAuthorizedStaff().getStore().getId();
+        List<RoleSetting> roleSettings = roleSettingRepository.findByStoreId(storeId);
+        return roleSettings.stream().map(roleSetting -> modelMapper.map(roleSetting, RoleSettingDTO.class)).toList();
     }
 }

@@ -77,5 +77,9 @@ public class RoleSetting {
     private RolePermission attendance;
 
     @OneToOne(mappedBy = "roleSetting")
-    private Staff owner;
+    private StaffPosition staffPosition;
+
+    @ManyToOne()
+    @JoinColumn(name = "store_id")
+    private Store store;
 }

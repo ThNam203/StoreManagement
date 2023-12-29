@@ -8,6 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class RoleSettingDTO {
+    private int staffPositionId;
     private RolePermissionDTO overview;
     private RolePermissionDTO catalog;
     private RolePermissionDTO discount;
