@@ -9,4 +9,5 @@ public interface RoleSettingService {
     RoleSettingDTO savePermission(int staffPositionId, RoleSettingDTO roleSettingDTO);
     RoleSettingDTO getRoleSetting(int staffId);
     List<RoleSettingDTO> getAllRoleSetting();
+    RoleSettingDTO createRoleSetting(RoleSettingDTO roleSettingDTO);
 }

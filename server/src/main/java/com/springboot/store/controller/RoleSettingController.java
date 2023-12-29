@@ -26,4 +26,9 @@ public class RoleSettingController {
     public ResponseEntity<?> getAllRoleSetting() {
         return ResponseEntity.ok(roleSettingService.getAllRoleSetting());
     }
+
+    @PostMapping
+    public ResponseEntity<?> createRoleSetting(@RequestBody RoleSettingDTO roleSettingDTO) {
+        return ResponseEntity.ok(roleSettingService.createRoleSetting(roleSettingDTO));
+    }
 }
