@@ -19,8 +19,7 @@ public class RoleSettingController {
 
     @PutMapping("/{staffId}")
     public ResponseEntity<?> savePermission(@PathVariable int staffId, @RequestBody RoleSettingDTO roleSettingDTO) {
-        roleSettingService.savePermission(staffId, roleSettingDTO);
-        return ResponseEntity.ok("Permission saved successfully");
+        return ResponseEntity.ok(roleSettingService.getRoleSetting(staffId));
     }
 
     @GetMapping

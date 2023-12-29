@@ -22,7 +22,7 @@ public class RoleSettingServiceImpl implements RoleSettingService {
     private final StaffService staffService;
 
     @Override
-    public void savePermission(int staffPositionId, RoleSettingDTO roleSetting) {
+    public RoleSettingDTO savePermission(int staffPositionId, RoleSettingDTO roleSetting) {
         RoleSetting roleSettingFromDB;
         roleSettingFromDB = roleSettingRepository.findByStaffPositionId(staffPositionId).orElseThrow(() -> new CustomException("Role setting not found", HttpStatus.NOT_FOUND));
         roleSettingFromDB.setOverview(modelMapper.map(roleSetting.getOverview(), RolePermission.class));
@@ -41,6 +41,7 @@ public class RoleSettingServiceImpl implements RoleSettingService {
         roleSettingFromDB.setAttendance(modelMapper.map(roleSetting.getAttendance(), RolePermission.class));
         roleSettingFromDB.setStaff(modelMapper.map(roleSetting.getStaff(), RolePermission.class));
         roleSettingRepository.save(roleSettingFromDB);
+        return modelMapper.map(roleSettingFromDB, RoleSettingDTO.class);
     }
 
     @Override
