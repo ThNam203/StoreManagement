@@ -10,4 +10,5 @@ public interface RoleSettingService {
     RoleSettingDTO getRoleSetting(int staffId);
     List<RoleSettingDTO> getAllRoleSetting();
     RoleSettingDTO createRoleSetting(RoleSettingDTO roleSettingDTO);
+    void deleteRoleSetting(int staffPositionId);
 }

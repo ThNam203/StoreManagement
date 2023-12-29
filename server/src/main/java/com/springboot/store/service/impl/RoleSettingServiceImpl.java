@@ -7,6 +7,7 @@ import com.springboot.store.exception.CustomException;
 import com.springboot.store.payload.RoleSettingDTO;
 import com.springboot.store.repository.RoleSettingRepository;
 import com.springboot.store.repository.StaffPositionRepository;
+import com.springboot.store.repository.StaffRepository;
 import com.springboot.store.service.RoleSettingService;
 import com.springboot.store.service.StaffService;
 import lombok.RequiredArgsConstructor;
@@ -15,12 +16,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
 public class RoleSettingServiceImpl implements RoleSettingService {
     private final RoleSettingRepository roleSettingRepository;
     private final StaffPositionRepository staffPositionRepository;
+    private final StaffRepository staffRepository;
     private final ModelMapper modelMapper;
     private final StaffService staffService;
 
@@ -28,6 +31,9 @@ public class RoleSettingServiceImpl implements RoleSettingService {
     public RoleSettingDTO savePermission(int staffPositionId, RoleSettingDTO roleSetting) {
         RoleSetting roleSettingFromDB;
         roleSettingFromDB = roleSettingRepository.findByStaffPositionId(staffPositionId).orElseThrow(() -> new CustomException("Role setting not found", HttpStatus.NOT_FOUND));
+        if (Objects.equals(roleSettingFromDB.getStaffPosition().getName(), "owner")) {
+            throw new CustomException("You can't change owner's permission", HttpStatus.BAD_REQUEST);
+        }
         roleSettingFromDB.setOverview(modelMapper.map(roleSetting.getOverview(), RolePermission.class));
         roleSettingFromDB.setCatalog(modelMapper.map(roleSetting.getCatalog(), RolePermission.class));
         roleSettingFromDB.setDiscount(modelMapper.map(roleSetting.getDiscount(), RolePermission.class));
@@ -57,7 +63,13 @@ public class RoleSettingServiceImpl implements RoleSettingService {
     public List<RoleSettingDTO> getAllRoleSetting() {
         int storeId = staffService.getAuthorizedStaff().getStore().getId();
         List<RoleSetting> roleSettings = roleSettingRepository.findByStoreId(storeId);
-        return roleSettings.stream().map(roleSetting -> modelMapper.map(roleSetting, RoleSettingDTO.class)).toList();
+
+        return roleSettings.stream().map(roleSetting -> {
+            if (!Objects.equals(roleSetting.getStaffPosition().getName(), "owner")) {
+                return modelMapper.map(roleSetting, RoleSettingDTO.class);
+            }
+            return null;
+        }).toList();
     }
 
     @Override
@@ -94,5 +106,14 @@ public class RoleSettingServiceImpl implements RoleSettingService {
         roleSettingDTOResponse.setStaffPositionName(newStaffPosition.getName());
 
         return roleSettingDTOResponse;
+    }
+
+    @Override
+    public void deleteRoleSetting(int staffPositionId) {
+        StaffPosition staffPosition = staffPositionRepository.findById(staffPositionId).orElseThrow(() -> new CustomException("Staff position not found", HttpStatus.NOT_FOUND));
+        if (staffRepository.existsByStaffPosition(staffPosition)) {
+            throw new RuntimeException("Cannot delete staff position that is being used by staff");
+        }
+        staffPositionRepository.delete(staffPosition);
     }
 }

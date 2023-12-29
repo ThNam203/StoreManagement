@@ -31,4 +31,10 @@ public class RoleSettingController {
     public ResponseEntity<?> createRoleSetting(@RequestBody RoleSettingDTO roleSettingDTO) {
         return ResponseEntity.ok(roleSettingService.createRoleSetting(roleSettingDTO));
     }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteRoleSetting(@PathVariable int id) {
+        roleSettingService.deleteRoleSetting(id);
+        return ResponseEntity.ok("Role setting deleted successfully");
+
+    }
 }
