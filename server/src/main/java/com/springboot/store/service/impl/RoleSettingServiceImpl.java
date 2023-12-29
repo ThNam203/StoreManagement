@@ -15,6 +15,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -64,12 +65,15 @@ public class RoleSettingServiceImpl implements RoleSettingService {
         int storeId = staffService.getAuthorizedStaff().getStore().getId();
         List<RoleSetting> roleSettings = roleSettingRepository.findByStoreId(storeId);
 
-        return roleSettings.stream().map(roleSetting -> {
-            if (!Objects.equals(roleSetting.getStaffPosition().getName(), "Owner")) {
-                return modelMapper.map(roleSetting, RoleSettingDTO.class);
+        List<RoleSettingDTO> result = new ArrayList<>();
+        for (RoleSetting roleSetting : roleSettings) {
+            if (roleSetting.getStaffPosition().getName().equals("Owner")) {
+                continue;
             }
-            return null;
-        }).toList();
+            RoleSettingDTO roleSettingDTO = modelMapper.map(roleSetting, RoleSettingDTO.class);
+            result.add(roleSettingDTO);
+        }
+        return result;
     }
 
     @Override
