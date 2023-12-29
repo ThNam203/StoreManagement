@@ -22,7 +22,7 @@ import StaffService from "@/services/staff_service";
 import { setStaffs } from "@/reducers/staffReducer";
 import SupplierService from "@/services/supplier_service";
 import { setSuppliers } from "@/reducers/suppliersReducer";
-import { TimeFilterType, handleRangeNumFilter } from "@/utils";
+import { TimeFilterType, handleDateCondition, handleRangeNumFilter } from "@/utils";
 
 export default function PurchaseReturnPage() {
   const dispatch = useAppDispatch();
@@ -58,13 +58,13 @@ export default function PurchaseReturnPage() {
     useState(purchaseReturns);
 
   const [timeConditionControls, setTimeConditionControls] = useState({
-    createdAt: TimeFilterType.StaticRange as TimeFilterType,
+    createdDate: TimeFilterType.StaticRange as TimeFilterType,
   });
   const [timeConditions, setTimeConditions] = useState({
-    createdAt: FilterYear.AllTime as FilterTime,
+    createdDate: FilterYear.AllTime as FilterTime,
   });
   const [timeRangeConditions, setTimeRangeConditions] = useState({
-    createdAt: { startDate: new Date(), endDate: new Date() },
+    createdDate: { startDate: new Date(), endDate: new Date() },
   });
   const [rangeConditions, setRangeConditions] = useState({
     discount: {
@@ -87,19 +87,19 @@ export default function PurchaseReturnPage() {
     { id: number; name: string }[]
   >([]);
 
-  const updateCreatedAtConditionControl = (value: TimeFilterType) => {
-    setTimeConditionControls({ ...timeConditionControls, createdAt: value });
+  const updateCreatedDateConditionControl = (value: TimeFilterType) => {
+    setTimeConditionControls({ ...timeConditionControls, createdDate: value });
   };
 
-  const updateCreatedAtCondition = (value: FilterTime) => {
-    setTimeConditions({ ...timeConditions, createdAt: value });
+  const updateCreatedDateCondition = (value: FilterTime) => {
+    setTimeConditions({ ...timeConditions, createdDate: value });
   };
 
-  const updateCreatedAtConditionRange = (value: {
+  const updateCreatedDateConditionRange = (value: {
     startDate: Date;
     endDate: Date;
   }) => {
-    setTimeRangeConditions({ ...timeRangeConditions, createdAt: value });
+    setTimeRangeConditions({ ...timeRangeConditions, createdDate: value });
   };
 
   useEffect(() => {
@@ -109,6 +109,16 @@ export default function PurchaseReturnPage() {
     );
     filteredPurchaseReturns = filteredPurchaseReturns.filter(
       (purchaseReturn) => {
+        if (
+          !handleDateCondition(
+            timeConditions.createdDate,
+            timeRangeConditions.createdDate,
+            timeConditionControls.createdDate,
+            new Date(purchaseReturn.createdDate),
+          )
+        )
+          return false;
+
         if (
           staffCondition.length > 0 &&
           !staffCondition.some((staff) => staff.id === purchaseReturn.staffId)
@@ -125,7 +135,7 @@ export default function PurchaseReturnPage() {
       },
     );
     setFilteredPurchaseReturns(filteredPurchaseReturns);
-  }, [rangeConditions, staffCondition, supplierCondition, purchaseReturns]);
+  }, [rangeConditions, staffCondition, supplierCondition, purchaseReturns, timeConditions, timeRangeConditions, timeConditionControls]);
 
   const filters = [
     <SearchFilterObject
@@ -222,12 +232,12 @@ export default function PurchaseReturnPage() {
       key={5}
       title="Created date"
       className="mb-2"
-      timeFilterControl={timeConditionControls.createdAt}
-      singleTimeValue={timeConditions.createdAt}
-      rangeTimeValue={timeRangeConditions.createdAt}
-      onTimeFilterControlChanged={updateCreatedAtConditionControl}
-      onSingleTimeFilterChanged={updateCreatedAtCondition}
-      onRangeTimeFilterChanged={updateCreatedAtConditionRange}
+      timeFilterControl={timeConditionControls.createdDate}
+      singleTimeValue={timeConditions.createdDate}
+      rangeTimeValue={timeRangeConditions.createdDate}
+      onTimeFilterControlChanged={updateCreatedDateConditionControl}
+      onSingleTimeFilterChanged={updateCreatedDateCondition}
+      onRangeTimeFilterChanged={updateCreatedDateConditionRange}
     />,
   ];
 

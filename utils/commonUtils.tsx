@@ -6,7 +6,7 @@ import {
   FilterWeek,
   FilterYear,
 } from "@/components/ui/filter";
-import { format } from "date-fns";
+import { format, isBefore } from "date-fns";
 import * as XLSX from "xlsx";
 
 const exportExcel = (data: any[], nameSheet: string, nameFile: string) => {
@@ -159,29 +159,15 @@ function handleRangeTimeFilter<T>(
 }
 
 const isInRangeTime = (
-  value: Date,
+  date: Date,
   range: { startDate: Date; endDate: Date },
 ) => {
-  let date = value as Date;
-  let startDate = range.startDate as Date;
-  let endDate = range.endDate as Date;
+  range.startDate.setHours(0, 0, 0, 0)
+  range.endDate.setHours(0, 0, 0, 0)
 
-  startDate = new Date(startDate.setHours(0, 0, 0, 0));
-  endDate = new Date(endDate.setHours(0, 0, 0, 0));
+  console.log(date, range)
 
-  const formatedDate = date.toLocaleDateString();
-  const formatedStartDate = startDate.toLocaleDateString();
-  const formatedEndDate = endDate.toLocaleDateString();
-
-  if (startDate > endDate) {
-    return false;
-  } else if (formatedStartDate === formatedEndDate) {
-    if (formatedDate !== formatedStartDate) return false;
-  } else {
-    if (formatedDate === formatedStartDate) return true;
-    if (formatedDate == formatedEndDate) return true;
-    if (date < startDate || date > endDate) return false;
-  }
+  if (isBefore(date, range.startDate) || isBefore(range.endDate, date)) return false;
   return true;
 };
 
@@ -233,6 +219,34 @@ function handleTimeFilter<T>(
     return true;
   });
   return filterList;
+}
+
+function handleDateCondition(
+  staticRangeCondition: FilterTime,
+  rangeTimeCondition: {
+        startDate: Date;
+        endDate: Date;
+    },
+  filterControl: TimeFilterType,
+  date: Date,
+): boolean {
+  if (
+    filterControl ===
+    TimeFilterType.RangeTime
+  ) {
+    if (date && rangeTimeCondition !== undefined && rangeTimeCondition !== null) {
+      if (!isInRangeTime(date, rangeTimeCondition)) return false;
+    } else return false;
+  } else {
+    if (staticRangeCondition === FilterYear.AllTime) return true;
+    let range = getStaticRangeFilterTime(staticRangeCondition);
+    if (range !== undefined && range !== null) {
+      if (!isInRangeTime(date, range)) return false;
+    } else {
+      return false;
+    }
+  }
+  return true;
 }
 
 function handleStaticRangeFilter<T>(
@@ -477,4 +491,5 @@ export {
   removeCharNotANum,
   revertID,
   handleChoiceFilters,
+  handleDateCondition
 };

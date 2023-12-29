@@ -25,7 +25,7 @@ import { setReturnInvoices } from "@/reducers/returnInvoicesReducer";
 import { ReturnDatatable } from "./datatable";
 import StaffService from "@/services/staff_service";
 import { setStaffs } from "@/reducers/staffReducer";
-import { TimeFilterType, handleRangeNumFilter } from "@/utils";
+import { TimeFilterType, handleDateCondition, handleRangeNumFilter } from "@/utils";
 import { PAYMENT_METHODS } from "@/entities/Invoice";
 
 export default function ReturnPage() {
@@ -121,6 +121,16 @@ export default function ReturnPage() {
     let filteredReturnInvoices = handleRangeNumFilter(rangeConditions, returnInvoices);
     filteredReturnInvoices = filteredReturnInvoices.filter((invoice) => {
       if (
+        !handleDateCondition(
+          timeConditions.createdAt,
+          timeRangeConditions.createdAt,
+          timeConditionControls.createdAt,
+          new Date(invoice.createdAt),
+        )
+      )
+        return false;
+
+      if (
         staffCondition.length > 0 &&
         !staffCondition.find((staff) => staff.id === invoice.staffId)
       ) return false;
@@ -134,7 +144,7 @@ export default function ReturnPage() {
       return true;
     });
     setFilteredReturnInvoices(filteredReturnInvoices);
-  }, [rangeConditions, paymentMethodCondition, returnInvoices, staffCondition]);
+  }, [rangeConditions, paymentMethodCondition, returnInvoices, staffCondition, timeConditions, timeRangeConditions, timeConditionControls]);
 
   const filters = [
     <SingleChoiceFilter

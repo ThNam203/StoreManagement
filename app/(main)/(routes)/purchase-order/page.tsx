@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/filter";
 import { useEffect, useState } from "react";
 import { PurchaseOrderDatatable } from "./datatable";
-import { TimeFilterType, handleRangeNumFilter } from "@/utils";
+import { TimeFilterType, handleDateCondition, handleRangeNumFilter } from "@/utils";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/hooks";
@@ -105,6 +105,16 @@ const updateCreatedDateConditionRange = (value: {
 useEffect(() => {
   let filteredPurchaseReturns = handleRangeNumFilter(rangeConditions, purchaseOrders);
   filteredPurchaseReturns = filteredPurchaseReturns.filter((purchaseOrder) => {
+    if (
+      !handleDateCondition(
+        timeConditions.createdDate,
+        timeRangeConditions.createdDate,
+        timeConditionControls.createdDate,
+        new Date(purchaseOrder.createdDate),
+      )
+    )
+      return false;
+
     if (
       staffCondition.length > 0 &&
       !staffCondition.some((staff) => staff.id === purchaseOrder.staffId)

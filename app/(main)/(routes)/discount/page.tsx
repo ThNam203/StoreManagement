@@ -18,7 +18,7 @@ import { setProducts } from "@/reducers/productsReducer";
 import { setGroups } from "@/reducers/productGroupsReducer";
 import StaffService from "@/services/staff_service";
 import { setStaffs } from "@/reducers/staffReducer";
-import { TimeFilterType, handleRangeNumFilter } from "@/utils";
+import { TimeFilterType, handleDateCondition, handleRangeNumFilter } from "@/utils";
 
 const DISCOUNT_TYPES = ["Voucher", "Coupon", "All"]
 const DISCOUNT_STATUSES = ["Activating", "Disabled", "All"]
@@ -106,6 +106,16 @@ export default function DiscountPage() {
     // let filteredCustomers = handleChoiceFilters(filterConditions, customers);
     let filteredDiscounts = discounts;
     filteredDiscounts = filteredDiscounts.filter((discount) => {
+      if (
+        !handleDateCondition(
+          timeConditions.createdAt,
+          timeRangeConditions.createdAt,
+          timeConditionControls.createdAt,
+          new Date(discount.createdAt),
+        )
+      )
+        return false;
+
       if (creatorCondition.length > 0) {
         if (
           !creatorCondition.some(
@@ -132,7 +142,7 @@ export default function DiscountPage() {
     });
     filteredDiscounts = handleRangeNumFilter(valueRangeConditions, filteredDiscounts)
     setFilteredDiscounts(filteredDiscounts);
-  }, [timeConditions, timeRangeConditions, creatorCondition, discounts, typeCondition, valueRangeConditions, statusCondition]);
+  }, [timeConditions, timeRangeConditions, creatorCondition, discounts, typeCondition, valueRangeConditions, statusCondition, timeConditionControls]);
 
   const filters = [
     <TimeFilter

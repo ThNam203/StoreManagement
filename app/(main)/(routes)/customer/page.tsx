@@ -24,7 +24,12 @@ import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { CustomerDatatable } from "./datatable";
-import { TimeFilterType, handleChoiceFilters, handleTimeFilter } from "@/utils";
+import {
+  TimeFilterType,
+  handleChoiceFilters,
+  handleDateCondition,
+  handleTimeFilter,
+} from "@/utils";
 import StaffService from "@/services/staff_service";
 import { setStaffs } from "@/reducers/staffReducer";
 
@@ -113,26 +118,46 @@ export default function InvoicePage() {
 
   const updateCreatedAtConditionControl = (value: TimeFilterType) => {
     setTimeConditionControls({ ...timeConditionControls, createdAt: value });
-  }
+  };
 
   const updateBirthdayCondition = (value: FilterTime) => {
     setTimeConditions({ ...timeConditions, birthday: value });
-  }
+  };
 
   const updateBirthdayConditionRange = (value: {
     startDate: Date;
     endDate: Date;
   }) => {
     setTimeRangeConditions({ ...timeRangeConditions, birthday: value });
-  } 
+  };
 
   const updateBirthdayConditionControl = (value: TimeFilterType) => {
     setTimeConditionControls({ ...timeConditionControls, birthday: value });
-  }
+  };
 
   useEffect(() => {
     let filteredCustomers = handleChoiceFilters(filterConditions, customers);
     filteredCustomers = filteredCustomers.filter((customer) => {
+      if (
+        !handleDateCondition(
+          timeConditions.createdAt,
+          timeRangeConditions.createdAt,
+          timeConditionControls.createdAt,
+          new Date(customer.createdAt),
+        )
+      )
+        return false;
+
+      if (
+        !handleDateCondition(
+          timeConditions.birthday,
+          timeRangeConditions.birthday,
+          timeConditionControls.birthday,
+          new Date(customer.birthday),
+        )
+      )
+        return false;
+
       if (customerCreatorCondition.length > 0) {
         if (
           !customerCreatorCondition.some(
@@ -144,12 +169,20 @@ export default function InvoicePage() {
       }
 
       if (customer.sex !== sexCondition && sexCondition !== "All") return false;
-      
+
       return true;
     });
 
     setFilteredCustomers(filteredCustomers);
-  }, [customers, filterConditions, customerCreatorCondition, timeConditions, timeRangeConditions, timeConditionControls, sexCondition]);
+  }, [
+    customers,
+    filterConditions,
+    customerCreatorCondition,
+    timeConditions,
+    timeRangeConditions,
+    timeConditionControls,
+    sexCondition,
+  ]);
 
   const filters = [
     <SearchFilter
@@ -217,7 +250,7 @@ export default function InvoicePage() {
       onTimeFilterControlChanged={updateBirthdayConditionControl}
       onSingleTimeFilterChanged={updateBirthdayCondition}
       onRangeTimeFilterChanged={updateBirthdayConditionRange}
-    />
+    />,
   ];
 
   return (
