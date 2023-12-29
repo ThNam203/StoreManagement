@@ -9,6 +9,7 @@ import lombok.*;
 @Builder
 public class RoleSettingDTO {
     private int staffPositionId;
+    private String staffPositionName;
     private RolePermissionDTO overview;
     private RolePermissionDTO attendance;
     private RolePermissionDTO catalog;
