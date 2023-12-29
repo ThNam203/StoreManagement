@@ -163,9 +163,7 @@ const isInRangeTime = (
   range: { startDate: Date; endDate: Date },
 ) => {
   range.startDate.setHours(0, 0, 0, 0)
-  range.endDate.setHours(0, 0, 0, 0)
-
-  console.log(date, range)
+  range.endDate.setHours(23, 59, 59, 999)
 
   if (isBefore(date, range.startDate) || isBefore(range.endDate, date)) return false;
   return true;
@@ -470,6 +468,22 @@ const createRangeDate = (range: { startDate: Date; endDate: Date }): Date[] => {
   return rangeDate;
 };
 
+function camelToPascalWithSpaces(camelCaseStr: string) {
+  // Check if the string is not empty
+  if (!camelCaseStr) {
+      return camelCaseStr;
+  }
+
+  // Add a space before each capital letter
+  const pascalCaseWithSpaces = camelCaseStr.replace(/([A-Z])/g, ' $1');
+
+  // Capitalize the first letter and remove leading space
+  const pascalCaseStr = pascalCaseWithSpaces.charAt(0).toUpperCase() + pascalCaseWithSpaces.slice(1).trim();
+
+  return pascalCaseStr;
+}
+
+
 export {
   createRangeDate,
   exportExcel,
@@ -491,5 +505,6 @@ export {
   removeCharNotANum,
   revertID,
   handleChoiceFilters,
-  handleDateCondition
+  handleDateCondition,
+  camelToPascalWithSpaces
 };

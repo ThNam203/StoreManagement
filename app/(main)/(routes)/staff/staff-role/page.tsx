@@ -15,7 +15,7 @@ import {
   setStaffs,
   updateStaff,
 } from "@/reducers/staffReducer";
-import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import StaffService from "@/services/staff_service";
 import { handleMultipleFilter, handleRangeNumFilter } from "@/utils";
 import {

@@ -26,7 +26,7 @@ import DiscountService, {
   UploadDiscountDataType,
 } from "@/services/discountService";
 import { addDiscount } from "@/reducers/discountsReducer";
-import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import { format } from "date-fns";
 import { Button } from "../button";
 import { MultipleChoicesSearchInput } from "@/components/component/StringChoicesSearchInput";
@@ -467,7 +467,9 @@ export default function NewDiscountForm({
                             onChange={(e) =>
                               form.setValue(
                                 "minSubTotal",
-                                isNaN(e.currentTarget.valueAsNumber) ? 0 : e.currentTarget.valueAsNumber,
+                                isNaN(e.currentTarget.valueAsNumber)
+                                  ? 0
+                                  : e.currentTarget.valueAsNumber,
                                 { shouldValidate: true },
                               )
                             }

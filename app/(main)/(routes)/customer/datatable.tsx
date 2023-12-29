@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 import { ChevronRight, Lock, PenLine, Trash, Undo2 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import LoadingCircle from "@/components/ui/loading_circle";
-import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import { useToast } from "@/components/ui/use-toast";
 import { CustomDatatable } from "@/components/component/custom_datatable";
 import InvoiceService from "@/services/invoiceService";
@@ -127,7 +127,10 @@ const DetailCustomerTab = ({
             {/* TODO: CHANGE CREATORID -> NAME */}
             <div className="mb-2 flex flex-row border-b font-medium">
               <p className="w-[120px] font-normal">Creator</p>
-              <p>{staffs.find((s) => s.id === customer.creatorId)?.name ?? "NOT FOUND"}</p>
+              <p>
+                {staffs.find((s) => s.id === customer.creatorId)?.name ??
+                  "NOT FOUND"}
+              </p>
             </div>
             <div>
               <p className="mb-2">Note</p>

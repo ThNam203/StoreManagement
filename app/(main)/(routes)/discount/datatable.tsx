@@ -37,7 +37,7 @@ import { useAppDispatch, useAppSelector } from "@/hooks";
 import { deleteProduct, updateProduct } from "@/reducers/productsReducer";
 import ProductService from "@/services/productService";
 import LoadingCircle from "@/components/ui/loading_circle";
-import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import { useToast } from "@/components/ui/use-toast";
 import { Discount, DiscountCode } from "@/entities/Discount";
 import DiscountService from "@/services/discountService";

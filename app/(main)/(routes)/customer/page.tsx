@@ -17,7 +17,7 @@ import { setCustomerGroups } from "@/reducers/customerGroupsReducer";
 import { setCustomers } from "@/reducers/customersReducer";
 import { setInvoices } from "@/reducers/invoicesReducer";
 import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
-import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import CustomerService from "@/services/customerService";
 import InvoiceService from "@/services/invoiceService";
 import { Plus } from "lucide-react";

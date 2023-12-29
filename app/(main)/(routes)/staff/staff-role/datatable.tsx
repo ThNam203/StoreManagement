@@ -13,7 +13,7 @@ import { RoleSettingDialog } from "@/components/ui/staff/role_setting_dialog";
 import { useToast } from "@/components/ui/use-toast";
 import { RoleSetting, defaultRoleSetting } from "@/entities/RoleSetting";
 import { cn } from "@/lib/utils";
-import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import { format } from "date-fns";
 import { Check, Edit, Pen, PenLine, PlusCircle, Trash } from "lucide-react";
 import Image from "next/image";

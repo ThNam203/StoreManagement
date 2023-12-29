@@ -27,10 +27,10 @@ import {
 } from "../ui/alert-dialog";
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/hooks";
-import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import { useToast } from "../ui/use-toast";
 import AddNewThing from "../ui/add_new_thing_dialog";
-import SupplierService from "@/services/supplier_service";
+import SupplierService from "@/services/supplierService";
 import { addSupplierGroup } from "@/reducers/supplierGroupsReducer";
 import { addSupplier } from "@/reducers/suppliersReducer";
 
@@ -79,7 +79,10 @@ export default function NewSupplierDialog({
   const onSubmit = (values: z.infer<typeof newSupplierFormSchema>) => {
     const formData = new FormData();
     if (file) formData.append("file", file);
-    formData.append("data", new Blob([JSON.stringify(values)], { type: "application/json" }));
+    formData.append(
+      "data",
+      new Blob([JSON.stringify(values)], { type: "application/json" }),
+    );
     setIsCreatingNewSupplier(true);
     SupplierService.uploadSupplier(formData)
       .then((result) => {
@@ -94,32 +97,34 @@ export default function NewSupplierDialog({
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger className={triggerClassname} asChild>{DialogTrigger}</AlertDialogTrigger>
+      <AlertDialogTrigger className={triggerClassname} asChild>
+        {DialogTrigger}
+      </AlertDialogTrigger>
       <AlertDialogContent
-        className="max-w-[960px] !w-[500px] md:!w-[600px]"
+        className="!w-[500px] max-w-[960px] md:!w-[600px]"
         asChild
       >
         <div
           className={cn(
-            "rounded-md max-h-[95%] w-full flex flex-col p-4 bg-white overflow-y-auto",
-            scrollbar_style.scrollbar
+            "flex max-h-[95%] w-full flex-col overflow-y-auto rounded-md bg-white p-4",
+            scrollbar_style.scrollbar,
           )}
         >
-          <div className="flex flex-row items-center justify-between mb-2">
-            <h3 className="font-semibold text-base">Add new supplier</h3>
+          <div className="mb-2 flex flex-row items-center justify-between">
+            <h3 className="text-base font-semibold">Add new supplier</h3>
             <X
               size={24}
-              className="hover:cursor-pointer rounded-full hover:bg-slate-200 p-1"
+              className="rounded-full p-1 hover:cursor-pointer hover:bg-slate-200"
               onClick={() => setOpen(false)}
             />
           </div>
-            <div className="flex-1">
-              <FormContent
-                onSubmit={onSubmit}
-                isCreatingNewSupplier={isCreatingNewSupplier}
-                setOpen={setOpen}
-              />
-            </div>
+          <div className="flex-1">
+            <FormContent
+              onSubmit={onSubmit}
+              isCreatingNewSupplier={isCreatingNewSupplier}
+              setOpen={setOpen}
+            />
+          </div>
         </div>
       </AlertDialogContent>
     </AlertDialog>
@@ -136,7 +141,7 @@ const FormContent = ({
   isCreatingNewSupplier: boolean;
 }) => {
   const { toast } = useToast();
-  const supplierGroups = useAppSelector((state) => state.supplierGroups.value)
+  const supplierGroups = useAppSelector((state) => state.supplierGroups.value);
   const form = useForm<z.infer<typeof newSupplierFormSchema>>({
     resolver: zodResolver(newSupplierFormSchema),
     defaultValues: {
@@ -157,11 +162,11 @@ const FormContent = ({
   const addNewSupplierGroup = async (groupName: string) => {
     try {
       const data = await SupplierService.uploadSupplierGroup(groupName);
-      dispatch(addSupplierGroup(data.data))
+      dispatch(addSupplierGroup(data.data));
       return Promise.resolve();
     } catch (e) {
       axiosUIErrorHandler(e, toast);
-      return Promise.reject(e)
+      return Promise.reject(e);
     }
   };
 
@@ -177,15 +182,15 @@ const FormContent = ({
           control={form.control}
           name="name"
           render={({ field }) => (
-            <FormItem className="flex flex-row mb-2">
-              <FormLabel className="flex flex-col w-[150px] text-black justify-center">
+            <FormItem className="mb-2 flex flex-row">
+              <FormLabel className="flex w-[150px] flex-col justify-center text-black">
                 <div className="flex flex-row items-center gap-2">
                   <h5 className="text-sm">Supplier name</h5>
                 </div>
                 <FormMessage className="mr-2 text-xs" />
               </FormLabel>
               <FormControl>
-                <Input className="flex-1 !m-0" {...field} />
+                <Input className="!m-0 flex-1" {...field} />
               </FormControl>
             </FormItem>
           )}
@@ -194,15 +199,15 @@ const FormContent = ({
           control={form.control}
           name="email"
           render={({ field }) => (
-            <FormItem className="flex flex-row mb-2">
-              <FormLabel className="flex flex-col w-[150px] text-black justify-center">
+            <FormItem className="mb-2 flex flex-row">
+              <FormLabel className="flex w-[150px] flex-col justify-center text-black">
                 <div className="flex flex-row items-center gap-2">
                   <h5 className="text-sm">Email</h5>
                 </div>
                 <FormMessage className="mr-2 text-xs" />
               </FormLabel>
               <FormControl>
-                <Input className="flex-1 !m-0" {...field} />
+                <Input className="!m-0 flex-1" {...field} />
               </FormControl>
             </FormItem>
           )}
@@ -211,15 +216,15 @@ const FormContent = ({
           control={form.control}
           name="phoneNumber"
           render={({ field }) => (
-            <FormItem className="flex flex-row mb-2">
-              <FormLabel className="flex flex-col w-[150px] text-black justify-center">
+            <FormItem className="mb-2 flex flex-row">
+              <FormLabel className="flex w-[150px] flex-col justify-center text-black">
                 <div className="flex flex-row items-center gap-2">
                   <h5 className="text-sm">Phone number</h5>
                 </div>
                 <FormMessage className="mr-2 text-xs" />
               </FormLabel>
               <FormControl>
-                <Input className="flex-1 !m-0" {...field} />
+                <Input className="!m-0 flex-1" {...field} />
               </FormControl>
             </FormItem>
           )}
@@ -228,15 +233,15 @@ const FormContent = ({
           control={form.control}
           name="address"
           render={({ field }) => (
-            <FormItem className="flex flex-row mb-2">
-              <FormLabel className="flex flex-col w-[150px] text-black justify-center">
+            <FormItem className="mb-2 flex flex-row">
+              <FormLabel className="flex w-[150px] flex-col justify-center text-black">
                 <div className="flex flex-row items-center gap-2">
                   <h5 className="text-sm">Address</h5>
                 </div>
                 <FormMessage className="mr-2 text-xs" />
               </FormLabel>
               <FormControl>
-                <Input className="flex-1 !m-0" {...field} />
+                <Input className="!m-0 flex-1" {...field} />
               </FormControl>
             </FormItem>
           )}
@@ -245,26 +250,24 @@ const FormContent = ({
           control={form.control}
           name="supplierGroupName"
           render={({ field }) => (
-            <FormItem className="flex flex-row mb-2">
-              <FormLabel className="flex flex-col w-[150px] text-black justify-center">
+            <FormItem className="mb-2 flex flex-row">
+              <FormLabel className="flex w-[150px] flex-col justify-center text-black">
                 <div className="flex flex-row items-center gap-2">
                   <h5 className="text-sm">Supplier group</h5>
                 </div>
                 <FormMessage className="mr-2 text-xs" />
               </FormLabel>
               <FormControl>
-                <div className="flex flex-row flex-1 min-h-[40px] border border-input rounded-md !m-0 items-center">
-                  <div className="w-full h-full flex-1">
+                <div className="!m-0 flex min-h-[40px] flex-1 flex-row items-center rounded-md border border-input">
+                  <div className="h-full w-full flex-1">
                     <SearchAndChooseButton
                       value={field.value}
                       placeholder="---Choose group---"
                       searchPlaceholder="Search group..."
                       onValueChanged={(val) => {
-                        form.setValue(
-                          "supplierGroupName",
-                          val,
-                          { shouldValidate: true }
-                        );
+                        form.setValue("supplierGroupName", val, {
+                          shouldValidate: true,
+                        });
                       }}
                       choices={supplierGroups.map((v) => v.name)}
                     />
@@ -285,15 +288,15 @@ const FormContent = ({
           control={form.control}
           name="companyName"
           render={({ field }) => (
-            <FormItem className="flex flex-row mb-2">
-              <FormLabel className="flex flex-col min-w-[150px] max-w-[150px] text-black justify-center">
+            <FormItem className="mb-2 flex flex-row">
+              <FormLabel className="flex min-w-[150px] max-w-[150px] flex-col justify-center text-black">
                 <div className="flex flex-row items-center gap-2">
                   <h5 className="text-sm">Company</h5>
                 </div>
                 <FormMessage className="mr-2 text-xs" />
               </FormLabel>
               <FormControl>
-                <Input className="flex-1 !m-0" {...field} />
+                <Input className="!m-0 flex-1" {...field} />
               </FormControl>
             </FormItem>
           )}
@@ -302,8 +305,8 @@ const FormContent = ({
           control={form.control}
           name="status"
           render={({ field }) => (
-            <FormItem className="flex flex-row mb-3">
-              <FormLabel className="flex flex-col w-[150px] text-black justify-center">
+            <FormItem className="mb-3 flex flex-row">
+              <FormLabel className="flex w-[150px] flex-col justify-center text-black">
                 <div className="flex flex-row items-center gap-2">
                   <h5 className="text-sm">Status</h5>
                 </div>
@@ -328,19 +331,19 @@ const FormContent = ({
             </FormItem>
           )}
         />
-        <div className="border rounded-sm mb-4">
+        <div className="mb-4 rounded-sm border">
           <FormField
             control={form.control}
             name="description"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel className="text-black justify-center text-sm bg-gray-200 p-3">
+                <FormLabel className="justify-center bg-gray-200 p-3 text-sm text-black">
                   <h5 className="text-sm">Description</h5>
                   <FormMessage className="mr-2 text-xs" />
                 </FormLabel>
                 <FormControl className="border-none">
                   <Textarea
-                    className="flex-1 resize-none p-2 !mt-0 min-h-[100px] !rounded-none focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0"
+                    className="!mt-0 min-h-[100px] flex-1 resize-none !rounded-none p-2 focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0"
                     onKeyDown={(e) => e.stopPropagation()}
                     {...field}
                   />
@@ -354,18 +357,18 @@ const FormContent = ({
           <Button
             variant={"green"}
             type="submit"
-            className="px-4 min-w-[150px] uppercase"
+            className="min-w-[150px] px-4 uppercase"
             disabled={isCreatingNewSupplier}
           >
             Save
             <LoadingCircle
-              className={"!w-4 ml-4 " + (isCreatingNewSupplier ? "" : "hidden")}
+              className={"ml-4 !w-4 " + (isCreatingNewSupplier ? "" : "hidden")}
             />
           </Button>
           <Button
             variant={"green"}
             type="button"
-            className="px-4 min-w-[150px] bg-gray-400 hover:bg-gray-500 uppercase"
+            className="min-w-[150px] bg-gray-400 px-4 uppercase hover:bg-gray-500"
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();

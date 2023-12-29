@@ -39,7 +39,7 @@ import {
 import { Sex, Staff } from "@/entities/Staff";
 import { useAppSelector } from "@/hooks";
 import { addPosition, deletePosition } from "@/reducers/staffPositionReducer";
-import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import StaffService from "@/services/staff_service";
 import { formatNumberInput, formatPrice, removeCharNotANum } from "@/utils";
 import {

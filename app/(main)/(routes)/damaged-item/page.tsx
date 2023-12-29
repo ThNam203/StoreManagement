@@ -5,12 +5,12 @@ import {
   FilterYear,
   PageWithFilters,
   SearchFilterObject,
-  TimeFilter
+  TimeFilter,
 } from "@/components/ui/filter";
 import { useToast } from "@/components/ui/use-toast";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
-import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { DamagedItemsDatatable } from "./datatable";
@@ -24,13 +24,16 @@ export default function DamagedItemsPage() {
   const dispatch = useAppDispatch();
   const { toast } = useToast();
   const router = useRouter();
-  const damagedItemDocuments = useAppSelector((state) => state.damagedItemDocuments.value);
+  const damagedItemDocuments = useAppSelector(
+    (state) => state.damagedItemDocuments.value,
+  );
   const staffs = useAppSelector((state) => state.staffs.value);
 
   useEffect(() => {
     dispatch(showPreloader());
     const fetchData = async () => {
-      const damagedItemDocuments = await DamagedItemService.getAllDamagedItemDocuments();
+      const damagedItemDocuments =
+        await DamagedItemService.getAllDamagedItemDocuments();
       dispatch(setDamagedItemDocuments(damagedItemDocuments.data));
 
       const staffs = await StaffService.getAllStaffs();
@@ -43,7 +46,8 @@ export default function DamagedItemsPage() {
       .finally(() => dispatch(disablePreloader()));
   }, []);
 
-  const [filteredDamagedItemDocuments, setFilteredDamagedItemDocuments] = useState(damagedItemDocuments);
+  const [filteredDamagedItemDocuments, setFilteredDamagedItemDocuments] =
+    useState(damagedItemDocuments);
 
   const [timeConditionControls, setTimeConditionControls] = useState({
     createdDate: TimeFilterType.StaticRange as TimeFilterType,
@@ -74,36 +78,45 @@ export default function DamagedItemsPage() {
 
   const updateCreatedDateConditionControl = (value: TimeFilterType) => {
     setTimeConditionControls({ ...timeConditionControls, createdDate: value });
-  }
+  };
 
   useEffect(() => {
     // let filteredCustomers = handleChoiceFilters(filterConditions, customers);
     let filteredDamagedItemDocuments = damagedItemDocuments;
-    filteredDamagedItemDocuments = filteredDamagedItemDocuments.filter((document) => {
-      if (
-        !handleDateCondition(
-          timeConditions.createdDate,
-          timeRangeConditions.createdDate,
-          timeConditionControls.createdDate,
-          new Date(document.createdDate),
-        )
-      )
-        return false;
-
-      if (creatorCondition.length > 0) {
+    filteredDamagedItemDocuments = filteredDamagedItemDocuments.filter(
+      (document) => {
         if (
-          !creatorCondition.some(
-            (creator) => creator.id === document.creatorId,
+          !handleDateCondition(
+            timeConditions.createdDate,
+            timeRangeConditions.createdDate,
+            timeConditionControls.createdDate,
+            new Date(document.createdDate),
           )
-        ) {
+        )
           return false;
+
+        if (creatorCondition.length > 0) {
+          if (
+            !creatorCondition.some(
+              (creator) => creator.id === document.creatorId,
+            )
+          ) {
+            return false;
+          }
         }
-      }
-      
-      return true;
-    });
+
+        return true;
+      },
+    );
     setFilteredDamagedItemDocuments(filteredDamagedItemDocuments);
-  }, [timeConditions, timeRangeConditions, creatorCondition, damagedItemDocuments, staffs, timeConditionControls]);
+  }, [
+    timeConditions,
+    timeRangeConditions,
+    creatorCondition,
+    damagedItemDocuments,
+    staffs,
+    timeConditionControls,
+  ]);
 
   const filters = [
     <TimeFilter
@@ -143,8 +156,8 @@ export default function DamagedItemsPage() {
         ])
       }
       className="mb-2"
-    />
-  ]
+    />,
+  ];
 
   return (
     <PageWithFilters

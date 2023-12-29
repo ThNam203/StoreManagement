@@ -15,7 +15,7 @@ import {
 } from "./table_columns";
 import StaffService from "@/services/staff_service";
 import { setStaffs } from "@/reducers/staffReducer";
-import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
 import { Staff } from "@/entities/Staff";
 import { Check, CheckCircle, Group, User, UserCircle } from "lucide-react";
@@ -23,7 +23,7 @@ import CustomCombobox from "@/components/component/CustomCombobox";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Supplier } from "@/entities/Supplier";
-import SupplierService from "@/services/supplier_service";
+import SupplierService from "@/services/supplierService";
 import { setSuppliers } from "@/reducers/suppliersReducer";
 import { Button } from "@/components/ui/button";
 import ProductService from "@/services/productService";
@@ -111,7 +111,7 @@ export default function NewPurchaseOrderPage() {
           productName: product.name,
           unit: product.salesUnits.name,
           note: "",
-          price: product.originalPrice
+          price: product.originalPrice,
         },
       ]);
     else onDetailQuantityChanged(product.id, foundProduct.quantity + 1);
@@ -179,7 +179,7 @@ export default function NewPurchaseOrderPage() {
       });
 
     await DamagedItemService.uploadDamagedItemDocument({
-      products: details.filter(v => v.quantity > 0).map((v) => ({ ...v })),
+      products: details.filter((v) => v.quantity > 0).map((v) => ({ ...v })),
       note: note,
       createdDate: format(createdDate, "yyyy-MM-dd HH:mm:ss"),
       creatorId: staff.id,
@@ -256,11 +256,7 @@ export default function NewPurchaseOrderPage() {
         </div>
         <div className="flex items-center justify-between">
           <p className="text-sm">Total quantity:</p>
-          <p>
-            {details
-              .map((v) => v.quantity)
-              .reduce((a, b) => a + b, 0)}
-          </p>
+          <p>{details.map((v) => v.quantity).reduce((a, b) => a + b, 0)}</p>
         </div>
         <div className="flex items-center justify-between">
           <p className="text-sm">Total damaged value:</p>

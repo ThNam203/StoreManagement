@@ -1,12 +1,16 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { PageWithFilters, SearchFilter, SingleChoiceFilter } from "@/components/ui/filter";
+import {
+  PageWithFilters,
+  SearchFilter,
+  SingleChoiceFilter,
+} from "@/components/ui/filter";
 import { useToast } from "@/components/ui/use-toast";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { setInvoices } from "@/reducers/invoicesReducer";
 import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
-import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import InvoiceService from "@/services/invoiceService";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -14,7 +18,7 @@ import { useEffect, useState } from "react";
 import { SupplierDatatable } from "./datatable";
 import NewSupplierDialog from "@/components/component/new_supplier_dialog";
 import { setSuppliers } from "@/reducers/suppliersReducer";
-import SupplierService from "@/services/supplier_service";
+import SupplierService from "@/services/supplierService";
 import { setSupplierGroups } from "@/reducers/supplierGroupsReducer";
 import { SupplierStatuses } from "@/entities/Supplier";
 import { handleChoiceFilters } from "@/utils";
@@ -54,7 +58,7 @@ export default function InvoicePage() {
       .catch((e) => axiosUIErrorHandler(e, toast))
       .finally(() => dispatch(disablePreloader()));
   }, []);
-  
+
   const [filteredSuppliers, setFilteredSuppliers] = useState(suppliers);
 
   const [filterConditions, setFilterConditions] = useState({
@@ -64,7 +68,7 @@ export default function InvoicePage() {
   const [statusCondition, setStatusCondition] = useState("All");
 
   useEffect(() => {
-    let filteredValues = handleChoiceFilters(filterConditions, suppliers)
+    let filteredValues = handleChoiceFilters(filterConditions, suppliers);
     filteredValues = filteredValues.filter((supplier) => {
       if (statusCondition !== "All" && supplier.status !== statusCondition) {
         return false;
@@ -72,7 +76,7 @@ export default function InvoicePage() {
       return true;
     });
     setFilteredSuppliers(filteredValues);
-  }, [filterConditions, statusCondition, suppliers])
+  }, [filterConditions, statusCondition, suppliers]);
 
   const filters = [
     <SearchFilter
@@ -92,8 +96,8 @@ export default function InvoicePage() {
       choices={[...Object.values(SupplierStatuses), "All"]}
       value={statusCondition}
       onValueChanged={(value) => setStatusCondition(value)}
-      />
-  ]
+    />,
+  ];
 
   return (
     <PageWithFilters

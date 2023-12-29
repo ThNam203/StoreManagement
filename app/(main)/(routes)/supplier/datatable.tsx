@@ -43,7 +43,7 @@ import { useAppDispatch } from "@/hooks";
 import { deleteProduct, updateProduct } from "@/reducers/productsReducer";
 import ProductService from "@/services/productService";
 import LoadingCircle from "@/components/ui/loading_circle";
-import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import { useToast } from "@/components/ui/use-toast";
 import {
   CustomDatatable,
@@ -57,7 +57,7 @@ import { DataTableColumnHeader } from "@/components/ui/my_table_column_header";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context";
 import { deleteInvoice } from "@/reducers/invoicesReducer";
 import { Supplier } from "@/entities/Supplier";
-import SupplierService from "@/services/supplier_service";
+import SupplierService from "@/services/supplierService";
 import { addSupplier, deleteSupplier } from "@/reducers/suppliersReducer";
 import UpdateSupplierDialog from "@/components/component/update_supplier_dialog";
 

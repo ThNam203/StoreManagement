@@ -14,7 +14,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { setInvoices } from "@/reducers/invoicesReducer";
 import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
-import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import InvoiceService from "@/services/invoiceService";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -25,7 +25,11 @@ import { setReturnInvoices } from "@/reducers/returnInvoicesReducer";
 import { ReturnDatatable } from "./datatable";
 import StaffService from "@/services/staff_service";
 import { setStaffs } from "@/reducers/staffReducer";
-import { TimeFilterType, handleDateCondition, handleRangeNumFilter } from "@/utils";
+import {
+  TimeFilterType,
+  handleDateCondition,
+  handleRangeNumFilter,
+} from "@/utils";
 import { PAYMENT_METHODS } from "@/entities/Invoice";
 
 export default function ReturnPage() {
@@ -118,7 +122,10 @@ export default function ReturnPage() {
   };
 
   useEffect(() => {
-    let filteredReturnInvoices = handleRangeNumFilter(rangeConditions, returnInvoices);
+    let filteredReturnInvoices = handleRangeNumFilter(
+      rangeConditions,
+      returnInvoices,
+    );
     filteredReturnInvoices = filteredReturnInvoices.filter((invoice) => {
       if (
         !handleDateCondition(
@@ -133,7 +140,8 @@ export default function ReturnPage() {
       if (
         staffCondition.length > 0 &&
         !staffCondition.find((staff) => staff.id === invoice.staffId)
-      ) return false;
+      )
+        return false;
 
       if (
         paymentMethodCondition !== "All" &&
@@ -144,7 +152,15 @@ export default function ReturnPage() {
       return true;
     });
     setFilteredReturnInvoices(filteredReturnInvoices);
-  }, [rangeConditions, paymentMethodCondition, returnInvoices, staffCondition, timeConditions, timeRangeConditions, timeConditionControls]);
+  }, [
+    rangeConditions,
+    paymentMethodCondition,
+    returnInvoices,
+    staffCondition,
+    timeConditions,
+    timeRangeConditions,
+    timeConditionControls,
+  ]);
 
   const filters = [
     <SingleChoiceFilter

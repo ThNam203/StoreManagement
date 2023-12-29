@@ -24,7 +24,7 @@ import { useAppSelector } from "@/hooks";
 import { cn } from "@/lib/utils";
 import { addReward } from "@/reducers/shiftRewardReducer";
 import { addViolation } from "@/reducers/shiftViolationReducer";
-import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import ShiftService from "@/services/shift_service";
 import { formatNumberInput, formatPrice } from "@/utils";
 import { zodResolver } from "@hookform/resolvers/zod";

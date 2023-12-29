@@ -26,7 +26,7 @@ import DiscountService, {
   UploadDiscountDataType,
 } from "@/services/discountService";
 import { addDiscount, updateDiscount } from "@/reducers/discountsReducer";
-import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import { format, parse, toDate } from "date-fns";
 import { Button } from "../button";
 import { Discount } from "@/entities/Discount";

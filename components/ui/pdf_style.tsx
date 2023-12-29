@@ -1,6 +1,6 @@
 import { Font, StyleSheet } from "@react-pdf/renderer";
 
-export const getDefaultStylePDF = ({ numOfCols }: { numOfCols: number }) => {
+export const getDefaultStylePDF = (numOfCols: number) => {
   const styles = StyleSheet.create({
     page: {
       width: "100%",
@@ -22,7 +22,6 @@ export const getDefaultStylePDF = ({ numOfCols }: { numOfCols: number }) => {
       fontFamily: "OpenSans",
       fontSize: "24px",
     },
-
     headerContent: {
       marginTop: "5px",
     },
@@ -114,7 +113,6 @@ export const getBusinessStylePDF = ({ numOfCols }: { numOfCols: number }) => {
       fontFamily: "OpenSans",
       fontSize: "18px",
     },
-
     headerContent: {
       marginTop: "5px",
     },
