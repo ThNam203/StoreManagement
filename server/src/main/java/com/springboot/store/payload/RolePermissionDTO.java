@@ -12,5 +12,5 @@ public class RolePermissionDTO {
     private boolean read;
     private boolean update;
     private boolean delete;
-    private boolean export;
+    private Boolean export;
 }

@@ -23,6 +23,6 @@ public class RolePermission {
     private boolean update;
     @Column(name = "delete_permission", nullable = false)
     private boolean delete;
-    @Column(name = "export_permission", nullable = false)
-    private boolean export;
+    @Column(name = "export_permission" )
+    private Boolean export;
 }
