@@ -83,37 +83,38 @@ public class ReportController {
         return ResponseEntity.ok(reportService.getFinancialReport(start, end));
     }
 
-    @GetMapping("/record-of-product-sell/{date}")
-    public ResponseEntity<List<RecordOfProductSellDTO>> getAllRecordOfProductSell(@PathVariable String date) {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-        Date date1 = formatter.parse(date, new java.text.ParsePosition(0));
-        List<RecordOfProductSellDTO> recordOfProductSellDTOs = recordOfProductSellService.getAllRecordOfProductSell(date1);
+    @GetMapping("/record-of-product-sell")
+    public ResponseEntity<List<RecordOfProductSellDTO>> getAllRecordOfProductSell(@RequestParam(name = "date") @DateTimeFormat(pattern = "yyy-MM-dd") Date date) {
+        List<RecordOfProductSellDTO> recordOfProductSellDTOs = recordOfProductSellService.getAllRecordOfProductSell(date);
         return ResponseEntity.ok(recordOfProductSellDTOs);
     }
 
-    @GetMapping("/record-of-sale/{startDate}/{endDate}")
-    public ResponseEntity<List<RecordOfSaleDTO>> getAllRecordOfSale(@PathVariable String startDate, @PathVariable String endDate) {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-        Date startDate1 = formatter.parse(startDate, new java.text.ParsePosition(0));
-        Date endDate1 = formatter.parse(endDate, new java.text.ParsePosition(0));
-        List<RecordOfSaleDTO> recordOfSaleDTOs = recordOfSaleService.getAllRecordOfSale(startDate1, endDate1);
+    @GetMapping("/record-of-sale")
+    public ResponseEntity<List<RecordOfSaleDTO>> getAllRecordOfSale(
+            @RequestParam(name = "start") @DateTimeFormat(pattern = "yyyy-MM-dd") Date start,
+            @RequestParam(name = "end") @DateTimeFormat(pattern = "yyyy-MM-dd") Date end
+    ) {
+
+        List<RecordOfSaleDTO> recordOfSaleDTOs = recordOfSaleService.getAllRecordOfSale(start, end);
         return ResponseEntity.ok(recordOfSaleDTOs);
     }
 
-    @GetMapping("/record-of-product/{startDate}/{endDate}")
-    public ResponseEntity<List<RecordOfProductDTO>> getAllRecordOfProduct(@PathVariable String startDate, @PathVariable String endDate) {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-        Date startDate1 = formatter.parse(startDate, new java.text.ParsePosition(0));
-        Date endDate1 = formatter.parse(endDate, new java.text.ParsePosition(0));
-        List<RecordOfProductDTO> recordOfProductDTOs = recordOfProductService.getAllRecordOfProduct(startDate1, endDate1);
+    @GetMapping("/record-of-product")
+    public ResponseEntity<List<RecordOfProductDTO>> getAllRecordOfProduct(
+            @RequestParam(name = "start") @DateTimeFormat(pattern = "yyyy-MM-dd") Date start,
+            @RequestParam(name = "end") @DateTimeFormat(pattern = "yyyy-MM-dd") Date end
+    ) {
+
+        List<RecordOfProductDTO> recordOfProductDTOs = recordOfProductService.getAllRecordOfProduct(start, end);
         return ResponseEntity.ok(recordOfProductDTOs);
     }
 
-    @GetMapping("/record-of-supplier/{startDate}/{endDate}")
-    public ResponseEntity<?> getAllRecordOfSupplier(@PathVariable String startDate, @PathVariable String endDate) {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-        Date startDate1 = formatter.parse(startDate, new java.text.ParsePosition(0));
-        Date endDate1 = formatter.parse(endDate, new java.text.ParsePosition(0));
-        return ResponseEntity.ok(recordOfSupplierService.getAllRecordOfSupplier(startDate1, endDate1));
+    @GetMapping("/record-of-supplier")
+    public ResponseEntity<?> getAllRecordOfSupplier(
+            @RequestParam(name = "start") @DateTimeFormat(pattern = "yyyy-MM-dd") Date start,
+            @RequestParam(name = "end") @DateTimeFormat(pattern = "yyyy-MM-dd") Date end
+    ) {
+
+        return ResponseEntity.ok(recordOfSupplierService.getAllRecordOfSupplier(start, end));
     }
 }
