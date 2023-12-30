@@ -84,7 +84,7 @@ public class ReturnInvoiceServiceImpl implements ReturnInvoiceService {
         int idReceiver = -1;
         if (returnInvoice.getInvoice().getCustomer() != null)
             idReceiver = returnInvoice.getInvoice().getCustomer().getId();
-        expenseFormService.createExpenseForm("Customer", new Date(), returnInvoice.getPaymentMethod(), returnInvoice.getTotal() - returnInvoice.getReturnFee(), idReceiver, returnInvoice.getNote(), "Expense for Customer", returnInvoice.getId());
+        expenseFormService.createExpenseForm("Customer", new Date(), returnInvoice.getPaymentMethod(), returnInvoice.getTotal(), idReceiver, returnInvoice.getNote(), "Expense for Customer", returnInvoice.getId());
 
         return ReturnInvoiceMapper.toReturnInvoiceDTO(returnInvoice);
     }
