@@ -162,10 +162,11 @@ const isInRangeTime = (
   date: Date,
   range: { startDate: Date; endDate: Date },
 ) => {
-  range.startDate.setHours(0, 0, 0, 0)
-  range.endDate.setHours(23, 59, 59, 999)
+  range.startDate.setHours(0, 0, 0, 0);
+  range.endDate.setHours(23, 59, 59, 999);
 
-  if (isBefore(date, range.startDate) || isBefore(range.endDate, date)) return false;
+  if (isBefore(date, range.startDate) || isBefore(range.endDate, date))
+    return false;
   return true;
 };
 
@@ -190,7 +191,7 @@ function handleTimeFilter<T>(
     const filterKeys = Object.keys(filterControl);
     for (let key of filterKeys) {
       let value = row[key as keyof typeof row];
-      
+
       if (
         filterControl[key as keyof typeof filterControl] ===
         TimeFilterType.RangeTime
@@ -209,7 +210,7 @@ function handleTimeFilter<T>(
         if (value instanceof Date && range !== undefined && range !== null) {
           if (!isInRangeTime(value, range)) return false;
         } else {
-          console.log(value, ' is date? ', value instanceof Date)
+          console.log(value, " is date? ", value instanceof Date);
           return false;
         }
       }
@@ -219,20 +220,43 @@ function handleTimeFilter<T>(
   return filterList;
 }
 
+// get path for report api calls
+function getDateRangeFromTimeFilterCondition<T>(
+  controlCondition: TimeFilterType,
+  singleDate: FilterTime,
+  rangeDate: {
+    startDate: Date;
+    endDate: Date;
+  },
+): { startDate: Date; endDate: Date } {
+  if (controlCondition === TimeFilterType.RangeTime) {
+    return rangeDate;
+  } else {
+    if (singleDate === FilterYear.AllTime) {
+      const startDate = new Date("2000-01-01");
+      const endDate = new Date();
+      endDate.setDate(endDate.getDate() + 1);
+      return { startDate, endDate };
+    }
+    return getStaticRangeFilterTime(singleDate);
+  }
+}
+
 function handleDateCondition(
   staticRangeCondition: FilterTime,
   rangeTimeCondition: {
-        startDate: Date;
-        endDate: Date;
-    },
+    startDate: Date;
+    endDate: Date;
+  },
   filterControl: TimeFilterType,
   date: Date,
 ): boolean {
-  if (
-    filterControl ===
-    TimeFilterType.RangeTime
-  ) {
-    if (date && rangeTimeCondition !== undefined && rangeTimeCondition !== null) {
+  if (filterControl === TimeFilterType.RangeTime) {
+    if (
+      date &&
+      rangeTimeCondition !== undefined &&
+      rangeTimeCondition !== null
+    ) {
       if (!isInRangeTime(date, rangeTimeCondition)) return false;
     } else return false;
   } else {
@@ -471,18 +495,19 @@ const createRangeDate = (range: { startDate: Date; endDate: Date }): Date[] => {
 function camelToPascalWithSpaces(camelCaseStr: string) {
   // Check if the string is not empty
   if (!camelCaseStr) {
-      return camelCaseStr;
+    return camelCaseStr;
   }
 
   // Add a space before each capital letter
-  const pascalCaseWithSpaces = camelCaseStr.replace(/([A-Z])/g, ' $1');
+  const pascalCaseWithSpaces = camelCaseStr.replace(/([A-Z])/g, " $1");
 
   // Capitalize the first letter and remove leading space
-  const pascalCaseStr = pascalCaseWithSpaces.charAt(0).toUpperCase() + pascalCaseWithSpaces.slice(1).trim();
+  const pascalCaseStr =
+    pascalCaseWithSpaces.charAt(0).toUpperCase() +
+    pascalCaseWithSpaces.slice(1).trim();
 
   return pascalCaseStr;
 }
-
 
 export {
   createRangeDate,
@@ -506,5 +531,6 @@ export {
   revertID,
   handleChoiceFilters,
   handleDateCondition,
-  camelToPascalWithSpaces
+  camelToPascalWithSpaces,
+  getDateRangeFromTimeFilterCondition,
 };

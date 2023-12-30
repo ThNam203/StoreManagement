@@ -1,32 +1,46 @@
 "use client";
 
-import { PageWithFilters } from "@/components/ui/filter";
+import { FilterDay, FilterTime, PageWithFilters, TimeFilter } from "@/components/ui/filter";
 import {
   DefaultPDFContent,
   ReportPDFDownloadButton,
   ReportPDFView,
 } from "@/components/ui/pdf";
 import { useToast } from "@/components/ui/use-toast";
-import { RevenueByStaffReport, SaleProfitByDayReport } from "@/entities/Report";
+import { RevenueByStaffReport } from "@/entities/Report";
 import { useAppDispatch } from "@/hooks";
 import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
 import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import ReportService from "@/services/reportService";
+import { TimeFilterType, getDateRangeFromTimeFilterCondition } from "@/utils";
 import { useEffect, useState } from "react";
 
 export default function RevenueByStaffPage() {
   const { toast } = useToast();
   const dispatch = useAppDispatch();
   const [report, setReport] = useState<RevenueByStaffReport | null>(null);
-  const [startDate, setStartDate] = useState<Date>(new Date());
-  const [endDate, setEndDate] = useState<Date>(new Date());
+  const [reportDateRangeCondition, setReportDateRange] = useState({
+    startDate: new Date(),
+    endDate: new Date(),
+  });
+  const [reportDateSingleCondition, setReportDateSingleCondition] = useState(
+    FilterDay.Today as FilterTime,
+  );
+  const [reportDateControl, setReportDateControl] = useState<TimeFilterType>(
+    TimeFilterType.StaticRange,
+  );
+  const range = getDateRangeFromTimeFilterCondition(
+    reportDateControl,
+    reportDateSingleCondition,
+    reportDateRangeCondition,
+  );
 
   useEffect(() => {
     dispatch(showPreloader());
     const fetchReport = async () => {
       const report = await ReportService.getRevenueByStaffReport(
-        startDate,
-        endDate,
+        range.startDate,
+        range.endDate,
       );
       setReport(report.data);
     };
@@ -34,20 +48,33 @@ export default function RevenueByStaffPage() {
     fetchReport()
       .catch((err) => axiosUIErrorHandler(err, toast))
       .finally(() => dispatch(disablePreloader()));
-  }, []);
+  }, [reportDateRangeCondition, reportDateSingleCondition, reportDateControl]);
+
+  const filters = [
+    <TimeFilter
+      key={1}
+      title="Report range"
+      timeFilterControl={reportDateControl}
+      singleTimeValue={reportDateSingleCondition}
+      rangeTimeValue={reportDateRangeCondition}
+      onTimeFilterControlChanged={(value) => setReportDateControl(value)}
+      onSingleTimeFilterChanged={(value) => setReportDateSingleCondition(value)}
+      onRangeTimeFilterChanged={(value) => setReportDateRange(value)}
+    />,
+  ];
 
   const PDF = report ? (
     <DefaultPDFContent
       data={report}
-      startDate={startDate}
-      endDate={endDate}
+      startDate={range.startDate}
+      endDate={range.endDate}
       title="REVENUE BY STAFF REPORT"
       dataProperties={["staffId", "staffName", "revenueMoney", "returnMoney"]}
     />
   ) : null;
 
   return (
-    <PageWithFilters filters={[]} title="Revenue By Staff Report">
+    <PageWithFilters filters={filters} title="Revenue By Staff Report">
       <div className="flex flex-col space-y-4">
         {report ? (
           <>
