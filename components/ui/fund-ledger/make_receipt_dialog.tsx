@@ -165,7 +165,6 @@ export function MakeReceiptDialog({ data, submit, open, setOpen }: Props) {
       note: values.note ? values.note : "",
       linkFormId: -1,
     };
-    console.log("before submit", receipt);
 
     if (submit) {
       try {

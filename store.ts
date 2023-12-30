@@ -25,6 +25,7 @@ import shiftRewardReducer from "./reducers/shiftRewardReducer";
 import purchaseReturnsReducer from "./reducers/purchaseReturnsReducer";
 import staffPunishAndRewardReducer from "./reducers/staffPunishAndRewardReducer";
 import damagedItemsReducer from "./reducers/damagedItemsReducer";
+import roleReducer from "./reducers/roleReducer";
 
 const store = configureStore({
   reducer: {
@@ -54,6 +55,7 @@ const store = configureStore({
     rewards: shiftRewardReducer,
     detailPunishAndBonusList: staffPunishAndRewardReducer,
     damagedItemDocuments: damagedItemsReducer,
+    role: roleReducer,
   },
 });
 

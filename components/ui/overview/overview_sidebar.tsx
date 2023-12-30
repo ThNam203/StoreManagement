@@ -85,7 +85,7 @@ enum IconNames {
   FileBarChart2,
   Percent,
   PercentCircle,
-  BankNote
+  BankNote,
 }
 
 const LucideIcons = (iconName: IconNames, isCollapsed: boolean | null) => {
@@ -386,7 +386,7 @@ const SideBar = ({
                 title="Edit Profile"
                 className="!w-full"
                 isCollapsed={isCollapsed}
-                href="/profile"
+                href=""
               />
               <SideBarButton
                 iconName={IconNames.LogOut}

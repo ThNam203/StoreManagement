@@ -6,10 +6,17 @@ import {
   FilterWeek,
   FilterYear,
 } from "@/components/ui/filter";
-import { format, isBefore } from "date-fns";
+import { AttendanceRecord, DailyShift, Shift } from "@/entities/Attendance";
+import { BonusUnit, SalaryType } from "@/entities/SalarySetting";
+import { Staff } from "@/entities/Staff";
+import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { format } from "date-fns";
+
 import * as XLSX from "xlsx";
+import { ZodError } from "zod";
 
 const exportExcel = (data: any[], nameSheet: string, nameFile: string) => {
+  console.log("data", data);
   return new Promise((resolve, reject) => {
     var wb = XLSX.utils.book_new();
     var ws = XLSX.utils.json_to_sheet(data);
@@ -41,6 +48,7 @@ const importExcel = async (file: any) => {
       importData.push(worksheet[sheetName]);
     }
   } catch (e) {
+    console.log(e);
     return Promise.reject(e);
   }
   return Promise.resolve(importData);
@@ -77,6 +85,8 @@ function handleMultipleFilter<T>(
   return filterList;
 }
 
+function handleDateFilter(date: Date) {}
+
 function handleSingleFilter<T>(
   filter: SingleFilter,
   listToFilter: Array<T>,
@@ -84,6 +94,7 @@ function handleSingleFilter<T>(
   const filterList = listToFilter.filter((row) => {
     const filterKeys = Object.keys(filter);
     for (let key of filterKeys) {
+      console.log("value", row[key as keyof typeof row]);
       if (
         filter[key as keyof typeof filter] === null ||
         filter[key as keyof typeof filter] === undefined
@@ -97,46 +108,6 @@ function handleSingleFilter<T>(
     }
     return true;
   });
-  return filterList;
-}
-
-type FilterCondition = {
-  [key: string]: any[] | any;
-};
-
-function handleChoiceFilters<T>(
-  filter: FilterCondition,
-  listToFilter: Array<T>,
-): Array<T> {
-  const filterList = listToFilter.filter((row) => {
-    const filterKeys = Object.keys(filter);
-
-    for (let key of filterKeys) {
-      const filterValue = filter[key];
-
-      if (Array.isArray(filterValue)) {
-        // Use handleMultipleFilter for array values
-        if (
-          filterValue.length > 0 &&
-          !filterValue.includes(row[key as keyof typeof row])
-        ) {
-          return false;
-        }
-      } else {
-        // Use handleSingleFilter for non-array values
-        if (
-          filterValue !== null &&
-          filterValue !== undefined &&
-          filterValue !== row[key as keyof typeof row]
-        ) {
-          return false;
-        }
-      }
-    }
-
-    return true;
-  });
-
   return filterList;
 }
 
@@ -159,15 +130,29 @@ function handleRangeTimeFilter<T>(
 }
 
 const isInRangeTime = (
-  date: Date,
+  value: Date,
   range: { startDate: Date; endDate: Date },
 ) => {
-  range.startDate.setHours(0, 0, 0, 0)
-  range.endDate.setHours(0, 0, 0, 0)
+  let date = value as Date;
+  let startDate = range.startDate as Date;
+  let endDate = range.endDate as Date;
 
-  console.log(date, range)
+  startDate = new Date(startDate.setHours(0, 0, 0, 0));
+  endDate = new Date(endDate.setHours(0, 0, 0, 0));
 
-  if (isBefore(date, range.startDate) || isBefore(range.endDate, date)) return false;
+  const formatedDate = date.toLocaleDateString();
+  const formatedStartDate = startDate.toLocaleDateString();
+  const formatedEndDate = endDate.toLocaleDateString();
+
+  if (startDate > endDate) {
+    return false;
+  } else if (formatedStartDate === formatedEndDate) {
+    if (formatedDate !== formatedStartDate) return false;
+  } else {
+    if (formatedDate === formatedStartDate) return true;
+    if (formatedDate == formatedEndDate) return true;
+    if (date < startDate || date > endDate) return false;
+  }
   return true;
 };
 
@@ -191,18 +176,20 @@ function handleTimeFilter<T>(
   const filterList = listToFilter.filter((row) => {
     const filterKeys = Object.keys(filterControl);
     for (let key of filterKeys) {
-      let value = row[key as keyof typeof row];
-      
       if (
         filterControl[key as keyof typeof filterControl] ===
         TimeFilterType.RangeTime
       ) {
+        console.log("key", key);
+        console.log("row", row);
+        let value = row[key as keyof typeof row];
         let range = rangeTimeFilter[key as keyof typeof rangeTimeFilter];
-
+        console.log("value", value);
         if (value instanceof Date && range !== undefined && range !== null) {
           if (!isInRangeTime(value, range)) return false;
         } else return false;
       } else {
+        let value = row[key as keyof typeof row];
         let staticRange = staticRangeFilter[
           key as keyof typeof staticRangeFilter
         ] as FilterTime;
@@ -210,43 +197,12 @@ function handleTimeFilter<T>(
         if (staticRange === FilterYear.AllTime) continue;
         if (value instanceof Date && range !== undefined && range !== null) {
           if (!isInRangeTime(value, range)) return false;
-        } else {
-          console.log(value, ' is date? ', value instanceof Date)
-          return false;
-        }
+        } else return false;
       }
     }
     return true;
   });
   return filterList;
-}
-
-function handleDateCondition(
-  staticRangeCondition: FilterTime,
-  rangeTimeCondition: {
-        startDate: Date;
-        endDate: Date;
-    },
-  filterControl: TimeFilterType,
-  date: Date,
-): boolean {
-  if (
-    filterControl ===
-    TimeFilterType.RangeTime
-  ) {
-    if (date && rangeTimeCondition !== undefined && rangeTimeCondition !== null) {
-      if (!isInRangeTime(date, rangeTimeCondition)) return false;
-    } else return false;
-  } else {
-    if (staticRangeCondition === FilterYear.AllTime) return true;
-    let range = getStaticRangeFilterTime(staticRangeCondition);
-    if (range !== undefined && range !== null) {
-      if (!isInRangeTime(date, range)) return false;
-    } else {
-      return false;
-    }
-  }
-  return true;
 }
 
 function handleStaticRangeFilter<T>(
@@ -470,26 +426,57 @@ const createRangeDate = (range: { startDate: Date; endDate: Date }): Date[] => {
   return rangeDate;
 };
 
+const zodErrorHandler = (e: any, toast: any) => {
+  const error: ZodError = e;
+  const errorList = error.errors;
+  console.log("error", errorList);
+  if (errorList.length > 0) {
+    const message = errorList[0].message;
+    const code = errorList[0].code;
+    const firstMissingField = errorList[0].path[0] as string;
+    let description = "";
+    if (code === "invalid_type") {
+      if (message.toLocaleLowerCase().includes("required"))
+        description = `${capitalizeFirstLetter(firstMissingField)} is missing!`;
+      else description = "Something went wrong! Please check your input again!";
+    }
+
+    toast({
+      description: description,
+      variant: "destructive",
+    });
+  } else {
+    toast({
+      description: "Something went wrong! Please check your input again!",
+      variant: "destructive",
+    });
+  }
+};
+
+function capitalizeFirstLetter(str: string) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 export {
-  createRangeDate,
   exportExcel,
-  formatDate,
+  importExcel,
   formatID,
-  formatNumberInput,
+  revertID,
   formatPrice,
   getMinMaxOfListTime,
   getStaticRangeFilterTime,
+  isInRangeNum,
+  isInRangeTime,
   handleMultipleFilter,
   handleRangeNumFilter,
   handleRangeTimeFilter,
   handleSingleFilter,
   handleStaticRangeFilter,
   handleTimeFilter,
-  importExcel,
-  isInRangeNum,
-  isInRangeTime,
   removeCharNotANum,
-  revertID,
-  handleChoiceFilters,
-  handleDateCondition
+  formatNumberInput,
+  formatDate,
+  createRangeDate,
+  zodErrorHandler,
+  capitalizeFirstLetter,
 };

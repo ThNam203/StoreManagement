@@ -6,14 +6,12 @@ import * as z from "zod";
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 
+import CustomCombobox from "@/components/component/CustomCombobox";
 import { Button } from "@/components/ui/button";
-import { DatePicker } from "@/components/ui/datepicker";
 import {
   Form,
   FormControl,
@@ -38,18 +36,17 @@ import {
 } from "@/entities/SalarySetting";
 import { Sex, Staff } from "@/entities/Staff";
 import { useAppSelector } from "@/hooks";
-import { addPosition, deletePosition } from "@/reducers/staffPositionReducer";
+import { cn } from "@/lib/utils";
+import { addPosition } from "@/reducers/staffPositionReducer";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
 import StaffService from "@/services/staff_service";
-import { formatDate, formatNumberInput, removeCharNotANum } from "@/utils";
+import { formatNumberInput, removeCharNotANum, zodErrorHandler } from "@/utils";
+import { format } from "date-fns";
 import { Check, CircleDollarSign, Info, PlusCircle } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { ChooseImageButton } from "./choose_image";
-import CustomCombobox from "@/components/component/CustomCombobox";
-import { cn } from "@/lib/utils";
-import { format } from "date-fns";
 import { AddPositionDialog } from "./position_dialog";
 
 const OptionView = (option: string): React.ReactNode => {
@@ -108,6 +105,14 @@ const updateSchema = z.object({
   salary: z.number().min(0, { message: "Salary must be greater than 0" }),
   salaryType: z.nativeEnum(SalaryType),
 });
+export type DisableField = "email" | "password" | "position";
+export type HiddenField =
+  | "salary"
+  | "password"
+  | "note"
+  | "cccd"
+  | "phoneNumber"
+  | "email";
 
 export function AddStaffDialog({
   open,
@@ -115,12 +120,16 @@ export function AddStaffDialog({
   data,
   submit,
   title,
+  disableFields = [],
+  hiddenFields = [],
 }: {
   open: boolean;
   setOpen: (open: boolean) => void;
   data: Staff | null;
   submit: (values: Staff, avatar: File | null) => any;
   title: string;
+  disableFields?: DisableField[];
+  hiddenFields?: HiddenField[];
 }) {
   const form = useForm<z.infer<typeof createSchema>>({
     resolver: zodResolver(data ? updateSchema : createSchema),
@@ -163,6 +172,10 @@ export function AddStaffDialog({
         await submit(newStaff, staffAvatar).then(() => {
           form.reset();
           setOpen(false);
+          toast({
+            variant: "default",
+            title: "Add staff successfully",
+          });
         });
       } catch (e) {
         console.log(e);
@@ -173,8 +186,9 @@ export function AddStaffDialog({
   };
   const { toast } = useToast();
   const dispatch = useDispatch();
-  const rawPositionList = useAppSelector((state) => state.staffPositions.value);
-  const positionList = rawPositionList.map((position) => position.name);
+  const roleList = useAppSelector((state) => state.role.value);
+  const roleNames = roleList.map((role) => role.positionName);
+  console.log("roleNames", roleNames);
   const [openAddPositionDialog, setOpenAddPositionDialog] = useState(false);
   const [salarySetting, setSalarySetting] = useState<SalarySetting>({
     salary: 0,
@@ -236,19 +250,6 @@ export function AddStaffDialog({
     }
   };
 
-  const removePosition = async (name: string) => {
-    try {
-      const id: number = rawPositionList.find((pos) => pos.name === name)?.id;
-      const res = await StaffService.deletePosition(id);
-      console.log(res.data);
-      dispatch(deletePosition(id));
-      return Promise.resolve();
-    } catch (e) {
-      axiosUIErrorHandler(e, toast);
-      return Promise.reject(e);
-    }
-  };
-
   const handleAddingNewPosition = (newPosition: string) => {
     if (newPosition === "") {
       toast({
@@ -257,20 +258,23 @@ export function AddStaffDialog({
       });
       return;
     }
-    if (positionList.includes(newPosition)) {
+    if (roleNames.includes(newPosition)) {
       toast({
         variant: "destructive",
         description: "Position existed",
       });
       return;
     }
-    addNewPosition(newPosition);
-    form.setValue("position", newPosition);
-    setOpenAddPositionDialog(false);
-  };
-
-  const handleRemovePosition = (position: string) => {
-    return removePosition(position);
+    return addNewPosition(newPosition).then(() => {
+      form.setValue("position", newPosition);
+      setOpenAddPositionDialog(false);
+      toast({
+        variant: "default",
+        title: "Add new position successfully",
+        description:
+          "Please go to role setting page to set role for new position",
+      });
+    });
   };
 
   const onSalaryTypeChange = (value: string) => {
@@ -316,7 +320,12 @@ export function AddStaffDialog({
               <Tabs defaultValue="infomation">
                 <TabsList className="flex w-full flex-row items-center justify-start">
                   <TabsTrigger value="infomation">Infomation</TabsTrigger>
-                  <TabsTrigger value="salary-setting">
+                  <TabsTrigger
+                    value="salary-setting"
+                    className={cn(
+                      hiddenFields.includes("salary") ? "hidden" : "",
+                    )}
+                  >
                     Salary setting
                   </TabsTrigger>
                 </TabsList>
@@ -350,12 +359,8 @@ export function AddStaffDialog({
                         render={({ field }) => (
                           <FormItem className="mt-2">
                             <div className="flex flex-row items-center">
-                              <FormLabel className="flex w-1/3 flex-col items-start">
-                                <div className="flex flex-row items-center space-x-2">
-                                  <h5 className="text-sm">Name</h5>
-                                  <Info size={16} />
-                                </div>
-                                <FormMessage className="mr-2 text-xs" />
+                              <FormLabel className="w-1/3">
+                                <h5 className="text-sm">Name</h5>
                               </FormLabel>
                               <FormControl className="w-2/3">
                                 <Input {...field} />
@@ -372,10 +377,7 @@ export function AddStaffDialog({
                           <FormItem className="mt-2">
                             <div className="flex flex-row items-center">
                               <FormLabel className="w-1/3">
-                                <div className="flex flex-row items-center space-x-2">
-                                  <h5 className="text-sm">Birthday</h5>
-                                  <Info size={16} />
-                                </div>
+                                <h5 className="text-sm">Birthday</h5>
                               </FormLabel>
 
                               <FormControl className="w-2/3">
@@ -393,10 +395,7 @@ export function AddStaffDialog({
                           <FormItem className="mb-2 mt-6">
                             <div className="flex flex-row items-center">
                               <FormLabel className="w-1/3">
-                                <div className="flex flex-row items-center space-x-2">
-                                  <h5 className="text-sm">Sex</h5>
-                                  <Info size={16} />
-                                </div>
+                                <h5 className="text-sm">Sex</h5>
                               </FormLabel>
                               <FormControl>
                                 <RadioGroup
@@ -431,12 +430,8 @@ export function AddStaffDialog({
                         render={({ field }) => (
                           <FormItem className="mt-2">
                             <div className="flex flex-row items-center">
-                              <FormLabel className="flex w-1/3 flex-col items-start">
-                                <div className="flex flex-row items-center space-x-2">
-                                  <h5 className="text-sm">CCCD</h5>
-                                  <Info size={16} />
-                                </div>
-                                <FormMessage className="mr-2 text-xs" />
+                              <FormLabel className="w-1/3">
+                                <h5 className="text-sm">CCCD</h5>
                               </FormLabel>
 
                               <FormControl className="w-2/3">
@@ -457,22 +452,19 @@ export function AddStaffDialog({
                       <FormField
                         control={form.control}
                         name="position"
+                        disabled={disableFields.includes("position")}
                         render={({ field }) => (
                           <FormItem className="mt-2">
                             <div className="flex flex-row items-center">
-                              <FormLabel className="flex w-1/3 flex-col items-start">
-                                <div className="flex flex-row items-center space-x-2">
-                                  <h5 className="text-sm">Position</h5>
-                                  <Info size={16} />
-                                </div>
-                                <FormMessage className="mr-2 text-xs" />
+                              <FormLabel className="w-1/3">
+                                <h5 className="text-sm">Position</h5>
                               </FormLabel>
                               <FormControl className="flex-1">
                                 <CustomCombobox<string>
                                   placeholder="Select position"
                                   searchPlaceholder={"Find position..."}
                                   value={field.value}
-                                  choices={positionList}
+                                  choices={roleNames}
                                   valueView={OptionView}
                                   itemSearchView={(choice) =>
                                     OptionSearchView(choice, field.value)
@@ -502,12 +494,8 @@ export function AddStaffDialog({
                         render={({ field }) => (
                           <FormItem className="mt-2">
                             <div className="flex flex-row items-center">
-                              <FormLabel className="flex w-1/3 flex-col items-start">
-                                <div className="flex flex-row items-center space-x-2">
-                                  <h5 className="text-sm">Phone number</h5>
-                                  <Info size={16} />
-                                </div>
-                                <FormMessage className="mr-2 text-xs" />
+                              <FormLabel className="w-1/3">
+                                <h5 className="text-sm">Phone number</h5>
                               </FormLabel>
 
                               <FormControl>
@@ -526,15 +514,12 @@ export function AddStaffDialog({
                       <FormField
                         control={form.control}
                         name="email"
+                        disabled={disableFields.includes("email")}
                         render={({ field }) => (
                           <FormItem className="mt-2">
                             <div className="flex flex-row items-center">
-                              <FormLabel className="flex w-1/3 flex-col items-start">
-                                <div className="flex flex-row items-center space-x-2">
-                                  <h5 className="text-sm">Email</h5>
-                                  <Info size={16} />
-                                </div>
-                                <FormMessage className="mr-2 text-xs" />
+                              <FormLabel className="w-1/3">
+                                <h5 className="text-sm">Email</h5>
                               </FormLabel>
 
                               <FormControl className="w-2/3">
@@ -547,17 +532,14 @@ export function AddStaffDialog({
                       <FormField
                         control={form.control}
                         name="password"
+                        disabled={disableFields.includes("password")}
                         render={({ field }) => (
                           <FormItem className="mt-2">
                             <div className="flex flex-row items-center">
-                              <FormLabel className="flex w-1/3 flex-col items-start">
-                                <div className="flex flex-row items-center space-x-2">
-                                  <h5 className="text-sm">
-                                    {data ? "Update password" : "Password"}
-                                  </h5>
-                                  <Info size={16} />
-                                </div>
-                                <FormMessage className="mr-2 text-xs" />
+                              <FormLabel className="w-1/3">
+                                <h5 className="text-sm">
+                                  {data ? "Update password" : "Password"}
+                                </h5>
                               </FormLabel>
 
                               <FormControl className="w-2/3">
@@ -574,12 +556,8 @@ export function AddStaffDialog({
                         render={({ field }) => (
                           <FormItem className="mt-2">
                             <div className="flex flex-row items-center">
-                              <FormLabel className="flex w-1/3 flex-col items-start">
-                                <div className="flex flex-row items-center space-x-2">
-                                  <h5 className="text-sm">Address</h5>
-                                  <Info size={16} />
-                                </div>
-                                <FormMessage className="mr-2 text-xs" />
+                              <FormLabel className="w-1/3">
+                                <h5 className="text-sm">Address</h5>
                               </FormLabel>
 
                               <FormControl className="w-2/3">
@@ -596,10 +574,7 @@ export function AddStaffDialog({
                           <FormItem className="mt-2">
                             <div className="flex flex-row items-center">
                               <FormLabel className="w-1/3">
-                                <div className="flex flex-row items-center space-x-2">
-                                  <h5 className="text-sm">Note</h5>
-                                  <Info size={16} />
-                                </div>
+                                <h5 className="text-sm">Note</h5>
                               </FormLabel>
 
                               <FormControl className="w-2/3">
@@ -666,7 +641,6 @@ export function AddStaffDialog({
                                       <span className="w-[100px] whitespace-nowrap font-semibold">
                                         Default
                                       </span>
-                                      <FormMessage className="mr-2 text-xs" />
                                     </FormLabel>
                                     <FormControl>
                                       <div className="flex w-[250px] flex-row items-center gap-2 whitespace-nowrap">
@@ -704,7 +678,15 @@ export function AddStaffDialog({
                 <Button
                   type="submit"
                   onClick={() => {
-                    form.handleSubmit(onSubmit);
+                    try {
+                      if (data) {
+                        console.log(updateSchema.parse(form.getValues()));
+                      } else {
+                        console.log(createSchema.parse(form.getValues()));
+                      }
+                    } catch (e) {
+                      zodErrorHandler(e, toast);
+                    }
                   }}
                   variant={"green"}
                   className="mr-3"

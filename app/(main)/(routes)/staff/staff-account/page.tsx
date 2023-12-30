@@ -35,6 +35,9 @@ import ShiftService from "@/services/shift_service";
 import { convertShiftReceived } from "@/utils/shiftApiUtils";
 import { setShifts } from "@/reducers/shiftReducer";
 import { setDetailPunishAndBonusList } from "@/reducers/staffPunishAndRewardReducer";
+import RoleService from "@/services/role_service";
+import { setRoles } from "@/reducers/roleReducer";
+import { convertRoleReceived } from "@/utils/roleSettingApiUtils";
 
 export default function StaffInfoPage() {
   const dispatch = useAppDispatch();
@@ -44,8 +47,11 @@ export default function StaffInfoPage() {
     const fetchData = async () => {
       dispatch(showPreloader());
       try {
-        const resPosition = await StaffService.getAllPositions();
-        dispatch(setPositions(resPosition.data));
+        const resRole = await RoleService.getAllRoles();
+        const roleReceived = resRole.data.map((role) =>
+          convertRoleReceived(role),
+        );
+        dispatch(setRoles(roleReceived));
 
         const resStaff = await StaffService.getAllStaffs();
         const staffReceived = resStaff.data

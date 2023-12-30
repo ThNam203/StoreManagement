@@ -22,7 +22,7 @@ import { Input } from "@/components/ui/input";
 import LoadingCircle from "@/components/ui/loading_circle";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/components/ui/use-toast";
-import { RoleSetting, defaultRoleSetting } from "@/entities/RoleSetting";
+import { Role, RoleSetting, defaultRoleSetting } from "@/entities/RoleSetting";
 import { Staff } from "@/entities/Staff";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
 import { useEffect, useState } from "react";
@@ -34,38 +34,47 @@ import { ConfirmDialogType, MyConfirmDialog } from "../my_confirm_dialog";
 import { useAppSelector } from "@/hooks";
 import StaffService from "@/services/staff_service";
 import { deletePosition } from "@/reducers/staffPositionReducer";
+import { cn } from "@/lib/utils";
+import { zodErrorHandler } from "@/utils";
 
 const schema = z.object({
-  position: z.string().min(1, { message: "Position is missing" }),
+  role: z.string().min(1, { message: "Position is missing" }),
 });
 
 export function RoleSettingDialog({
   open,
   setOpen,
-  roleSetting,
-  staff,
+  role,
   submit,
   title,
 }: {
   open: boolean;
   setOpen: (open: boolean) => void;
-  roleSetting: RoleSetting | null;
-  staff: Staff;
-  submit?: (roleSetting: RoleSetting) => any;
+  role: Role;
+  submit?: (role: Role) => any;
   title: string;
 }) {
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: {
-      position: undefined,
+      role: undefined,
     },
   });
   const onSubmit = async (values: z.infer<typeof schema>) => {
+    const roleToSubmit: Role = {
+      positionId: role.positionId,
+      positionName: values.role,
+      roleSetting: _roleSetting,
+    };
     if (submit) {
       setIsLoading(true);
       try {
-        await submit(_roleSetting).then(() => {
+        await submit(roleToSubmit).then(() => {
           handleCancelDialog();
+          toast({
+            variant: "default",
+            title: "Add new role successfully",
+          });
         });
       } catch (e) {
         axiosUIErrorHandler(e, toast);
@@ -75,30 +84,21 @@ export function RoleSettingDialog({
     }
   };
   const { toast } = useToast();
-  const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(false);
-  const rawPositionList = useAppSelector((state) => state.staffPositions.value);
   const [_roleSetting, setRoleSetting] =
     useState<RoleSetting>(defaultRoleSetting);
-  const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
-  const [isRemoving, setIsRemoving] = useState(false);
-  const [contentConfirmDialog, setContentConfirmDialog] = useState({
-    title: "",
-    content: "",
-    type: "warning" as ConfirmDialogType,
-  });
 
   useEffect(() => {
-    if (open) resetValues(roleSetting);
+    if (open) resetValues(role);
   }, [open]);
 
-  const resetValues = (roleSetting: RoleSetting | null) => {
+  const resetValues = (role: Role) => {
     resetToEmptyForm();
     setIsLoading(false);
-    if (roleSetting) {
-      setRoleSetting(roleSetting);
+    if (role.positionId !== -1) {
+      setRoleSetting(role.roleSetting);
+      form.setValue("role", role.positionName);
     }
-    form.setValue("position", staff.position);
   };
 
   const resetToEmptyForm = () => {
@@ -108,24 +108,11 @@ export function RoleSettingDialog({
 
   function handleCancelDialog() {
     setOpen(false);
-    form.reset();
+    resetToEmptyForm();
   }
 
   const handleRoleSettingChange = (value: RoleSetting) => {
     setRoleSetting(value);
-  };
-
-  const removePosition = async (name: string) => {
-    try {
-      const id: number = rawPositionList.find((pos) => pos.name === name)?.id;
-      const res = await StaffService.deletePosition(id);
-      console.log(res.data);
-      dispatch(deletePosition(id));
-      return Promise.resolve();
-    } catch (e) {
-      axiosUIErrorHandler(e, toast);
-      return Promise.reject(e);
-    }
   };
 
   return (
@@ -145,7 +132,7 @@ export function RoleSettingDialog({
                 <div className="mt-2 flex w-full flex-col gap-4">
                   <FormField
                     control={form.control}
-                    name="position"
+                    name="role"
                     render={({ field }) => (
                       <FormItem className="flex flex-row items-center gap-2 space-y-0">
                         <FormLabel className="w-[100px]">
@@ -155,7 +142,7 @@ export function RoleSettingDialog({
                           <Input
                             defaultValue={field.value}
                             onChange={(e) => {
-                              form.setValue("position", e.target.value);
+                              form.setValue("role", e.target.value);
                             }}
                           />
                         </FormControl>
@@ -175,25 +162,13 @@ export function RoleSettingDialog({
 
               <div className="flex flex-row justify-end gap-2">
                 <Button
-                  variant={"red"}
-                  type="button"
-                  onClick={() => {
-                    setContentConfirmDialog({
-                      title: "Remove staff",
-                      content: `Are you sure you want to remove this role ?`,
-                      type: "warning",
-                    });
-                    setOpenConfirmDialog(true);
-                  }}
-                >
-                  <Trash size={16} className="mr-2" />
-                  Remove
-                  {isRemoving && <LoadingCircle></LoadingCircle>}
-                </Button>
-                <Button
                   type="submit"
                   onClick={() => {
-                    form.handleSubmit(onSubmit);
+                    try {
+                      schema.parse(form.getValues());
+                    } catch (e) {
+                      zodErrorHandler(e, toast);
+                    }
                   }}
                   variant={"green"}
                   disabled={isLoading}
@@ -212,27 +187,6 @@ export function RoleSettingDialog({
             </form>
           </Form>
         </div>
-        <MyConfirmDialog
-          open={openConfirmDialog}
-          setOpen={setOpenConfirmDialog}
-          title={contentConfirmDialog.title}
-          content={contentConfirmDialog.content}
-          type={contentConfirmDialog.type}
-          onAccept={async () => {
-            try {
-              setIsRemoving(true);
-              await removePosition(staff.position).then(() => {
-                handleCancelDialog();
-              });
-            } catch (e) {
-              axiosUIErrorHandler(e, toast);
-            } finally {
-              setOpenConfirmDialog(false);
-              setIsRemoving(false);
-            }
-          }}
-          onCancel={() => setOpenConfirmDialog(false)}
-        />
       </DialogContent>
     </Dialog>
   );

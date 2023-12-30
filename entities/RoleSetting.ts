@@ -1,10 +1,16 @@
+export type Role = {
+  positionId: number;
+  positionName: string;
+  roleSetting: RoleSetting;
+};
+
 export type RoleSetting = {
   overview: DefaultSetting;
   catalog: AllSetting;
   discount: DefaultSetting;
   stockCheck: DefaultSetting;
   invoice: DefaultSetting;
-  return: DefaultSetting;
+  returnInvoice: DefaultSetting;
   purchaseOrder: DefaultSetting;
   purchaseReturn: DefaultSetting;
   damageItems: DefaultSetting;
@@ -34,7 +40,7 @@ export const RoleSettingName = {
   discount: "Discount",
   stockCheck: "Stock Check",
   invoice: "Invoice",
-  return: "Return",
+  returnInvoice: "Return Invoice",
   purchaseOrder: "Purchase Order",
   purchaseReturn: "Purchase Return",
   damageItems: "Damage Items",
@@ -69,12 +75,24 @@ export const getRolePropValue = (
   return value;
 };
 
+export const isAllPropTrue = (roleSetting: RoleSetting, roleKey: string) => {
+  const role = getRoleProp(roleSetting, roleKey);
+  const keys = Object.keys(role);
+  for (const key of keys) {
+    const value = role[key as keyof typeof role];
+    if (value === false) {
+      return false;
+    }
+  }
+  return true;
+};
+
 export const getRoleSettingKeys = (roleSetting: RoleSetting) => {
   return Object.keys(roleSetting);
 };
 
 export const defaultRoleSetting: RoleSetting = {
-  attendance: {
+  overview: {
     create: false,
     read: false,
     update: false,
@@ -87,30 +105,17 @@ export const defaultRoleSetting: RoleSetting = {
     delete: false,
     export: false,
   },
-  customer: {
-    create: false,
-    read: false,
-    update: false,
-    delete: false,
-  },
-  damageItems: {
-    create: false,
-    read: false,
-    update: false,
-    delete: false,
-  },
   discount: {
     create: false,
     read: false,
     update: false,
     delete: false,
   },
-  fundLedger: {
+  stockCheck: {
     create: false,
     read: false,
     update: false,
     delete: false,
-    export: false,
   },
   invoice: {
     create: false,
@@ -118,7 +123,7 @@ export const defaultRoleSetting: RoleSetting = {
     update: false,
     delete: false,
   },
-  overview: {
+  returnInvoice: {
     create: false,
     read: false,
     update: false,
@@ -136,27 +141,20 @@ export const defaultRoleSetting: RoleSetting = {
     update: false,
     delete: false,
   },
-  report: {
+  damageItems: {
+    create: false,
+    read: false,
+    update: false,
+    delete: false,
+  },
+  fundLedger: {
     create: false,
     read: false,
     update: false,
     delete: false,
     export: false,
   },
-  return: {
-    create: false,
-    read: false,
-    update: false,
-    delete: false,
-  },
-  staff: {
-    create: false,
-    read: false,
-    update: false,
-    delete: false,
-    export: false,
-  },
-  stockCheck: {
+  customer: {
     create: false,
     read: false,
     update: false,
@@ -168,4 +166,29 @@ export const defaultRoleSetting: RoleSetting = {
     update: false,
     delete: false,
   },
+  report: {
+    create: false,
+    read: false,
+    update: false,
+    delete: false,
+    export: false,
+  },
+  staff: {
+    create: false,
+    read: false,
+    update: false,
+    delete: false,
+    export: false,
+  },
+  attendance: {
+    create: false,
+    read: false,
+    update: false,
+    delete: false,
+  },
+};
+export const defaultRole: Role = {
+  positionId: -1,
+  positionName: "",
+  roleSetting: defaultRoleSetting,
 };

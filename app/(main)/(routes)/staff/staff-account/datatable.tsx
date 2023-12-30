@@ -394,6 +394,10 @@ const StaffInfoTab = ({
     setIsRemoving(true);
     try {
       await onStaffDeleteButtonClicked(row.index);
+      toast({
+        variant: "default",
+        title: "Remove staff successfully",
+      });
       return Promise.resolve();
     } catch (e) {
       axiosUIErrorHandler(e, toast);

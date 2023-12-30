@@ -26,7 +26,7 @@ import { addReward } from "@/reducers/shiftRewardReducer";
 import { addViolation } from "@/reducers/shiftViolationReducer";
 import { axiosUIErrorHandler } from "@/services/axios_utils";
 import ShiftService from "@/services/shift_service";
-import { formatNumberInput, formatPrice } from "@/utils";
+import { formatNumberInput, formatPrice, zodErrorHandler } from "@/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { add, format } from "date-fns";
 import { Check, PlusCircle, Trash } from "lucide-react";
@@ -176,7 +176,6 @@ export function TimeKeepingDialog({
   }, [bonusList]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    console.log("get in submit");
     const newAttendanceRecord: AttendanceRecord = {
       ...attendanceRecord!,
       note: values.note,
@@ -401,6 +400,7 @@ export function TimeKeepingDialog({
                                           ? {
                                               ...punish,
                                               name: val,
+                                              times: 1,
                                               value: applyValue,
                                             }
                                           : punish,
@@ -563,6 +563,7 @@ export function TimeKeepingDialog({
                                           ? {
                                               ...reward,
                                               name: val,
+                                              times: 1,
                                               value: applyValue,
                                             }
                                           : reward,
@@ -688,8 +689,11 @@ export function TimeKeepingDialog({
                   <Button
                     type="submit"
                     onClick={() => {
-                      console.log("submit", form.getValues());
-                      form.handleSubmit(onSubmit);
+                      try {
+                        formSchema.parse(form.getValues());
+                      } catch (e) {
+                        zodErrorHandler(e, toast);
+                      }
                     }}
                     variant={"green"}
                     className="mr-3"
