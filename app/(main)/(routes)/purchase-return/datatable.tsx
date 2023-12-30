@@ -17,11 +17,14 @@ import scrollbar_style from "@/styles/scrollbar.module.css";
 import { Button } from "@/components/ui/button";
 import { PenLine, Trash } from "lucide-react";
 import LoadingCircle from "@/components/ui/loading_circle";
-import StockCheckService from "@/services/stock_check_service";
-import { axiosUIErrorHandler } from "@/services/axios_utils";
+import StockCheckService from "@/services/stockCheckService";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import { ColumnDef, Row } from "@tanstack/react-table";
 import { defaultColumn } from "@/components/ui/my_table_default_column";
-import { PurchaseReturn, PurchaseReturnDetail } from "@/entities/PurchaseReturn";
+import {
+  PurchaseReturn,
+  PurchaseReturnDetail,
+} from "@/entities/PurchaseReturn";
 import PurchaseReturnService from "@/services/purchaseReturnService";
 import { deletePurchaseReturn } from "@/reducers/purchaseReturnsReducer";
 
@@ -37,8 +40,8 @@ export function PurchaseReturnDatatable({ data }: { data: PurchaseReturn[] }) {
     dataToDelete: PurchaseReturn[],
   ): Promise<void> {
     const promises = dataToDelete.map((purchaseReturn) => {
-      return PurchaseReturnService.deletePurchaseReturn(purchaseReturn.id).then((_) =>
-        dispatch(deletePurchaseReturn(purchaseReturn.id)),
+      return PurchaseReturnService.deletePurchaseReturn(purchaseReturn.id).then(
+        (_) => dispatch(deletePurchaseReturn(purchaseReturn.id)),
       );
     });
 

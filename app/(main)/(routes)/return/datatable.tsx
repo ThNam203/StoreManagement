@@ -31,7 +31,7 @@ import { cn } from "@/lib/utils";
 import { ChevronRight, Lock, PenLine, Trash, Undo2 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import LoadingCircle from "@/components/ui/loading_circle";
-import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import { useToast } from "@/components/ui/use-toast";
 import {
   CustomDatatable,

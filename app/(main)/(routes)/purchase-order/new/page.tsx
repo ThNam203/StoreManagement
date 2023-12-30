@@ -15,7 +15,7 @@ import {
 } from "./table_columns";
 import StaffService from "@/services/staff_service";
 import { setStaffs } from "@/reducers/staffReducer";
-import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
 import { Staff } from "@/entities/Staff";
 import { Check, CheckCircle, Group, User, UserCircle } from "lucide-react";
@@ -23,7 +23,7 @@ import CustomCombobox from "@/components/component/CustomCombobox";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Supplier } from "@/entities/Supplier";
-import SupplierService from "@/services/supplier_service";
+import SupplierService from "@/services/supplierService";
 import { setSuppliers } from "@/reducers/suppliersReducer";
 import { Button } from "@/components/ui/button";
 import ProductService from "@/services/productService";

@@ -8,6 +8,7 @@ import com.springboot.store.mapper.PurchaseReturnDetailMapper;
 import com.springboot.store.mapper.PurchaseReturnMapper;
 import com.springboot.store.payload.PurchaseReturnDTO;
 import com.springboot.store.repository.*;
+import com.springboot.store.service.IncomeFormService;
 import com.springboot.store.service.PurchaseReturnService;
 import com.springboot.store.service.StaffService;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ public class PurchaseReturnServiceImpl implements PurchaseReturnService {
     private final StaffRepository staffRepository;
     private final SupplierRepository supplierRepository;
     private final ProductRepository productRepository;
+    private final IncomeFormService incomeFormService;
 
     @Override
     public PurchaseReturnDTO getPurchaseReturnById(int id) {
@@ -67,6 +69,8 @@ public class PurchaseReturnServiceImpl implements PurchaseReturnService {
             }).toList();
             purchaseReturn.setPurchaseReturnDetails(purchaseReturnDetails);
         }
+        //create IncomeForm for purchase return
+        incomeFormService.createIncomeForm("Supplier", purchaseReturn.getCreatedDate(), "Cash", purchaseReturn.getTotal(), purchaseReturn.getSupplier().getId(), purchaseReturn.getNote(), "Income from Supplier", purchaseReturn.getId());
         return PurchaseReturnMapper.toPurchaseReturnDTO(purchaseReturnRepository.save(purchaseReturn));
     }
 

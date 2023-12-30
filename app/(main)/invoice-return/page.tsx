@@ -18,7 +18,7 @@ import { faker } from "@faker-js/faker";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import InvoiceService from "@/services/invoiceService";
-import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import { useToast } from "@/components/ui/use-toast";
 import createInvoicePdf from "./createInvoicePdf";
 import LoadingCircle from "@/components/ui/loading_circle";

@@ -177,13 +177,13 @@ const SideBarButton = ({
   isCollapsed,
   href,
 }: {
-  iconName: IconNames;
+  iconName?: IconNames;
   title: string;
   className: string;
   isCollapsed: boolean | null;
   href: string;
 }) => {
-  const icon = LucideIcons(iconName, isCollapsed);
+  const icon = iconName ? LucideIcons(iconName, isCollapsed) : null;
 
   return (
     <Link
@@ -196,10 +196,11 @@ const SideBarButton = ({
         className,
       )}
     >
-      {icon!}
+      {icon}
       <p
         className={cn(
           "text-sm",
+          icon ? "" : "ml-4",
           isCollapsed == null ? "hidden lg:block" : "",
           isCollapsed == true ? "hidden" : isCollapsed == false ? "block" : "",
         )}
@@ -534,27 +535,73 @@ const SideBar = ({
           buttons={[
             <SideBarButton
               key={1}
-              iconName={IconNames.PieChart}
-              title="Daily"
+              title="Sale Transaction"
               className="!w-full"
               isCollapsed={isCollapsed}
-              href="/report/daily"
+              href="/report/sale-transaction"
             />,
             <SideBarButton
               key={2}
-              iconName={IconNames.GanttChartSquare}
-              title="Goods"
+              title="Profit By Day"
               className="!w-full"
               isCollapsed={isCollapsed}
-              href="/report/goods"
+              href="/report/sale-profit-by-day"
             />,
             <SideBarButton
               key={3}
-              iconName={IconNames.FileBarChart2}
-              title="Sales"
+              title="Revenue By Staff"
               className="!w-full"
               isCollapsed={isCollapsed}
-              href="/report/sale"
+              href="/report/revenue-by-staff"
+              />,
+              <SideBarButton
+                key={8}
+                title="Products"
+                className="!w-full"
+                isCollapsed={isCollapsed}
+                href="/report/product"
+              />,
+              <SideBarButton
+              key={4}
+              title="Top Products"
+              className="!w-full"
+              isCollapsed={isCollapsed}
+              href="/report/top-products"
+              />,
+            <SideBarButton
+              key={5}
+              title="Product Sale"
+              className="!w-full"
+              isCollapsed={isCollapsed}
+              href="/report/product-sale"
+            />,
+            <SideBarButton
+              key={6}
+              title="Sale By Day"
+              className="!w-full"
+              isCollapsed={isCollapsed}
+              href="/report/sale-by-day"
+            />,
+            <SideBarButton
+              key={7}
+              title="Customer"
+              className="!w-full"
+              isCollapsed={isCollapsed}
+              href="/report/customer"
+            />,
+            <SideBarButton
+              key={9}
+              title="Finance"
+              className="!w-full"
+              isCollapsed={isCollapsed}
+              href="/report/finance"
+            />,
+            <SideBarButton
+              key={10}
+              title="Supply Transaction"
+              className="!w-full"
+              isCollapsed={isCollapsed}
+              href="/report/supply-transaction"
             />,
           ]}
           isCollapsed={isCollapsed}

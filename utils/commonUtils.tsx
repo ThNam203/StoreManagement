@@ -162,6 +162,8 @@ function handleTimeFilter<T>(
     for (let key of filterKeys) {
       let value = row[key as keyof typeof row];
 
+      let value = row[key as keyof typeof row];
+
       if (
         filterControl[key as keyof typeof filterControl] ===
         TimeFilterType.RangeTime
@@ -187,11 +189,66 @@ function handleTimeFilter<T>(
           console.log(value, " is date? ", value instanceof Date);
           return false;
         }
+        } else {
+          console.log(value, " is date? ", value instanceof Date);
+          return false;
+        }
       }
     }
     return true;
   });
   return filterList;
+}
+
+// get path for report api calls
+function getDateRangeFromTimeFilterCondition<T>(
+  controlCondition: TimeFilterType,
+  singleDate: FilterTime,
+  rangeDate: {
+    startDate: Date;
+    endDate: Date;
+  },
+): { startDate: Date; endDate: Date } {
+  if (controlCondition === TimeFilterType.RangeTime) {
+    return rangeDate;
+  } else {
+    if (singleDate === FilterYear.AllTime) {
+      const startDate = new Date("2000-01-01");
+      const endDate = new Date();
+      endDate.setDate(endDate.getDate() + 1);
+      return { startDate, endDate };
+    }
+    return getStaticRangeFilterTime(singleDate);
+  }
+}
+
+function handleDateCondition(
+  staticRangeCondition: FilterTime,
+  rangeTimeCondition: {
+    startDate: Date;
+    endDate: Date;
+  },
+  filterControl: TimeFilterType,
+  date: Date,
+): boolean {
+  if (filterControl === TimeFilterType.RangeTime) {
+    if (
+      date &&
+      rangeTimeCondition !== undefined &&
+      rangeTimeCondition !== null
+    ) {
+      if (!isInRangeTime(date, rangeTimeCondition)) return false;
+    } else return false;
+  } else {
+    if (staticRangeCondition === FilterYear.AllTime) return true;
+    let range = getStaticRangeFilterTime(staticRangeCondition);
+    if (range !== undefined && range !== null) {
+      if (!isInRangeTime(date, range)) return false;
+    } else {
+      return false;
+    }
+  }
+  return true;
 }
 
 // get path for report api calls

@@ -32,7 +32,7 @@ import {
 import { useAppSelector } from "@/hooks";
 import { cn } from "@/lib/utils";
 import { addTransaction } from "@/reducers/transactionReducer";
-import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import TransactionService from "@/services/transaction_service";
 import {
   formatDate,

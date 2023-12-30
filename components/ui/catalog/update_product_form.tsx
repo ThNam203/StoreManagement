@@ -48,7 +48,7 @@ import { Textarea } from "../textarea";
 import ProductService from "@/services/productService";
 import { Product } from "@/entities/Product";
 import LoadingCircle from "../loading_circle";
-import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import { useAppSelector } from "@/hooks";
 
 const productFormSchema = z.object({

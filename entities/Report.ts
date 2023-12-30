@@ -1,65 +1,142 @@
-import { FormType } from "./Transaction";
-
-type Report = {
-  headerData: {
-    title: string;
-    createdDate: Date;
-    saleDate?: Date;
-    rangeDate?: { startDate: Date; endDate: Date };
-    branch: string;
-  };
-  columnHeaders: Record<string, string>;
-  contentData: Array<any>;
-};
-type BusinessReport = {
-  headerData: {
-    title: string;
-    createdDate: Date;
-    saleDate?: Date;
-    rangeDate?: { startDate: Date; endDate: Date };
-    branch: string;
-  };
-  rowHeaders: Record<string, string>;
-  contentData: Array<any>;
+export type SaleTransactionReport = {
+  invoices: SaleInvoice[];
+  returns: SaleReturn[];
 };
 
-// type ReportDataType = SaleReport | FundReport | GoodsReport;
+export type SaleInvoice = {
+  invoiceId: number;
+  date: string;
+  quantity: number;
+  total: number;
+};
 
-// type SaleReport = {
-//   transactionId: any;
-//   time: Date;
-//   quantity: number;
-//   revenue: number;
-//   otherFees: number;
-//   totalSale: number;
-// };
+export type SaleReturn = {
+  returnId: number;
+  date: string;
+  quantity: number;
+  total: number;
+};
 
-// type FundReport = {
-//   formId: any;
-//   targetName: string;
-//   formType: FormType;
-//   time: Date;
-// };
+export type SaleProfitByDayReport = {
+  date: string;
+  revenue: number;
+  costPrice: number;
+  profit: number;
+}[];
 
-// type GoodsReport = {
-//   goodsId: any;
-//   goodsName: string;
-//   sellQuantity: number;
-//   revenue: number;
-//   returnQuantity: number;
-//   returnValue: number;
-//   netRevenue: number;
-// };
+export type RevenueByStaffReport = {
+  staffId: number;
+  staffName: string;
+  revenueMoney: number;
+  returnMoney: number;
+}[];
 
-export enum DisplayType {
-  CHART = "Chart",
-  REPORT = "Report",
-}
-export enum Concern {
-  REVENUE = "Revenue",
-  PROFIT = "Profit",
-  SALE = "Sale",
-  DEBT = "Debt",
-}
+export type TopProductsReport = {
+  productId: number;
+  totalCustomer: number;
+  totalQuantity: number;
+  revenue: number;
+  totalReturn: number;
+  returnRevenue: number;
+  netRevenue: number;
+  profit: number;
+}[];
 
-export type { Report, BusinessReport };
+// record-of-product-sell
+
+export type ProductSellReport = {
+  productId: number;
+  name: string;
+  quantitySell: number;
+  quantityReturn: number;
+  totalSell: number;
+  totalReturn: number;
+  total: number;
+  listInvoice: ProductSellInvoice[];
+  listReturn: ProductSellReturn[];
+}[];
+
+export type ProductSellInvoice = {
+  date: string;
+  customerName: string;
+  quantity: number;
+  total: number;
+};
+
+export type ProductSellReturn = {
+  date: string;
+  customerName: string;
+  quantity: number;
+  total: number;
+};
+
+// record-of-product-sell END
+
+export type SaleByDayReport = {
+  date: string;
+  total: number;
+  originalPrice: number;
+  income: number;
+}[];
+
+export type CustomerReport = {
+  customerId: number | null;
+  customerName: string;
+  subTotal: number;
+  discountValue: number;
+  revenue: number;
+  returnRevenue: number;
+  netRevenue: number;
+}[];
+
+export type FinanceReport = {
+  salesRevenue: number;
+  adjustmentDiscount: number;
+  adjustmentReturn: number;
+  netRevenue: number;
+  costOfGoodsSold: number;
+  grossProfit: number;
+  salaryStaff: number;
+  bonusStaff: number;
+  penaltyStaff: number;
+  netProfit: number;
+};
+
+export type ProductReport = {
+  productId: number;
+  name: string;
+  quantitySell: number;
+  quantityReturn: number;
+  totalSell: number;
+  totalReturn: number;
+  total: number;
+}[];
+
+export type SupplyTransactionReport = {
+  supplierId: number;
+  name: string;
+  totalOfProduct: number;
+  discount: number;
+  totalPay: number;
+  totalReturn: number;
+  purchaseOrders: PurchaseOrder[];
+  purchaseReturns: PurchaseReturn[];
+};
+
+export type PurchaseOrder = {
+  id: number;
+  date: string;
+  staffName: string;
+  total: number;
+  discount: number;
+  totalPay: number;
+};
+
+export type PurchaseReturn = {
+  id: number;
+  date: string;
+  staffName: string;
+  total: number;
+  discount: number;
+  totalPay: number;
+};

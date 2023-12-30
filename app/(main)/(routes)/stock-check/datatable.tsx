@@ -16,9 +16,9 @@ import scrollbar_style from "@/styles/scrollbar.module.css";
 import { Button } from "@/components/ui/button";
 import { PenLine, Trash } from "lucide-react";
 import LoadingCircle from "@/components/ui/loading_circle";
-import StockCheckService from "@/services/stock_check_service";
+import StockCheckService from "@/services/stockCheckService";
 import { deleteStockCheck } from "@/reducers/stockChecksReducer";
-import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import { ColumnDef } from "@tanstack/react-table";
 import { defaultColumn } from "@/components/ui/my_table_default_column";
 
@@ -116,7 +116,10 @@ const DetailTab = ({
             />
             <DefaultInformationCellDataTable
               title="Creator:"
-              value={staffs.find((v) => v.id === stockCheck.creatorId)?.name ?? "NOT FOUND"}
+              value={
+                staffs.find((v) => v.id === stockCheck.creatorId)?.name ??
+                "NOT FOUND"
+              }
             />
           </div>
           <div className="flex flex-1 flex-col pr-4">

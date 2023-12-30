@@ -48,7 +48,7 @@ import { Textarea } from "../textarea";
 import ProductService from "@/services/productService";
 import { RadioGroup, RadioGroupItem } from "../radio-group";
 import { Label } from "../label";
-import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import {
   Product,
   ProductBrand,

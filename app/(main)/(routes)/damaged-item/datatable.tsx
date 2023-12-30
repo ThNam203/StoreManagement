@@ -8,7 +8,7 @@ import LoadingCircle from "@/components/ui/loading_circle";
 import { useToast } from "@/components/ui/use-toast";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { cn } from "@/lib/utils";
-import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import scrollbar_style from "@/styles/scrollbar.module.css";
 import { Row } from "@tanstack/react-table";
 import { Trash } from "lucide-react";
@@ -16,16 +16,28 @@ import { useState } from "react";
 import { DamagedItemDocument } from "@/entities/DamagedItemDocument";
 import DamagedItemService from "@/services/damagedItemService";
 import { deleteDamagedItemDocument } from "@/reducers/damagedItemsReducer";
-import { damagedItemDocumentColumnTitles, damagedItemDocumentColumnVisibilityState, damagedItemDocumentColumns, damagedItemDocumentDetailColumnTitles, damagedItemDocumentDetailTableColumns } from "./table_columns";
+import {
+  damagedItemDocumentColumnTitles,
+  damagedItemDocumentColumnVisibilityState,
+  damagedItemDocumentColumns,
+  damagedItemDocumentDetailColumnTitles,
+  damagedItemDocumentDetailTableColumns,
+} from "./table_columns";
 
-export function DamagedItemsDatatable({ data }: { data: DamagedItemDocument[] }) {
+export function DamagedItemsDatatable({
+  data,
+}: {
+  data: DamagedItemDocument[];
+}) {
   const { toast } = useToast();
   const dispatch = useAppDispatch();
   async function deleteDamagedItemDocuments(
     dataToDelete: DamagedItemDocument[],
   ): Promise<void> {
     const promises = dataToDelete.map((damagedItemDocument) => {
-      return DamagedItemService.deleteDamagedItemDocument(damagedItemDocument.id).then((_) =>
+      return DamagedItemService.deleteDamagedItemDocument(
+        damagedItemDocument.id,
+      ).then((_) =>
         dispatch(deleteDamagedItemDocument(damagedItemDocument.id)),
       );
     });
@@ -91,7 +103,7 @@ const DetailTab = ({
   const [disableDeleteButton, setDisableDeleteButton] = useState(false);
   const dispatch = useAppDispatch();
   const { toast } = useToast();
-  const staffs = useAppSelector((state) => state.staffs.value)
+  const staffs = useAppSelector((state) => state.staffs.value);
 
   return (
     <>
@@ -108,7 +120,10 @@ const DetailTab = ({
             />
             <DefaultInformationCellDataTable
               title="Creator:"
-              value={staffs.find(v => v.id === document.creatorId)?.name ?? "NOT FOUND"}
+              value={
+                staffs.find((v) => v.id === document.creatorId)?.name ??
+                "NOT FOUND"
+              }
             />
           </div>
           <div className="flex flex-1 flex-col pr-4">

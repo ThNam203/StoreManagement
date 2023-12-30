@@ -21,7 +21,7 @@ import {
   setProducts,
   updateProduct,
 } from "@/reducers/productsReducer";
-import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import ProductService from "@/services/productService";
 import {
   handleChoiceFilters,
@@ -194,13 +194,13 @@ export default function Catalog() {
       if (stockLevelCondition === "Available in inventory")
         return product.stock > 0;
       if (stockLevelCondition === "Out of stock") return product.stock === 0;
-    })
+    });
 
     filteredList = filteredList.filter((product) => {
       if (statusCondition === "All") return true;
       if (statusCondition === product.status) return true;
       return false;
-    })
+    });
 
     setFilteredProducts([...filteredList]);
   }, [filterConditions, products, statusCondition, stockLevelCondition]);
@@ -248,7 +248,7 @@ export default function Catalog() {
       value={statusCondition}
       onValueChanged={setStatusCondition}
       className="mb-2"
-    />
+    />,
   ];
 
   const NewProductButton = () => {

@@ -11,9 +11,14 @@ import { useToast } from "@/components/ui/use-toast";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
 import { setStockChecks } from "@/reducers/stockChecksReducer";
-import { axiosUIErrorHandler } from "@/services/axios_utils";
-import StockCheckService from "@/services/stock_check_service";
-import { TimeFilterType, handleDateCondition, handleRangeNumFilter, handleTimeFilter } from "@/utils";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
+import StockCheckService from "@/services/stockCheckService";
+import {
+  TimeFilterType,
+  handleDateCondition,
+  handleRangeNumFilter,
+  handleTimeFilter,
+} from "@/utils";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { StockCheckDatatable } from "./datatable";
@@ -156,7 +161,10 @@ export default function StockCheck() {
       timeConditionControls,
       filteredStockChecks,
     );
-    filteredStockChecks = handleRangeNumFilter(rangeConditions, filteredStockChecks)
+    filteredStockChecks = handleRangeNumFilter(
+      rangeConditions,
+      filteredStockChecks,
+    );
     filteredStockChecks = filteredStockChecks.filter((stockCheck) => {
       if (
         !handleDateCondition(
@@ -169,9 +177,15 @@ export default function StockCheck() {
         return false;
 
       return true;
-    })
+    });
     setFilteredStockChecks(filteredStockChecks);
-  }, [timeConditions, timeRangeConditions, timeConditionControls, stockChecks, rangeConditions]);
+  }, [
+    timeConditions,
+    timeRangeConditions,
+    timeConditionControls,
+    stockChecks,
+    rangeConditions,
+  ]);
 
   const filters = [
     <TimeFilter
@@ -212,7 +226,7 @@ export default function StockCheck() {
       className="mb-2"
       range={rangeConditions.totalValueDifference}
       onValuesChanged={updateTotalValueDifferenceRangeCondition}
-      />,
+    />,
   ];
 
   return (
