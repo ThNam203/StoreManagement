@@ -38,7 +38,6 @@ import { Sex, Staff } from "@/entities/Staff";
 import { useAppSelector } from "@/hooks";
 import { cn } from "@/lib/utils";
 import { addPosition } from "@/reducers/staffPositionReducer";
-import { axiosUIErrorHandler } from "@/services/axios_utils";
 import StaffService from "@/services/staff_service";
 import { formatNumberInput, removeCharNotANum, zodErrorHandler } from "@/utils";
 import { format } from "date-fns";
@@ -48,6 +47,7 @@ import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { ChooseImageButton } from "./choose_image";
 import { AddPositionDialog } from "./position_dialog";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
 
 const OptionView = (option: string): React.ReactNode => {
   return <p className="whitespace-nowrap text-xs">{option}</p>;
