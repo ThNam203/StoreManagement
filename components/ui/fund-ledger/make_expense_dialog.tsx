@@ -37,7 +37,7 @@ import {
 } from "@/entities/Transaction";
 import { cn } from "@/lib/utils";
 import { addStranger } from "@/reducers/transactionStrangerReducer";
-import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import TransactionService from "@/services/transaction_service";
 import { formatNumberInput } from "@/utils";
 import {

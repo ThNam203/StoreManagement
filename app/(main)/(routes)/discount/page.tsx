@@ -1,5 +1,13 @@
 "use client";
-import { FilterTime, FilterYear, PageWithFilters, RangeFilter, SearchFilterObject, SingleChoiceFilter, TimeFilter } from "@/components/ui/filter";
+import {
+  FilterTime,
+  FilterYear,
+  PageWithFilters,
+  RangeFilter,
+  SearchFilterObject,
+  SingleChoiceFilter,
+  TimeFilter,
+} from "@/components/ui/filter";
 import React, { useEffect, useState } from "react";
 import { DiscountDatatable } from "./datatable";
 import { Button } from "@/components/ui/button";
@@ -11,17 +19,21 @@ import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
 import DiscountService from "@/services/discountService";
 import { setDiscounts } from "@/reducers/discountsReducer";
 import { da } from "date-fns/locale";
-import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import { useToast } from "@/components/ui/use-toast";
 import ProductService from "@/services/productService";
 import { setProducts } from "@/reducers/productsReducer";
 import { setGroups } from "@/reducers/productGroupsReducer";
 import StaffService from "@/services/staff_service";
 import { setStaffs } from "@/reducers/staffReducer";
-import { TimeFilterType, handleDateCondition, handleRangeNumFilter } from "@/utils";
+import {
+  TimeFilterType,
+  handleDateCondition,
+  handleRangeNumFilter,
+} from "@/utils";
 
-const DISCOUNT_TYPES = ["Voucher", "Coupon", "All"]
-const DISCOUNT_STATUSES = ["Activating", "Disabled", "All"]
+const DISCOUNT_TYPES = ["Voucher", "Coupon", "All"];
+const DISCOUNT_STATUSES = ["Activating", "Disabled", "All"];
 
 export default function DiscountPage() {
   const discounts = useAppSelector((state) => state.discounts.value);
@@ -100,7 +112,7 @@ export default function DiscountPage() {
 
   const updateCreatedAtConditionControl = (value: TimeFilterType) => {
     setTimeConditionControls({ ...timeConditionControls, createdAt: value });
-  }
+  };
 
   useEffect(() => {
     // let filteredCustomers = handleChoiceFilters(filterConditions, customers);
@@ -118,9 +130,7 @@ export default function DiscountPage() {
 
       if (creatorCondition.length > 0) {
         if (
-          !creatorCondition.some(
-            (creator) => creator.id === discount.creatorId,
-          )
+          !creatorCondition.some((creator) => creator.id === discount.creatorId)
         ) {
           return false;
         }
@@ -133,16 +143,31 @@ export default function DiscountPage() {
       }
 
       if (statusCondition !== "All") {
-        if ((discount.status && statusCondition === "Disabled") || (!discount.status && statusCondition === "Activating")) {
+        if (
+          (discount.status && statusCondition === "Disabled") ||
+          (!discount.status && statusCondition === "Activating")
+        ) {
           return false;
         }
       }
-      
+
       return true;
     });
-    filteredDiscounts = handleRangeNumFilter(valueRangeConditions, filteredDiscounts)
+    filteredDiscounts = handleRangeNumFilter(
+      valueRangeConditions,
+      filteredDiscounts,
+    );
     setFilteredDiscounts(filteredDiscounts);
-  }, [timeConditions, timeRangeConditions, creatorCondition, discounts, typeCondition, valueRangeConditions, statusCondition, timeConditionControls]);
+  }, [
+    timeConditions,
+    timeRangeConditions,
+    creatorCondition,
+    discounts,
+    typeCondition,
+    valueRangeConditions,
+    statusCondition,
+    timeConditionControls,
+  ]);
 
   const filters = [
     <TimeFilter
@@ -195,7 +220,9 @@ export default function DiscountPage() {
       key={5}
       title="Value"
       range={valueRangeConditions.value}
-      onValuesChanged={(value) => setValueRangeConditions((prev) => ({ ...prev, value: value }))}
+      onValuesChanged={(value) =>
+        setValueRangeConditions((prev) => ({ ...prev, value: value }))
+      }
       className="mb-2"
     />,
     <SingleChoiceFilter
@@ -205,8 +232,8 @@ export default function DiscountPage() {
       value={statusCondition}
       onValueChanged={(value) => setStatusCondition(value)}
       className="mb-2"
-    />
-  ]
+    />,
+  ];
 
   return (
     <PageWithFilters

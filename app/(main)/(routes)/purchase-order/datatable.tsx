@@ -17,8 +17,8 @@ import scrollbar_style from "@/styles/scrollbar.module.css";
 import { Button } from "@/components/ui/button";
 import { PenLine, Trash } from "lucide-react";
 import LoadingCircle from "@/components/ui/loading_circle";
-import StockCheckService from "@/services/stock_check_service";
-import { axiosUIErrorHandler } from "@/services/axios_utils";
+import StockCheckService from "@/services/stockCheckService";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import { ColumnDef, Row } from "@tanstack/react-table";
 import { defaultColumn } from "@/components/ui/my_table_default_column";
 import { PurchaseOrder, PurchaseOrderDetail } from "@/entities/PurchaseOrder";
@@ -37,8 +37,8 @@ export function PurchaseOrderDatatable({ data }: { data: PurchaseOrder[] }) {
     dataToDelete: PurchaseOrder[],
   ): Promise<void> {
     const promises = dataToDelete.map((purchaseOrder) => {
-      return PurchaseOrderService.deletePurchaseOrder(purchaseOrder.id).then((_) =>
-        dispatch(deletePurchaseOrder(purchaseOrder.id)),
+      return PurchaseOrderService.deletePurchaseOrder(purchaseOrder.id).then(
+        (_) => dispatch(deletePurchaseOrder(purchaseOrder.id)),
       );
     });
 

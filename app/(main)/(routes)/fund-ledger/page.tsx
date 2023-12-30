@@ -29,7 +29,7 @@ import {
   setTransactions,
 } from "@/reducers/transactionReducer";
 import { setStrangers } from "@/reducers/transactionStrangerReducer";
-import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import StaffService from "@/services/staff_service";
 import TransactionService from "@/services/transaction_service";
 import {
@@ -134,7 +134,7 @@ export default function SalesPage() {
       return Promise.reject();
     }
   };
-  
+
   const addReceiptForm = async (value: Transaction) => {
     try {
       const convertedToSent = convertReceiptFormToSent(value);

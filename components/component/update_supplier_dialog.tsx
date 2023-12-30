@@ -27,10 +27,10 @@ import {
 } from "../ui/alert-dialog";
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/hooks";
-import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import { useToast } from "../ui/use-toast";
 import AddNewThing from "../ui/add_new_thing_dialog";
-import SupplierService from "@/services/supplier_service";
+import SupplierService from "@/services/supplierService";
 import { addSupplierGroup } from "@/reducers/supplierGroupsReducer";
 import { addSupplier, updateSupplier } from "@/reducers/suppliersReducer";
 import { Supplier } from "@/entities/Supplier";

@@ -17,7 +17,7 @@ import {
   updateDailyShifts,
   updateShift,
 } from "@/reducers/shiftReducer";
-import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import ShiftService from "@/services/shift_service";
 import { getStaticRangeFilterTime } from "@/utils";
 import {

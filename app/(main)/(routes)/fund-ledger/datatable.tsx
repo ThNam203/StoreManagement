@@ -26,7 +26,7 @@ import {
 import LoadingCircle from "@/components/ui/loading_circle";
 import TransactionService from "@/services/transaction_service";
 import { deleteTransaction } from "@/reducers/transactionReducer";
-import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
 
 type Props = {
   data: Transaction[];

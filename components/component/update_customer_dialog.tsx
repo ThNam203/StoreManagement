@@ -29,7 +29,7 @@ import { useEffect, useState } from "react";
 import CustomerService from "@/services/customerService";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { addCustomer, updateCustomer } from "@/reducers/customersReducer";
-import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import { useToast } from "../ui/use-toast";
 import AddNewThing from "../ui/add_new_thing_dialog";
 import { addCustomerGroup } from "@/reducers/customerGroupsReducer";

@@ -14,13 +14,17 @@ import { useToast } from "@/components/ui/use-toast";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { setInvoices } from "@/reducers/invoicesReducer";
 import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
-import { axiosUIErrorHandler } from "@/services/axios_utils";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import InvoiceService from "@/services/invoiceService";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { InvoiceDatatable } from "./datatable";
-import { TimeFilterType, handleDateCondition, handleRangeNumFilter } from "@/utils";
+import {
+  TimeFilterType,
+  handleDateCondition,
+  handleRangeNumFilter,
+} from "@/utils";
 import StaffService from "@/services/staff_service";
 import { setStaffs } from "@/reducers/staffReducer";
 import CustomerService from "@/services/customerService";
@@ -133,7 +137,9 @@ export default function InvoicePage() {
 
       if (
         customerCondition.length > 0 &&
-        !customerCondition.some((customer) => customer.id === invoice.customerId)
+        !customerCondition.some(
+          (customer) => customer.id === invoice.customerId,
+        )
       ) {
         return false;
       }
@@ -154,7 +160,13 @@ export default function InvoicePage() {
       return true;
     });
     setFilteredInvoices(filteredInvoices);
-  }, [rangeConditions, paymentMethodConditions, invoices, customerCondition, staffCondition]);
+  }, [
+    rangeConditions,
+    paymentMethodConditions,
+    invoices,
+    customerCondition,
+    staffCondition,
+  ]);
 
   const filters = [
     <SingleChoiceFilter
