@@ -9,6 +9,7 @@ import com.springboot.store.payload.CustomerDTO;
 import com.springboot.store.repository.CustomerGroupRepository;
 import com.springboot.store.repository.CustomerRepository;
 import com.springboot.store.repository.StaffRepository;
+import com.springboot.store.service.ActivityLogService;
 import com.springboot.store.service.CustomerService;
 import com.springboot.store.service.FileService;
 import com.springboot.store.service.StaffService;
@@ -29,6 +30,7 @@ public class CustomerServiceImpl implements CustomerService {
     private final CustomerGroupRepository customerGroupRepository;
     private final StaffRepository staffRepository;
     private final StaffService staffService;
+    private final ActivityLogService activityLogService;
 
     @Override
     public List<CustomerDTO> getAllCustomers() {
@@ -65,6 +67,7 @@ public class CustomerServiceImpl implements CustomerService {
         customer.setCreator(staff);
         customer.setStore(staff.getStore());
         customer = customerRepository.save(customer);
+        activityLogService.save("created a customer with id " + customer.getId(), staff.getId(), new Date());
         return CustomerMapper.toCustomerDTO(customer);
     }
 
@@ -102,7 +105,7 @@ public class CustomerServiceImpl implements CustomerService {
         customer.setSex(customerDTO.getSex());
         customer.setStatus(customerDTO.getStatus());
         customer = customerRepository.save(customer);
-
+        activityLogService.save("updated a customer with id " + customer.getId(), staff.getId(), new Date());
         return CustomerMapper.toCustomerDTO(customer);
     }
 
@@ -114,6 +117,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public void deleteCustomer(int id) {
+        activityLogService.save("deleted a customer with id " + id, staffService.getAuthorizedStaff().getId(), new Date());
         customerRepository.deleteById(id);
     }
 }

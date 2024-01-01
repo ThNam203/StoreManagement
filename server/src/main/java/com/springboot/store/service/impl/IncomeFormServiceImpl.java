@@ -5,6 +5,7 @@ import com.springboot.store.entity.Staff;
 import com.springboot.store.exception.CustomException;
 import com.springboot.store.payload.IncomeFormDTO;
 import com.springboot.store.repository.*;
+import com.springboot.store.service.ActivityLogService;
 import com.springboot.store.service.IncomeFormService;
 import com.springboot.store.service.StaffService;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ public class IncomeFormServiceImpl implements IncomeFormService {
     private final CustomerRepository customerRepository;
     private final StaffService staffService;
     private final ModelMapper modelMapper;
+    private final ActivityLogService activityLogService;
 
     @Override
     public IncomeFormDTO getIncomeFormById(int id) {
@@ -105,6 +107,7 @@ public class IncomeFormServiceImpl implements IncomeFormService {
             case "Supplier" ->
                     incomeFormDTO.setPayerName(supplierRepository.findById(incomeFormDTO.getIdPayer()).orElseThrow().getName());
         }
+        activityLogService.save("updated an income form with id: " + id, staffService.getAuthorizedStaff().getId(), new Date());
         return incomeFormDTO;
     }
 
@@ -139,6 +142,7 @@ public class IncomeFormServiceImpl implements IncomeFormService {
             case "Supplier" ->
                     incomeFormDTO.setPayerName(supplierRepository.findById(incomeFormDTO.getIdPayer()).orElseThrow().getName());
         }
+        activityLogService.save("created an income form with id " + incomeFormDTO.getId(), staffService.getAuthorizedStaff().getId(), new Date());
         return incomeFormDTO;
     }
 
@@ -150,6 +154,7 @@ public class IncomeFormServiceImpl implements IncomeFormService {
             throw new CustomException("This income form cannot delete because it is linked to another form", HttpStatus.BAD_REQUEST);
         }
         incomeFormRepository.delete(incomeForm);
+        activityLogService.save("deleted an income form with id " + id, staffService.getAuthorizedStaff().getId(), new Date());
     }
 
     @Override
@@ -168,5 +173,6 @@ public class IncomeFormServiceImpl implements IncomeFormService {
         incomeForm.setCreator(staff);
         incomeForm.setStore(staff.getStore());
         incomeFormRepository.save(incomeForm);
+        activityLogService.save("created an income form with id " + incomeForm.getId(), staffService.getAuthorizedStaff().getId(), new Date());
     }
 }

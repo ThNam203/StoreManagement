@@ -8,12 +8,14 @@ import com.springboot.store.mapper.DamagedItemMapper;
 import com.springboot.store.payload.DamagedItemDTO;
 import com.springboot.store.repository.DamagedItemRepository;
 import com.springboot.store.repository.ProductRepository;
+import com.springboot.store.service.ActivityLogService;
 import com.springboot.store.service.DamagedItemService;
 import com.springboot.store.service.StaffService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -22,6 +24,8 @@ public class DamagedItemServiceImpl implements DamagedItemService {
     private final DamagedItemRepository damagedItemRepository;
     private final ProductRepository productRepository;
     private final StaffService staffService;
+    private final ActivityLogService activityLogService;
+
     @Override
     public List<DamagedItemDTO> getAllDamagedItems() {
         int storeId = staffService.getAuthorizedStaff().getStore().getId();
@@ -50,8 +54,9 @@ public class DamagedItemServiceImpl implements DamagedItemService {
                 return damagedItemDetail;
             }).toList());
         }
-
-        return DamagedItemMapper.toDamagedItemDTO(damagedItemRepository.save(damagedItem));
+        DamagedItemDTO damagedItemDTO1 = DamagedItemMapper.toDamagedItemDTO(damagedItemRepository.save(damagedItem));
+        activityLogService.save("created a damaged item with id " + damagedItemDTO1.getId(), staffService.getAuthorizedStaff().getId(), new Date());
+        return damagedItemDTO1;
     }
 
     @Override
@@ -69,8 +74,10 @@ public class DamagedItemServiceImpl implements DamagedItemService {
                 return damagedItemDetail;
             }).toList());
         }
+        DamagedItemDTO damagedItemDTO1 = DamagedItemMapper.toDamagedItemDTO(damagedItemRepository.save(damagedItem));
+        activityLogService.save("updated a damaged item with id " + damagedItemDTO1.getId(), staffService.getAuthorizedStaff().getId(), new Date());
 
-        return DamagedItemMapper.toDamagedItemDTO(damagedItemRepository.save(damagedItem));
+        return damagedItemDTO1;
 
     }
 
@@ -78,5 +85,6 @@ public class DamagedItemServiceImpl implements DamagedItemService {
     public void deleteDamagedItem(int id) {
         DamagedItem damagedItem = damagedItemRepository.findById(id).orElseThrow(() -> new CustomException("Damaged item not found", HttpStatus.NOT_FOUND));
         damagedItemRepository.delete(damagedItem);
+        activityLogService.save("deleted a damaged item with id " + id, staffService.getAuthorizedStaff().getId(), new Date());
     }
 }

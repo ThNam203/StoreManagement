@@ -9,6 +9,7 @@ import com.springboot.store.payload.SupplierDTO;
 import com.springboot.store.repository.MediaRepository;
 import com.springboot.store.repository.SupplierGroupRepository;
 import com.springboot.store.repository.SupplierRepository;
+import com.springboot.store.service.ActivityLogService;
 import com.springboot.store.service.FileService;
 import com.springboot.store.service.StaffService;
 import com.springboot.store.service.SupplierService;
@@ -28,6 +29,8 @@ public class SupplierServiceImpl implements SupplierService {
     private final MediaRepository mediaRepository;
     private final FileService fileService;
     private final StaffService staffService;
+    private final ActivityLogService activityLogService;
+
     @Override
     public List<SupplierDTO> getAllSuppliers() {
         int storeId = staffService.getAuthorizedStaff().getStore().getId();
@@ -67,8 +70,9 @@ public class SupplierServiceImpl implements SupplierService {
             avatar = mediaRepository.save(avatar);
             supplier.setImage(avatar);
         }
-
-        return SupplierMapper.toSupplierDTO(supplierRepository.save(supplier));
+        SupplierDTO supplierDTO1 = SupplierMapper.toSupplierDTO(supplierRepository.save(supplier));
+        activityLogService.save("created a supplier with id " + supplierDTO1.getId(), creator.getId(), new Date());
+        return supplierDTO1;
     }
 
     @Override
@@ -103,13 +107,15 @@ public class SupplierServiceImpl implements SupplierService {
             avatar = mediaRepository.save(avatar);
             supplier.setImage(avatar);
         }
-
-        return SupplierMapper.toSupplierDTO(supplierRepository.save(supplier));
+        SupplierDTO supplierDTO1 = SupplierMapper.toSupplierDTO(supplierRepository.save(supplier));
+        activityLogService.save("updated a supplier with id " + supplierDTO1.getId(), creator.getId(), new Date());
+        return supplierDTO1;
     }
 
     @Override
     public void deleteSupplier(int id) {
         Supplier supplier = supplierRepository.findById(id).orElseThrow(() -> new CustomException("Supplier not found", HttpStatus.NOT_FOUND));
         supplierRepository.delete(supplier);
+        activityLogService.save("deleted a supplier with id " + id, staffService.getAuthorizedStaff().getId(), new Date());
     }
 }
