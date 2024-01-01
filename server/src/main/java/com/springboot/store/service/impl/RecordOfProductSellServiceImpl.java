@@ -25,10 +25,11 @@ public class RecordOfProductSellServiceImpl implements RecordOfProductSellServic
     private final StaffService staffService;
 
     @Override
-    public List<RecordOfProductSellDTO> getAllRecordOfProductSell(Date date) {
+    public List<RecordOfProductSellDTO> getAllRecordOfProductSell(Date startDate, Date endDate) {
+        endDate = new Date(endDate.getTime() + 86400000);
         int storeId = staffService.getAuthorizedStaff().getStore().getId();
-        List<Invoice> invoices = invoiceRepository.findByStoreIdAndDate(storeId, date);
-        List<ReturnInvoice> returnInvoices = returnInvoiceRepository.findByStoreIdAndDate(storeId, date);
+        List<Invoice> invoices = invoiceRepository.findByCreatedAtBetween(startDate, endDate, storeId);
+        List<ReturnInvoice> returnInvoices = returnInvoiceRepository.findByCreatedAtBetween(startDate, endDate, storeId);
         //create new map to store all product
         Map<Integer, Product> productMap = productService.getAllProductMap();
         //Get all product and store in map

@@ -6,5 +6,5 @@ import java.util.Date;
 import java.util.List;
 
 public interface RecordOfProductSellService {
-    List<RecordOfProductSellDTO> getAllRecordOfProductSell(Date date);
+    List<RecordOfProductSellDTO> getAllRecordOfProductSell(Date startDate, Date endDate);
 }
