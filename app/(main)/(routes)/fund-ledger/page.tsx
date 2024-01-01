@@ -122,6 +122,7 @@ export default function SalesPage() {
   }, []);
 
   const addExpenseForm = async (value: Transaction) => {
+    console.log("add expense form");
     try {
       const convertedToSent = convertExpenseFormToSent(value);
       const res =
@@ -140,6 +141,38 @@ export default function SalesPage() {
       const convertedToSent = convertReceiptFormToSent(value);
       const res =
         await TransactionService.createNewReceiptForm(convertedToSent);
+      const receipt = convertReceiptFormReceived(res.data);
+      dispatch(addTransaction(receipt));
+      return Promise.resolve();
+    } catch (e) {
+      axiosUIErrorHandler(e, toast);
+      return Promise.reject();
+    }
+  };
+
+  const updateExpenseForm = async (value: Transaction) => {
+    try {
+      const convertedToSent = convertExpenseFormToSent(value);
+      const res = await TransactionService.updateExpenseForm(
+        convertedToSent.id,
+        convertedToSent,
+      );
+      const expense = convertExpenseFormReceived(res.data);
+      dispatch(addTransaction(expense));
+      return Promise.resolve();
+    } catch (e) {
+      axiosUIErrorHandler(e, toast);
+      return Promise.reject();
+    }
+  };
+
+  const updateReceiptForm = async (value: Transaction) => {
+    try {
+      const convertedToSent = convertReceiptFormToSent(value);
+      const res = await TransactionService.updateReceiptForm(
+        convertedToSent.id,
+        convertedToSent,
+      );
       const receipt = convertReceiptFormReceived(res.data);
       dispatch(addTransaction(receipt));
       return Promise.resolve();
@@ -174,8 +207,13 @@ export default function SalesPage() {
 
   //function
   function handleFormSubmit(value: Transaction) {
-    if (value.formType === FormType.EXPENSE) return addExpenseForm(value);
-    return addReceiptForm(value);
+    if (value.id === -1) {
+      if (value.formType === FormType.EXPENSE) return addExpenseForm(value);
+      return addReceiptForm(value);
+    } else {
+      if (value.formType === FormType.EXPENSE) return updateExpenseForm(value);
+      return updateReceiptForm(value);
+    }
   }
 
   const updateTimeRangeTimeFilter = (range: {

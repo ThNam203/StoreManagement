@@ -4,7 +4,7 @@ import {
   Stranger,
   Transaction,
 } from "@/entities/Transaction";
-import { formatID } from ".";
+import { formatID, revertID } from ".";
 
 const convertStrangerToSent = (value: Stranger) => {
   const converted = {
@@ -32,6 +32,7 @@ const convertStrangerReceived = (value: any) => {
 
 const convertExpenseFormToSent = (value: Transaction) => {
   const converted = {
+    id: value.id !== -1 ? revertID(value.id, "EF") : -1,
     receiverType: value.targetType,
     expenseType: value.transactionType,
     value: value.value,
@@ -44,6 +45,8 @@ const convertExpenseFormToSent = (value: Transaction) => {
   console.log("sent", converted);
   return converted;
 };
+
+// add reducer update transaction
 
 const convertExpenseFormReceived = (value: any) => {
   const converted: Transaction = {
@@ -67,7 +70,9 @@ const convertExpenseFormReceived = (value: any) => {
 };
 
 const convertReceiptFormToSent = (value: Transaction) => {
+  console.log("value before convert", value);
   const converted = {
+    id: value.id !== -1 ? revertID(value.id, "RF") : -1,
     payerType: value.targetType,
     incomeType: value.transactionType,
     value: value.value,

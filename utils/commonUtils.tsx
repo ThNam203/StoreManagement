@@ -244,6 +244,46 @@ function handleDateCondition(
   return true;
 }
 
+type FilterCondition = {
+  [key: string]: any[] | any;
+};
+
+function handleChoiceFilters<T>(
+  filter: FilterCondition,
+  listToFilter: Array<T>,
+): Array<T> {
+  const filterList = listToFilter.filter((row) => {
+    const filterKeys = Object.keys(filter);
+
+    for (let key of filterKeys) {
+      const filterValue = filter[key];
+
+      if (Array.isArray(filterValue)) {
+        // Use handleMultipleFilter for array values
+        if (
+          filterValue.length > 0 &&
+          !filterValue.includes(row[key as keyof typeof row])
+        ) {
+          return false;
+        }
+      } else {
+        // Use handleSingleFilter for non-array values
+        if (
+          filterValue !== null &&
+          filterValue !== undefined &&
+          filterValue !== row[key as keyof typeof row]
+        ) {
+          return false;
+        }
+      }
+    }
+
+    return true;
+  });
+
+  return filterList;
+}
+
 function handleStaticRangeFilter<T>(
   filter: StaticRangeFilter,
   listToFilter: Array<T>,
@@ -523,6 +563,7 @@ export {
   isInRangeNum,
   isInRangeTime,
   handleMultipleFilter,
+  handleChoiceFilters,
   handleRangeNumFilter,
   handleRangeTimeFilter,
   handleSingleFilter,
