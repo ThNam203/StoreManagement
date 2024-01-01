@@ -12,6 +12,7 @@ import com.springboot.store.repository.CustomerRepository;
 import com.springboot.store.repository.InvoiceRepository;
 import com.springboot.store.repository.ProductRepository;
 import com.springboot.store.repository.ReturnInvoiceRepository;
+import com.springboot.store.service.ActivityLogService;
 import com.springboot.store.service.ExpenseFormService;
 import com.springboot.store.service.ReturnInvoiceService;
 import com.springboot.store.service.StaffService;
@@ -31,6 +32,7 @@ public class ReturnInvoiceServiceImpl implements ReturnInvoiceService {
     private final InvoiceRepository invoiceRepository;
     private final ProductRepository productRepository;
     private final ExpenseFormService expenseFormService;
+    private final ActivityLogService activityLogService;
 
     private final StaffService staffService;
 
@@ -85,7 +87,7 @@ public class ReturnInvoiceServiceImpl implements ReturnInvoiceService {
         if (returnInvoice.getInvoice().getCustomer() != null)
             idReceiver = returnInvoice.getInvoice().getCustomer().getId();
         expenseFormService.createExpenseForm("Customer", new Date(), returnInvoice.getPaymentMethod(), returnInvoice.getTotal(), idReceiver, returnInvoice.getNote(), "Expense for Customer", returnInvoice.getId());
-
+        activityLogService.save("created a return invoice with id " + returnInvoice.getId(), staffService.getAuthorizedStaff().getId(), new Date());
         return ReturnInvoiceMapper.toReturnInvoiceDTO(returnInvoice);
     }
 
@@ -125,6 +127,7 @@ public class ReturnInvoiceServiceImpl implements ReturnInvoiceService {
                     .toList());
         }
         returnInvoiceRepository.save(returnInvoice);
+        activityLogService.save("updated a return invoice with id " + returnInvoice.getId(), staffService.getAuthorizedStaff().getId(), new Date());
 
         return ReturnInvoiceMapper.toReturnInvoiceDTO(returnInvoice);
     }
@@ -134,5 +137,6 @@ public class ReturnInvoiceServiceImpl implements ReturnInvoiceService {
         ReturnInvoice returnInvoice = returnInvoiceRepository.findById(id).orElseThrow(() ->
                 new CustomException("Return invoice not found", HttpStatus.NOT_FOUND));
         returnInvoiceRepository.delete(returnInvoice);
+        activityLogService.save("deleted a return invoice with id " + id, staffService.getAuthorizedStaff().getId(), new Date());
     }
 }

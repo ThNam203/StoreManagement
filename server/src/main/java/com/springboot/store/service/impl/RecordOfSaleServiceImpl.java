@@ -32,6 +32,7 @@ public class RecordOfSaleServiceImpl implements RecordOfSaleService {
 
     @Override
     public List<RecordOfSaleDTO> getAllRecordOfSale(Date startDate, Date endDate) {
+        endDate = new Date(endDate.getTime() + 86400000);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Store store = staffService.getAuthorizedStaff().getStore();
         List<Invoice> invoices = invoiceRepository.findByCreatedAtBetween(startDate, endDate, store.getId());

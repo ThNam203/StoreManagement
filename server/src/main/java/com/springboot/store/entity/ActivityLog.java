@@ -20,10 +20,9 @@ public class ActivityLog {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    private String action;
     private String description;
-    private String actor;
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    private int staffId;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date time;
     @ManyToOne()
     @JoinColumn(name = "store_id")

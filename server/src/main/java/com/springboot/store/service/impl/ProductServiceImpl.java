@@ -4,6 +4,7 @@ import com.springboot.store.entity.*;
 import com.springboot.store.mapper.ProductMapper;
 import com.springboot.store.payload.ProductDTO;
 import com.springboot.store.repository.*;
+import com.springboot.store.service.ActivityLogService;
 import com.springboot.store.service.FileService;
 import com.springboot.store.service.ProductService;
 import com.springboot.store.service.StaffService;
@@ -26,6 +27,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductBrandRepository productBrandRepository;
     private final StaffService staffService;
     private final FileService fileService;
+    private final ActivityLogService activityLogService;
 
     @Override
     public ProductDTO getProductById(int id) {
@@ -111,8 +113,10 @@ public class ProductServiceImpl implements ProductService {
             }
             product.setStore(staff.getStore());
             productRepository.save(product);
+            activityLogService.save("created a product with id " + product.getId(), staff.getId(), new Date());
             productResponse.add(ProductMapper.toProductDTO(product));
         }
+
         return productResponse;
     }
 
@@ -203,6 +207,7 @@ public class ProductServiceImpl implements ProductService {
 
 
         existingProduct = productRepository.save(existingProduct);
+        activityLogService.save("updated a product with id " + existingProduct.getId(), staffService.getAuthorizedStaff().getId(), new Date());
         return ProductMapper.toProductDTO(existingProduct);
 
     }
@@ -212,6 +217,7 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Product not found with id: " + id));
         product.setIsDeleted(true);
         productRepository.save(product);
+        activityLogService.save("deleted a product with id " + product.getId(), staffService.getAuthorizedStaff().getId(), new Date());
     }
 
     @Override

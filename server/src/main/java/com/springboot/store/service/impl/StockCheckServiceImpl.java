@@ -9,6 +9,7 @@ import com.springboot.store.mapper.StockCheckMapper;
 import com.springboot.store.payload.StockCheckDTO;
 import com.springboot.store.repository.ProductRepository;
 import com.springboot.store.repository.StockCheckRepository;
+import com.springboot.store.service.ActivityLogService;
 import com.springboot.store.service.StaffService;
 import com.springboot.store.service.StockCheckService;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,8 @@ public class StockCheckServiceImpl implements StockCheckService {
     private final StaffService staffService;
     private final StockCheckRepository stockCheckRepository;
     private final ProductRepository productRepository;
+    private final ActivityLogService activityLogService;
+
     @Override
     public List<StockCheckDTO> getAllStockChecks() {
         int storeId = staffService.getAuthorizedStaff().getStore().getId();
@@ -64,6 +67,7 @@ public class StockCheckServiceImpl implements StockCheckService {
         }
 
         StockCheck stockCheckNew = stockCheckRepository.save(stockCheck);
+        activityLogService.save("created a stock check with id " + stockCheckNew.getId(), staffService.getAuthorizedStaff().getId(), new Date());
         return StockCheckMapper.toStockCheckDTO(stockCheckNew);
     }
 
@@ -95,6 +99,7 @@ public class StockCheckServiceImpl implements StockCheckService {
             stockCheck.getProducts().addAll(stockCheckDetails);
         }
         StockCheck stockCheckNew = stockCheckRepository.save(stockCheck);
+        activityLogService.save("updated a stock check with id " + stockCheckNew.getId(), staffService.getAuthorizedStaff().getId(), new Date());
         return StockCheckMapper.toStockCheckDTO(stockCheckNew);
     }
 
@@ -102,5 +107,6 @@ public class StockCheckServiceImpl implements StockCheckService {
     public void deleteStockCheck(int id) {
         StockCheck stockCheck = stockCheckRepository.findById(id).orElseThrow(() -> new CustomException("Stock check not found", HttpStatus.NOT_FOUND));
         stockCheckRepository.delete(stockCheck);
+        activityLogService.save("deleted a stock check with id " + id, staffService.getAuthorizedStaff().getId(), new Date());
     }
 }

@@ -9,6 +9,7 @@ import com.springboot.store.repository.CustomerRepository;
 import com.springboot.store.repository.DiscountCodeRepository;
 import com.springboot.store.repository.InvoiceRepository;
 import com.springboot.store.repository.ProductRepository;
+import com.springboot.store.service.ActivityLogService;
 import com.springboot.store.service.DiscountService;
 import com.springboot.store.service.IncomeFormService;
 import com.springboot.store.service.InvoiceService;
@@ -31,6 +32,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     private final StaffServiceImpl staffService;
     private final DiscountService discountService;
     private final IncomeFormService incomeFormService;
+    private final ActivityLogService activityLogService;
 
     @Override
     public InvoiceDTO getInvoiceById(int id) {
@@ -95,6 +97,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         if (invoice.getCustomer() != null)
             idPayer = invoice.getCustomer().getId();
         incomeFormService.createIncomeForm("Customer", new Date(), invoice.getPaymentMethod(), (int) invoice.getTotal(), idPayer, "", "Income from Customer", invoice.getId());
+        activityLogService.save("created an invoice with id " + invoiceNew.getId(), staffService.getAuthorizedStaff().getId(), new Date());
         return InvoiceMapper.toInvoiceDTO(invoiceNew);
     }
 
@@ -119,6 +122,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         // TODO: set customer and staff
 
         Invoice invoiceNew = invoiceRepository.save(invoice);
+        activityLogService.save("updated an invoice with id " + invoiceNew.getId(), staffService.getAuthorizedStaff().getId(), new Date());
         return InvoiceMapper.toInvoiceDTO(invoiceNew);
     }
 
@@ -126,6 +130,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     public void deleteInvoice(int id) {
         checkInvoiceExist(id);
         invoiceRepository.deleteById(id);
+        activityLogService.save("deleted an invoice with id " + id, staffService.getAuthorizedStaff().getId(), new Date());
     }
 
     private void checkInvoiceExist(int id) {

@@ -23,6 +23,7 @@ public class RecordOfSupplierServiceImpl implements RecordOfSupplierService {
 
     @Override
     public List<RecordOfSupplierDTO> getAllRecordOfSupplier(Date startDate, Date endDate) {
+        endDate = new Date(endDate.getTime() + 86400000);
         int id = staffService.getAuthorizedStaff().getStore().getId();
         List<PurchaseOrder> purchaseOrders = purchaseOrderRepository.findByStoreIdAndCreatedDateBetween(startDate, endDate, id);
         List<PurchaseReturn> purchaseReturns = purchaseReturnRepository.findByStoreIdAndCreatedDateBetween(startDate, endDate, id);

@@ -5,6 +5,7 @@ import com.springboot.store.entity.Staff;
 import com.springboot.store.exception.CustomException;
 import com.springboot.store.payload.ExpenseFormDTO;
 import com.springboot.store.repository.*;
+import com.springboot.store.service.ActivityLogService;
 import com.springboot.store.service.ExpenseFormService;
 import com.springboot.store.service.StaffService;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ public class ExpenseFormServiceImpl implements ExpenseFormService {
     private final CustomerRepository customerRepository;
     private final StaffService staffService;
     private final ModelMapper modelMapper;
+    private final ActivityLogService activityLogService;
 
     @Override
     public ExpenseFormDTO getExpenseFormById(int id) {
@@ -140,6 +142,7 @@ public class ExpenseFormServiceImpl implements ExpenseFormService {
             case "Supplier" ->
                     expenseFormDTO.setReceiverName(supplierRepository.findById(expenseFormDTO.getIdReceiver()).orElseThrow().getName());
         }
+        activityLogService.save("created an expense form with id " + expenseFormDTO.getId(), staffService.getAuthorizedStaff().getId(), new Date());
         return expenseFormDTO;
     }
 
@@ -159,6 +162,7 @@ public class ExpenseFormServiceImpl implements ExpenseFormService {
         expenseForm.setCreator(staff);
         expenseForm.setStore(staff.getStore());
         expenseFormRepository.save(expenseForm);
+        activityLogService.save("created an expense form with id " + expenseForm.getId(), staffService.getAuthorizedStaff().getId(), new Date());
     }
 
     @Override
@@ -168,5 +172,6 @@ public class ExpenseFormServiceImpl implements ExpenseFormService {
             throw new RuntimeException("This expense form cannot delete because it is linked to another form");
         }
         expenseFormRepository.deleteById(id);
+        activityLogService.save("deleted an expense form with id " + id, staffService.getAuthorizedStaff().getId(), new Date());
     }
 }

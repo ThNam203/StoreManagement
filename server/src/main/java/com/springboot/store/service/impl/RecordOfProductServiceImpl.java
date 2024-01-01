@@ -22,6 +22,7 @@ public class RecordOfProductServiceImpl implements RecordOfProductService {
 
     @Override
     public List<RecordOfProductDTO> getAllRecordOfProduct(Date startDate, Date endDate) {
+        endDate = new Date(endDate.getTime() + 86400000);
         int storeId = staffService.getAuthorizedStaff().getStore().getId();
         List<Invoice> invoices = invoiceRepository.findByCreatedAtBetween(startDate, endDate, storeId);
         List<ReturnInvoice> returnInvoices = returnInvoiceRepository.findByCreatedAtBetween(startDate, endDate, storeId);

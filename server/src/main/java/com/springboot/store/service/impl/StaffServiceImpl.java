@@ -87,7 +87,7 @@ public class StaffServiceImpl implements StaffService {
         staff = staffRepository.save(Objects.requireNonNull(staff));
 
         // save activity log
-        activityLogService.save("CREATE", "Create new staff", creator.getName());
+        activityLogService.save("added a new staff member with id " + staff.getId(), creator.getId(), new Date());
 
         // convert entity to DTO
         return mapToResponse(staff);
@@ -184,7 +184,7 @@ public class StaffServiceImpl implements StaffService {
         staff = staffRepository.save(staff);
 
         // save activity log
-        activityLogService.save("UPDATE", "Update staff with id " + id, creator.getName());
+        activityLogService.save("updated staff with id " + staff.getId(), creator.getId(), new Date());
 
         return mapToResponse(staff);
     }
@@ -213,7 +213,7 @@ public class StaffServiceImpl implements StaffService {
         shiftAttendanceRecordRepository.deleteAll(shiftAttendanceRecords);
         staffRepository.delete(staff);
         // save activity log
-        activityLogService.save("DELETE", "Delete staff with id " + id, creator.getName());
+        activityLogService.save("deleted staff with id " + staff.getId(), creator.getId(), new Date());
     }
 
     @Override

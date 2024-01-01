@@ -84,8 +84,8 @@ public class ReportController {
     }
 
     @GetMapping("/record-of-product-sell")
-    public ResponseEntity<List<RecordOfProductSellDTO>> getAllRecordOfProductSell(@RequestParam(name = "date") @DateTimeFormat(pattern = "yyy-MM-dd") Date date) {
-        List<RecordOfProductSellDTO> recordOfProductSellDTOs = recordOfProductSellService.getAllRecordOfProductSell(date);
+    public ResponseEntity<List<RecordOfProductSellDTO>> getAllRecordOfProductSell(@RequestParam(name = "start") @DateTimeFormat(pattern = "yyy-MM-dd") Date start, @RequestParam(name = "end") @DateTimeFormat(pattern = "yyyy-MM-dd") Date end) {
+        List<RecordOfProductSellDTO> recordOfProductSellDTOs = recordOfProductSellService.getAllRecordOfProductSell(start, end);
         return ResponseEntity.ok(recordOfProductSellDTOs);
     }
 

@@ -12,6 +12,7 @@ import com.springboot.store.repository.DiscountCodeRepository;
 import com.springboot.store.repository.DiscountRepository;
 import com.springboot.store.repository.ProductGroupRepository;
 import com.springboot.store.repository.ProductRepository;
+import com.springboot.store.service.ActivityLogService;
 import com.springboot.store.service.DiscountService;
 import com.springboot.store.service.StaffService;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,7 @@ public class DiscountServiceImpl implements DiscountService {
     private final ProductRepository productRepository;
     private final ProductGroupRepository productGroupRepository;
     private final StaffService staffService;
+    private final ActivityLogService activityLogService;
 
     @Override
     public DiscountDTO createDiscount(DiscountDTO discountDTO) {
@@ -55,6 +57,7 @@ public class DiscountServiceImpl implements DiscountService {
                         .collect(Collectors.toSet()));
         discount.setStore(staff.getStore());
         Discount newDiscount = discountRepository.save(discount);
+        activityLogService.save("created a discount with id " + newDiscount.getId(), staffService.getAuthorizedStaff().getId(), new Date());
         return DiscountMapper.toDiscountDTO(newDiscount);
     }
 
@@ -100,15 +103,16 @@ public class DiscountServiceImpl implements DiscountService {
                 discountDTO.getProductIds()
                         .stream()
                         .map(productId -> productRepository.findById(productId)
-                                        .orElseThrow(() -> new CustomException("Product not found", HttpStatus.NOT_FOUND)))
+                                .orElseThrow(() -> new CustomException("Product not found", HttpStatus.NOT_FOUND)))
                         .collect(Collectors.toSet()));
         discount.setProductGroups(discountDTO.getProductGroups() == null ? null :
                 discountDTO.getProductGroups()
                         .stream()
                         .map(productGroupName -> productGroupRepository.findByNameAndStoreId(productGroupName, staff.getStore().getId())
-                                        .orElseThrow(() -> new CustomException("Product group not found", HttpStatus.NOT_FOUND)))
+                                .orElseThrow(() -> new CustomException("Product group not found", HttpStatus.NOT_FOUND)))
                         .collect(Collectors.toSet()));
         Discount newDiscount = discountRepository.save(discount);
+        activityLogService.save("updated a discount with id " + newDiscount.getId(), staffService.getAuthorizedStaff().getId(), new Date());
         return DiscountMapper.toDiscountDTO(newDiscount);
     }
 
@@ -163,7 +167,7 @@ public class DiscountServiceImpl implements DiscountService {
         discountRepository.save(discount);
     }
 
-//    random code with 8 characters including uppercase letters and numbers
+    //    random code with 8 characters including uppercase letters and numbers
     private String generateRandomCode() {
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         SecureRandom random = new SecureRandom();
