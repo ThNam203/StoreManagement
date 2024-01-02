@@ -9,7 +9,10 @@ import { useToast } from "@/components/ui/use-toast";
 import { Product } from "@/entities/Product";
 import { StockCheckDetail } from "@/entities/StockCheck";
 import { useAppDispatch, useAppSelector } from "@/hooks";
+import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
+import { setProducts } from "@/reducers/productsReducer";
 import { axiosUIErrorHandler } from "@/services/axiosUtils";
+import ProductService from "@/services/productService";
 import StockCheckService from "@/services/stockCheckService";
 import { CheckCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -18,9 +21,6 @@ import {
   stockCheckDetailColumnTitles,
   stockCheckDetailTableColumns,
 } from "./table_columns";
-import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
-import ProductService from "@/services/productService";
-import { setProducts } from "@/reducers/productsReducer";
 
 const ProductSearchItemView: (product: Product) => React.ReactNode = (
   product: Product,
@@ -70,7 +70,7 @@ export default function NewStockCheckPage() {
         const products = await ProductService.getAllProducts();
         dispatch(setProducts(products.data));
       } catch (e) {
-        axiosUIErrorHandler(e, toast);
+        axiosUIErrorHandler(e, toast, router);
       }
     };
     getData().finally(() => {
@@ -139,7 +139,7 @@ export default function NewStockCheckPage() {
       .then((result) => {
         router.push("/stock-check");
       })
-      .catch((e) => axiosUIErrorHandler(e, toast))
+      .catch((e) => axiosUIErrorHandler(e, toast, router))
       .finally(() => setIsCompleting(false));
   };
 

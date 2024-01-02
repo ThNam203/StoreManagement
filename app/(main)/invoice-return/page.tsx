@@ -144,7 +144,7 @@ export default function InvoiceReturnPage() {
           invoiceId: foundInvoice!.id,
         });
       } catch (e) {
-        axiosUIErrorHandler(e, toast);
+        axiosUIErrorHandler(e, toast, router);
         router.back();
       } finally {
         dispatch(disablePreloader());
@@ -179,7 +179,7 @@ export default function InvoiceReturnPage() {
         router.back();
       })
       .catch((e) => {
-        axiosUIErrorHandler(e, toast);
+        axiosUIErrorHandler(e, toast, router);
       })
       .finally(() => {
         setIsCompletingReturn(false);

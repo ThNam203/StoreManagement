@@ -27,6 +27,7 @@ import LoadingCircle from "@/components/ui/loading_circle";
 import TransactionService from "@/services/transaction_service";
 import { deleteTransaction } from "@/reducers/transactionReducer";
 import { axiosUIErrorHandler } from "@/services/axiosUtils";
+import { useRouter } from "next/navigation";
 
 type Props = {
   data: Transaction[];
@@ -36,6 +37,7 @@ type Props = {
 export function DataTable({ data, onSubmit }: Props) {
   const dispatch = useAppDispatch();
   const { toast } = useToast();
+  const router = useRouter();
   const [selectedForm, setSelectedForm] = React.useState<Transaction | null>(
     null,
   );
@@ -109,7 +111,6 @@ export function DataTable({ data, onSubmit }: Props) {
     const keys = Object.keys(fundledgerColumnTitles);
     const newData = sheets.map((sheet: any[]) => {
       const convertedSheet = sheet.map((row) => {
-        console.log("row", row);
         let convertedRow: any = {};
         for (let key of keys) {
           const value =
@@ -152,7 +153,7 @@ export function DataTable({ data, onSubmit }: Props) {
       dispatch(deleteTransaction({ id: id, type: type }));
       return Promise.resolve();
     } catch (e) {
-      axiosUIErrorHandler(e, toast);
+      axiosUIErrorHandler(e, toast, router);
       return Promise.reject(e);
     }
   };
@@ -274,6 +275,7 @@ const DetailFundledgerTab = ({
       };
   }
   const { toast } = useToast();
+  const router = useRouter();
   const [openConfirmDialog, setOpenConfirmDialog] = React.useState(false);
   const [isRemoving, setIsRemoving] = React.useState(false);
   const [contentConfirmDialog, setContentConfirmDialog] = React.useState({
@@ -376,7 +378,7 @@ const DetailFundledgerTab = ({
                 setIsRemoving(false);
               });
             } catch (e) {
-              axiosUIErrorHandler(e, toast);
+              axiosUIErrorHandler(e, toast, router);
             } finally {
               setIsRemoving(false);
             }

@@ -27,6 +27,7 @@ import {
 } from "@/entities/PurchaseReturn";
 import PurchaseReturnService from "@/services/purchaseReturnService";
 import { deletePurchaseReturn } from "@/reducers/purchaseReturnsReducer";
+import { useRouter } from "next/navigation";
 
 const visibilityState = {
   creatorId: false,
@@ -36,6 +37,7 @@ const visibilityState = {
 export function PurchaseReturnDatatable({ data }: { data: PurchaseReturn[] }) {
   const { toast } = useToast();
   const dispatch = useAppDispatch();
+  const router = useRouter();
   async function deletePurchaseOrders(
     dataToDelete: PurchaseReturn[],
   ): Promise<void> {
@@ -60,7 +62,7 @@ export function PurchaseReturnDatatable({ data }: { data: PurchaseReturn[] }) {
         return Promise.resolve();
       });
     } catch (e) {
-      axiosUIErrorHandler(e, toast);
+      axiosUIErrorHandler(e, toast, router);
       return Promise.reject();
     }
   }
@@ -106,6 +108,7 @@ const DetailTab = ({
   const [disableDeleteButton, setDisableDeleteButton] = useState(false);
   const dispatch = useAppDispatch();
   const { toast } = useToast();
+  const router = useRouter();
 
   return (
     <>
@@ -204,7 +207,7 @@ const DetailTab = ({
                 dispatch(deletePurchaseReturn(purchaseOrder.id));
                 setShowInfoRow(false);
               })
-              .catch((error) => axiosUIErrorHandler(error, toast))
+              .catch((error) => axiosUIErrorHandler(error, toast, router))
               .finally(() => setDisableDeleteButton(false));
           }}
           disabled={disableDeleteButton || disableDisableButton}

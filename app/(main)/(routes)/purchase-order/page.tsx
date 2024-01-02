@@ -1,34 +1,31 @@
 "use client";
+import { Button } from "@/components/ui/button";
 import {
   FilterTime,
   FilterYear,
   PageWithFilters,
   RangeFilter,
-  SearchFilter,
   SearchFilterObject,
-  TimeFilter,
+  TimeFilter
 } from "@/components/ui/filter";
-import { useEffect, useState } from "react";
-import { PurchaseOrderDatatable } from "./datatable";
+import { useToast } from "@/components/ui/use-toast";
+import { useAppDispatch, useAppSelector } from "@/hooks";
+import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
+import { setPurchaseOrders } from "@/reducers/purchaseOrdersReducer";
+import { setStaffs } from "@/reducers/staffReducer";
+import { setSuppliers } from "@/reducers/suppliersReducer";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
+import PurchaseOrderService from "@/services/purchaseOrderService";
+import StaffService from "@/services/staff_service";
+import SupplierService from "@/services/supplierService";
 import {
   TimeFilterType,
   handleDateCondition,
   handleRangeNumFilter,
 } from "@/utils";
-import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { useAppDispatch, useAppSelector } from "@/hooks";
-import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
-import StockCheckService from "@/services/stockCheckService";
-import { setStockChecks } from "@/reducers/stockChecksReducer";
-import { axiosUIErrorHandler } from "@/services/axiosUtils";
-import { useToast } from "@/components/ui/use-toast";
-import PurchaseOrderService from "@/services/purchaseOrderService";
-import { setPurchaseOrders } from "@/reducers/purchaseOrdersReducer";
-import StaffService from "@/services/staff_service";
-import { setStaffs } from "@/reducers/staffReducer";
-import SupplierService from "@/services/supplierService";
-import { setSuppliers } from "@/reducers/suppliersReducer";
+import { useEffect, useState } from "react";
+import { PurchaseOrderDatatable } from "./datatable";
 
 export default function PurchaseOrderPage() {
   const dispatch = useAppDispatch();
@@ -53,7 +50,7 @@ export default function PurchaseOrderPage() {
 
     fetchData()
       .then()
-      .catch((e) => axiosUIErrorHandler(e, toast))
+      .catch((e) => axiosUIErrorHandler(e, toast, router))
       .finally(() => dispatch(disablePreloader()));
   }, []);
 

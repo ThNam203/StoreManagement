@@ -44,7 +44,7 @@ export default function StockCheck() {
 
     fetchData()
       .then()
-      .catch((e) => axiosUIErrorHandler(e, toast))
+      .catch((e) => axiosUIErrorHandler(e, toast, router))
       .finally(() => dispatch(disablePreloader()));
   }, []);
 

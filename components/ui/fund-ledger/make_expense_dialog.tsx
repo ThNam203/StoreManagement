@@ -47,6 +47,7 @@ import {
 import { useDispatch } from "react-redux";
 import AddTargetDailog from "@/components/ui/fund-ledger/addTargetDialog";
 import { useAppSelector } from "@/hooks";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   time: z.date(),
@@ -99,6 +100,7 @@ export function MakeExpenseDialog({ data, submit, open, setOpen }: Props) {
     },
   });
   const dispatch = useDispatch();
+  const router = useRouter();
   const { toast } = useToast();
   const transactionTypes = Object.values(TransactionType);
   const targetTypes = Object.values(TargetType);
@@ -196,7 +198,7 @@ export function MakeExpenseDialog({ data, submit, open, setOpen }: Props) {
       console.log(res);
       return Promise.resolve();
     } catch (e) {
-      axiosUIErrorHandler(e, toast);
+      axiosUIErrorHandler(e, toast, router);
     } finally {
     }
   };

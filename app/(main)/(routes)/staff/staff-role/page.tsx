@@ -65,6 +65,7 @@ import {
   ConfirmDialogType,
   MyConfirmDialog,
 } from "@/components/ui/my_confirm_dialog";
+import { useRouter } from "next/navigation";
 const OptionView = (option: string): React.ReactNode => {
   return <p className="whitespace-nowrap text-xs">{option}</p>;
 };
@@ -92,6 +93,7 @@ const OptionSearchView = (
 export default function StaffRolePage() {
   const dispatch = useAppDispatch();
   const { toast } = useToast();
+  const router = useRouter();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -107,7 +109,7 @@ export default function StaffRolePage() {
         const converted = resRole.data.map((role) => convertRoleReceived(role));
         dispatch(setRoles(converted));
       } catch (e) {
-        axiosUIErrorHandler(e, toast);
+        axiosUIErrorHandler(e, toast, router);
       } finally {
         dispatch(disablePreloader());
       }
@@ -164,7 +166,7 @@ export default function StaffRolePage() {
       });
       return Promise.resolve();
     } catch (e) {
-      axiosUIErrorHandler(e, toast);
+      axiosUIErrorHandler(e, toast, router);
       return Promise.reject(e);
     } finally {
       setIsUpdating(false);
@@ -184,7 +186,7 @@ export default function StaffRolePage() {
       setSelectedData(convertedRoleReceived);
       return Promise.resolve();
     } catch (e) {
-      axiosUIErrorHandler(e, toast);
+      axiosUIErrorHandler(e, toast, router);
       return Promise.reject(e);
     } finally {
     }
@@ -201,7 +203,7 @@ export default function StaffRolePage() {
       setSelectedData(defaultRole);
       return Promise.resolve();
     } catch (e) {
-      axiosUIErrorHandler(e, toast);
+      axiosUIErrorHandler(e, toast, router);
       return Promise.reject(e);
     } finally {
       setIsRemoving(false);

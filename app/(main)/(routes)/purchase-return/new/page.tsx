@@ -94,7 +94,7 @@ export default function NewPurchaseOrderPage() {
     };
 
     fetchData()
-      .catch((e) => axiosUIErrorHandler(e, toast))
+      .catch((e) => axiosUIErrorHandler(e, toast, router))
       .finally(() => dispatch(disablePreloader()));
   }, []);
 
@@ -203,7 +203,7 @@ export default function NewPurchaseOrderPage() {
       .then((result) => {
         router.push("/purchase-return");
       })
-      .catch((e) => axiosUIErrorHandler(e, toast))
+      .catch((e) => axiosUIErrorHandler(e, toast, router))
       .finally(() => setIsCompleting(false));
   };
 

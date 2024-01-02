@@ -42,7 +42,7 @@ export default function DamagedItemsPage() {
 
     fetchData()
       .then()
-      .catch((e) => axiosUIErrorHandler(e, toast))
+      .catch((e) => axiosUIErrorHandler(e, toast, router))
       .finally(() => dispatch(disablePreloader()));
   }, []);
 

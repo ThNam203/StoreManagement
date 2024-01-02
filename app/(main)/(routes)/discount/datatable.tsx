@@ -49,6 +49,7 @@ import {
 import AddNewThing from "@/components/ui/add_new_thing_dialog";
 import { useDispatch } from "react-redux";
 import { CustomDatatable } from "@/components/component/custom_datatable";
+import { useRouter } from "next/navigation";
 
 type Props = {
   data: Discount[];
@@ -71,6 +72,7 @@ const visibilityConfig = {
 
 export function DiscountDatatable({ data, onUpdateButtonClick }: Props) {
   const { toast } = useToast();
+  const router = useRouter();
   const dispatch = useAppDispatch();
 
   async function deleteDiscounts(dataToDelete: Discount[]): Promise<void> {
@@ -95,7 +97,7 @@ export function DiscountDatatable({ data, onUpdateButtonClick }: Props) {
         return Promise.resolve();
       });
     } catch (e) {
-      axiosUIErrorHandler(e, toast);
+      axiosUIErrorHandler(e, toast, router);
       return Promise.reject();
     }
   }
@@ -144,6 +146,7 @@ const DetailTab = ({
   const [disableDeleteButton, setDisableDeleteButton] = useState(false);
   const dispatch = useAppDispatch();
   const { toast } = useToast();
+  const router = useRouter();
 
   return (
     <>
@@ -254,7 +257,7 @@ const DetailTab = ({
               .then((result) => {
                 dispatch(updateDiscount(result.data));
               })
-              .catch((e) => axiosUIErrorHandler(e, toast))
+              .catch((e) => axiosUIErrorHandler(e, toast, router))
               .finally(() => setDisableDisableButton(false));
           }}
         >
@@ -271,7 +274,7 @@ const DetailTab = ({
                 dispatch(deleteDiscount(discount.id));
                 setShowInfoRow(false);
               })
-              .catch((error) => axiosUIErrorHandler(error, toast))
+              .catch((error) => axiosUIErrorHandler(error, toast, router))
               .finally(() => setDisableDeleteButton(false));
           }}
           disabled={disableDeleteButton || disableDisableButton}
@@ -333,6 +336,7 @@ const CodeEditTab = ({ discount }: { discount: Discount }) => {
   const [isDeletingCodes, setIsDeletingCodes] = useState(false);
   const [codeAmountInput, setCodeAmountInput] = useState(0);
   const { toast } = useToast();
+  const router = useRouter();
   const dispatch = useDispatch();
 
   return (
@@ -368,7 +372,7 @@ const CodeEditTab = ({ discount }: { discount: Discount }) => {
                   );
                   table.toggleAllRowsSelected(false);
                 })
-                .catch((e) => axiosUIErrorHandler(e, toast))
+                .catch((e) => axiosUIErrorHandler(e, toast, router))
                 .finally(() => {
                   setIsDeletingCodes(false);
                 });
@@ -419,7 +423,7 @@ const CodeEditTab = ({ discount }: { discount: Discount }) => {
                     }),
                   );
                 })
-                .catch((e) => axiosUIErrorHandler(e, toast))
+                .catch((e) => axiosUIErrorHandler(e, toast, router))
                 .finally(() => {
                   setIsGeneratingCodes(false);
                 });

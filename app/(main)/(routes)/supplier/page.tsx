@@ -55,7 +55,7 @@ export default function InvoicePage() {
 
     fetchData()
       .then()
-      .catch((e) => axiosUIErrorHandler(e, toast))
+      .catch((e) => axiosUIErrorHandler(e, toast, router))
       .finally(() => dispatch(disablePreloader()));
   }, []);
 

@@ -26,6 +26,7 @@ import { handleChoiceFilters } from "@/utils";
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { CatalogDatatable } from "./datatable";
+import { useRouter } from "next/navigation";
 
 const PRODUCT_STOCK_LEVEL_FILTERS = [
   "All",
@@ -39,6 +40,7 @@ const PRODUCT_STATUSES_FILTERS = ["Active", "Disabled", "All"];
 
 export default function Catalog() {
   const { toast } = useToast();
+  const router = useRouter();
   const dispatch = useAppDispatch();
   const products = useAppSelector((state) => state.products.value);
   const productGroups = useAppSelector((state) => state.productGroups.value);
@@ -68,7 +70,7 @@ export default function Catalog() {
           productPropertiesActions.setProperties(productProperties.data),
         );
       } catch (e) {
-        axiosUIErrorHandler(e, toast);
+        axiosUIErrorHandler(e, toast, router);
       }
     };
     getData().finally(() => {
@@ -82,7 +84,7 @@ export default function Catalog() {
       dispatch(addGroup(data.data));
       return Promise.resolve();
     } catch (e) {
-      axiosUIErrorHandler(e, toast);
+      axiosUIErrorHandler(e, toast, router);
       return Promise.reject();
     }
   };
@@ -93,7 +95,7 @@ export default function Catalog() {
       dispatch(addBrand(data.data));
       return Promise.resolve();
     } catch (e) {
-      axiosUIErrorHandler(e, toast);
+      axiosUIErrorHandler(e, toast, router);
       return Promise.reject();
     }
   };
@@ -104,7 +106,7 @@ export default function Catalog() {
       dispatch(addLocation(data.data));
       return Promise.resolve();
     } catch (e) {
-      axiosUIErrorHandler(e, toast);
+      axiosUIErrorHandler(e, toast, router);
       return Promise.reject();
     }
   };
@@ -115,7 +117,7 @@ export default function Catalog() {
       dispatch(productPropertiesActions.addProperty(data.data));
       return Promise.resolve();
     } catch (e) {
-      axiosUIErrorHandler(e, toast);
+      axiosUIErrorHandler(e, toast, router);
       return Promise.reject();
     }
   };
@@ -126,7 +128,7 @@ export default function Catalog() {
       dispatch(productPropertiesActions.updateProperty(data.data));
       return Promise.resolve();
     } catch (e) {
-      axiosUIErrorHandler(e, toast);
+      axiosUIErrorHandler(e, toast, router);
       return Promise.reject();
     }
   };
@@ -137,7 +139,7 @@ export default function Catalog() {
       dispatch(productPropertiesActions.deleteProperty(propertyId));
       return Promise.resolve();
     } catch (e) {
-      axiosUIErrorHandler(e, toast);
+      axiosUIErrorHandler(e, toast, router);
       return Promise.reject();
     }
   };

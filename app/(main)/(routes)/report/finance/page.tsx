@@ -13,11 +13,13 @@ import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
 import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import ReportService from "@/services/reportService";
 import { TimeFilterType, getDateRangeFromTimeFilterCondition } from "@/utils";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function FinanceReportPage() {
   const { toast } = useToast();
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const [report, setReport] = useState<FinanceReport | null>(null);
   const [reportDateRangeCondition, setReportDateRange] = useState({
     startDate: new Date(),
@@ -46,7 +48,7 @@ export default function FinanceReportPage() {
     };
 
     fetchReport()
-      .catch((err) => axiosUIErrorHandler(err, toast))
+      .catch((err) => axiosUIErrorHandler(err, toast, router))
       .finally(() => dispatch(disablePreloader()));
   }, [reportDateRangeCondition, reportDateSingleCondition, reportDateControl]);
 

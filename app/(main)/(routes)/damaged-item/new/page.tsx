@@ -1,37 +1,34 @@
 "use client";
-import { CustomDatatable } from "@/components/component/custom_datatable";
-import PropertiesString from "@/components/ui/properties_string_view";
+import CustomCombobox from "@/components/component/CustomCombobox";
 import SearchView from "@/components/component/SearchView";
-import { Product } from "@/entities/Product";
-import { useAppDispatch, useAppSelector } from "@/hooks";
-import { useEffect, useState } from "react";
+import { CustomDatatable } from "@/components/component/custom_datatable";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import LoadingCircle from "@/components/ui/loading_circle";
+import PropertiesString from "@/components/ui/properties_string_view";
 import { useToast } from "@/components/ui/use-toast";
+import { Product } from "@/entities/Product";
+import { Staff } from "@/entities/Staff";
+import { useAppDispatch, useAppSelector } from "@/hooks";
+import { cn } from "@/lib/utils";
+import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
+import { setProducts } from "@/reducers/productsReducer";
+import { setStaffs } from "@/reducers/staffReducer";
+import { setSuppliers } from "@/reducers/suppliersReducer";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
+import DamagedItemService from "@/services/damagedItemService";
+import ProductService from "@/services/productService";
+import StaffService from "@/services/staff_service";
+import SupplierService from "@/services/supplierService";
+import { format } from "date-fns";
+import { Check, UserCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import {
   NewDamagedItemDetail,
   purchaseReturnDetailColumnTitles,
   purchaseReturnDetailTableColumns,
 } from "./table_columns";
-import StaffService from "@/services/staff_service";
-import { setStaffs } from "@/reducers/staffReducer";
-import { axiosUIErrorHandler } from "@/services/axiosUtils";
-import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
-import { Staff } from "@/entities/Staff";
-import { Check, CheckCircle, Group, User, UserCircle } from "lucide-react";
-import CustomCombobox from "@/components/component/CustomCombobox";
-import { cn } from "@/lib/utils";
-import { format } from "date-fns";
-import { Supplier } from "@/entities/Supplier";
-import SupplierService from "@/services/supplierService";
-import { setSuppliers } from "@/reducers/suppliersReducer";
-import { Button } from "@/components/ui/button";
-import ProductService from "@/services/productService";
-import { setProducts } from "@/reducers/productsReducer";
-import PurchaseOrderService from "@/services/purchaseOrderService";
-import LoadingCircle from "@/components/ui/loading_circle";
-import PurchaseReturnService from "@/services/purchaseReturnService";
-import DamagedItemService from "@/services/damagedItemService";
 
 const ProductSearchItemView: (product: Product) => React.ReactNode = (
   product: Product,
@@ -94,7 +91,7 @@ export default function NewPurchaseOrderPage() {
     };
 
     fetchData()
-      .catch((e) => axiosUIErrorHandler(e, toast))
+      .catch((e) => axiosUIErrorHandler(e, toast, router))
       .finally(() => dispatch(disablePreloader()));
   }, []);
 
@@ -187,7 +184,7 @@ export default function NewPurchaseOrderPage() {
       .then((result) => {
         router.push("/damaged-item");
       })
-      .catch((e) => axiosUIErrorHandler(e, toast))
+      .catch((e) => axiosUIErrorHandler(e, toast, router))
       .finally(() => setIsCompleting(false));
   };
 

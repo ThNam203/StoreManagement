@@ -23,19 +23,12 @@ import LoadingCircle from "@/components/ui/loading_circle";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/components/ui/use-toast";
 import { Role, RoleSetting, defaultRoleSetting } from "@/entities/RoleSetting";
-import { Staff } from "@/entities/Staff";
 import { axiosUIErrorHandler } from "@/services/axiosUtils";
+import { zodErrorHandler } from "@/utils";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useDispatch } from "react-redux";
 import { RoleList } from "./role_setting_item";
-import { Trash } from "lucide-react";
-import { ConfirmDialogType, MyConfirmDialog } from "../my_confirm_dialog";
-import { useAppSelector } from "@/hooks";
-import StaffService from "@/services/staff_service";
-import { deletePosition } from "@/reducers/staffPositionReducer";
-import { cn } from "@/lib/utils";
-import { zodErrorHandler } from "@/utils";
 
 const schema = z.object({
   role: z.string().min(1, { message: "Position is missing" }),
@@ -54,6 +47,7 @@ export function RoleSettingDialog({
   submit?: (role: Role) => any;
   title: string;
 }) {
+  const router = useRouter();
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -77,7 +71,7 @@ export function RoleSettingDialog({
           });
         });
       } catch (e) {
-        axiosUIErrorHandler(e, toast);
+        axiosUIErrorHandler(e, toast, router);
       } finally {
         setIsLoading(false);
       }

@@ -1,6 +1,6 @@
 "use client";
 
-import { FilterDay, FilterTime, PageWithFilters, TimeFilter } from "@/components/ui/filter";
+import { FilterDay, FilterTime, PageWithFilters, RangeFilter, TimeFilter } from "@/components/ui/filter";
 import {
   DefaultPDFContent,
   ReportPDFDownloadButton,
@@ -12,11 +12,13 @@ import { useAppDispatch } from "@/hooks";
 import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
 import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import ReportService from "@/services/reportService";
-import { TimeFilterType, getDateRangeFromTimeFilterCondition } from "@/utils";
+import { TimeFilterType, getDateRangeFromTimeFilterCondition, handleRangeNumFilter } from "@/utils";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function RevenueByStaffPage() {
   const { toast } = useToast();
+  const router = useRouter();
   const dispatch = useAppDispatch();
   const [report, setReport] = useState<RevenueByStaffReport | null>(null);
   const [reportDateRangeCondition, setReportDateRange] = useState({
@@ -35,6 +37,17 @@ export default function RevenueByStaffPage() {
     reportDateRangeCondition,
   );
 
+  const [valueRangeConditions, setValueRangeConditions] = useState({
+    revenueMoney: {
+      startValue: NaN,
+      endValue: NaN,
+    },
+    returnMoney: {
+      startValue: NaN,
+      endValue: NaN,
+    },
+  });
+
   useEffect(() => {
     dispatch(showPreloader());
     const fetchReport = async () => {
@@ -42,11 +55,13 @@ export default function RevenueByStaffPage() {
         range.startDate,
         range.endDate,
       );
-      setReport(report.data);
+      const reportData = report.data;
+      const filteredData = handleRangeNumFilter(valueRangeConditions, reportData);
+      setReport(filteredData);
     };
 
     fetchReport()
-      .catch((err) => axiosUIErrorHandler(err, toast))
+      .catch((err) => axiosUIErrorHandler(err, toast, router))
       .finally(() => dispatch(disablePreloader()));
   }, [reportDateRangeCondition, reportDateSingleCondition, reportDateControl]);
 
@@ -61,6 +76,30 @@ export default function RevenueByStaffPage() {
       onSingleTimeFilterChanged={(value) => setReportDateSingleCondition(value)}
       onRangeTimeFilterChanged={(value) => setReportDateRange(value)}
     />,
+    <RangeFilter
+    key={2}
+    title="Revenue money"
+    range={valueRangeConditions.revenueMoney}
+    onValuesChanged={(value) =>
+      setValueRangeConditions({
+        ...valueRangeConditions,
+        revenueMoney: value,
+      })
+    }
+    className="mb-2"
+  />,
+  <RangeFilter
+    key={3}
+    title="Return money"
+    range={valueRangeConditions.returnMoney}
+    onValuesChanged={(value) =>
+      setValueRangeConditions({
+        ...valueRangeConditions,
+        returnMoney: value,
+      })
+    }
+    className="mb-2"
+  />,
   ];
 
   const PDF = report ? (

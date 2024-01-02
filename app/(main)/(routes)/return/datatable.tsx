@@ -81,7 +81,7 @@ export function ReturnDatatable({
         return Promise.resolve();
       });
     } catch (e) {
-      axiosUIErrorHandler(e, toast);
+      axiosUIErrorHandler(e, toast, router);
       return Promise.reject();
     }
   }
@@ -232,7 +232,7 @@ const DetailInvoiceTab = ({
                 dispatch(deleteReturnInvoice(invoice.id));
                 setShowTabs(false);
               })
-              .catch((error) => axiosUIErrorHandler(error, toast))
+              .catch((error) => axiosUIErrorHandler(error, toast, router))
               .finally(() => setDisableDeleteButton(false));
           }}
           disabled={disableDeleteButton}

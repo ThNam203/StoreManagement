@@ -23,9 +23,11 @@ import { Customer } from "@/entities/Customer";
 import CustomerService from "@/services/customerService";
 import UpdateCustomerDialog from "@/components/component/update_customer_dialog";
 import { deleteCustomer } from "@/reducers/customersReducer";
+import { useRouter } from "next/navigation";
 
 export function CustomerDatatable({ data }: { data: Customer[] }) {
   const { toast } = useToast();
+  const router = useRouter();
 
   async function deleteCustomers(dataToDelete: Customer[]): Promise<void> {
     const promises = dataToDelete.map((customer) => {
@@ -47,7 +49,7 @@ export function CustomerDatatable({ data }: { data: Customer[] }) {
         return Promise.resolve();
       });
     } catch (e) {
-      axiosUIErrorHandler(e, toast);
+      axiosUIErrorHandler(e, toast, router);
       return Promise.reject();
     }
   }
@@ -85,6 +87,7 @@ const DetailCustomerTab = ({
   const [disableDeleteButton, setDisableDeleteButton] = useState(false);
   const dispatch = useAppDispatch();
   const { toast } = useToast();
+  const router = useRouter();
 
   return (
     <div className="py-2">
@@ -167,7 +170,7 @@ const DetailCustomerTab = ({
                 dispatch(deleteCustomer(customer.id));
                 setShowTabs(false);
               })
-              .catch((error) => axiosUIErrorHandler(error, toast))
+              .catch((error) => axiosUIErrorHandler(error, toast, router))
               .finally(() => setDisableDeleteButton(false));
           }}
           disabled={disableDeleteButton}
