@@ -11,10 +11,7 @@ import com.springboot.store.repository.ProductRepository;
 import com.springboot.store.repository.PurchaseOrderRepository;
 import com.springboot.store.repository.StaffRepository;
 import com.springboot.store.repository.SupplierRepository;
-import com.springboot.store.service.ActivityLogService;
-import com.springboot.store.service.ExpenseFormService;
-import com.springboot.store.service.PurchaseOrderService;
-import com.springboot.store.service.StaffService;
+import com.springboot.store.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -32,6 +29,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     private final ProductRepository productRepository;
     private final ExpenseFormService expenseFormService;
     private final ActivityLogService activityLogService;
+    private final NotificationService notificationService;
 
     @Override
     public PurchaseOrderDTO getPurchaseOrder(int id) {
@@ -62,6 +60,9 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
                 purchaseOrderDetail.setPurchaseOrder(purchaseOrder);
                 Product product = productRepository.findById(purchaseOrderDetailDTO.getProductId()).orElseThrow(() -> new CustomException("Product not found", HttpStatus.NOT_FOUND));
                 product.setStock(product.getStock() + purchaseOrderDetailDTO.getQuantity());
+                if (product.getStock() < product.getMinStock()) {
+                    notificationService.notifyLowStock(product.getId(), product.getStock());
+                }
                 productRepository.save(product);
                 purchaseOrderDetail.setProduct(product);
                 return purchaseOrderDetail;
@@ -105,6 +106,9 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
                 purchaseOrderDetail.setPurchaseOrder(purchaseOrder);
                 Product product = productRepository.findById(purchaseOrderDetailDTO.getProductId()).orElseThrow(() -> new CustomException("Product not found", HttpStatus.NOT_FOUND));
                 product.setStock(product.getStock() + purchaseOrderDetailDTO.getQuantity());
+                if (product.getStock() < product.getMinStock()) {
+                    notificationService.notifyLowStock(product.getId(), product.getStock());
+                }
                 productRepository.save(product);
                 purchaseOrderDetail.setProduct(product);
                 return purchaseOrderDetail;

@@ -25,6 +25,7 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public Map<String, Object> getSalesReport(Date startDate, Date endDate) {
+        endDate = new Date(endDate.getTime() + 86400000);
 
         int storeId = staffService.getAuthorizedStaff().getStore().getId();
         Map<String, Object> salesReport = new HashMap<>();
@@ -56,6 +57,7 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public List<SalesReportWithProfit> getSalesReportWithProfit(Date startDate, Date endDate) {
+        endDate = new Date(endDate.getTime() + 86400000);
         int storeId = staffService.getAuthorizedStaff().getStore().getId();
         List<SalesReportWithProfit> salesReport = new ArrayList<>(invoiceRepository.findByStoreIdAndCreatedAtBetween(storeId, startDate, endDate)
                 .stream()
@@ -127,6 +129,7 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public List<SalesReportOfStaff> getSalesReportOfStaff(Date startDate, Date endDate) {
+        endDate = new Date(endDate.getTime() + 86400000);
         int storeId = staffService.getAuthorizedStaff().getStore().getId();
         List<Object[]> listIn = invoiceRepository.findSalesReportOfStaff(storeId, startDate, endDate);
         List<SalesReportOfStaff> salesReport = new ArrayList<>();
@@ -167,6 +170,7 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public List<ProductProfit> getSalesProductProfit(Date startDate, Date endDate) {
+        endDate = new Date(endDate.getTime() + 86400000);
         int storeId = staffService.getAuthorizedStaff().getStore().getId();
         List<ProductProfit> productProfits = new ArrayList<>();
         List<Invoice> invoices = invoiceRepository.findByStoreIdAndCreatedAtBetween(storeId, startDate, endDate);
@@ -244,6 +248,7 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public List<SalesReportOfCustomer> getSalesReportOfCustomer(Date startDate, Date endDate) {
+        endDate = new Date(endDate.getTime() + 86400000);
         int storeId = staffService.getAuthorizedStaff().getStore().getId();
         List<Object[]> listIn = invoiceRepository.findSalesReportOfCustomer(storeId, startDate, endDate);
         List<SalesReportOfCustomer> salesReport = new ArrayList<>();
@@ -298,6 +303,7 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public FinancialReport getFinancialReport(Date startDate, Date endDate) {
+        endDate = new Date(endDate.getTime() + 86400000);
         int storeId = staffService.getAuthorizedStaff().getStore().getId();
         FinancialReport financialReport = new FinancialReport();
 

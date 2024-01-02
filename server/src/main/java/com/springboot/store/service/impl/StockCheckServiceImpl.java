@@ -10,6 +10,7 @@ import com.springboot.store.payload.StockCheckDTO;
 import com.springboot.store.repository.ProductRepository;
 import com.springboot.store.repository.StockCheckRepository;
 import com.springboot.store.service.ActivityLogService;
+import com.springboot.store.service.NotificationService;
 import com.springboot.store.service.StaffService;
 import com.springboot.store.service.StockCheckService;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ public class StockCheckServiceImpl implements StockCheckService {
     private final StockCheckRepository stockCheckRepository;
     private final ProductRepository productRepository;
     private final ActivityLogService activityLogService;
+    private final NotificationService notificationService;
 
     @Override
     public List<StockCheckDTO> getAllStockChecks() {
@@ -57,6 +59,9 @@ public class StockCheckServiceImpl implements StockCheckService {
                         Product product = productRepository.findById(stockCheckDetailDTO.getProductId())
                                 .orElseThrow(() -> new CustomException("Product not found with id" + stockCheckDetailDTO.getProductId(), HttpStatus.NOT_FOUND));
                         product.setStock(stockCheckDetail.getCountedStock());
+                        if (product.getStock() < product.getMinStock()) {
+                            notificationService.notifyLowStock(product.getId(), product.getStock());
+                        }
                         productRepository.save(product);
                         stockCheckDetail.setProduct(product);
                         stockCheckDetail.setStockCheck(stockCheck);
@@ -89,6 +94,9 @@ public class StockCheckServiceImpl implements StockCheckService {
                         Product product = productRepository.findById(stockCheckDetailDTO.getProductId())
                                 .orElseThrow(() -> new CustomException("Product not found with id" + stockCheckDetailDTO.getProductId(), HttpStatus.NOT_FOUND));
                         product.setStock(stockCheckDetail.getCountedStock());
+                        if (product.getStock() < product.getMinStock()) {
+                            notificationService.notifyLowStock(product.getId(), product.getStock());
+                        }
                         productRepository.save(product);
                         stockCheckDetail.setProduct(product);
                         stockCheckDetail.setStockCheck(stockCheck);

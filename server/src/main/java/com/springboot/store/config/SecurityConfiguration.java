@@ -30,6 +30,7 @@ public class SecurityConfiguration {
             "/api/auth/**",
             "/api/demo/**",
             "/swagger-ui/**",
+            "/store-websocket/**",
     };
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
