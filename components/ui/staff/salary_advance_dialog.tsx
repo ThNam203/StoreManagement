@@ -6,12 +6,17 @@ import * as z from "zod";
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
   DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+  DialogTitle
 } from "@/components/ui/dialog";
 
+import {
+  detailSalaryDebtColumnTitles,
+  detailSalaryDebtDefaultVisibilityState,
+  detailSalaryDebtTableColumns,
+} from "@/app/(main)/(routes)/staff/staff-account/table_columns";
+import CustomCombobox from "@/components/component/CustomCombobox";
+import { CustomDatatable } from "@/components/component/custom_datatable";
 import { Button } from "@/components/ui/button";
 import { DatePicker } from "@/components/ui/datepicker";
 import {
@@ -19,40 +24,12 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
-  FormMessage,
+  FormLabel
 } from "@/components/ui/form";
-import { Input, PasswordInput } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import LoadingCircle from "@/components/ui/loading_circle";
-import { MyCombobox } from "@/components/ui/my_combobox";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
-import {
-  SalarySetting,
-  SalaryType,
-  SalaryUnitTable,
-} from "@/entities/SalarySetting";
-import { Sex, Staff } from "@/entities/Staff";
-import { useAppSelector } from "@/hooks";
-import { addPosition, deletePosition } from "@/reducers/staffPositionReducer";
-import { axiosUIErrorHandler } from "@/services/axiosUtils";
-import StaffService from "@/services/staff_service";
-import { formatNumberInput, formatPrice, removeCharNotANum } from "@/utils";
-import {
-  Check,
-  ChevronDown,
-  ChevronUp,
-  CircleDollarSign,
-  Info,
-  PlusCircle,
-} from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { useForm } from "react-hook-form";
-import { useDispatch } from "react-redux";
+import { Staff } from "@/entities/Staff";
 import {
   DetailSalaryDebt,
   FormType,
@@ -62,14 +39,14 @@ import {
   TransactionDesc,
   TransactionType,
 } from "@/entities/Transaction";
-import CustomCombobox from "@/components/component/CustomCombobox";
 import { cn } from "@/lib/utils";
-import { CustomDatatable } from "@/components/component/custom_datatable";
+import { formatNumberInput, formatPrice } from "@/utils";
 import {
-  detailSalaryDebtColumnTitles,
-  detailSalaryDebtDefaultVisibilityState,
-  detailSalaryDebtTableColumns,
-} from "@/app/(main)/(routes)/staff/staff-account/table_columns";
+  Check
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { useDispatch } from "react-redux";
 
 const OptionView = (option: string): React.ReactNode => {
   return <p className="whitespace-nowrap text-xs">{option}</p>;

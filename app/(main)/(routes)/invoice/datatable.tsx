@@ -85,7 +85,7 @@ export function InvoiceDatatable({
         return Promise.resolve();
       });
     } catch (e) {
-      axiosUIErrorHandler(e, toast);
+      axiosUIErrorHandler(e, toast, router);
       return Promise.reject();
     }
   }
@@ -215,12 +215,12 @@ const DetailInvoiceTab = ({
         <Button
           variant={"green"}
           onClick={(e) => {
-            router.push(`/invoice-return?invoiceId${invoice.id}`);
+            router.push(`/invoice-return?invoiceId=${invoice.id}`);
           }}
           disabled={disableDeleteButton}
         >
           <Undo2 size={16} className="mr-2" />
-          Return
+            Return
           {disableDeleteButton ? <LoadingCircle /> : null}
         </Button>
         <Button
@@ -232,7 +232,7 @@ const DetailInvoiceTab = ({
                 dispatch(deleteInvoice(invoice.id));
                 setShowTabs(false);
               })
-              .catch((error) => axiosUIErrorHandler(error, toast))
+              .catch((error) => axiosUIErrorHandler(error, toast, router))
               .finally(() => setDisableDeleteButton(false));
           }}
           disabled={disableDeleteButton}

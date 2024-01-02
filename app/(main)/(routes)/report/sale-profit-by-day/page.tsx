@@ -4,6 +4,7 @@ import {
   FilterDay,
   FilterTime,
   PageWithFilters,
+  RangeFilter,
   TimeFilter,
 } from "@/components/ui/filter";
 import {
@@ -20,12 +21,15 @@ import ReportService from "@/services/reportService";
 import {
   TimeFilterType,
   getDateRangeFromTimeFilterCondition,
+  handleRangeNumFilter,
   handleRangeTimeFilter,
 } from "@/utils";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function SaleReportLayout() {
   const { toast } = useToast();
+  const router = useRouter();
   const dispatch = useAppDispatch();
   const [report, setReport] = useState<SaleProfitByDayReport | null>(null);
   const [reportDateRangeCondition, setReportDateRange] = useState({
@@ -44,6 +48,21 @@ export default function SaleReportLayout() {
     reportDateRangeCondition,
   );
 
+  const [valueRangeConditions, setValueRangeConditions] = useState({
+    revenue: {
+      startValue: NaN,
+      endValue: NaN,
+    },
+    costPrice: {
+      startValue: NaN,
+      endValue: NaN,
+    },
+    profit: {
+      startValue: NaN,
+      endValue: NaN,
+    },
+  });
+
   useEffect(() => {
     dispatch(showPreloader());
     const fetchReport = async () => {
@@ -51,11 +70,17 @@ export default function SaleReportLayout() {
         range.startDate,
         range.endDate,
       );
-      setReport(report.data);
+
+      const reportData = report.data;
+      const filteredData = handleRangeNumFilter(
+        valueRangeConditions,
+        reportData,
+      );
+      setReport(filteredData);
     };
 
     fetchReport()
-      .catch((err) => axiosUIErrorHandler(err, toast))
+      .catch((err) => axiosUIErrorHandler(err, toast, router))
       .finally(() => dispatch(disablePreloader()));
   }, [reportDateRangeCondition, reportDateSingleCondition, reportDateControl]);
 
@@ -69,6 +94,42 @@ export default function SaleReportLayout() {
       onTimeFilterControlChanged={(value) => setReportDateControl(value)}
       onSingleTimeFilterChanged={(value) => setReportDateSingleCondition(value)}
       onRangeTimeFilterChanged={(value) => setReportDateRange(value)}
+    />,
+    <RangeFilter
+      key={2}
+      title="Revenue"
+      range={valueRangeConditions.revenue}
+      onValuesChanged={(value) =>
+        setValueRangeConditions({
+          ...valueRangeConditions,
+          revenue: value,
+        })
+      }
+      className="mb-2"
+    />,
+    <RangeFilter
+      key={3}
+      title="Cost price"
+      range={valueRangeConditions.costPrice}
+      onValuesChanged={(value) =>
+        setValueRangeConditions({
+          ...valueRangeConditions,
+          costPrice: value,
+        })
+      }
+      className="mb-2"
+    />,
+    <RangeFilter
+      key={4}
+      title="Profit"
+      range={valueRangeConditions.profit}
+      onValuesChanged={(value) =>
+        setValueRangeConditions({
+          ...valueRangeConditions,
+          profit: value,
+        })
+      }
+      className="mb-2"
     />,
   ];
 

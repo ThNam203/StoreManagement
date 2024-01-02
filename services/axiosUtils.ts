@@ -1,6 +1,10 @@
-const axiosUIErrorHandler = (error: any, toast: any) => { // toast is gotten from useToast()
-  console.log('axios ui error handler log', error)
+import { AppRouterInstance } from "next/dist/shared/lib/app-router-context";
+
+const axiosUIErrorHandler = (error: any, toast: any, router: AppRouterInstance) => { // toast is gotten from useToast()
   if (error.response) {
+    if (error.response.status === 401 || error.response.status === 403) {
+      router.push("/login");
+    } else
     toast({
       description: error.response.data.message,
       variant: "destructive",

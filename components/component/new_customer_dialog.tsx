@@ -33,6 +33,7 @@ import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import { useToast } from "../ui/use-toast";
 import AddNewThing from "../ui/add_new_thing_dialog";
 import { addCustomerGroup } from "@/reducers/customerGroupsReducer";
+import { useRouter } from "next/navigation";
 
 const newCustomerFormSchema = z.object({
   name: z
@@ -75,6 +76,7 @@ export default function NewCustomerDialog({
   const onFileChanged = (newFile: File | null) => setFile(newFile);
   const dispatch = useAppDispatch();
   const { toast } = useToast();
+  const router = useRouter();
 
   const onSubmit = (values: z.infer<typeof newCustomerFormSchema>) => {
     const formData = new FormData();
@@ -89,7 +91,7 @@ export default function NewCustomerDialog({
         dispatch(addCustomer(result.data));
         setOpen(false);
       })
-      .catch((error) => axiosUIErrorHandler(error, toast))
+      .catch((error) => axiosUIErrorHandler(error, toast, router))
       .finally(() => {
         setIsCreatingNewCustomer(false);
       });
@@ -208,6 +210,7 @@ const FormContent = ({
   isCreatingNewCustomer: boolean;
 }) => {
   const { toast } = useToast();
+  const router  = useRouter();
   const customerGroups = useAppSelector((state) => state.customerGroups.value);
   const form = useForm<z.infer<typeof newCustomerFormSchema>>({
     resolver: zodResolver(newCustomerFormSchema),
@@ -232,7 +235,7 @@ const FormContent = ({
       dispatch(addCustomerGroup(data.data));
       return Promise.resolve();
     } catch (e) {
-      axiosUIErrorHandler(e, toast);
+      axiosUIErrorHandler(e, toast, router);
       return Promise.reject(e);
     }
   };

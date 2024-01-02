@@ -95,6 +95,8 @@ import { setProducts } from "@/reducers/productsReducer";
 import { setCustomers } from "@/reducers/customersReducer";
 import { setDiscounts } from "@/reducers/discountsReducer";
 import ChooseInvoiceToReturnDialog from "@/components/component/choose_invoice_to_return_dialog";
+import { setCustomerGroups } from "@/reducers/customerGroupsReducer";
+import { useRouter } from "next/navigation";
 
 // TODO: add the staffId
 function getNewInvoice(): Invoice {
@@ -166,6 +168,7 @@ const CustomerSearchItemView: (customer: Customer) => React.ReactNode = (
 export default function Sale() {
   const invoicesContainerRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const router = useRouter();
   const [chosenInvoicePosition, setChosenInvoicePosition] = useState(0);
   const [isCompletingInvoice, setIsCompletingInvoice] = useState(false);
   const [productSearch, setProductSearch] = useState("");
@@ -182,16 +185,18 @@ export default function Sale() {
     const fetchData = async () => {
       const products = await ProductService.getAllProducts();
       const customers = await CustomerService.getAllCustomers();
+      const customerGroups = await CustomerService.getAllCustomerGroups();
       const discounts = await DiscountService.getAllDiscounts();
       const invoices = await InvoiceService.getAllInvoices();
       dispatch(setProducts(products.data));
       dispatch(setCustomers(customers.data));
       dispatch(setDiscounts(discounts.data));
+      dispatch(setCustomerGroups(customerGroups.data));
       dispatch(invoiceReducer.setInvoices(invoices.data));
     };
 
     fetchData()
-      .catch((e) => axiosUIErrorHandler(e, toast))
+      .catch((e) => axiosUIErrorHandler(e, toast, router))
       .finally(() => dispatch(disablePreloader()));
   }, []);
 
@@ -460,6 +465,7 @@ const InvoiceView = ({
   customers: Customer[];
 }) => {
   const { toast } = useToast();
+  const router = useRouter();
   const dispatch = useAppDispatch();
   const [discountCode, setDiscountCode] = useState("");
   const [isGettingDiscountData, setIsGettingDiscountData] = useState(false);
@@ -490,7 +496,7 @@ const InvoiceView = ({
         createInvoicePdf(submitInvoice, products);
       })
       .catch((e) => {
-        axiosUIErrorHandler(e, toast);
+        axiosUIErrorHandler(e, toast, router);
       })
       .finally(() => {
         setIsSubmittingInvoice(false);
@@ -620,7 +626,7 @@ const InvoiceView = ({
           });
         })
         .catch((e) => {
-          axiosUIErrorHandler(e, toast);
+          axiosUIErrorHandler(e, toast, router);
         })
         .finally(() => {
           setIsGettingDiscountData(false);

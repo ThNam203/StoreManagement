@@ -31,6 +31,7 @@ import {
   handleDateCondition,
   handleRangeNumFilter,
 } from "@/utils";
+import { useRouter } from "next/navigation";
 
 const DISCOUNT_TYPES = ["Voucher", "Coupon", "All"];
 const DISCOUNT_STATUSES = ["Activating", "Disabled", "All"];
@@ -42,6 +43,7 @@ export default function DiscountPage() {
   const [updatePosition, setUpdatePosition] = useState(0);
   const dispatch = useAppDispatch();
   const { toast } = useToast();
+  const router = useRouter();
 
   useEffect(() => {
     dispatch(showPreloader());
@@ -59,7 +61,7 @@ export default function DiscountPage() {
         const staffs = await StaffService.getAllStaffs();
         dispatch(setStaffs(staffs.data));
       } catch (e) {
-        axiosUIErrorHandler(e, toast);
+        axiosUIErrorHandler(e, toast, router);
       } finally {
         dispatch(disablePreloader());
       }

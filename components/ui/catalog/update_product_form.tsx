@@ -50,6 +50,7 @@ import { Product } from "@/entities/Product";
 import LoadingCircle from "../loading_circle";
 import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import { useAppSelector } from "@/hooks";
+import { useRouter } from "next/navigation";
 
 const productFormSchema = z.object({
   barcode: z
@@ -157,6 +158,7 @@ export const UpdateProductView = ({
   onDeleteProperty: (deletePropertyId: number) => any;
 }) => {
   const { toast } = useToast();
+  const router = useRouter();
   const productLocationChoices = useAppSelector(
     (state) => state.productLocations.value,
   );
@@ -235,7 +237,7 @@ export const UpdateProductView = ({
       .then((result) => {
         onProductUpdated(result.data);
       })
-      .catch((e) => axiosUIErrorHandler(e, toast))
+      .catch((e) => axiosUIErrorHandler(e, toast, router))
       .finally(() => {
         onChangeVisibility(false);
         setIsCreatingNewProduct(false);

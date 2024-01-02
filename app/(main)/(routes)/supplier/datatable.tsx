@@ -1,69 +1,36 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
+import {
+  CustomDatatable,
+  DefaultInformationCellDataTable,
+} from "@/components/component/custom_datatable";
+import UpdateSupplierDialog from "@/components/component/update_supplier_dialog";
+import { Button } from "@/components/ui/button";
+import LoadingCircle from "@/components/ui/loading_circle";
+import { useToast } from "@/components/ui/use-toast";
+import { Supplier } from "@/entities/Supplier";
+import { useAppDispatch } from "@/hooks";
+import { cn } from "@/lib/utils";
+import { deleteSupplier } from "@/reducers/suppliersReducer";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
+import SupplierService from "@/services/supplierService";
 import scrollbar_style from "@/styles/scrollbar.module.css";
 import {
-  ColumnDef,
-  ColumnFiltersState,
-  RowSelectionState,
-  SortingState,
-  VisibilityState,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-  Table as ReactTable,
-  flexRender,
-  Row,
+  Row
 } from "@tanstack/react-table";
-import { Product } from "@/entities/Product";
+import { PenLine, Trash } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import {
   supplierColumnTitles,
   supplierDefaultVisibilityState,
   supplierTableColumns,
 } from "./table_columns";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { DataTableViewOptions } from "@/components/ui/my_table_column_visibility_toggle";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import React, { Ref, RefObject, useEffect, useRef, useState } from "react";
-import { DataTablePagination } from "@/components/ui/my_table_pagination";
-import Image from "next/image";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { cn } from "@/lib/utils";
-import { ChevronRight, Lock, PenLine, Trash, Undo2 } from "lucide-react";
-import { useAppDispatch } from "@/hooks";
-import { deleteProduct, updateProduct } from "@/reducers/productsReducer";
-import ProductService from "@/services/productService";
-import LoadingCircle from "@/components/ui/loading_circle";
-import { axiosUIErrorHandler } from "@/services/axiosUtils";
-import { useToast } from "@/components/ui/use-toast";
-import {
-  CustomDatatable,
-  DefaultInformationCellDataTable,
-} from "@/components/component/custom_datatable";
-import { Invoice, InvoiceDetail } from "@/entities/Invoice";
-import InvoiceService from "@/services/invoiceService";
-import { format } from "date-fns";
-import { defaultColumn } from "@/components/ui/my_table_default_column";
-import { DataTableColumnHeader } from "@/components/ui/my_table_column_header";
-import { AppRouterInstance } from "next/dist/shared/lib/app-router-context";
-import { deleteInvoice } from "@/reducers/invoicesReducer";
-import { Supplier } from "@/entities/Supplier";
-import SupplierService from "@/services/supplierService";
-import { addSupplier, deleteSupplier } from "@/reducers/suppliersReducer";
-import UpdateSupplierDialog from "@/components/component/update_supplier_dialog";
 
 export function SupplierDatatable({ data }: { data: Supplier[] }) {
   const { toast } = useToast();
   const dispatch = useAppDispatch();
+  const router = useRouter();
 
   async function deleteSuppliers(dataToDelete: Supplier[]): Promise<void> {
     const promises = dataToDelete.map(async (supplier) => {
@@ -86,7 +53,7 @@ export function SupplierDatatable({ data }: { data: Supplier[] }) {
         return Promise.resolve();
       });
     } catch (e) {
-      axiosUIErrorHandler(e, toast);
+      axiosUIErrorHandler(e, toast, router);
       return Promise.reject();
     }
   }
@@ -123,6 +90,7 @@ const DetailSupplierTab = ({
   const [disableDeleteButton, setDisableDeleteButton] = useState(false);
   const dispatch = useAppDispatch();
   const { toast } = useToast();
+  const router = useRouter();
 
   return (
     <div className="py-2">
@@ -194,7 +162,7 @@ const DetailSupplierTab = ({
                 dispatch(deleteSupplier(supplier.id));
                 setShowTabs(false);
               })
-              .catch((error) => axiosUIErrorHandler(error, toast))
+              .catch((error) => axiosUIErrorHandler(error, toast, router))
               .finally(() => setDisableDeleteButton(false));
           }}
           disabled={disableDeleteButton}

@@ -4,7 +4,8 @@ import {
   FilterDay,
   FilterTime,
   PageWithFilters,
-  TimeFilter
+  RangeFilter,
+  TimeFilter,
 } from "@/components/ui/filter";
 import {
   PdfContentFooter,
@@ -18,13 +19,20 @@ import { useAppDispatch } from "@/hooks";
 import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
 import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import ReportService from "@/services/reportService";
-import { TimeFilterType, camelToPascalWithSpaces, getDateRangeFromTimeFilterCondition } from "@/utils";
+import {
+  TimeFilterType,
+  camelToPascalWithSpaces,
+  getDateRangeFromTimeFilterCondition,
+  handleRangeNumFilter,
+} from "@/utils";
 import { Document, Page, Text, View } from "@react-pdf/renderer";
-import { format } from "date-fns";
-import { useEffect, useState } from "react";
+import { format, previousDay } from "date-fns";
+import { useRouter } from "next/navigation";
+import { use, useEffect, useState } from "react";
 
 export default function SaleTransactionPage() {
   const { toast } = useToast();
+  const router = useRouter();
   const dispatch = useAppDispatch();
   const [report, setReport] = useState<SaleTransactionReport | null>(null);
   const [reportDateRangeCondition, setReportDateRange] = useState({
@@ -43,6 +51,25 @@ export default function SaleTransactionPage() {
     reportDateRangeCondition,
   );
 
+  const [valueRangeConditions, setValueRangeConditions] = useState({
+    invoiceQuantity: {
+      startValue: NaN,
+      endValue: NaN,
+    },
+    invoiceTotal: {
+      startValue: NaN,
+      endValue: NaN,
+    },
+    returnQuantity: {
+      startValue: NaN,
+      endValue: NaN,
+    },
+    returnTotal: {
+      startValue: NaN,
+      endValue: NaN,
+    },
+  });
+
   useEffect(() => {
     dispatch(showPreloader());
     const fetchReport = async () => {
@@ -50,13 +77,30 @@ export default function SaleTransactionPage() {
         range.startDate,
         range.endDate,
       );
-      setReport(report.data);
+
+      const reportData = report.data;
+
+      const invoices = handleRangeNumFilter({
+        quantity: valueRangeConditions.invoiceQuantity,
+        total: valueRangeConditions.invoiceTotal,
+      }, reportData.invoices);
+  
+      const returns = handleRangeNumFilter({
+        quantity: valueRangeConditions.returnQuantity,
+        total: valueRangeConditions.returnTotal,
+      }, reportData.returns);
+
+      setReport({
+        ...reportData,
+        invoices: invoices,
+        returns: returns,
+      });
     };
 
     fetchReport()
-      .catch((err) => axiosUIErrorHandler(err, toast))
+      .catch((err) => axiosUIErrorHandler(err, toast, router))
       .finally(() => dispatch(disablePreloader()));
-  }, [reportDateRangeCondition, reportDateSingleCondition, reportDateControl]);
+  }, [reportDateRangeCondition, reportDateSingleCondition, reportDateControl, valueRangeConditions]);
 
   const filters = [
     <TimeFilter
@@ -68,11 +112,64 @@ export default function SaleTransactionPage() {
       onTimeFilterControlChanged={(value) => setReportDateControl(value)}
       onSingleTimeFilterChanged={(value) => setReportDateSingleCondition(value)}
       onRangeTimeFilterChanged={(value) => setReportDateRange(value)}
+      className="mb-2"
+    />,
+    <RangeFilter
+      key={2}
+      title="Invoice Quantity"
+      range={valueRangeConditions.invoiceQuantity}
+      onValuesChanged={(value) =>
+        setValueRangeConditions({
+          ...valueRangeConditions,
+          invoiceQuantity: value,
+        })
+      }
+      className="mb-2"
+    />,
+    <RangeFilter
+      key={3}
+      title="Invoice Total"
+      range={valueRangeConditions.invoiceTotal}
+      onValuesChanged={(value) =>
+        setValueRangeConditions({
+          ...valueRangeConditions,
+          invoiceTotal: value,
+        })
+      }
+      className="mb-2"
+    />,
+    <RangeFilter
+      key={4}
+      title="Return Quantity"
+      range={valueRangeConditions.returnQuantity}
+      onValuesChanged={(value) =>
+        setValueRangeConditions({
+          ...valueRangeConditions,
+          returnQuantity: value,
+        })
+      }
+      className="mb-2"
+    />,
+    <RangeFilter
+      key={5}
+      title="Return Total"
+      range={valueRangeConditions.returnTotal}
+      onValuesChanged={(value) =>
+        setValueRangeConditions({
+          ...valueRangeConditions,
+          returnTotal: value,
+        })
+      }
+      className="mb-2"
     />,
   ];
 
   const PDF = report ? (
-    <PDFContent data={report} startDate={range.startDate} endDate={range.endDate} />
+    <PDFContent
+      data={report}
+      startDate={range.startDate}
+      endDate={range.endDate}
+    />
   ) : null;
 
   return (
@@ -125,7 +222,9 @@ const PDFContent = ({
             {invoiceProperties.map((header) => {
               return (
                 <View key={header} style={styles.tableCol}>
-                  <Text style={styles.tableCell}>{camelToPascalWithSpaces(header)}</Text>
+                  <Text style={styles.tableCell}>
+                    {camelToPascalWithSpaces(header)}
+                  </Text>
                 </View>
               );
             })}
@@ -150,7 +249,9 @@ const PDFContent = ({
               {returnProperties.map((header) => {
                 return (
                   <View key={header} style={styles.tableCol}>
-                    <Text style={styles.tableCell}>{camelToPascalWithSpaces(header)}</Text>
+                    <Text style={styles.tableCell}>
+                      {camelToPascalWithSpaces(header)}
+                    </Text>
                   </View>
                 );
               })}

@@ -13,6 +13,9 @@ import { Toaster } from "@/components/ui/toaster";
 import StaffService from "@/services/staff_service";
 import ProfileService from "@/services/profileService";
 import { setProfile } from "@/reducers/profileReducer";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
+import { useToast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
@@ -29,14 +32,19 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 
 const GlobalState = ({ children }: { children: React.ReactNode }) => {
   const [gotUserInfo, setGotUserInfo] = useState(false);
-  const dispatch = useAppDispatch()
+  const toast = useToast();
+  const router = useRouter();
+  const dispatch = useAppDispatch();
   useEffect(() => {
     const getUserInfo = async () => {
-      const profile = await ProfileService.getProfile()
-      dispatch(setProfile(profile.data))
-      setGotUserInfo(true);
+      const profile = await ProfileService.getProfile();
+      dispatch(setProfile(profile.data));
     };
-    getUserInfo();
+
+    getUserInfo()
+      .then(() => {})
+      .catch((e) => axiosUIErrorHandler(e, toast, router))
+      .finally(() => setGotUserInfo(true));
   }, []);
 
   if (!gotUserInfo) return <GlobalPreloader />;

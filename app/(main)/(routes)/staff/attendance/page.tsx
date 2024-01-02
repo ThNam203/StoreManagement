@@ -37,10 +37,12 @@ import StaffService from "@/services/staff_service";
 import { setStaffs } from "@/reducers/staffReducer";
 import { setViolations } from "@/reducers/shiftViolationReducer";
 import { setRewards } from "@/reducers/shiftRewardReducer";
+import { useRouter } from "next/navigation";
 
 export default function Attendance() {
   const dispatch = useAppDispatch();
   const { toast } = useToast();
+  const router = useRouter();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -71,7 +73,7 @@ export default function Attendance() {
         dispatch(setViolations(violations));
         dispatch(setRewards(rewards));
       } catch (e) {
-        axiosUIErrorHandler(e, toast);
+        axiosUIErrorHandler(e, toast, router);
       } finally {
         dispatch(disablePreloader());
       }
@@ -102,7 +104,7 @@ export default function Attendance() {
       });
       dispatch(setShifts(shiftList));
     } catch (e) {
-      axiosUIErrorHandler(e, toast);
+      axiosUIErrorHandler(e, toast, router);
       return Promise.reject();
     } finally {
       setIsLoading(false);
@@ -117,7 +119,7 @@ export default function Attendance() {
       });
       dispatch(setShifts(shiftList));
     } catch (e) {
-      axiosUIErrorHandler(e, toast);
+      axiosUIErrorHandler(e, toast, router);
       return Promise.reject();
     } finally {
       setIsLoading(false);
@@ -150,7 +152,7 @@ export default function Attendance() {
       dispatch(addShift(result));
       return Promise.resolve();
     } catch (e) {
-      axiosUIErrorHandler(e, toast);
+      axiosUIErrorHandler(e, toast, router);
       return Promise.reject();
     }
   };
@@ -163,7 +165,7 @@ export default function Attendance() {
       dispatch(updateShift(result));
       return Promise.resolve();
     } catch (e) {
-      axiosUIErrorHandler(e, toast);
+      axiosUIErrorHandler(e, toast, router);
       return Promise.reject();
     }
   };
@@ -182,7 +184,7 @@ export default function Attendance() {
       dispatch(addDailyShifts(result));
       return Promise.resolve();
     } catch (e) {
-      axiosUIErrorHandler(e, toast);
+      axiosUIErrorHandler(e, toast, router);
       return Promise.reject();
     }
   };
@@ -203,7 +205,7 @@ export default function Attendance() {
       }
       return Promise.resolve();
     } catch (e) {
-      axiosUIErrorHandler(e, toast);
+      axiosUIErrorHandler(e, toast, router);
       return Promise.reject();
     }
   };
@@ -221,7 +223,7 @@ export default function Attendance() {
       dispatch(deleteShift(id));
       return Promise.resolve();
     } catch (e) {
-      axiosUIErrorHandler(e, toast);
+      axiosUIErrorHandler(e, toast, router);
       return Promise.reject();
     }
   };

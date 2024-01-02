@@ -46,10 +46,12 @@ import {
   convertReceiptFormToSent,
   convertStrangerReceived,
 } from "@/utils/transactionApiUtils";
+import { useRouter } from "next/navigation";
 
 export default function SalesPage() {
   const dispatch = useAppDispatch();
   const { toast } = useToast();
+  const router = useRouter();
   const transactionList = useAppSelector((state) => state.transactions.value);
   const [filteredTransactionList, setFilteredTransactionList] = useState<
     Transaction[]
@@ -112,7 +114,7 @@ export default function SalesPage() {
         );
         dispatch(setStrangers(strangers));
       } catch (e) {
-        axiosUIErrorHandler(e, toast);
+        axiosUIErrorHandler(e, toast, router);
       } finally {
         dispatch(disablePreloader());
       }
@@ -131,7 +133,7 @@ export default function SalesPage() {
       dispatch(addTransaction(expense));
       return Promise.resolve();
     } catch (e) {
-      axiosUIErrorHandler(e, toast);
+      axiosUIErrorHandler(e, toast, router);
       return Promise.reject();
     }
   };
@@ -145,7 +147,7 @@ export default function SalesPage() {
       dispatch(addTransaction(receipt));
       return Promise.resolve();
     } catch (e) {
-      axiosUIErrorHandler(e, toast);
+      axiosUIErrorHandler(e, toast, router);
       return Promise.reject();
     }
   };
@@ -161,7 +163,7 @@ export default function SalesPage() {
       dispatch(addTransaction(expense));
       return Promise.resolve();
     } catch (e) {
-      axiosUIErrorHandler(e, toast);
+      axiosUIErrorHandler(e, toast, router);
       return Promise.reject();
     }
   };
@@ -177,7 +179,7 @@ export default function SalesPage() {
       dispatch(addTransaction(receipt));
       return Promise.resolve();
     } catch (e) {
-      axiosUIErrorHandler(e, toast);
+      axiosUIErrorHandler(e, toast, router);
       return Promise.reject();
     }
   };

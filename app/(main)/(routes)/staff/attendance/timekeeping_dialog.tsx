@@ -38,6 +38,7 @@ import {
   ConfirmDialogType,
   MyConfirmDialog,
 } from "../../../../../components/ui/my_confirm_dialog";
+import { useRouter } from "next/navigation";
 
 const OptionView = (option: string): React.ReactNode => {
   return <p className="whitespace-nowrap text-xs">{option}</p>;
@@ -111,6 +112,7 @@ export function TimeKeepingDialog({
     },
   });
   const { toast } = useToast();
+  const router = useRouter();
   const dispatch = useDispatch();
   const [isAdding, setIsAdding] = useState(false);
   const [isRemoving, setIsRemoving] = useState(false);
@@ -225,7 +227,7 @@ export function TimeKeepingDialog({
       else dispatch(addReward(res.data));
       return Promise.resolve(res.data);
     } catch (e) {
-      axiosUIErrorHandler(e, toast);
+      axiosUIErrorHandler(e, toast, router);
       return Promise.reject(e);
     }
   };
