@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { NewProductView } from "@/components/ui/catalog/new_product_form";
 import { UpdateProductView } from "@/components/ui/catalog/update_product_form";
 import {
-  MultiChoicesFilter,
   PageWithFilters,
   SearchFilter,
   SingleChoiceFilter,
@@ -23,11 +22,7 @@ import {
 } from "@/reducers/productsReducer";
 import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import ProductService from "@/services/productService";
-import {
-  handleChoiceFilters,
-  handleMultipleFilter,
-  handleSingleFilter,
-} from "@/utils";
+import { handleChoiceFilters } from "@/utils";
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { CatalogDatatable } from "./datatable";
