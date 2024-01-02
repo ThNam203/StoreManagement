@@ -52,6 +52,7 @@ public class SupplierServiceImpl implements SupplierService {
 
         Staff creator = staffService.getAuthorizedStaff();
         Supplier supplier = SupplierMapper.toSupplier(supplierDTO);
+        supplier.setIsDeleted(false);
         supplier.setCreatedAt(new Date());
         supplier.setCreator(creator);
         supplier.setStore(creator.getStore());
@@ -115,7 +116,8 @@ public class SupplierServiceImpl implements SupplierService {
     @Override
     public void deleteSupplier(int id) {
         Supplier supplier = supplierRepository.findById(id).orElseThrow(() -> new CustomException("Supplier not found", HttpStatus.NOT_FOUND));
-        supplierRepository.delete(supplier);
+        supplier.setIsDeleted(true);
+        supplierRepository.save(supplier);
         activityLogService.save("deleted a supplier with id " + id, staffService.getAuthorizedStaff().getId(), new Date());
     }
 }

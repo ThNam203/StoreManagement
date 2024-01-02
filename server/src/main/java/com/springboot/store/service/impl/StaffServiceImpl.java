@@ -52,6 +52,7 @@ public class StaffServiceImpl implements StaffService {
 
         // convert DTO to entity
         Staff staff = mapToEntity(newStaff);
+        staff.setIsDeleted(false);
         staff.setPassword(passwordEncoder.encode(newStaff.getPassword()));
         staff.setCreatedAt(new Date());
         staff.setCreator(creator);

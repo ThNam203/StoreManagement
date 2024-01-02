@@ -6,6 +6,7 @@ import com.springboot.store.entity.Staff;
 import com.springboot.store.mapper.CustomerGroupMapper;
 import com.springboot.store.payload.CustomerGroupDTO;
 import com.springboot.store.repository.CustomerGroupRepository;
+import com.springboot.store.repository.CustomerRepository;
 import com.springboot.store.service.CustomerGroupService;
 import com.springboot.store.service.StaffService;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ import java.util.List;
 public class CustomerGroupServiceImpl implements CustomerGroupService {
     private final CustomerGroupRepository customerGroupRepository;
     private final StaffService staffService;
+    private final CustomerRepository customerRepository;
 
     @Override
     public CustomerGroupDTO createCustomerGroup(CustomerGroupDTO customerGroupDTO) {
@@ -73,6 +75,11 @@ public class CustomerGroupServiceImpl implements CustomerGroupService {
 
     @Override
     public void deleteCustomerGroup(int id) {
+        CustomerGroup customerGroup = customerGroupRepository.findById(id).orElseThrow(() -> new RuntimeException("Customer group not found with id: " + id));
+        for (Customer customer : customerGroup.getCustomers()) {
+            customer.setCustomerGroup(null);
+            customerRepository.save(customer);
+        }
         customerGroupRepository.deleteById(id);
     }
 }

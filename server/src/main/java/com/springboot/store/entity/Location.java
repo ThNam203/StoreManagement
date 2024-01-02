@@ -3,6 +3,8 @@ package com.springboot.store.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Getter
 @Setter
 @Builder
@@ -16,6 +18,9 @@ public class Location {
     @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
     private int id;
     private String name;
+
+    @OneToMany(mappedBy = "location")
+    private List<Product> products;
 
     @ManyToOne()
     @JoinColumn(name = "store_id")

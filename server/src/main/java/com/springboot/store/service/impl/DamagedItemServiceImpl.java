@@ -49,6 +49,7 @@ public class DamagedItemServiceImpl implements DamagedItemService {
             damagedItem.setProducts(damagedItemDTO.getProducts().stream().map(damagedItemDetailDTO -> {
                 DamagedItemDetail damagedItemDetail = DamagedItemDetailMapper.toDamagedItemDetail(damagedItemDetailDTO);
                 var product = productRepository.findById(damagedItemDetailDTO.getProductId()).orElseThrow(() -> new CustomException("Product not found", HttpStatus.NOT_FOUND));
+                product.setStock(product.getStock() - damagedItemDetailDTO.getDamagedQuantity());
                 damagedItemDetail.setProduct(product);
                 damagedItemDetail.setDamagedItem(damagedItem);
                 return damagedItemDetail;
@@ -65,10 +66,16 @@ public class DamagedItemServiceImpl implements DamagedItemService {
         damagedItem.setNote(damagedItemDTO.getNote());
 
         if (damagedItemDTO.getProducts() != null) {
+            damagedItem.getProducts().forEach(damagedItemDetail -> {
+                var product = productRepository.findById(damagedItemDetail.getProduct().getId()).orElseThrow(() -> new CustomException("Product not found", HttpStatus.NOT_FOUND));
+                product.setStock(product.getStock() + damagedItemDetail.getDamagedQuantity());
+            });
+
             damagedItem.getProducts().clear();
             damagedItem.getProducts().addAll(damagedItemDTO.getProducts().stream().map(damagedItemDetailDTO -> {
                 DamagedItemDetail damagedItemDetail = DamagedItemDetailMapper.toDamagedItemDetail(damagedItemDetailDTO);
                 var product = productRepository.findById(damagedItemDetailDTO.getProductId()).orElseThrow(() -> new CustomException("Product not found", HttpStatus.NOT_FOUND));
+                product.setStock(product.getStock() - damagedItemDetailDTO.getDamagedQuantity());
                 damagedItemDetail.setProduct(product);
                 damagedItemDetail.setDamagedItem(damagedItem);
                 return damagedItemDetail;

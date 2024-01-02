@@ -120,6 +120,10 @@ public class DiscountServiceImpl implements DiscountService {
     public void deleteDiscount(int id) {
         Discount discount = discountRepository.findById(id)
                 .orElseThrow(() -> new CustomException("Discount not found", HttpStatus.NOT_FOUND));
+        for (DiscountCode discountCode : discount.getDiscountCodes()) {
+            if (discountCode.isStatus())
+                throw new CustomException("Discount code has been used", HttpStatus.BAD_REQUEST);
+        }
         discountRepository.delete(discount);
     }
 

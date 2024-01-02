@@ -1,5 +1,6 @@
 package com.springboot.store.service.impl;
 
+import com.springboot.store.entity.Supplier;
 import com.springboot.store.entity.SupplierGroup;
 import com.springboot.store.exception.CustomException;
 import com.springboot.store.mapper.SupplierGroupMapper;
@@ -60,6 +61,9 @@ public class SupplierGroupServiceImpl implements SupplierGroupService {
     @Override
     public void deleteSupplierGroup(int id) {
         SupplierGroup supplierGroup = supplierGroupRepository.findById(id).orElseThrow(() -> new CustomException("Supplier group not found", HttpStatus.NOT_FOUND));
+        for (Supplier supplier : supplierGroup.getSuppliers()) {
+            supplier.setSupplierGroup(null);
+        }
         supplierGroupRepository.delete(supplierGroup);
     }
 }

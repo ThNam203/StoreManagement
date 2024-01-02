@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -30,6 +31,9 @@ public class SupplierGroup {
 
     @Column(name="company")
     private String company;
+
+    @OneToMany(mappedBy = "supplierGroup")
+    private List<Supplier> suppliers;
 
     @Column(name = "created_at")
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")

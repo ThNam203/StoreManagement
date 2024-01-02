@@ -51,6 +51,7 @@ public class CustomerServiceImpl implements CustomerService {
         Staff staff = staffService.getAuthorizedStaff();
         customerDTO.setCreatorId(staffService.getAuthorizedStaff().getId());
         Customer customer = CustomerMapper.toCustomer(customerDTO);
+        customer.setIsDeleted(false);
         CustomerGroup customerGroup = customerGroupRepository.findByNameAndStoreId(customerDTO.getCustomerGroup(), staff.getStore().getId());
         if (customerGroup == null) {
             throw new RuntimeException("Customer group not found with name: " + customerDTO.getCustomerGroup());
@@ -117,7 +118,9 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public void deleteCustomer(int id) {
+        Customer customer = customerRepository.findById(id).orElseThrow(() -> new RuntimeException("Customer not found with id: " + id));
+        customer.setIsDeleted(true);
         activityLogService.save("deleted a customer with id " + id, staffService.getAuthorizedStaff().getId(), new Date());
-        customerRepository.deleteById(id);
+        customerRepository.save(customer);
     }
 }
