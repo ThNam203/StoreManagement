@@ -196,13 +196,19 @@ public class ReportServiceImpl implements ReportService {
                         .netRevenue(invoiceDetail.getPrice() * invoiceDetail.getQuantity())
                         .build();
 
-                if (productProfits.contains(productProfit)) {
-                    productProfits.get(productProfits.indexOf(productProfit)).setProfit(productProfits.get(productProfits.indexOf(productProfit)).getProfit() + profit);
-                    productProfits.get(productProfits.indexOf(productProfit)).setTotalCustomer(productProfits.get(productProfits.indexOf(productProfit)).getTotalCustomer() + 1);
-                    productProfits.get(productProfits.indexOf(productProfit)).setTotalQuantity(productProfits.get(productProfits.indexOf(productProfit)).getTotalQuantity() + invoiceDetail.getQuantity());
-                    productProfits.get(productProfits.indexOf(productProfit)).setRevenue(productProfits.get(productProfits.indexOf(productProfit)).getRevenue() + invoiceDetail.getPrice() * invoiceDetail.getQuantity());
-                    productProfits.get(productProfits.indexOf(productProfit)).setNetRevenue(productProfits.get(productProfits.indexOf(productProfit)).getNetRevenue() + invoiceDetail.getPrice() * invoiceDetail.getQuantity());
-                } else {
+                boolean found = false;
+                for (ProductProfit productProfit1 : productProfits) {
+                    if (productProfit1.getProductId().equals(productProfit.getProductId())) {
+                        productProfit1.setProfit(productProfit1.getProfit() + profit);
+                        productProfit1.setTotalCustomer(productProfit1.getTotalCustomer() + 1);
+                        productProfit1.setTotalQuantity(productProfit1.getTotalQuantity() + invoiceDetail.getQuantity());
+                        productProfit1.setRevenue(productProfit1.getRevenue() + invoiceDetail.getPrice() * invoiceDetail.getQuantity());
+                        productProfit1.setNetRevenue(productProfit1.getNetRevenue() + invoiceDetail.getPrice() * invoiceDetail.getQuantity());
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
                     productProfits.add(productProfit);
                 }
             }
@@ -230,12 +236,18 @@ public class ReportServiceImpl implements ReportService {
                         .netRevenue(-returnDetail.getPrice() * returnDetail.getQuantity())
                         .build();
 
-                if (productProfits.contains(productProfit)) {
-                    productProfits.get(productProfits.indexOf(productProfit)).setProfit(productProfits.get(productProfits.indexOf(productProfit)).getProfit() + profit);
-                    productProfits.get(productProfits.indexOf(productProfit)).setTotalReturn(productProfits.get(productProfits.indexOf(productProfit)).getTotalReturn() - 1);
-                    productProfits.get(productProfits.indexOf(productProfit)).setReturnRevenue(productProfits.get(productProfits.indexOf(productProfit)).getReturnRevenue() - returnDetail.getPrice() * returnDetail.getQuantity());
-                    productProfits.get(productProfits.indexOf(productProfit)).setNetRevenue(productProfits.get(productProfits.indexOf(productProfit)).getNetRevenue() - returnDetail.getPrice() * returnDetail.getQuantity());
-                } else {
+                boolean found = false;
+                for (ProductProfit productProfit1 : productProfits) {
+                    if (productProfit1.getProductId().equals(productProfit.getProductId())) {
+                        productProfit1.setProfit(productProfit1.getProfit() + profit);
+                        productProfit1.setTotalReturn(productProfit1.getTotalReturn() + 1);
+                        productProfit1.setReturnRevenue(productProfit1.getReturnRevenue() + returnDetail.getPrice() * returnDetail.getQuantity());
+                        productProfit1.setNetRevenue(productProfit1.getNetRevenue() - returnDetail.getPrice() * returnDetail.getQuantity());
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
                     productProfits.add(productProfit);
                 }
             }
