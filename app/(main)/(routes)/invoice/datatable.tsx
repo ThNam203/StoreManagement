@@ -39,7 +39,7 @@ import Image from "next/image";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { cn } from "@/lib/utils";
 import { ChevronRight, Lock, PenLine, Trash, Undo2 } from "lucide-react";
-import { useAppDispatch } from "@/hooks";
+import { useAppDispatch, useAppSelector } from "@/hooks";
 import { deleteProduct, updateProduct } from "@/reducers/productsReducer";
 import ProductService from "@/services/productService";
 import LoadingCircle from "@/components/ui/loading_circle";
@@ -132,10 +132,10 @@ const DetailInvoiceTab = ({
   const { toast } = useToast();
 
   return (
-    <div className="py-2">
+    <div className="p-2">
       <div className="flex flex-row gap-2">
-        <div className="flex flex-1 flex-row text-[0.8rem]">
-          <div className="flex flex-1 flex-col gap-1 pr-4">
+        <div className="flex flex-1 flex-row text-[0.8rem] gap-4">
+          <div className="flex flex-1 flex-col gap-1">
             <div className="mb-2 flex flex-row border-b font-medium">
               <p className="w-[120px] font-normal">Invoice id:</p>
               <p>{invoice.id}</p>
@@ -149,7 +149,7 @@ const DetailInvoiceTab = ({
               {invoice.customerId}
             </div>
           </div>
-          <div className="flex flex-1 flex-col gap-1 pr-4">
+          <div className="flex flex-1 flex-col gap-1">
             <div className="mb-2 flex flex-row border-b font-medium">
               <p className="w-[120px] font-normal">Staff id:</p>
               <p>{invoice.staffId}</p>
@@ -247,14 +247,13 @@ const DetailInvoiceTab = ({
 };
 
 const invoiceDetailTitles = {
-  productId: "Product ID",
   quantity: "Quantity",
   price: "Price",
   description: "Description",
 };
 
 const invoiceDetailColumns = () => {
-  const columns: ColumnDef<InvoiceDetail>[] = [];
+  const columns: ColumnDef<InvoiceDetail>[] = [productIdToProductNameColumn];
   for (const key in invoiceDetailTitles) {
     columns.push(defaultColumn(key, invoiceDetailTitles));
   }
@@ -276,3 +275,20 @@ const invoiceDetailTotalColumn: ColumnDef<InvoiceDetail> = {
     );
   },
 };
+
+const productIdToProductNameColumn: ColumnDef<InvoiceDetail> = {
+  accessorKey: "productId",
+  header: ({ column }) => (
+    <DataTableColumnHeader column={column} title="Product" />
+  ),
+  cell: ({ row }) => {
+    const detail = row.original;
+    return ProductNameCell(detail.productId)
+  },
+};
+
+const ProductNameCell = (productId: number) => {
+  const products = useAppSelector((state) => state.products.value);
+  const product = products.find((v) => v.id === productId)!
+  return <p className={cn("text-[0.8rem]", product.isDeleted ? "text-red-500" : "")}>{product.name}</p>;
+}

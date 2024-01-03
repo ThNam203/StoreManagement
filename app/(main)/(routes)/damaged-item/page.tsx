@@ -19,6 +19,8 @@ import { setDamagedItemDocuments } from "@/reducers/damagedItemsReducer";
 import StaffService from "@/services/staff_service";
 import { setStaffs } from "@/reducers/staffReducer";
 import { TimeFilterType, handleDateCondition } from "@/utils";
+import ProductService from "@/services/productService";
+import { setProducts } from "@/reducers/productsReducer";
 
 export default function DamagedItemsPage() {
   const dispatch = useAppDispatch();
@@ -34,10 +36,12 @@ export default function DamagedItemsPage() {
     const fetchData = async () => {
       const damagedItemDocuments =
         await DamagedItemService.getAllDamagedItemDocuments();
-      dispatch(setDamagedItemDocuments(damagedItemDocuments.data));
+        const staffs = await StaffService.getAllStaffs();
+        const products = await ProductService.getAllProducts();
 
-      const staffs = await StaffService.getAllStaffs();
+      dispatch(setDamagedItemDocuments(damagedItemDocuments.data));
       dispatch(setStaffs(staffs.data));
+      dispatch(setProducts(products.data));
     };
 
     fetchData()

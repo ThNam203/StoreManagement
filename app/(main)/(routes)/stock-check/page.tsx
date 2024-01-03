@@ -24,7 +24,6 @@ import { useEffect, useState } from "react";
 import { StockCheckDatatable } from "./datatable";
 import StaffService from "@/services/staff_service";
 import { setStaffs } from "@/reducers/staffReducer";
-import { fi } from "date-fns/locale";
 
 export default function StockCheck() {
   const dispatch = useAppDispatch();
@@ -61,6 +60,10 @@ export default function StockCheck() {
   });
   const [rangeConditions, setRangeConditions] = useState({
     totalStock: {
+      startValue: NaN,
+      endValue: NaN,
+    },
+    totalCountedStock: {
       startValue: NaN,
       endValue: NaN,
     },
@@ -117,6 +120,16 @@ export default function StockCheck() {
       totalValueDifference: condition,
     }));
   };
+
+  const updateTotalCountedStockRangeCondition = (condition: {
+    startValue: number;
+    endValue: number;
+  }) => {
+    setRangeConditions((prev) => ({
+      ...prev,
+      totalCountedStock: condition,
+    }));
+  }
 
   const updateCreatedDateConditionControl = (control: TimeFilterType) => {
     setTimeConditionControls((prev) => ({
@@ -200,18 +213,25 @@ export default function StockCheck() {
       onRangeTimeFilterChanged={updateCreatedDateConditionRange}
     />,
     <RangeFilter
+      key={7}
+      title="Counted Stock"
+      className="mb-2"
+      range={rangeConditions.totalCountedStock}
+      onValuesChanged={updateTotalCountedStockRangeCondition}
+      />,
+      <RangeFilter
+        key={4}
+        title="Stock"
+        className="mb-2"
+        range={rangeConditions.totalStock}
+        onValuesChanged={updateTotalStockRangeCondition}
+      />,
+    <RangeFilter
       key={3}
       title="Total Value"
       className="mb-2"
       range={rangeConditions.totalValue}
       onValuesChanged={updateTotalValueRangeCondition}
-    />,
-    <RangeFilter
-      key={4}
-      title="Total Stock"
-      className="mb-2"
-      range={rangeConditions.totalStock}
-      onValuesChanged={updateTotalStockRangeCondition}
     />,
     <RangeFilter
       key={5}

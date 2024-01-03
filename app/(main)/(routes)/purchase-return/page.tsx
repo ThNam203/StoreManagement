@@ -27,6 +27,8 @@ import {
   handleDateCondition,
   handleRangeNumFilter,
 } from "@/utils";
+import ProductService from "@/services/productService";
+import { setProducts } from "@/reducers/productsReducer";
 
 export default function PurchaseReturnPage() {
   const dispatch = useAppDispatch();
@@ -43,13 +45,14 @@ export default function PurchaseReturnPage() {
     const fetchData = async () => {
       const purchaseReturns =
         await PurchaseReturnService.getAllPurchaseReturns();
-      dispatch(setPurchaseReturns(purchaseReturns.data));
-
       const staffs = await StaffService.getAllStaffs();
-      dispatch(setStaffs(staffs.data));
-
       const suppliers = await SupplierService.getAllSuppliers();
+      const products = await ProductService.getAllProducts();
+
+      dispatch(setPurchaseReturns(purchaseReturns.data));
+      dispatch(setStaffs(staffs.data));
       dispatch(setSuppliers(suppliers.data));
+      dispatch(setProducts(products.data));
     };
 
     fetchData()
@@ -75,7 +78,7 @@ export default function PurchaseReturnPage() {
       startValue: NaN,
       endValue: NaN,
     },
-    subTotal: {
+    subtotal: {
       startValue: NaN,
       endValue: NaN,
     },
@@ -219,11 +222,11 @@ export default function PurchaseReturnPage() {
     <RangeFilter
       key={6}
       title="Sub total"
-      range={rangeConditions.subTotal}
+      range={rangeConditions.subtotal}
       onValuesChanged={(range) =>
         setRangeConditions({
           ...rangeConditions,
-          subTotal: range,
+          subtotal: range,
         })
       }
       className="mb-2"

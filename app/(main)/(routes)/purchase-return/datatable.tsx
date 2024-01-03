@@ -111,10 +111,10 @@ const DetailTab = ({
   const router = useRouter();
 
   return (
-    <>
+    <div className="p-2">
       <div className="flex flex-row gap-4">
-        <div className="flex flex-1 flex-row text-[0.8rem]">
-          <div className="flex flex-1 flex-col gap-2 pr-4">
+        <div className="flex flex-1 flex-row gap-4 text-[0.8rem]">
+          <div className="flex flex-1 flex-col gap-2">
             <DefaultInformationCellDataTable
               title="Purchase Return Id:"
               value={purchaseOrder.id}
@@ -129,7 +129,7 @@ const DetailTab = ({
               // TODO:
             />
           </div>
-          <div className="flex flex-1 flex-col pr-4">
+          <div className="flex flex-1 flex-col">
             <p className="mb-2">Note</p>
             <textarea
               readOnly
@@ -217,6 +217,6 @@ const DetailTab = ({
           {disableDeleteButton ? <LoadingCircle /> : null}
         </Button>
       </div>
-    </>
+    </div>
   );
 };

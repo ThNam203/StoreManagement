@@ -7,7 +7,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -17,26 +16,29 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useAppDispatch, useAppSelector } from "@/hooks";
-import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
-import { ArrowRightCircle, Bell } from "lucide-react";
-import { use, useEffect, useState } from "react";
-import scrollbar_style from "../../../../styles/scrollbar.module.css";
-import styles from "./styles.module.css";
+import { useToast } from "@/components/ui/use-toast";
 import { ActivityLog } from "@/entities/ActivityLog";
-import StaffService from "@/services/staff_service";
+import { SaleProfitByDayReport } from "@/entities/Report";
+import { useAppDispatch, useAppSelector } from "@/hooks";
+import { cn } from "@/lib/utils";
+import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
 import { setStaffs } from "@/reducers/staffReducer";
 import ActivityLogService from "@/services/activityLogService";
-import { format, isAfter, isBefore, set } from "date-fns";
-import { SaleProfitByDayReport } from "@/entities/Report";
 import { axiosUIErrorHandler } from "@/services/axiosUtils";
-import { useRouter } from "next/navigation";
-import { useToast } from "@/components/ui/use-toast";
-import ReportService from "@/services/reportService";
 import InvoiceService from "@/services/invoiceService";
-import { setInvoices } from "@/reducers/invoicesReducer";
+import ReportService from "@/services/reportService";
 import ReturnInvoiceService from "@/services/returnInvoiceService";
-import { cn } from "@/lib/utils";
+import StaffService from "@/services/staff_service";
+import { format, isAfter, isBefore } from "date-fns";
+import { Bell } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import scrollbar_style from "../../../../styles/scrollbar.module.css";
+import styles from "./styles.module.css";
+import { report } from "process";
+import { ReturnInvoiceServer } from "@/entities/ReturnInvoice";
+import { Invoice } from "@/entities/Invoice";
+import { faker } from "@faker-js/faker";
 
 const notifications = [
   {
@@ -127,14 +129,53 @@ export default function OverviewPage() {
   const router = useRouter();
   const { toast } = useToast();
   const staffs = useAppSelector((state) => state.staffs.value);
-  const [todayInvoiceAmount, setTodayInvoiceAmount] = useState<number>(0);
-  const [previousDayInvoiceAmount, setPreviousDayInvoiceAmount] = useState(0);
-  const [todayTotalReturnValue, setTodayTotalReturnValue] = useState(0);
-  const [previousDayTotalReturnValue, setPreviousDayTotalReturnValue] =
-    useState(0);
+  const [chartType, setChartType] = useState<"order" | "revenue" | "refund" | "customer">("order")
   const [saleProfitReport, setSaleProfitReport] =
     useState<SaleProfitByDayReport>([]);
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
+  const [todayInvoices, setTodayInvoices] = useState<Invoice[]>([]);
+  const [todayReturnInvoices, setTodayReturnInvoices] = useState<ReturnInvoiceServer[]>([]);
+  const [previousDayInvoices, setPreviousDayInvoices] = useState<Invoice[]>([]);
+  const [previousDayReturnInvoices, setPreviousDayReturnInvoices] = useState<ReturnInvoiceServer[]>([]);
+
+  const todayReturnsValue = todayReturnInvoices.map((v) => v.total).reduce((acc, cur) => acc + cur, 0)
+  const previousDayReturnsValue = previousDayReturnInvoices.map((v) => v.total).reduce((acc, cur) => acc + cur, 0)
+
+  const getChartLabel = () => {
+    if (chartType === "order") return "Order by hour"
+    if (chartType === "revenue") return "Revenue by hour"
+    if (chartType === "refund") return "Refund by hour"
+    if (chartType === "customer") return "Customer by hour"
+    return ""
+  }
+
+  const getChartData = () => {
+    const invoicesByHour: Invoice[][] = Array.from({length: 24}, (v, i) => i).map((v) => [])
+    const returnsByHour: ReturnInvoiceServer[][] = Array.from({length: 24}, (v, i) => i).map((v) => [])
+
+    todayInvoices.forEach((invoice) => {
+      const hour = new Date(invoice.createdAt).getHours()
+      invoicesByHour[hour].push(invoice)
+    })
+
+    todayReturnInvoices.forEach((invoice) => {
+      const hour = new Date(invoice.createdAt).getHours()
+      returnsByHour[hour].push(invoice)
+    })
+
+    if (chartType === "order") return invoicesByHour.map((invoices) => invoices.length)
+    if (chartType === "revenue") {
+      const invoiceValues = invoicesByHour.map((invoices) => invoices.map((invoice) => invoice.total).reduce((acc, cur) => acc + cur, 0))
+      const returnValues = returnsByHour.map((invoices) => invoices.map((invoice) => invoice.total).reduce((acc, cur) => acc + cur, 0))
+      return invoiceValues.map((value, index) => value - returnValues[index])
+    }
+    if (chartType === "refund") return returnsByHour.map((invoices) => invoices.map((invoice) => invoice.total).reduce((acc, cur) => acc + cur, 0))
+    if (chartType === "customer") {
+      return invoicesByHour.map((invoices) => {
+        return new Set(invoices.map((v) => v.customerId !== null ? v.customerId : {})).size})
+    }
+    return []
+  }
 
   useEffect(() => {
     dispatch(showPreloader());
@@ -160,48 +201,45 @@ export default function OverviewPage() {
           isBefore(new Date(invoice.createdAt), today),
       );
 
-      setTodayInvoiceAmount(todayInvoices.length);
-      setPreviousDayInvoiceAmount(previousDayInvoices.length);
+      setTodayInvoices(todayInvoices);
+      setPreviousDayInvoices(previousDayInvoices);
 
       const returnInvoicesCall =
         await ReturnInvoiceService.getAllReturnInvoices();
-      const todayReturnsValue = returnInvoicesCall.data
+      const todayReturns = returnInvoicesCall.data
         .filter((invoice) => isAfter(new Date(invoice.createdAt), today))
-        .map((v) => v.total)
-        .reduce((a, b) => a + b, 0);
-      const previousDayReturnValue = returnInvoicesCall.data
+      const previousDayReturns = returnInvoicesCall.data
         .filter(
           (invoice) =>
             isAfter(new Date(invoice.createdAt), previousDay) &&
             isBefore(new Date(invoice.createdAt), today),
         )
-        .map((v) => v.total)
-        .reduce((a, b) => a + b, 0);
-      setTodayTotalReturnValue(todayReturnsValue);
-      setPreviousDayTotalReturnValue(previousDayReturnValue);
+      setTodayReturnInvoices(todayReturns);
+      setPreviousDayReturnInvoices(previousDayReturns);
 
       const activityCall = await ActivityLogService.getAllActivityLogs();
       setActivityLogs(activityCall.data);
       const saleProfitReportCall = await ReportService.getSaleProfitByDayReport(
-        today,
         previousDay,
+        today,
       );
       const reportData = saleProfitReportCall.data;
+      const filledDataReport = {
+        costPrice: 0,
+        revenue: 0,
+        date: "",
+        profit: 0,
+      };
       if (reportData.length === 0) {
-        reportData.push({
-          costPrice: 0,
-          revenue: 0,
-          date: "",
-          profit: 0,
-        });
-      }
-      if (reportData.length === 1) {
-        reportData.push({
-          costPrice: 0,
-          revenue: 0,
-          date: "",
-          profit: 0,
-        });
+        reportData.push({ ...filledDataReport });
+        reportData.push();
+      } else if (reportData.length === 1) {
+        if (
+          new Date(reportData[0].date).setHours(0, 0, 0, 0) ===
+          today.setHours(0, 0, 0, 0)
+        )
+          reportData.unshift({ ...filledDataReport });
+        else reportData.push({ ...filledDataReport });
       }
       setSaleProfitReport(saleProfitReportCall.data);
     };
@@ -221,7 +259,7 @@ export default function OverviewPage() {
       <div className="flex min-w-0 flex-1 flex-col rounded-sm bg-white px-4 py-2">
         <div className="flex flex-row justify-between">
           <h2 className="my-4 text-start text-2xl font-semibold">Overview</h2>
-          <Popover>
+          {/* <Popover>
             <PopoverTrigger className="mr-4 h-[20px] w-[20px] self-center">
               <div className="relative">
                 <Bell size={20} />
@@ -240,7 +278,7 @@ export default function OverviewPage() {
                 <Notification {...notification} key={notification!.id} />
               ))}
             </PopoverContent>
-          </Popover>
+          </Popover> */}
         </div>
         {saleProfitReport.length > 0 ? (
           <div className={styles.overview_cards}>
@@ -251,19 +289,19 @@ export default function OverviewPage() {
               }
             >
               <h4 className="text-xs text-gray-500">Total orders</h4>
-              <h2 className="my-2 text-3xl font-bold">{todayInvoiceAmount}</h2>
+              <h2 className="my-2 text-3xl font-bold">{todayInvoices.length}</h2>
               <p className="text-xs text-gray-500">
                 <span
                   className={cn(
-                    todayInvoiceAmount > previousDayInvoiceAmount
+                    todayInvoices.length > previousDayInvoices.length
                       ? "text-green-500"
                       : "text-red-500",
                   )}
                 >
-                  {todayInvoiceAmount >= previousDayInvoiceAmount ? "+" : "-"}
+                  {todayInvoices.length >= previousDayInvoices.length ? "+" : "-"}
                   {Math.abs(
-                    ((todayInvoiceAmount - previousDayInvoiceAmount) /
-                      Math.max(previousDayInvoiceAmount, 1)) *
+                    ((todayInvoices.length - previousDayInvoices.length) /
+                      Math.max(previousDayInvoices.length, 1)) *
                       100,
                   ).toFixed(2)}
                   %
@@ -311,22 +349,22 @@ export default function OverviewPage() {
             >
               <h4 className="text-xs text-gray-500">Refunds</h4>
               <h2 className="my-2 text-3xl font-bold">
-                {todayTotalReturnValue} VND
+                {todayReturnsValue} VND
               </h2>
               <p className="text-xs text-gray-500">
                 <span
                   className={cn(
-                    todayTotalReturnValue <= previousDayTotalReturnValue
+                    todayReturnsValue <= previousDayReturnsValue
                       ? "text-green-500"
                       : "text-red-500",
                   )}
                 >
-                  {todayTotalReturnValue <= previousDayTotalReturnValue
+                  {todayReturnsValue <= previousDayReturnsValue
                     ? "-"
                     : "+"}
                   {Math.abs(
-                    ((todayTotalReturnValue - previousDayTotalReturnValue) /
-                      Math.max(previousDayTotalReturnValue, 1)) *
+                    ((todayReturnsValue - previousDayReturnsValue) /
+                      Math.max(previousDayReturnsValue, 1)) *
                       100,
                   ).toFixed(2)}
                   %
@@ -341,6 +379,9 @@ export default function OverviewPage() {
               }
             >
               <h4 className="text-xs text-gray-500">Cost</h4>
+              <h2 className="my-2 text-3xl font-bold">
+                {saleProfitReport[1].costPrice} VND
+              </h2>
               <h2 className="my-2 text-3xl font-bold">
                 {saleProfitReport[1].costPrice} VND
               </h2>
@@ -386,24 +427,21 @@ export default function OverviewPage() {
             />
             <h3 className="mr-2 font-bold uppercase">2.245.500VND</h3> */}
             <div className="flex-1"></div>
-            <Select defaultValue="apple">
+            <Select value={chartType} onValueChange={(e) => setChartType(e as "order" | "revenue" | "refund" | "customer")}>
               <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select a fruit" />
+                <SelectValue placeholder="Select type" />
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
-                  <SelectLabel>Fruits</SelectLabel>
-                  <SelectItem value="apple">Apple</SelectItem>
-                  <SelectItem value="banana">Banana</SelectItem>
-                  <SelectItem value="blueberry">Blueberry</SelectItem>
-                  <SelectItem value="grapes">Grapes</SelectItem>
-                  <SelectItem value="pineapple">Pineapple</SelectItem>
+                  <SelectItem value="order">Order by hour</SelectItem>
+                  <SelectItem value="revenue">Revenue by hour</SelectItem>
+                  <SelectItem value="refund">Refund by hour</SelectItem>
+                  <SelectItem value="customer">Customer by hour</SelectItem>
                 </SelectGroup>
               </SelectContent>
             </Select>
           </div>
-
-          <Charts.BarChart />
+          <Charts.BarChart label={getChartLabel()} data={getChartData()} />
         </div>
         {/* <div
           className={
@@ -415,7 +453,12 @@ export default function OverviewPage() {
       </div>
       <div className={styles["notification-board"]}>
         <h3 className="my-2 font-semibold uppercase">Recent activities</h3>
-        <ScrollArea scrollHideDelay={100}>
+        <div
+          className={cn(
+            "h-full overflow-hidden pr-2 hover:overflow-auto",
+            scrollbar_style.scrollbar,
+          )}
+        >
           {activityLogs.map((activity) => {
             const staff = staffs.find(
               (staff) => staff.id === activity.staffId,
@@ -435,7 +478,7 @@ export default function OverviewPage() {
               ></RecentActivityItem>
             );
           })}
-        </ScrollArea>
+        </div>
       </div>
     </div>
   );
