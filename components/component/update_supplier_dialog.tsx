@@ -34,6 +34,7 @@ import SupplierService from "@/services/supplierService";
 import { addSupplierGroup } from "@/reducers/supplierGroupsReducer";
 import { addSupplier, updateSupplier } from "@/reducers/suppliersReducer";
 import { Supplier } from "@/entities/Supplier";
+import { useRouter } from "next/navigation";
 
 const updateSupplierFormSchema = z.object({
   id: z.number(),
@@ -75,8 +76,7 @@ export default function UpdateSupplierDialog({
 }) {
   const [isUpdatingSupplier, setIsUpdatingSupplier] = useState(false);
   const [open, setOpen] = useState(false);
-  let [file, setFile] = useState<File | null>(null);
-  const onFileChanged = (newFile: File | null) => setFile(newFile);
+  const router = useRouter();
   const dispatch = useAppDispatch();
   const { toast } = useToast();
 
@@ -89,7 +89,7 @@ export default function UpdateSupplierDialog({
         dispatch(updateSupplier(result.data));
         setOpen(false);
       })
-      .catch((error) => axiosUIErrorHandler(error, toast))
+      .catch((error) => axiosUIErrorHandler(error, toast, router))
       .finally(() => {
         setIsUpdatingSupplier(false);
       });
@@ -144,6 +144,7 @@ const FormContent = ({
   supplier: Supplier;
 }) => {
   const { toast } = useToast();
+  const router = useRouter();
   const supplierGroups = useAppSelector((state) => state.supplierGroups.value);
   const form = useForm<z.infer<typeof updateSupplierFormSchema>>({
     resolver: zodResolver(updateSupplierFormSchema),
@@ -159,7 +160,7 @@ const FormContent = ({
       dispatch(addSupplierGroup(data.data));
       return Promise.resolve();
     } catch (e) {
-      axiosUIErrorHandler(e, toast);
+      axiosUIErrorHandler(e, toast, router);
       return Promise.reject(e);
     }
   };

@@ -61,6 +61,7 @@ import { useAppSelector } from "@/hooks";
 import { faker } from "@faker-js/faker";
 import AddNewThing from "../add_new_thing_dialog";
 import { formatNumberInput } from "@/utils";
+import { useRouter } from "next/navigation";
 
 const newProductFormSchema = z.object({
   barcode: z
@@ -224,6 +225,7 @@ export const NewProductView = ({
   onDeleteProperty: (deletePropertyId: number) => any;
 }) => {
   const { toast } = useToast();
+  const router = useRouter();
   const productLocationChoices = useAppSelector(
     (state) => state.productLocations.value,
   );
@@ -547,7 +549,7 @@ export const NewProductView = ({
         onNewProductsAdded(result.data);
         onChangeVisibility(false);
       })
-      .catch((e) => axiosUIErrorHandler(e, toast))
+      .catch((e) => axiosUIErrorHandler(e, toast, router))
       .finally(() => {
         setIsCreatingNewProduct(false);
       });

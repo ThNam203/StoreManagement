@@ -13,10 +13,12 @@ import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
 import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import ReportService from "@/services/reportService";
 import { TimeFilterType, getDateRangeFromTimeFilterCondition } from "@/utils";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function ProductSaleReportPage() {
   const { toast } = useToast();
+  const router = useRouter();
   const dispatch = useAppDispatch();
   const [report, setReport] = useState<ProductSellReport | null>(null);
   const [reportDateRangeCondition, setReportDateRange] = useState({
@@ -46,7 +48,7 @@ export default function ProductSaleReportPage() {
     };
 
     fetchReport()
-      .catch((err) => axiosUIErrorHandler(err, toast))
+      .catch((err) => axiosUIErrorHandler(err, toast, router))
       .finally(() => dispatch(disablePreloader()));
   }, [reportDateRangeCondition, reportDateSingleCondition, reportDateControl]);
 

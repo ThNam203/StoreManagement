@@ -1,22 +1,34 @@
 "use client";
 
-import { FilterDay, FilterTime, PageWithFilters, TimeFilter } from "@/components/ui/filter";
+import {
+  FilterDay,
+  FilterTime,
+  PageWithFilters,
+  TimeFilter,
+} from "@/components/ui/filter";
 import {
   DefaultPDFContent,
   ReportPDFDownloadButton,
   ReportPDFView,
 } from "@/components/ui/pdf";
 import { useToast } from "@/components/ui/use-toast";
-import { FinanceReport, ProductSellReport, SaleByDayReport, SupplyTransactionReport } from "@/entities/Report";
+import {
+  FinanceReport,
+  ProductSellReport,
+  SaleByDayReport,
+  SupplyTransactionReport,
+} from "@/entities/Report";
 import { useAppDispatch } from "@/hooks";
 import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
 import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import ReportService from "@/services/reportService";
 import { TimeFilterType, getDateRangeFromTimeFilterCondition } from "@/utils";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function SupplyTransactionReportPage() {
   const { toast } = useToast();
+  const router = useRouter();
   const dispatch = useAppDispatch();
   const [report, setReport] = useState<SupplyTransactionReport | null>(null);
   const [reportDateRangeCondition, setReportDateRange] = useState({
@@ -46,7 +58,7 @@ export default function SupplyTransactionReportPage() {
     };
 
     fetchReport()
-      .catch((err) => axiosUIErrorHandler(err, toast))
+      .catch((err) => axiosUIErrorHandler(err, toast, router))
       .finally(() => dispatch(disablePreloader()));
   }, [reportDateRangeCondition, reportDateSingleCondition, reportDateControl]);
 

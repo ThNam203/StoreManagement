@@ -15,6 +15,7 @@ public class CustomerMapper {
         customerDTO.setStatus(customer.getStatus());
         customerDTO.setBirthday(customer.getBirthday());
         customerDTO.setAddress(customer.getAddress());
+        customerDTO.setIsDeleted(customer.getIsDeleted());
         customerDTO.setCreatedAt(customer.getCreatedAt());
         if (customer.getCreator() != null) {
             customerDTO.setCreatorId(customer.getCreator().getId());
@@ -37,6 +38,7 @@ public class CustomerMapper {
         customer.setStatus(customerDTO.getStatus());
         customer.setBirthday(customerDTO.getBirthday());
         customer.setAddress(customerDTO.getAddress());
+        customer.setIsDeleted(customerDTO.getIsDeleted());
         customer.setCreatedAt(customerDTO.getCreatedAt());
         return customer;
     }

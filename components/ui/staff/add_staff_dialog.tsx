@@ -48,6 +48,7 @@ import { useDispatch } from "react-redux";
 import { ChooseImageButton } from "./choose_image";
 import { AddPositionDialog } from "./position_dialog";
 import { axiosUIErrorHandler } from "@/services/axiosUtils";
+import { useRouter } from "next/navigation";
 
 const OptionView = (option: string): React.ReactNode => {
   return <p className="whitespace-nowrap text-xs">{option}</p>;
@@ -173,13 +174,14 @@ export function AddStaffDialog({
           setOpen(false);
         });
       } catch (e) {
-        console.log(e);
+        axiosUIErrorHandler(e, toast, router);
       } finally {
         setIsLoading(false);
       }
     }
   };
   const { toast } = useToast();
+  const router = useRouter();
   const dispatch = useDispatch();
   const roleList = useAppSelector((state) => state.role.value);
   const roleNames = roleList.map((role) => role.positionName);
@@ -250,7 +252,7 @@ export function AddStaffDialog({
       dispatch(addPosition(res.data));
       return Promise.resolve();
     } catch (e) {
-      axiosUIErrorHandler(e, toast);
+      axiosUIErrorHandler(e, toast, router);
       return Promise.reject(e);
     } finally {
       setIsAddingNewPosition(false);

@@ -23,6 +23,7 @@ import {
   damagedItemDocumentDetailColumnTitles,
   damagedItemDocumentDetailTableColumns,
 } from "./table_columns";
+import { useRouter } from "next/navigation";
 
 export function DamagedItemsDatatable({
   data,
@@ -30,6 +31,7 @@ export function DamagedItemsDatatable({
   data: DamagedItemDocument[];
 }) {
   const { toast } = useToast();
+  const router = useRouter();
   const dispatch = useAppDispatch();
   async function deleteDamagedItemDocuments(
     dataToDelete: DamagedItemDocument[],
@@ -57,7 +59,7 @@ export function DamagedItemsDatatable({
         return Promise.resolve();
       });
     } catch (e) {
-      axiosUIErrorHandler(e, toast);
+      axiosUIErrorHandler(e, toast, router);
       return Promise.reject();
     }
   }
@@ -103,6 +105,7 @@ const DetailTab = ({
   const [disableDeleteButton, setDisableDeleteButton] = useState(false);
   const dispatch = useAppDispatch();
   const { toast } = useToast();
+  const router = useRouter();
   const staffs = useAppSelector((state) => state.staffs.value);
 
   return (
@@ -182,7 +185,7 @@ const DetailTab = ({
                 dispatch(deleteDamagedItemDocument(document.id));
                 setShowInfoRow(false);
               })
-              .catch((error) => axiosUIErrorHandler(error, toast))
+              .catch((error) => axiosUIErrorHandler(error, toast, router))
               .finally(() => setDisableDeleteButton(false));
           }}
           disabled={disableDeleteButton || disableDisableButton}

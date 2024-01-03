@@ -1,6 +1,7 @@
 package com.springboot.store.controller;
 
 import com.springboot.store.repository.StaffRepository;
+import com.springboot.store.service.NotificationService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.view.RedirectView;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
@@ -22,13 +24,20 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class DemoController {
     private final StaffRepository staffRepository;
+    private final NotificationService notificationService;
     @GetMapping
     public ResponseEntity<?> hello(HttpServletResponse response) {
         response.addCookie(new Cookie("hello", "world"));
+        notificationService.notifyLowStock(1, 2);
         return ResponseEntity.ok().body("Hello world: " + new Date());
     }
     @GetMapping("/{id}")
     public ResponseEntity<?> hello(@PathVariable Integer id) {
         return ResponseEntity.status(201).body(staffRepository.findByStoreId(id));
+    }
+
+    @GetMapping("/redirect")
+    public RedirectView redirect() {
+        return new RedirectView("https://localhost:5500");
     }
 }

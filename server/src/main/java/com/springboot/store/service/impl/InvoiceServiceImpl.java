@@ -9,10 +9,7 @@ import com.springboot.store.repository.CustomerRepository;
 import com.springboot.store.repository.DiscountCodeRepository;
 import com.springboot.store.repository.InvoiceRepository;
 import com.springboot.store.repository.ProductRepository;
-import com.springboot.store.service.ActivityLogService;
-import com.springboot.store.service.DiscountService;
-import com.springboot.store.service.IncomeFormService;
-import com.springboot.store.service.InvoiceService;
+import com.springboot.store.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -33,6 +30,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     private final DiscountService discountService;
     private final IncomeFormService incomeFormService;
     private final ActivityLogService activityLogService;
+    private final NotificationService notificationService;
 
     @Override
     public InvoiceDTO getInvoiceById(int id) {
@@ -88,6 +86,9 @@ public class InvoiceServiceImpl implements InvoiceService {
                     .forEach(invoiceDetailDTO -> {
                         Product product = productRepository.findById(invoiceDetailDTO.getProductId()).orElseThrow(() -> new CustomException("Product with id " + invoiceDetailDTO.getProductId() + " does not exist", HttpStatus.NOT_FOUND));
                         product.setStock(product.getStock() - invoiceDetailDTO.getQuantity());
+                        if (product.getStock() < product.getMinStock()) {
+                            notificationService.notifyLowStock(product.getId(), product.getStock());
+                        }
                         productRepository.save(product);
                     });
         }

@@ -50,6 +50,7 @@ public class ProductServiceImpl implements ProductService {
         Staff staff = staffService.getAuthorizedStaff();
         for (ProductDTO productDTO : productDTOs) {
             Product product = ProductMapper.toProduct(productDTO);
+            product.setIsDeleted(false);
 
             if (productDTO.getLocation() != null) {
                 Location location = locationRepository.findByNameAndStoreId(productDTO.getLocation(), staff.getStore().getId())

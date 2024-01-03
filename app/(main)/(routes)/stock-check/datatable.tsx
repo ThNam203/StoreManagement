@@ -21,6 +21,7 @@ import { deleteStockCheck } from "@/reducers/stockChecksReducer";
 import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import { ColumnDef } from "@tanstack/react-table";
 import { defaultColumn } from "@/components/ui/my_table_default_column";
+import { useRouter } from "next/navigation";
 
 const visibilityState = {
   creatorId: false,
@@ -30,6 +31,7 @@ const visibilityState = {
 export function StockCheckDatatable({ data }: { data: StockCheck[] }) {
   const { toast } = useToast();
   const dispatch = useAppDispatch();
+  const router = useRouter();
 
   async function deleteStockChecks(dataToDelete: StockCheck[]): Promise<void> {
     const promises = dataToDelete.map((stockCheck) => {
@@ -53,7 +55,7 @@ export function StockCheckDatatable({ data }: { data: StockCheck[] }) {
         return Promise.resolve();
       });
     } catch (e) {
-      axiosUIErrorHandler(e, toast);
+      axiosUIErrorHandler(e, toast, router);
       return Promise.reject();
     }
   }
@@ -100,6 +102,7 @@ const DetailTab = ({
   const [disableDeleteButton, setDisableDeleteButton] = useState(false);
   const dispatch = useAppDispatch();
   const { toast } = useToast();
+  const router = useRouter();
 
   return (
     <>
@@ -226,7 +229,7 @@ const DetailTab = ({
                 dispatch(deleteStockCheck(stockCheck.id));
                 setShowInfoRow(false);
               })
-              .catch((error) => axiosUIErrorHandler(error, toast))
+              .catch((error) => axiosUIErrorHandler(error, toast, router))
               .finally(() => setDisableDeleteButton(false));
           }}
           disabled={disableDeleteButton || disableDisableButton}

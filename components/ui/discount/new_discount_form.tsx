@@ -30,6 +30,7 @@ import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import { format } from "date-fns";
 import { Button } from "../button";
 import { MultipleChoicesSearchInput } from "@/components/component/StringChoicesSearchInput";
+import { useRouter } from "next/navigation";
 
 const newDiscountFormSchema = z.object({
   name: z
@@ -70,6 +71,7 @@ export default function NewDiscountForm({
   setOpen: (value: boolean) => any;
 }) {
   const { toast } = useToast();
+  const router = useRouter();
   const dispatch = useAppDispatch();
   const [isTimeRangeOpen, setIsTimeRangeOpen] = useState(false);
   const [isCreatingNewDiscount, setIsCreatingNewDiscount] = useState(false);
@@ -110,7 +112,7 @@ export default function NewDiscountForm({
         dispatch(addDiscount(result.data));
         setOpen(false);
       })
-      .catch((e) => axiosUIErrorHandler(e, toast))
+      .catch((e) => axiosUIErrorHandler(e, toast, router))
       .finally(() => {
         setIsCreatingNewDiscount(false);
       });

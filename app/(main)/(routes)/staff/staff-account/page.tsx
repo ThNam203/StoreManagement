@@ -38,10 +38,12 @@ import { setDetailPunishAndBonusList } from "@/reducers/staffPunishAndRewardRedu
 import RoleService from "@/services/role_service";
 import { setRoles } from "@/reducers/roleReducer";
 import { convertRoleReceived } from "@/utils/roleSettingApiUtils";
+import { useRouter } from "next/navigation";
 
 export default function StaffInfoPage() {
   const dispatch = useAppDispatch();
   const { toast } = useToast();
+  const router = useRouter();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -76,7 +78,7 @@ export default function StaffInfoPage() {
         const detailPunishAndBonusList = resDetailPunishAndBonus.data;
         dispatch(setDetailPunishAndBonusList(detailPunishAndBonusList));
       } catch (e) {
-        axiosUIErrorHandler(e, toast);
+        axiosUIErrorHandler(e, toast, router);
       } finally {
         dispatch(disablePreloader());
       }
@@ -121,7 +123,7 @@ export default function StaffInfoPage() {
       return Promise.resolve();
     } catch (e) {
       console.log(e);
-      axiosUIErrorHandler(e, toast);
+      axiosUIErrorHandler(e, toast, router);
       return Promise.reject(e);
     }
   };
@@ -147,7 +149,7 @@ export default function StaffInfoPage() {
       dispatch(updateStaff(staffReceived));
       return Promise.resolve();
     } catch (e) {
-      axiosUIErrorHandler(e, toast);
+      axiosUIErrorHandler(e, toast, router);
       return Promise.reject(e);
     }
   };
@@ -158,7 +160,7 @@ export default function StaffInfoPage() {
       dispatch(deleteStaff(id));
       return Promise.resolve();
     } catch (e) {
-      axiosUIErrorHandler(e, toast);
+      axiosUIErrorHandler(e, toast, router);
       return Promise.reject(e);
     }
   };

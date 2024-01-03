@@ -54,7 +54,7 @@ export default function PurchaseReturnPage() {
 
     fetchData()
       .then()
-      .catch((e) => axiosUIErrorHandler(e, toast))
+      .catch((e) => axiosUIErrorHandler(e, toast, router))
       .finally(() => dispatch(disablePreloader()));
   }, []);
 

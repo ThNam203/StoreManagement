@@ -45,6 +45,9 @@ public class Customer {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date birthday;
 
+    @Column(name = "is_deleted")
+    private Boolean isDeleted;
+
     @Column(name = "created_at")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdAt;

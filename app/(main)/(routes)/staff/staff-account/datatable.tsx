@@ -77,6 +77,7 @@ import {
   workScheduleDefaultVisibilityState,
   workScheduleTableColumns,
 } from "./table_columns";
+import { useRouter } from "next/navigation";
 
 export function DataTable({
   data,
@@ -382,6 +383,7 @@ const StaffInfoTab = ({
   onStaffDeleteButtonClicked: (rowIndex: number) => any;
 }) => {
   const { toast } = useToast();
+  const router = useRouter();
   const staff = row.original;
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   const [contentConfirmDialog, setContentConfirmDialog] = useState({
@@ -400,7 +402,7 @@ const StaffInfoTab = ({
       });
       return Promise.resolve();
     } catch (e) {
-      axiosUIErrorHandler(e, toast);
+      axiosUIErrorHandler(e, toast, router);
       return Promise.reject(e);
     } finally {
       setIsRemoving(false);
@@ -703,6 +705,7 @@ const StaffSalaryDebtTab = ({
   expenseFormsByStaff: Transaction[];
 }) => {
   const { toast } = useToast();
+  const router = useRouter();
   const dispatch = useDispatch();
   const staff = row.original;
   const [selectedTransaction, setSelectedTransaction] =
@@ -721,7 +724,7 @@ const StaffSalaryDebtTab = ({
       dispatch(addTransaction(convertedPayment));
       return Promise.resolve();
     } catch (e) {
-      axiosUIErrorHandler(e, toast);
+      axiosUIErrorHandler(e, toast, router);
       return Promise.reject();
     }
   };

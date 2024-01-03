@@ -46,6 +46,7 @@ import LoadingCircle from "@/components/ui/loading_circle";
 import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import { useToast } from "@/components/ui/use-toast";
 import { CustomDatatable } from "@/components/component/custom_datatable";
+import { useRouter } from "next/navigation";
 
 export function CatalogDatatable({
   data,
@@ -55,6 +56,7 @@ export function CatalogDatatable({
   onProductUpdateButtonClicked: (rowIndex: number) => any;
 }) {
   const { toast } = useToast();
+  const router = useRouter();
   const dispatch = useAppDispatch();
 
   async function deleteProducts(dataToDelete: Product[]): Promise<void> {
@@ -79,7 +81,7 @@ export function CatalogDatatable({
         return Promise.resolve();
       });
     } catch (e) {
-      axiosUIErrorHandler(e, toast);
+      axiosUIErrorHandler(e, toast, router);
       return Promise.reject();
     }
   }
@@ -128,6 +130,7 @@ const DetailProductTab = ({
   const [disableDeleteButton, setDisableDeleteButton] = useState(false);
   const dispatch = useAppDispatch();
   const { toast } = useToast();
+  const router = useRouter();
 
   return (
     <>
@@ -276,7 +279,7 @@ const DetailProductTab = ({
               .then((result) => {
                 dispatch(updateProduct(result.data));
               })
-              .catch((e) => axiosUIErrorHandler(e, toast))
+              .catch((e) => axiosUIErrorHandler(e, toast, router))
               .finally(() => setDisableDisableButton(false));
           }}
         >
@@ -293,7 +296,7 @@ const DetailProductTab = ({
                 dispatch(deleteProduct(product.id));
                 setShowTabs(false);
               })
-              .catch((error) => axiosUIErrorHandler(error, toast))
+              .catch((error) => axiosUIErrorHandler(error, toast, router))
               .finally(() => setDisableDeleteButton(false));
           }}
           disabled={disableDeleteButton || disableDisableButton}
