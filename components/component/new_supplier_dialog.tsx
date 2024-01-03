@@ -72,20 +72,13 @@ export default function NewSupplierDialog({
 }) {
   const [isCreatingNewSupplier, setIsCreatingNewSupplier] = useState(false);
   const [open, setOpen] = useState(false);
-  let [file, setFile] = useState<File | null>(null);
   const dispatch = useAppDispatch();
   const { toast } = useToast();
   const router = useRouter();
 
   const onSubmit = (values: z.infer<typeof newSupplierFormSchema>) => {
-    const formData = new FormData();
-    if (file) formData.append("file", file);
-    formData.append(
-      "data",
-      new Blob([JSON.stringify(values)], { type: "application/json" }),
-    );
     setIsCreatingNewSupplier(true);
-    SupplierService.uploadSupplier(formData)
+    SupplierService.uploadSupplier(values)
       .then((result) => {
         dispatch(addSupplier(result.data));
         setOpen(false);

@@ -82,7 +82,7 @@ export default function SaleReportLayout() {
     fetchReport()
       .catch((err) => axiosUIErrorHandler(err, toast, router))
       .finally(() => dispatch(disablePreloader()));
-  }, [reportDateRangeCondition, reportDateSingleCondition, reportDateControl]);
+  }, [reportDateRangeCondition, reportDateSingleCondition, reportDateControl, valueRangeConditions]);
 
   const filters = [
     <TimeFilter

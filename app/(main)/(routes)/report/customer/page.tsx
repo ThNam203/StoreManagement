@@ -16,8 +16,6 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import {
   CustomerReport,
-  ProductSellReport,
-  SaleByDayReport,
 } from "@/entities/Report";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
@@ -109,6 +107,7 @@ export default function CustomerReportPage() {
     reportDateSingleCondition,
     reportDateControl,
     customerCreatorCondition,
+    valueRangeConditions,
   ]);
 
   const filters = [

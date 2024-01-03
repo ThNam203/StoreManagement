@@ -259,7 +259,7 @@ export default function InvoicePage() {
       filters={filters}
       headerButtons={[<NewInvoiceButton key={1} />]}
     >
-      <CustomerDatatable data={filteredCustomers} />
+      <CustomerDatatable data={filteredCustomers.filter((customer) => !customer.isDeleted)} />
     </PageWithFilters>
   );
 }
