@@ -1,11 +1,14 @@
 package com.springboot.store.service.impl;
 
 import com.springboot.store.entity.*;
+import com.springboot.store.payload.ListBonusAndPunishForStaffDTO;
+import com.springboot.store.payload.ListBonusForStaffDTO;
 import com.springboot.store.payload.report.*;
 import com.springboot.store.repository.CustomerRepository;
 import com.springboot.store.repository.InvoiceRepository;
 import com.springboot.store.repository.ProductRepository;
 import com.springboot.store.repository.ReturnInvoiceRepository;
+import com.springboot.store.service.ListBonusAndPunishForStaffService;
 import com.springboot.store.service.ReportService;
 import com.springboot.store.service.StaffService;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +32,7 @@ public class ReportServiceImpl implements ReportService {
 
         int storeId = staffService.getAuthorizedStaff().getStore().getId();
         Map<String, Object> salesReport = new HashMap<>();
-         salesReport.put("invoices", invoiceRepository.findByStoreIdAndCreatedAtBetween(storeId, startDate, endDate)
+        salesReport.put("invoices", invoiceRepository.findByStoreIdAndCreatedAtBetween(storeId, startDate, endDate)
                 .stream()
                 .map(invoice -> {
                     Map<String, Object> invoiceMap = new HashMap<>();
@@ -362,6 +365,9 @@ public class ReportServiceImpl implements ReportService {
         }
 
         financialReport.setGrossProfit(financialReport.getNetRevenue() - financialReport.getCostOfGoodsSold());
+        financialReport.setSalaryStaff(staffService.getStaffSalaryInDate(startDate, endDate));
+        financialReport.setBonusStaff(staffService.getStaffBonusInDate(startDate, endDate));
+        financialReport.setPenaltyStaff(staffService.getStaffPunishInDate(startDate, endDate));
 
         financialReport.setNetProfit(financialReport.getGrossProfit()
                 - financialReport.getSalaryStaff()
