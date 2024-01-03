@@ -65,6 +65,7 @@ import {
   convertStaffToSent,
 } from "@/utils/staffApiUtils";
 import { useRouter } from "next/navigation";
+import { setProfile } from "@/reducers/profileReducer";
 
 enum IconNames {
   GanttChartSquare,
@@ -310,25 +311,11 @@ const SideBar = ({
   isSideBarCollapsed: boolean | null;
 }) => {
   const { toast } = useToast();
+  const dispatch = useDispatch();
   const router = useRouter();
-  const [thisAccount, setThisAccount] = useState<Staff>();
+  const thisAccount = useAppSelector((state) => state.profile.value);
+  console.log("thisAccount", thisAccount);
   const [openProfileDialog, setOpenProfileDialog] = useState(false);
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const resStaff = await StaffService.getAllStaffs();
-        const convertedStaffs = resStaff.data.map((staff) =>
-          convertStaffReceived(staff),
-        );
-        setThisAccount(
-          convertedStaffs.find((staff) => staff.position === "Owner"),
-        );
-      } catch (e) {
-        axiosUIErrorHandler(e, toast, router);
-      }
-    };
-    fetchData();
-  }, []);
 
   const updateOwner = async (value: Staff, avatar: File | null) => {
     try {
@@ -348,7 +335,7 @@ const SideBar = ({
       );
       const staffReceived = convertStaffReceived(staffResult.data);
       console.log("staffReceived", staffReceived);
-      setThisAccount(staffReceived);
+      dispatch(setProfile(staffReceived));
       return Promise.resolve();
     } catch (e) {
       axiosUIErrorHandler(e, toast, router);

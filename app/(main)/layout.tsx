@@ -16,6 +16,7 @@ import { setProfile } from "@/reducers/profileReducer";
 import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
+import { convertStaffReceived } from "@/utils/staffApiUtils";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
@@ -38,7 +39,8 @@ const GlobalState = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const getUserInfo = async () => {
       const profile = await ProfileService.getProfile();
-      dispatch(setProfile(profile.data));
+      const convertedProfile = convertStaffReceived(profile.data);
+      dispatch(setProfile(convertedProfile));
     };
 
     getUserInfo()
