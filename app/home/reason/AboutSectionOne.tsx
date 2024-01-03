@@ -8,7 +8,7 @@ const checkIcon = (
 );
 const List = ({ text }: { text: string }) => (
   <p className="text-body-color mb-5 flex items-center text-lg font-medium">
-    <span className="mr-4 flex h-[30px] w-[30px] items-center justify-center rounded-md bg-primary bg-opacity-10 text-primary">
+    <span className="bg-purple text-purple mr-4 flex h-[30px] w-[30px] items-center justify-center rounded-md bg-opacity-10">
       {checkIcon}
     </span>
     {text}

@@ -13,13 +13,11 @@ import Footer from "./footer";
 export default function HomePage() {
   return (
     <>
-      <Header />
       <ScrollUp />
       <Hero />
       <Features />
       <AboutSectionOne />
       <AboutSectionTwo />
-      <Footer />
     </>
   );
 }

@@ -34,6 +34,10 @@ module.exports = {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
         },
+        current: "currentColor",
+        dark: "#1D2144",
+        purple: "#4A6CF7",
+        yellow: "#FBB040",
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
           foreground: "hsl(var(--secondary-foreground))",
@@ -58,19 +62,11 @@ module.exports = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-
-        // color for landing page
-        current: "currentColor",
-        transparent: "transparent",
-        dark: "#1D2144",
-        primary: "#4A6CF7",
-        yellow: "#FBB040",
-        "body-color": "#959CB1",
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        lg: "12px",
+        md: "8px",
+        sm: "4px",
       },
       keyframes: {
         "accordion-down": {
