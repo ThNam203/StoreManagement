@@ -26,9 +26,14 @@ const Login = (values: z.infer<typeof loginFormSchema>) => {
   );
 };
 
+const logOut = () => {
+  return AxiosService.post("/api/auth/logout", {}, { withCredentials: true });
+}
+
 const AuthService = {
   Register,
   Login,
+  logOut
 };
 
 export default AuthService;
