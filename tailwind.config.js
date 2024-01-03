@@ -15,7 +15,7 @@ module.exports = {
         "2xl": "1400px",
       },
     },
-    extend: {  
+    extend: {
       fontSize: {
         xs: "0.8rem",
       },
@@ -53,6 +53,16 @@ module.exports = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+
+        // color for landing page
+        current: "currentColor",
+        transparent: "transparent",
+        white: "#FFFFFF",
+        black: "#090E34",
+        dark: "#1D2144",
+        primary: "#4A6CF7",
+        yellow: "#FBB040",
+        "body-color": "#959CB1",
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -77,14 +87,14 @@ module.exports = {
           to: { height: 0 },
         },
         marquee: {
-          '0%': { transform: 'translateX(0%)' },
-          '100%': { transform: 'translateX(-100%)' },
+          "0%": { transform: "translateX(0%)" },
+          "100%": { transform: "translateX(-100%)" },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "marquee": 'marquee 10s linear infinite',
+        marquee: "marquee 10s linear infinite",
       },
     },
   },

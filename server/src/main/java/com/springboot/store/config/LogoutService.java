@@ -35,6 +35,10 @@ public class LogoutService implements LogoutHandler {
             return;
         }
 
+        // remove access token and refresh token from cookie
+        response.addHeader("Set-Cookie", "access-token=; Path=/; HttpOnly; Max-Age=0");
+        response.addHeader("Set-Cookie", "refresh-token=; Path=/; HttpOnly; Max-Age=0");
+
         var storedToken = tokenRepository.findByToken(jwt)
                 .orElse(null);
         if (storedToken != null) {

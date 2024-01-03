@@ -66,6 +66,7 @@ import {
   convertStaffToSent,
 } from "@/utils/staffApiUtils";
 import { useRouter } from "next/navigation";
+import { setProfile } from "@/reducers/profileReducer";
 import { Button } from "../button";
 import AuthService from "@/services/authService";
 
@@ -303,26 +304,11 @@ const SideBar = ({
   isSideBarCollapsed: boolean | null;
 }) => {
   const { toast } = useToast();
+  const dispatch = useDispatch();
   const router = useRouter();
   const profile = useAppSelector((state) => state.profile.value);
-  const [thisAccount, setThisAccount] = useState<Staff>();
+  console.log("thisAccount", profile);
   const [openProfileDialog, setOpenProfileDialog] = useState(false);
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const resStaff = await StaffService.getAllStaffs();
-        const convertedStaffs = resStaff.data.map((staff) =>
-          convertStaffReceived(staff),
-        );
-        setThisAccount(
-          convertedStaffs.find((staff) => staff.position === "Owner"),
-        );
-      } catch (e) {
-        axiosUIErrorHandler(e, toast, router);
-      }
-    };
-    fetchData();
-  }, []);
 
   const updateOwner = async (value: Staff, avatar: File | null) => {
     try {
@@ -342,7 +328,7 @@ const SideBar = ({
       );
       const staffReceived = convertStaffReceived(staffResult.data);
       console.log("staffReceived", staffReceived);
-      setThisAccount(staffReceived);
+      dispatch(setProfile(staffReceived));
       return Promise.resolve();
     } catch (e) {
       axiosUIErrorHandler(e, toast, router);
@@ -756,7 +742,7 @@ const SideBar = ({
         />
       </div>
       <AddStaffDialog
-        data={thisAccount!}
+        data={profile!}
         open={openProfileDialog}
         setOpen={setOpenProfileDialog}
         submit={handleUpdateStaff}

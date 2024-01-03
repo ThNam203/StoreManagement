@@ -31,7 +31,7 @@ import LoadingCircle from "@/components/ui/loading_circle";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/components/ui/use-toast";
 import { create } from "domain";
-import { createRangeDate } from "@/utils";
+import { createRangeDate, zodErrorHandler } from "@/utils";
 
 const formSchema = z.object({
   date: z.date(),
@@ -512,6 +512,14 @@ export function SetTimeDialog({
               <Button
                 type="button"
                 onClick={() => {
+                  console.log("set time value", form.getValues());
+                  try {
+                    console.log(formSchema.parse(form.getValues()));
+                  } catch (e) {
+                    zodErrorHandler(e, toast);
+                    return;
+                  }
+
                   // check if attend staff list is empty
                   if (tempAttendStaffList.length === 0) {
                     toast({

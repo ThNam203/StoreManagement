@@ -382,6 +382,9 @@ export default function OverviewPage() {
               <h2 className="my-2 text-3xl font-bold">
                 {saleProfitReport[1].costPrice} VND
               </h2>
+              <h2 className="my-2 text-3xl font-bold">
+                {saleProfitReport[1].costPrice} VND
+              </h2>
               <p className="text-xs text-gray-500">
                 <span
                   className={cn(

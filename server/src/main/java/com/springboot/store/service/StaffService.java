@@ -5,6 +5,7 @@ import com.springboot.store.payload.StaffRequest;
 import com.springboot.store.payload.StaffResponse;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Date;
 import java.util.List;
 
 public interface StaffService {
@@ -19,6 +20,12 @@ public interface StaffService {
     void deleteStaff(int id);
 
     int getStaffSalary(int id);
+
+    int getStaffSalaryInDate(Date startDate, Date endDate);
+
+    double getStaffBonusInDate(Date startDate, Date endDate);
+
+    double getStaffPunishInDate(Date startDate, Date endDate);
 
     Staff findByEmail(String email);
 
