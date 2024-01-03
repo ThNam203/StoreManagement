@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 // updated store
 @Service
@@ -44,8 +45,10 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public CustomerDTO createCustomer(CustomerDTO customerDTO, MultipartFile file) {
 
-        if (!customerRepository.findByEmail(customerDTO.getEmail()).isEmpty()) {
-            throw new RuntimeException("Email already exists");
+        if (!Objects.equals(customerDTO.getEmail(), "")) {
+            if (!customerRepository.findByEmail(customerDTO.getEmail()).isEmpty()) {
+                throw new RuntimeException("Email already exists");
+            }
         }
 
         Staff staff = staffService.getAuthorizedStaff();
