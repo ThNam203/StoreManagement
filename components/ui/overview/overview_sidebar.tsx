@@ -23,6 +23,7 @@ import {
   Grid3x3,
   Group,
   LogOut,
+  LogOutIcon,
   MenuSquare,
   Package,
   PackageX,
@@ -66,6 +67,8 @@ import {
 } from "@/utils/staffApiUtils";
 import { useRouter } from "next/navigation";
 import { setProfile } from "@/reducers/profileReducer";
+import { Button } from "../button";
+import AuthService from "@/services/authService";
 
 enum IconNames {
   GanttChartSquare,
@@ -209,9 +212,8 @@ const SideBarButton = ({
       href={href}
       className={cn(
         "hover:bg-blue-100 hover:text-blue-700",
-        title == "Logout" && "hover:bg-red-200 hover:text-red-700",
-        " my-1 flex h-10 min-h-[2.5rem] w-5/6 items-center justify-start" +
-          " rounded-sm hover:cursor-pointer ",
+        " my-1 flex h-10 min-h-[2.5rem] w-5/6 items-center justify-start",
+        "rounded-sm hover:cursor-pointer",
         className,
       )}
       onClick={onClick}
@@ -226,15 +228,6 @@ const SideBarButton = ({
         )}
       >
         {title}
-        {
-          /* "ORDERS section needs an aditional which tells how much orders is being processed" */
-          title === "Orders" ? (
-            /* leading-[1.75rem] == h-7 value, which is to align the text vertically */
-            <span className="ml-6 inline-block h-7 w-7 rounded-full bg-blue-800 text-center text-sm leading-[1.75rem] text-white">
-              10
-            </span>
-          ) : null
-        }
       </p>
     </Link>
   );
@@ -313,8 +306,8 @@ const SideBar = ({
   const { toast } = useToast();
   const dispatch = useDispatch();
   const router = useRouter();
-  const thisAccount = useAppSelector((state) => state.profile.value);
-  console.log("thisAccount", thisAccount);
+  const profile = useAppSelector((state) => state.profile.value);
+  console.log("thisAccount", profile);
   const [openProfileDialog, setOpenProfileDialog] = useState(false);
 
   const updateOwner = async (value: Staff, avatar: File | null) => {
@@ -423,8 +416,10 @@ const SideBar = ({
               className="gap-2"
             >
               <Avatar className="h-9 w-9 border-2 border-dashed border-blue-500 hover:border-solid">
-                <AvatarImage src="https://github.com/shadcn.png" />
-                <AvatarFallback>CN</AvatarFallback>
+                <AvatarImage
+                  src={profile?.avatar ?? "https://github.com/shadcn.png"}
+                />
+                <AvatarFallback>{profile?.name}</AvatarFallback>
               </Avatar>
               <div
                 className={cn(
@@ -451,13 +446,42 @@ const SideBar = ({
                 href=""
                 onClick={() => setOpenProfileDialog(true)}
               />
-              <SideBarButton
-                iconName={IconNames.LogOut}
-                title="Logout"
-                className="!w-full"
-                isCollapsed={isCollapsed}
-                href="/login"
-              />
+              <Button
+                className={cn(
+                  "hover:bg-blue-100 hover:text-blue-700",
+                  " my-1 h-10 min-h-[2.5rem] w-full p-0",
+                  "rounded-sm hover:cursor-pointer hover:bg-red-200 hover:text-red-700",
+                )}
+                onClick={() => {
+                  AuthService.logOut()
+                    .then(() => {
+                      router.push("/login");
+                      toast({
+                        title: "Logout successfully",
+                      });
+                    })
+                    .catch((e) => {
+                      axiosUIErrorHandler(e, toast, router);
+                    });
+                }}
+              >
+                <div className="flex w-full justify-start ">
+                  {LucideIcons(IconNames.LogOut, isCollapsed)}
+                  <p
+                    className={cn(
+                      "h-full flex-1 text-start text-sm",
+                      isCollapsed == null ? "hidden lg:block" : "",
+                      isCollapsed == true
+                        ? "hidden"
+                        : isCollapsed == false
+                          ? "block"
+                          : "",
+                    )}
+                  >
+                    Logout
+                  </p>
+                </div>
+              </Button>
             </AccordionContent>
           </AccordionItem>
         </Accordion>
@@ -718,7 +742,7 @@ const SideBar = ({
         />
       </div>
       <AddStaffDialog
-        data={thisAccount!}
+        data={profile!}
         open={openProfileDialog}
         setOpen={setOpenProfileDialog}
         submit={handleUpdateStaff}

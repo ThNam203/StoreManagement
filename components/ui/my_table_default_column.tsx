@@ -58,6 +58,7 @@ function defaultSelectColumn<T>(): ColumnDef<T> {
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
         onClick={(e) => e.stopPropagation()}
+        className="mr-5"
       />
     ),
     enableSorting: false,

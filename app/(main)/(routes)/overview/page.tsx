@@ -122,97 +122,6 @@ const notifications = [
   },
 ];
 
-const recentActivities = [
-  {
-    id: 1,
-    imageUrl: "https://i.pravatar.cc/300",
-    staff: "Nam",
-    actionDetail: " created a new page",
-    target: " in New Zealand",
-    createdAt: "Now",
-  },
-  {
-    id: 2,
-    imageUrl: "https://i.pravatar.cc/300",
-    staff: "Alex",
-    actionDetail: " made ",
-    target: "a purchase",
-    createdAt: "Now",
-  },
-  {
-    id: 3,
-    imageUrl: "https://i.pravatar.cc/300",
-    staff: "Jessica",
-    actionDetail: " restocked ",
-    target: "the shelves",
-    createdAt: "59 seconds ago",
-  },
-  {
-    id: 4,
-    imageUrl: "https://i.pravatar.cc/300",
-    staff: "David",
-    actionDetail: " updated ",
-    target: "the store's opening hours",
-    createdAt: "5 minutes ago",
-  },
-  {
-    id: 5,
-    imageUrl: "https://i.pravatar.cc/300",
-    staff: "Linda",
-    actionDetail: " processed a refund for ",
-    target: "a customer",
-    createdAt: "3 hours 5 minutes ago",
-  },
-  {
-    id: 6,
-    imageUrl: "https://i.pravatar.cc/300",
-    staff: "Mark",
-    actionDetail: " detected ",
-    target: "a suspicious activity",
-    createdAt: "1 day ago",
-  },
-  {
-    id: 7,
-    imageUrl: "https://i.pravatar.cc/300",
-    staff: "Emily",
-    actionDetail: "reported",
-    target: "an unusual incident",
-    createdAt: "2 days ago",
-  },
-  {
-    id: 8,
-    imageUrl: "https://i.pravatar.cc/300",
-    staff: "John",
-    actionDetail: "witnessed",
-    target: "a security breach",
-    createdAt: "3 days ago",
-  },
-  {
-    id: 9,
-    imageUrl: "https://i.pravatar.cc/300",
-    staff: "Sarah",
-    actionDetail: "noted",
-    target: "a potential threat",
-    createdAt: "4 days ago",
-  },
-  {
-    id: 10,
-    imageUrl: "https://i.pravatar.cc/300",
-    staff: "Michael",
-    actionDetail: "observed",
-    target: "a suspicious package",
-    createdAt: "5 days ago",
-  },
-  {
-    id: 11,
-    imageUrl: "https://i.pravatar.cc/300",
-    staff: "Linda",
-    actionDetail: "flagged",
-    target: "an unauthorized access",
-    createdAt: "6 days ago",
-  },
-];
-
 export default function OverviewPage() {
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -334,13 +243,11 @@ export default function OverviewPage() {
                 <span className={cn(todayInvoiceAmount > previousDayInvoiceAmount ? "text-green-500" : "text-red-500")}>{todayInvoiceAmount >= previousDayInvoiceAmount
                     ? "+"
                     : "-"}
-                  {previousDayInvoiceAmount !== 0
-                    ? Math.abs(
+                    {Math.abs(
                         ((todayInvoiceAmount - previousDayInvoiceAmount) /
-                          previousDayInvoiceAmount) *
+                          Math.max(previousDayInvoiceAmount, 1)) *
                           100
-                      ).toFixed(2)
-                    : "0"}
+                      ).toFixed(2)}
                   %</span> compare to last day
               </p>
             </div>
@@ -359,13 +266,11 @@ export default function OverviewPage() {
                   {saleProfitReport[1].revenue >= saleProfitReport[0].revenue
                     ? "+"
                     : "-"}
-                  {saleProfitReport[0].revenue !== 0
-                    ? Math.abs(
+                  {Math.abs(
                         ((saleProfitReport[1].revenue - saleProfitReport[0].revenue) /
-                          saleProfitReport[0].revenue) *
+                          Math.max(saleProfitReport[0].revenue, 1)) *
                           100
-                      ).toFixed(2)
-                    : "0"}
+                      ).toFixed(2)}
                   %
                 </span>{" "}
                 compare to last day
@@ -380,14 +285,12 @@ export default function OverviewPage() {
               <h4 className="text-xs text-gray-500">Refunds</h4>
               <h2 className="my-2 text-3xl font-bold">{todayTotalReturnValue} VND</h2>
               <p className="text-xs text-gray-500">
-                <span className={cn(todayTotalReturnValue < previousDayTotalReturnValue ? "text-green-500" : "text-red-500")}>{todayTotalReturnValue <= previousDayTotalReturnValue ? "-" : "+"}
-                  {previousDayTotalReturnValue !== 0
-                    ? Math.abs(
+                <span className={cn(todayTotalReturnValue <= previousDayTotalReturnValue ? "text-green-500" : "text-red-500")}>{todayTotalReturnValue <= previousDayTotalReturnValue ? "-" : "+"}
+                  {Math.abs(
                         ((todayTotalReturnValue - previousDayTotalReturnValue) /
-                          previousDayTotalReturnValue) *
+                          Math.max(previousDayTotalReturnValue, 1)) *
                           100
-                      ).toFixed(2)
-                    : "0"}%</span> compare to last month
+                      ).toFixed(2)}%</span> compare to last month
               </p>
             </div>
             <div
@@ -399,15 +302,14 @@ export default function OverviewPage() {
               <h4 className="text-xs text-gray-500">Cost</h4>
               <h2 className="my-2 text-3xl font-bold">{saleProfitReport[1].costPrice}{" "}VND</h2>
               <p className="text-xs text-gray-500">
-                <span className={cn(saleProfitReport[1].costPrice < saleProfitReport[0].costPrice ? "text-green-500" : "text-red-500")}>
+                <span className={cn(saleProfitReport[1].costPrice <= saleProfitReport[0].costPrice ? "text-green-500" : "text-red-500")}>
                   {saleProfitReport[1].costPrice <= saleProfitReport[0].costPrice ? "-" : "+"}
-                  {saleProfitReport[0].costPrice !== 0
-                    ? Math.abs(
+                  {Math.abs(
                         ((saleProfitReport[1].costPrice - saleProfitReport[0].costPrice) /
-                          saleProfitReport[0].costPrice) *
+                          Math.max(saleProfitReport[0].costPrice, 1)) *
                           100
                       ).toFixed(2)
-                    : "0"}%
+                    }%
                 </span>{" "}
                 compare to last month
               </p>
