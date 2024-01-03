@@ -120,6 +120,7 @@ export default function NewPurchaseOrderPage() {
 
   const onDetailQuantityChanged = (productId: number, newQuantity: number) => {
     if (isNaN(newQuantity) || newQuantity < 0) newQuantity = 0;
+    if (newQuantity > (products.find((p) => p.id === productId)?.stock ?? 0)) newQuantity = products.find((p) => p.id === productId)?.stock ?? 0;
     setDetails((prev) =>
       prev.map((detail) => {
         return detail.productId === productId
@@ -161,7 +162,9 @@ export default function NewPurchaseOrderPage() {
   const deleteRows = async (data: NewPurchaseReturnDetail[]) => {
     const productIds = data.map((d) => d.productId);
     setDetails((prev) =>
-      prev.filter((detail) => productIds.includes(detail.productId)),
+      prev.filter((detail) => 
+        !productIds.includes(detail.productId)
+      ),
     );
     return Promise.resolve();
   };
@@ -225,7 +228,7 @@ export default function NewPurchaseOrderPage() {
   );
 
   return (
-    <div className="flex flex-row gap-2">
+    <div className="flex flex-row gap-2 w-full">
       <div className="flex flex-1 flex-col gap-2 bg-white p-4">
         <h2 className="my-4 text-start text-2xl font-bold">
           New purchase return
@@ -236,6 +239,7 @@ export default function NewPurchaseOrderPage() {
             onDetailQuantityChanged,
             onDetailNoteChanged,
             onDetailReturnPriceChanged,
+            products
           )}
           columnTitles={purchaseReturnDetailColumnTitles}
           config={{
@@ -244,7 +248,7 @@ export default function NewPurchaseOrderPage() {
           }}
         />
       </div>
-      <div className="flex h-[calc(100vh-1rem)] w-[300px] flex-col gap-4 bg-white p-2">
+      <div className="flex h-[96vh] w-[300px] flex-col gap-4 bg-white p-2">
         <div className="flex">
           <CustomCombobox<Staff>
             searchPlaceholder={"Find staff..."}
@@ -272,6 +276,7 @@ export default function NewPurchaseOrderPage() {
         </div>
         <CustomCombobox<Supplier>
           searchPlaceholder={"Find supplier..."}
+          placeholder="Choose supplier"
           value={supplier}
           choices={suppliers}
           valueView={SupplierView}

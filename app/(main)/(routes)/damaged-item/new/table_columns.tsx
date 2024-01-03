@@ -4,6 +4,7 @@ import {
   defaultIndexColumn,
   defaultSelectColumn,
 } from "@/components/ui/my_table_default_column";
+import { Product } from "@/entities/Product";
 import { cn } from "@/lib/utils";
 import scrollbar_style from "@/styles/scrollbar.module.css";
 import { ColumnDef, Getter, Row } from "@tanstack/react-table";
@@ -31,6 +32,7 @@ export const purchaseReturnDetailTableColumns = (
   onQuantityChanged: (productId: number, newQuantity: number) => any,
   onNoteChanged: (productId: number, newNote: string) => any,
   onReturnPriceChanged: (productId: number, newPrice: number) => any,
+  products: Product[],
 ): ColumnDef<NewDamagedItemDetail>[] => {
   const columns: ColumnDef<NewDamagedItemDetail>[] = [
     defaultSelectColumn<NewDamagedItemDetail>(),
@@ -39,7 +41,7 @@ export const purchaseReturnDetailTableColumns = (
 
   for (let key in purchaseReturnDetailColumnTitles) {
     let col: ColumnDef<NewDamagedItemDetail>;
-    if (key === "quantity") col = quantityColumn(onQuantityChanged);
+    if (key === "quantity") col = quantityColumn(products, onQuantityChanged);
     else if (key === "productName") col = productNameColumn(onNoteChanged);
     else
       col = defaultColumn<NewDamagedItemDetail>(
@@ -88,6 +90,7 @@ function productNameColumn(
 }
 
 function quantityColumn(
+  products: Product[],
   onQuantityChanged: (productId: number, newQuantity: number) => any,
   disableSorting: boolean = false,
 ): ColumnDef<NewDamagedItemDetail> {
@@ -96,7 +99,7 @@ function quantityColumn(
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Quantity" />
     ),
-    cell: (cellProps) => QuantityCell({ ...cellProps, onQuantityChanged }),
+    cell: (cellProps) => QuantityCell({ ...cellProps, onQuantityChanged, maxValue: products.find(p => p.id === cellProps.row.original.productId)?.stock ?? 0}),
   };
   return col;
 }
@@ -132,10 +135,12 @@ const ProductNameCell = (
 
 const QuantityCell = ({
   getValue,
+  maxValue,
   row,
   onQuantityChanged,
 }: {
   getValue: Getter<number>;
+  maxValue: number;
   row: Row<NewDamagedItemDetail>;
   onQuantityChanged: (productId: number, countedStock: number) => any;
 }) => {
@@ -155,21 +160,25 @@ const QuantityCell = ({
           row.original.damagedQuantity > 1 ? "" : "hidden",
         )}
       />
+      <div className="flex flex-col items-center">
       <input
         min={0}
+        max={maxValue}
         type="number"
         className="w-[60px] select-none bg-transparent text-end border-b border-gray-400"
         value={value}
         onChange={(e) => setValue(e.currentTarget.valueAsNumber)}
         onBlur={onBlur}
       ></input>
-      <Plus
+    <p className="text-xs text-gray-400">Max: {maxValue}</p>
+      </div>
+      {value < maxValue ? <Plus
         size={16}
         onClick={() => {
           onQuantityChanged(row.original.productId, row.original.damagedQuantity + 1);
         }}
         className="rounded-full hover:bg-slate-300"
-      />
+        /> : null}
     </div>
   );
 };
