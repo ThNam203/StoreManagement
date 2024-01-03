@@ -149,11 +149,11 @@ const DetailTab = ({
   const router = useRouter();
 
   return (
-    <>
+    <div className="p-2">
       <h4 className="text-lg font-bold text-blue-800">{discount.name}</h4>
       <div className="flex flex-row gap-4">
         <div className="flex flex-1 flex-row text-[0.8rem]">
-          <div className="flex flex-1 flex-col pr-4">
+          <div className="flex flex-1 flex-col">
             <div className="mb-2 flex flex-row border-b font-medium">
               <p className="w-[100px] font-normal">Discount id:</p>
               <p>{discount.id}</p>
@@ -175,7 +175,7 @@ const DetailTab = ({
               <p className="w-[100px] font-normal">Status:</p>
               <p>{discount.status ? "Activating" : "Disabled"}</p>
             </div>
-            <div className="flex flex-1 flex-col pr-4">
+            <div className="flex flex-1 flex-col">
               <p className="mb-2">Description</p>
               <textarea
                 readOnly
@@ -284,7 +284,7 @@ const DetailTab = ({
           {disableDeleteButton ? <LoadingCircle /> : null}
         </Button>
       </div>
-    </>
+    </div>
   );
 };
 

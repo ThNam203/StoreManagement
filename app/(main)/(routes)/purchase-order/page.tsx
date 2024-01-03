@@ -26,6 +26,8 @@ import {
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { PurchaseOrderDatatable } from "./datatable";
+import ProductService from "@/services/productService";
+import { setProducts } from "@/reducers/productsReducer";
 
 export default function PurchaseOrderPage() {
   const dispatch = useAppDispatch();
@@ -39,13 +41,13 @@ export default function PurchaseOrderPage() {
     dispatch(showPreloader());
     const fetchData = async () => {
       const purchaseOrders = await PurchaseOrderService.getAllPurchaseOrders();
-      dispatch(setPurchaseOrders(purchaseOrders.data));
-
       const staffs = await StaffService.getAllStaffs();
-      dispatch(setStaffs(staffs.data));
-
       const suppliers = await SupplierService.getAllSuppliers();
+      const products = await ProductService.getAllProducts();
+      dispatch(setPurchaseOrders(purchaseOrders.data));
+      dispatch(setStaffs(staffs.data));
       dispatch(setSuppliers(suppliers.data));
+      dispatch(setProducts(products.data));
     };
 
     fetchData()

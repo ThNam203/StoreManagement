@@ -290,8 +290,11 @@ const DefaultPDFContent = ({
               return (
                 <View key={index} style={styles.tableRow} wrap={false}>
                   {dataProperties.map((property) => {
-                    const value: number | string =
+                    let value: number | string =
                       report[property as keyof typeof report];
+                    if (property === "date" || property === "createdAt" || property === "createdDate")
+                      value = format(new Date(value), "MM/dd/yyyy");
+                    
                     return (
                       <View key={property + index} style={styles.tableCol}>
                         <Text style={styles.tableCell}>{value}</Text>
