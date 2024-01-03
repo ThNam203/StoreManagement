@@ -71,7 +71,7 @@ export default function PurchaseOrderPage() {
       startValue: NaN,
       endValue: NaN,
     },
-    subTotal: {
+    subtotal: {
       startValue: NaN,
       endValue: NaN,
     },
@@ -135,7 +135,7 @@ export default function PurchaseOrderPage() {
       },
     );
     setFilteredPurchaseOrders(filteredPurchaseReturns);
-  }, [rangeConditions, staffCondition, supplierCondition, purchaseOrders]);
+  }, [rangeConditions, staffCondition, supplierCondition, purchaseOrders, timeConditions, timeRangeConditions, timeConditionControls]);
 
   const filters = [
     <SearchFilterObject
@@ -207,11 +207,11 @@ export default function PurchaseOrderPage() {
     <RangeFilter
       key={6}
       title="Sub total"
-      range={rangeConditions.subTotal}
+      range={rangeConditions.subtotal}
       onValuesChanged={(range) =>
         setRangeConditions({
           ...rangeConditions,
-          subTotal: range,
+          subtotal: range,
         })
       }
       className="mb-2"

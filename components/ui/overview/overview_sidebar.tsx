@@ -311,6 +311,7 @@ const SideBar = ({
 }) => {
   const { toast } = useToast();
   const router = useRouter();
+  const profile = useAppSelector((state) => state.profile.value);
   const [thisAccount, setThisAccount] = useState<Staff>();
   const [openProfileDialog, setOpenProfileDialog] = useState(false);
   useEffect(() => {
@@ -399,7 +400,7 @@ const SideBar = ({
         <div className="relative flex w-full flex-row items-center justify-center overflow-y-visible">
           {/* <img src="/static/web_avatar.png" alt="web avatar" className="w-[32px] h-[32px]"/> */}
           <Image
-            src="/web_avatar.png"
+            src={profile?.avatar ?? "/ic_user.svg"}
             alt="web avatar"
             width={48}
             height={48}

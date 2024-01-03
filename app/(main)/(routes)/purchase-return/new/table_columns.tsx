@@ -115,9 +115,10 @@ const ProductNameCell = (
       <p className="text-[0.8rem]">{detail.productName}</p>
       <div className="relative">
         {showNoteEditor ? <textarea
-              className={cn("resize-none", scrollbar_style.scrollbar)}
+              className={cn("resize-none text-xs", scrollbar_style.scrollbar)}
               placeholder="note..."
               autoFocus
+              defaultValue={detail.note}
               onBlur={(e) => {
                 onNoteChanged(detail.productId, e.currentTarget.value)
                 setShowNoteEditor(false)

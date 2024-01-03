@@ -14,9 +14,9 @@ export type NewDamagedItemDetail = {
   productId: number;
   productName: string;
   unit: string;
-  quantity: number;
+  damagedQuantity: number;
   note: string;
-  price: number;
+  costPrice: number;
 };
 
 export const purchaseReturnDetailColumnTitles = {
@@ -65,7 +65,7 @@ function totalColumn(
     cell: ({ row }) => {
       return (
         <p className="text-[0.8rem] font-bold">
-          {row.original.quantity * row.original.price}
+          {row.original.damagedQuantity * row.original.costPrice}
         </p>
       );
     },
@@ -111,9 +111,10 @@ const ProductNameCell = (
       <p className="text-[0.8rem]">{detail.productName}</p>
       <div className="relative">
         {showNoteEditor ? <textarea
-              className={cn("resize-none", scrollbar_style.scrollbar)}
+              className={cn("resize-none text-xs", scrollbar_style.scrollbar)}
               placeholder="note..."
               autoFocus
+              defaultValue={detail.note}
               onBlur={(e) => {
                 onNoteChanged(detail.productId, e.currentTarget.value)
                 setShowNoteEditor(false)
@@ -147,11 +148,11 @@ const QuantityCell = ({
       <Minus
         size={16}
         onClick={() => {
-          onQuantityChanged(row.original.productId, row.original.quantity - 1);
+          onQuantityChanged(row.original.productId, row.original.damagedQuantity - 1);
         }}
         className={cn(
           "rounded-full hover:bg-slate-300",
-          row.original.quantity > 1 ? "" : "hidden",
+          row.original.damagedQuantity > 1 ? "" : "hidden",
         )}
       />
       <input
@@ -165,7 +166,7 @@ const QuantityCell = ({
       <Plus
         size={16}
         onClick={() => {
-          onQuantityChanged(row.original.productId, row.original.quantity + 1);
+          onQuantityChanged(row.original.productId, row.original.damagedQuantity + 1);
         }}
         className="rounded-full hover:bg-slate-300"
       />

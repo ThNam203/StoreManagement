@@ -146,7 +146,8 @@ const isInRangeNum = (value: number, startValue: number, endValue: number) => {
   } else if (startValue === endValue) {
     if (value !== startValue) return false;
   } else {
-    if (value < startValue || value > endValue) return false;
+    if (value < startValue || value > endValue){
+    return false;}
   }
   return true;
 };
@@ -314,12 +315,14 @@ function handleRangeNumFilter<T>(
       let value = row[key as keyof typeof row];
       if (typeof value === "number") {
         const ivalue = value as number;
-        const startValue = filter[key as keyof typeof filter]
+        let startValue = filter[key as keyof typeof filter]
           .startValue as number;
-        const endValue = filter[key as keyof typeof filter].endValue as number;
-
+        let endValue = filter[key as keyof typeof filter].endValue as number;
+        if (isNaN(startValue)) startValue = Number.NEGATIVE_INFINITY;
+        if (isNaN(endValue)) endValue = Number.POSITIVE_INFINITY;
         if (!isInRangeNum(ivalue, startValue, endValue)) return false;
-      } else return false;
+      } else{ 
+        return false;}
     }
     return true;
   });
