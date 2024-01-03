@@ -27,6 +27,7 @@ import {
   addTransaction,
   addTransactions,
   setTransactions,
+  updateTransaction,
 } from "@/reducers/transactionReducer";
 import { setStrangers } from "@/reducers/transactionStrangerReducer";
 import { axiosUIErrorHandler } from "@/services/axiosUtils";
@@ -158,7 +159,7 @@ export default function SalesPage() {
         convertedToSent,
       );
       const expense = convertExpenseFormReceived(res.data);
-      dispatch(addTransaction(expense));
+      dispatch(updateTransaction(expense));
       return Promise.resolve();
     } catch (e) {
       axiosUIErrorHandler(e, toast);
@@ -174,7 +175,7 @@ export default function SalesPage() {
         convertedToSent,
       );
       const receipt = convertReceiptFormReceived(res.data);
-      dispatch(addTransaction(receipt));
+      dispatch(updateTransaction(receipt));
       return Promise.resolve();
     } catch (e) {
       axiosUIErrorHandler(e, toast);
@@ -208,11 +209,33 @@ export default function SalesPage() {
   //function
   function handleFormSubmit(value: Transaction) {
     if (value.id === -1) {
-      if (value.formType === FormType.EXPENSE) return addExpenseForm(value);
-      return addReceiptForm(value);
+      if (value.formType === FormType.EXPENSE)
+        return addExpenseForm(value).then(() => {
+          toast({
+            variant: "default",
+            title: "Add expense form successfully",
+          });
+        });
+      return addReceiptForm(value).then(() => {
+        toast({
+          variant: "default",
+          title: "Add receipt form successfully",
+        });
+      });
     } else {
-      if (value.formType === FormType.EXPENSE) return updateExpenseForm(value);
-      return updateReceiptForm(value);
+      if (value.formType === FormType.EXPENSE)
+        return updateExpenseForm(value).then(() => {
+          toast({
+            variant: "default",
+            title: "Update expense form successfully",
+          });
+        });
+      return updateReceiptForm(value).then(() => {
+        toast({
+          variant: "default",
+          title: "Update receipt form successfully",
+        });
+      });
     }
   }
 

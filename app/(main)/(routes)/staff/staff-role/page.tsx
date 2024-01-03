@@ -318,9 +318,14 @@ export default function StaffRolePage() {
         title={contentConfirmDialog.title}
         content={contentConfirmDialog.content}
         type={contentConfirmDialog.type}
-        onAccept={() => {
+        onAccept={async () => {
           setOpenConfirmDialog(false);
-          handleRemoveRole(selectedData.positionId);
+
+          try {
+            await handleRemoveRole(selectedData.positionId);
+          } catch (e) {
+            axiosUIErrorHandler(e, toast);
+          }
         }}
         onCancel={() => setOpenConfirmDialog(false)}
       />
