@@ -11,8 +11,6 @@ import Header from "./header";
 import Footer from "./footer";
 
 export default function HomePage() {
-  const dispatch = useDispatch();
-  dispatch(disablePreloader());
   return (
     <>
       <Header />

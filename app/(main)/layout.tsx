@@ -17,22 +17,13 @@ import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 import { convertStaffReceived } from "@/utils/staffApiUtils";
-import { Providers } from "./home/providers";
-import Footer from "./home/footer";
-import Header from "./home/header";
-import ScrollToTop from "./home/scroll-to-top";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <Provider store={store}>
       <html lang="en">
         <body className={cn(font.className)}>
-          <GlobalState>
-            <Providers>
-              {children}
-              <ScrollToTop />
-            </Providers>
-          </GlobalState>
+          <GlobalState>{children}</GlobalState>
           <Toaster />
         </body>
       </html>
