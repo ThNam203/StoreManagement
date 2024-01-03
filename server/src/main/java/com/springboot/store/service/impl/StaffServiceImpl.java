@@ -272,6 +272,84 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
+    public int getStaffSalaryInDate(Date startDate, Date endDate) {
+
+        List<Staff> staffs = staffRepository.findByStoreId(getAuthorizedStaff().getStore().getId());
+        int totalSalary = 0;
+        for (Staff staff : staffs) {
+            if (staff.getStaffSalary().getSalaryType().equals("Shift-based pay")) {
+                int dayWorking = 0;
+                List<ShiftAttendanceRecord> shiftAttendanceRecords = shiftAttendanceRecordRepository.findByStaffIdAndDateBetween(staff.getId(), startDate, endDate);
+                for (ShiftAttendanceRecord shiftAttendanceRecord : shiftAttendanceRecords) {
+                    if (shiftAttendanceRecord.isHasAttend()) {
+                        dayWorking++;
+                    }
+                    for (StaffBonusSalary staffBonusSalary : shiftAttendanceRecord.getBonusSalaryList()) {
+                        totalSalary += staffBonusSalary.getValue() * staffBonusSalary.getMultiply();
+                    }
+                    for (StaffPunishSalary staffPunishSalary : shiftAttendanceRecord.getPunishSalaryList()) {
+                        totalSalary -= staffPunishSalary.getValue() * staffPunishSalary.getMultiply();
+                    }
+                }
+                totalSalary += staff.getStaffSalary().getSalary() * dayWorking;
+            } else if (staff.getStaffSalary().getSalaryType().equals("Internship salary")) {
+                List<ShiftAttendanceRecord> shiftAttendanceRecords = shiftAttendanceRecordRepository.findByStaffIdAndDateBetween(staff.getId(), startDate, endDate);
+                for (ShiftAttendanceRecord shiftAttendanceRecord : shiftAttendanceRecords) {
+                    for (StaffBonusSalary staffBonusSalary : shiftAttendanceRecord.getBonusSalaryList()) {
+                        totalSalary += staffBonusSalary.getValue() * staffBonusSalary.getMultiply();
+                    }
+                    for (StaffPunishSalary staffPunishSalary : shiftAttendanceRecord.getPunishSalaryList()) {
+                        totalSalary -= staffPunishSalary.getValue() * staffPunishSalary.getMultiply();
+                    }
+                }
+                totalSalary += staff.getStaffSalary().getSalary();
+            } else if (staff.getStaffSalary().getSalaryType().equals("Fixed salary")) {
+                List<ShiftAttendanceRecord> shiftAttendanceRecords = shiftAttendanceRecordRepository.findByStaffIdAndDateBetween(staff.getId(), startDate, endDate);
+                for (ShiftAttendanceRecord shiftAttendanceRecord : shiftAttendanceRecords) {
+                    for (StaffBonusSalary staffBonusSalary : shiftAttendanceRecord.getBonusSalaryList()) {
+                        totalSalary += staffBonusSalary.getValue() * staffBonusSalary.getMultiply();
+                    }
+                    for (StaffPunishSalary staffPunishSalary : shiftAttendanceRecord.getPunishSalaryList()) {
+                        totalSalary -= staffPunishSalary.getValue() * staffPunishSalary.getMultiply();
+                    }
+                }
+                totalSalary += staff.getStaffSalary().getSalary();
+            }
+        }
+        return totalSalary;
+    }
+
+    @Override
+    public double getStaffBonusInDate(Date startDate, Date endDate) {
+        List<Staff> staffs = staffRepository.findByStoreId(getAuthorizedStaff().getStore().getId());
+        double totalBonus = 0;
+        for (Staff staff : staffs) {
+            List<ShiftAttendanceRecord> shiftAttendanceRecords = shiftAttendanceRecordRepository.findByStaffIdAndDateBetween(staff.getId(), startDate, endDate);
+            for (ShiftAttendanceRecord shiftAttendanceRecord : shiftAttendanceRecords) {
+                for (StaffBonusSalary staffBonusSalary : shiftAttendanceRecord.getBonusSalaryList()) {
+                    totalBonus += staffBonusSalary.getValue() * staffBonusSalary.getMultiply();
+                }
+            }
+        }
+        return totalBonus;
+    }
+
+    @Override
+    public double getStaffPunishInDate(Date startDate, Date endDate) {
+        List<Staff> staffs = staffRepository.findByStoreId(getAuthorizedStaff().getStore().getId());
+        double totalPunish = 0;
+        for (Staff staff : staffs) {
+            List<ShiftAttendanceRecord> shiftAttendanceRecords = shiftAttendanceRecordRepository.findByStaffIdAndDateBetween(staff.getId(), startDate, endDate);
+            for (ShiftAttendanceRecord shiftAttendanceRecord : shiftAttendanceRecords) {
+                for (StaffPunishSalary staffPunishSalary : shiftAttendanceRecord.getPunishSalaryList()) {
+                    totalPunish -= staffPunishSalary.getValue() * staffPunishSalary.getMultiply();
+                }
+            }
+        }
+        return totalPunish;
+    }
+
+    @Override
     public Staff findByEmail(String email) {
         return staffRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("Staff", "email", email));
     }
