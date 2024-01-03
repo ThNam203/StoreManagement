@@ -27,15 +27,13 @@ public class SupplierController {
         return new ResponseEntity<>(supplierService.getSupplierById(id), null, HttpStatus.OK);
     }
     @PostMapping
-    public ResponseEntity<?> createSupplier(@Valid @RequestPart("data") SupplierDTO supplierDTO,
-                                            @RequestPart(value = "file", required = false) MultipartFile file) {
-        return new ResponseEntity<>(supplierService.createSupplier(supplierDTO, file), null, HttpStatus.CREATED);
+    public ResponseEntity<?> createSupplier(@RequestBody SupplierDTO supplierDTO) {
+        return new ResponseEntity<>(supplierService.createSupplier(supplierDTO), null, HttpStatus.CREATED);
     }
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateSupplier(@Valid @PathVariable(name = "id") int id,
-                                            @RequestPart("data") SupplierDTO supplierDTO,
-                                            @RequestPart(value = "file", required = false) MultipartFile file) {
-        return new ResponseEntity<>(supplierService.updateSupplier(id, supplierDTO, file), null, HttpStatus.OK);
+    public ResponseEntity<?> updateSupplier(@PathVariable(name = "id") int id,
+                                            @RequestBody SupplierDTO supplierDTO) {
+        return new ResponseEntity<>(supplierService.updateSupplier(id, supplierDTO), null, HttpStatus.OK);
     }
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteSupplier(@PathVariable int id) {

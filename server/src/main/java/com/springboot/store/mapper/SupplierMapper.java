@@ -31,7 +31,6 @@ public class SupplierMapper {
                 .createdAt(supplier.getCreatedAt())
                 .creatorId(supplier.getCreator() != null ? supplier.getCreator().getId() : null)
                 .supplierGroupName(supplier.getSupplierGroup() != null ? supplier.getSupplierGroup().getName() : null)
-                .image(supplier.getImage() != null ? supplier.getImage().getUrl() : null)
                 .build();
     }
 }
