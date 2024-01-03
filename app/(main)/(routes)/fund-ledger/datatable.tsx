@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 import { exportExcel, formatDate, formatPrice, revertID } from "@/utils";
 import { Row, Table } from "@tanstack/react-table";
 import { format } from "date-fns";
-import { FolderOpen, Trash } from "lucide-react";
+import { FolderOpen, Info, Trash } from "lucide-react";
 import * as React from "react";
 import { ImportDailog } from "../../../../components/ui/my_import_dialog";
 import {
@@ -28,6 +28,11 @@ import TransactionService from "@/services/transaction_service";
 import { deleteTransaction } from "@/reducers/transactionReducer";
 import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import { useRouter } from "next/navigation";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 
 type Props = {
   data: Transaction[];
@@ -43,8 +48,23 @@ export function DataTable({ data, onSubmit }: Props) {
   );
   const [openExpense, setOpenExpense] = React.useState(false);
   const [openReceipt, setOpenReceipt] = React.useState(false);
-  const staffList = useAppSelector((state) => state.staffs.value);
-  const staffNameList = staffList.map((staff) => staff.name);
+  const [openImportDialog, setOpenImportDialog] = React.useState(false);
+
+  const [totalExpense, setTotalExpense] = React.useState(0);
+  const [totalReceipt, setTotalReceipt] = React.useState(0);
+
+  React.useEffect(() => {
+    let totalExpense = 0;
+    let totalReceipt = 0;
+    data.forEach((transaction) => {
+      if (transaction.formType === FormType.EXPENSE)
+        totalExpense += transaction.value;
+      else if (transaction.formType === FormType.RECEIPT)
+        totalReceipt += transaction.value;
+    });
+    setTotalExpense(totalExpense);
+    setTotalReceipt(totalReceipt);
+  }, [data]);
 
   //get header through id of column to export excel
   const handleExportExcel = (table: Table<Transaction>) => {
@@ -163,14 +183,47 @@ export function DataTable({ data, onSubmit }: Props) {
     return removeForm(revertID(transaction.id, prefix), transaction.formType);
   };
 
-  const [openImportDialog, setOpenImportDialog] = React.useState(false);
-
-  const beginningFund = 200000000;
-  const totalExpense = 1500000;
-  const totalReceipt = 1000000;
-
   return (
     <div className="flex flex-col">
+      <div className="flex w-full flex-row items-center justify-end gap-12">
+        <div className="flex flex-col items-end">
+          <span>Total receipt</span>
+          <span className="font-bold text-black">
+            {formatPrice(totalReceipt)}
+          </span>
+        </div>
+        <div className="flex flex-col items-end">
+          <span>Total expense</span>
+          <span className="font-bold text-black">
+            {formatPrice(totalExpense)}
+          </span>
+        </div>
+        <div className="flex flex-col items-end">
+          <span className="flex flex-row items-center gap-2">
+            Revenue
+            <HoverCard>
+              <HoverCardTrigger asChild>
+                <Info size={16} className="cursor-pointer" />
+              </HoverCardTrigger>
+              <HoverCardContent className="w-fit">
+                <span className="whitespace-nowrap text-sm">
+                  Revenue = Total receipt - Total expense
+                </span>
+              </HoverCardContent>
+            </HoverCard>
+          </span>
+          <span
+            className={cn(
+              "font-bold",
+              totalReceipt - totalExpense > 0
+                ? "text-green-600"
+                : "text-red-600",
+            )}
+          >
+            {formatPrice(totalReceipt - totalExpense)}
+          </span>
+        </div>
+      </div>
       <div className="flex flex-row items-center justify-end gap-2 py-2">
         <Button
           variant="blue"
@@ -210,7 +263,7 @@ export function DataTable({ data, onSubmit }: Props) {
         config={{
           defaultVisibilityState: fundledgerDefaultVisibilityState,
           onExportExcelBtnClick: handleExportExcel,
-          onImportExcelBtnClick: () => setOpenImportDialog(true),
+          // onImportExcelBtnClick: () => setOpenImportDialog(true),
         }}
       />
       <ImportDailog

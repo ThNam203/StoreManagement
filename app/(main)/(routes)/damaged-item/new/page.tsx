@@ -103,15 +103,15 @@ export default function NewPurchaseOrderPage() {
       setDetails((prev) => [
         ...prev,
         {
-          quantity: 1,
+          damagedQuantity: 1,
           productId: product.id,
           productName: product.name,
           unit: product.salesUnits.name,
           note: "",
-          price: product.originalPrice,
+          costPrice: product.originalPrice,
         },
       ]);
-    else onDetailQuantityChanged(product.id, foundProduct.quantity + 1);
+    else onDetailQuantityChanged(product.id, foundProduct.damagedQuantity + 1);
   };
 
   const onDetailQuantityChanged = (productId: number, newQuantity: number) => {
@@ -169,14 +169,14 @@ export default function NewPurchaseOrderPage() {
         description: "Please choose a staff!",
       });
 
-    if (details.filter((v) => v.quantity > 0).length === 0)
+    if (details.filter((v) => v.damagedQuantity > 0).length === 0)
       return toast({
         variant: "destructive",
         description: "Document is empty!",
       });
 
     await DamagedItemService.uploadDamagedItemDocument({
-      products: details.filter((v) => v.quantity > 0).map((v) => ({ ...v })),
+      products: details.filter((v) => v.damagedQuantity > 0).map((v) => ({ ...v })),
       note: note,
       createdDate: format(createdDate, "yyyy-MM-dd HH:mm:ss"),
       creatorId: staff.id,
@@ -217,6 +217,7 @@ export default function NewPurchaseOrderPage() {
             onDetailQuantityChanged,
             onDetailNoteChanged,
             onDetailReturnPriceChanged,
+            products
           )}
           columnTitles={purchaseReturnDetailColumnTitles}
           config={{
@@ -253,13 +254,13 @@ export default function NewPurchaseOrderPage() {
         </div>
         <div className="flex items-center justify-between">
           <p className="text-sm">Total quantity:</p>
-          <p>{details.map((v) => v.quantity).reduce((a, b) => a + b, 0)}</p>
+          <p>{details.map((v) => v.damagedQuantity).reduce((a, b) => a + b, 0)}</p>
         </div>
         <div className="flex items-center justify-between">
           <p className="text-sm">Total damaged value:</p>
           <p className="text-xl font-bold">
             {details
-              .map((v) => v.price * v.quantity)
+              .map((v) => v.costPrice * v.damagedQuantity)
               .reduce((a, b) => a + b, 0)}
           </p>
         </div>

@@ -105,7 +105,7 @@ export default function InvoicePage() {
       filters={filters}
       headerButtons={[<NewInvoiceButton key={1} />]}
     >
-      <SupplierDatatable data={filteredSuppliers} />
+      <SupplierDatatable data={filteredSuppliers.filter((supplier) => !supplier.isDeleted)} />
     </PageWithFilters>
   );
 }

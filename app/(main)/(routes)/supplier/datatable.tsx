@@ -147,7 +147,7 @@ const DetailSupplierTab = ({
           DialogTrigger={
             <Button variant={"green"} disabled={disableDeleteButton}>
               <PenLine size={16} className="mr-2" />
-              Update
+                Update
               {disableDeleteButton ? <LoadingCircle /> : null}
             </Button>
           }

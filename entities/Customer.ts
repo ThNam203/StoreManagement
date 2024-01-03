@@ -14,6 +14,7 @@ export type Customer = {
     id: number,
     url: string,
   } | null;
+  isDeleted: boolean;
 };
 
 export type CustomerGroup = {

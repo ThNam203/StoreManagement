@@ -23,7 +23,7 @@ export type NewPurchaseReturnDetail = {
 
 export const purchaseReturnDetailColumnTitles = {
   productId: "Product Id",
-  productName: "Product Name",
+  productName: "Name",
   unit: "Unit",
   quantity: "Quantity",
   supplyPrice: "Supply Price",
@@ -34,6 +34,7 @@ export const purchaseReturnDetailTableColumns = (
   onQuantityChanged: (productId: number, newQuantity: number) => any,
   onNoteChanged: (productId: number, newNote: string) => any,
   onReturnPriceChanged: (productId: number, newPrice: number) => any,
+  products: Product[],
 ): ColumnDef<NewPurchaseReturnDetail>[] => {
   const columns: ColumnDef<NewPurchaseReturnDetail>[] = [
     defaultSelectColumn<NewPurchaseReturnDetail>(),
@@ -42,7 +43,7 @@ export const purchaseReturnDetailTableColumns = (
 
   for (let key in purchaseReturnDetailColumnTitles) {
     let col: ColumnDef<NewPurchaseReturnDetail>;
-    if (key === "quantity") col = quantityColumn(onQuantityChanged);
+    if (key === "quantity") col = quantityColumn(products, onQuantityChanged);
     else if (key === "productName") col = productNameColumn(onNoteChanged);
     else if (key === "returnPrice") col = returnPriceColumn(onReturnPriceChanged)
     else
@@ -92,6 +93,7 @@ function productNameColumn(
 }
 
 function quantityColumn(
+  products: Product[],
   onQuantityChanged: (productId: number, newQuantity: number) => any,
   disableSorting: boolean = false,
 ): ColumnDef<NewPurchaseReturnDetail> {
@@ -100,7 +102,7 @@ function quantityColumn(
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Quantity" />
     ),
-    cell: (cellProps) => QuantityCell({ ...cellProps, onQuantityChanged }),
+    cell: (cellProps) => QuantityCell({ ...cellProps, onQuantityChanged, maxValue: products.find(p => p.id === cellProps.row.original.productId)?.stock ?? 0}),
   };
   return col;
 }
@@ -115,9 +117,10 @@ const ProductNameCell = (
       <p className="text-[0.8rem]">{detail.productName}</p>
       <div className="relative">
         {showNoteEditor ? <textarea
-              className={cn("resize-none", scrollbar_style.scrollbar)}
+              className={cn("resize-none text-xs", scrollbar_style.scrollbar)}
               placeholder="note..."
               autoFocus
+              defaultValue={detail.note}
               onBlur={(e) => {
                 onNoteChanged(detail.productId, e.currentTarget.value)
                 setShowNoteEditor(false)
@@ -135,10 +138,12 @@ const ProductNameCell = (
 
 const QuantityCell = ({
   getValue,
+  maxValue,
   row,
   onQuantityChanged,
 }: {
   getValue: Getter<number>;
+  maxValue: number;
   row: Row<NewPurchaseReturnDetail>;
   onQuantityChanged: (productId: number, countedStock: number) => any;
 }) => {
@@ -158,21 +163,25 @@ const QuantityCell = ({
           row.original.quantity > 1 ? "" : "hidden",
         )}
       />
-      <input
-        min={0}
-        type="number"
-        className="w-[60px] select-none bg-transparent text-end border-b border-gray-400"
-        value={value}
-        onChange={(e) => setValue(e.currentTarget.valueAsNumber)}
-        onBlur={onBlur}
-      ></input>
-      <Plus
+      <div className="flex flex-col items-center">
+        <input
+          min={0}
+          max={maxValue}
+          type="number"
+          className="w-[60px] select-none bg-transparent text-end border-b border-gray-400"
+          value={value}
+          onChange={(e) => setValue(e.currentTarget.valueAsNumber)}
+          onBlur={onBlur}
+        ></input>
+        <p className="text-xs text-gray-400">Max: {maxValue}</p>
+      </div>
+      {value < maxValue ? <Plus
         size={16}
         onClick={() => {
           onQuantityChanged(row.original.productId, row.original.quantity + 1);
         }}
         className="rounded-full hover:bg-slate-300"
-      />
+      /> : null}
     </div>
   );
 };

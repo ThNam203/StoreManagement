@@ -425,7 +425,7 @@ export default function Sale() {
             onClick={() => addNewInvoice()}
           />
           <div className="min-w-[16px] flex-1" />
-          <ActionMenu />
+          {/* <ActionMenu /> */}
         </div>
         <InvoiceView
           isSubmittingInvoice={isCompletingInvoice}
@@ -492,6 +492,7 @@ const InvoiceView = ({
     await InvoiceService.uploadInvoice(submitInvoice)
       .then((response) => {
         deleteInvoice(invoice.id);
+        setChosenCustomer(null);
         dispatch(addInvoice(response.data)); // add to sold invoices
         createInvoicePdf(submitInvoice, products);
       })

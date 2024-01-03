@@ -174,7 +174,7 @@ export function AddStaffDialog({
           setOpen(false);
         });
       } catch (e) {
-        axiosUIErrorHandler(e, toast, router);
+        console.log(e);
       } finally {
         setIsLoading(false);
       }
