@@ -94,6 +94,7 @@ export default function SaleReportLayout() {
       onTimeFilterControlChanged={(value) => setReportDateControl(value)}
       onSingleTimeFilterChanged={(value) => setReportDateSingleCondition(value)}
       onRangeTimeFilterChanged={(value) => setReportDateRange(value)}
+      className="mb-2"
     />,
     <RangeFilter
       key={2}
@@ -144,16 +145,17 @@ export default function SaleReportLayout() {
   ) : null;
 
   return (
-    <PageWithFilters filters={filters} title="Sale Profit By Day Report">
+    <PageWithFilters
+      filters={filters}
+      title="Sale Profit By Day Report"
+      headerButtons={[<ReportPDFDownloadButton key={0} PdfContent={PDF!} />]}
+    >
       <div className="flex flex-col space-y-4">
         {report ? (
-          <>
-            <ReportPDFDownloadButton PdfContent={PDF!} classname="self-end" />
-            <ReportPDFView
-              PdfContent={PDF!}
-              classname="w-full h-[1000px] bg-black"
-            />
-          </>
+          <ReportPDFView
+            PdfContent={PDF!}
+            classname="w-full h-[1000px] bg-black"
+          />
         ) : null}
       </div>
     </PageWithFilters>

@@ -22,6 +22,7 @@ import { Checkbox } from "./checkbox";
 import { Input } from "./input";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 import { ScrollArea } from "./scroll-area";
+import { Switch } from "./switch";
 
 const SingleChoiceFilter = <T extends string | number>({
   title,

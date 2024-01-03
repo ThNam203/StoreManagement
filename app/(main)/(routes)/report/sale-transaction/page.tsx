@@ -26,9 +26,9 @@ import {
   handleRangeNumFilter,
 } from "@/utils";
 import { Document, Page, Text, View } from "@react-pdf/renderer";
-import { format, previousDay } from "date-fns";
+import { format } from "date-fns";
 import { useRouter } from "next/navigation";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function SaleTransactionPage() {
   const { toast } = useToast();
@@ -80,15 +80,21 @@ export default function SaleTransactionPage() {
 
       const reportData = report.data;
 
-      const invoices = handleRangeNumFilter({
-        quantity: valueRangeConditions.invoiceQuantity,
-        total: valueRangeConditions.invoiceTotal,
-      }, reportData.invoices);
-  
-      const returns = handleRangeNumFilter({
-        quantity: valueRangeConditions.returnQuantity,
-        total: valueRangeConditions.returnTotal,
-      }, reportData.returns);
+      const invoices = handleRangeNumFilter(
+        {
+          quantity: valueRangeConditions.invoiceQuantity,
+          total: valueRangeConditions.invoiceTotal,
+        },
+        reportData.invoices,
+      );
+
+      const returns = handleRangeNumFilter(
+        {
+          quantity: valueRangeConditions.returnQuantity,
+          total: valueRangeConditions.returnTotal,
+        },
+        reportData.returns,
+      );
 
       setReport({
         ...reportData,
@@ -100,7 +106,12 @@ export default function SaleTransactionPage() {
     fetchReport()
       .catch((err) => axiosUIErrorHandler(err, toast, router))
       .finally(() => dispatch(disablePreloader()));
-  }, [reportDateRangeCondition, reportDateSingleCondition, reportDateControl, valueRangeConditions]);
+  }, [
+    reportDateRangeCondition,
+    reportDateSingleCondition,
+    reportDateControl,
+    valueRangeConditions,
+  ]);
 
   const filters = [
     <TimeFilter
@@ -173,16 +184,17 @@ export default function SaleTransactionPage() {
   ) : null;
 
   return (
-    <PageWithFilters filters={filters} title="Sale Transaction Report">
+    <PageWithFilters
+      filters={filters}
+      title="Sale Transaction Report"
+      headerButtons={[<ReportPDFDownloadButton key={1} PdfContent={PDF!} />]}
+    >
       <div className="flex flex-col space-y-4">
         {report ? (
-          <>
-            <ReportPDFDownloadButton PdfContent={PDF!} classname="self-end" />
-            <ReportPDFView
-              PdfContent={PDF!}
-              classname="w-full h-[1000px] bg-black"
-            />
-          </>
+          <ReportPDFView
+            PdfContent={PDF!}
+            classname="w-full h-[1000px] bg-black"
+          />
         ) : null}
       </div>
     </PageWithFilters>
