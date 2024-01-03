@@ -29,9 +29,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <body className={cn(font.className)}>
           <GlobalState>
             <Providers>
-              <Header />
               {children}
-              <Footer />
               <ScrollToTop />
             </Providers>
           </GlobalState>
