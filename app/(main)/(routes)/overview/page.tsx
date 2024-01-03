@@ -150,20 +150,33 @@ export default function OverviewPage() {
       const invoicesCall = await InvoiceService.getAllInvoices();
       const invoices = invoicesCall.data;
 
-      const todayInvoices = invoices.filter(
-        (invoice) => isAfter(new Date(invoice.createdAt), today));
+      const todayInvoices = invoices.filter((invoice) =>
+        isAfter(new Date(invoice.createdAt), today),
+      );
 
       const previousDayInvoices = invoices.filter(
-        (invoice) => isAfter(new Date(invoice.createdAt), previousDay) && isBefore(new Date(invoice.createdAt), today));
+        (invoice) =>
+          isAfter(new Date(invoice.createdAt), previousDay) &&
+          isBefore(new Date(invoice.createdAt), today),
+      );
 
       setTodayInvoiceAmount(todayInvoices.length);
       setPreviousDayInvoiceAmount(previousDayInvoices.length);
 
-      const returnInvoicesCall = await ReturnInvoiceService.getAllReturnInvoices();
-      const todayReturnsValue = returnInvoicesCall.data.filter(
-        (invoice) => isAfter(new Date(invoice.createdAt), today)).map((v) => v.total).reduce((a, b) => a + b, 0);
-      const previousDayReturnValue = returnInvoicesCall.data.filter(
-        (invoice) => isAfter(new Date(invoice.createdAt), previousDay) && isBefore(new Date(invoice.createdAt), today)).map((v) => v.total).reduce((a, b) => a + b, 0);
+      const returnInvoicesCall =
+        await ReturnInvoiceService.getAllReturnInvoices();
+      const todayReturnsValue = returnInvoicesCall.data
+        .filter((invoice) => isAfter(new Date(invoice.createdAt), today))
+        .map((v) => v.total)
+        .reduce((a, b) => a + b, 0);
+      const previousDayReturnValue = returnInvoicesCall.data
+        .filter(
+          (invoice) =>
+            isAfter(new Date(invoice.createdAt), previousDay) &&
+            isBefore(new Date(invoice.createdAt), today),
+        )
+        .map((v) => v.total)
+        .reduce((a, b) => a + b, 0);
       setTodayTotalReturnValue(todayReturnsValue);
       setPreviousDayTotalReturnValue(previousDayReturnValue);
 
@@ -240,15 +253,22 @@ export default function OverviewPage() {
               <h4 className="text-xs text-gray-500">Total orders</h4>
               <h2 className="my-2 text-3xl font-bold">{todayInvoiceAmount}</h2>
               <p className="text-xs text-gray-500">
-                <span className={cn(todayInvoiceAmount > previousDayInvoiceAmount ? "text-green-500" : "text-red-500")}>{todayInvoiceAmount >= previousDayInvoiceAmount
-                    ? "+"
-                    : "-"}
-                    {Math.abs(
-                        ((todayInvoiceAmount - previousDayInvoiceAmount) /
-                          Math.max(previousDayInvoiceAmount, 1)) *
-                          100
-                      ).toFixed(2)}
-                  %</span> compare to last day
+                <span
+                  className={cn(
+                    todayInvoiceAmount > previousDayInvoiceAmount
+                      ? "text-green-500"
+                      : "text-red-500",
+                  )}
+                >
+                  {todayInvoiceAmount >= previousDayInvoiceAmount ? "+" : "-"}
+                  {Math.abs(
+                    ((todayInvoiceAmount - previousDayInvoiceAmount) /
+                      Math.max(previousDayInvoiceAmount, 1)) *
+                      100,
+                  ).toFixed(2)}
+                  %
+                </span>{" "}
+                compare to last day
               </p>
             </div>
             <div
@@ -262,15 +282,22 @@ export default function OverviewPage() {
                 {saleProfitReport[1].revenue} VND
               </h2>
               <p className="text-xs text-gray-500">
-                <span className={cn(saleProfitReport[1].revenue > saleProfitReport[0].revenue ? "text-green-500" : "text-red-500")}>
+                <span
+                  className={cn(
+                    saleProfitReport[1].revenue > saleProfitReport[0].revenue
+                      ? "text-green-500"
+                      : "text-red-500",
+                  )}
+                >
                   {saleProfitReport[1].revenue >= saleProfitReport[0].revenue
                     ? "+"
                     : "-"}
                   {Math.abs(
-                        ((saleProfitReport[1].revenue - saleProfitReport[0].revenue) /
-                          Math.max(saleProfitReport[0].revenue, 1)) *
-                          100
-                      ).toFixed(2)}
+                    ((saleProfitReport[1].revenue -
+                      saleProfitReport[0].revenue) /
+                      Math.max(saleProfitReport[0].revenue, 1)) *
+                      100,
+                  ).toFixed(2)}
                   %
                 </span>{" "}
                 compare to last day
@@ -283,14 +310,28 @@ export default function OverviewPage() {
               }
             >
               <h4 className="text-xs text-gray-500">Refunds</h4>
-              <h2 className="my-2 text-3xl font-bold">{todayTotalReturnValue} VND</h2>
+              <h2 className="my-2 text-3xl font-bold">
+                {todayTotalReturnValue} VND
+              </h2>
               <p className="text-xs text-gray-500">
-                <span className={cn(todayTotalReturnValue <= previousDayTotalReturnValue ? "text-green-500" : "text-red-500")}>{todayTotalReturnValue <= previousDayTotalReturnValue ? "-" : "+"}
+                <span
+                  className={cn(
+                    todayTotalReturnValue <= previousDayTotalReturnValue
+                      ? "text-green-500"
+                      : "text-red-500",
+                  )}
+                >
+                  {todayTotalReturnValue <= previousDayTotalReturnValue
+                    ? "-"
+                    : "+"}
                   {Math.abs(
-                        ((todayTotalReturnValue - previousDayTotalReturnValue) /
-                          Math.max(previousDayTotalReturnValue, 1)) *
-                          100
-                      ).toFixed(2)}%</span> compare to last month
+                    ((todayTotalReturnValue - previousDayTotalReturnValue) /
+                      Math.max(previousDayTotalReturnValue, 1)) *
+                      100,
+                  ).toFixed(2)}
+                  %
+                </span>{" "}
+                compare to last month
               </p>
             </div>
             <div
@@ -300,16 +341,29 @@ export default function OverviewPage() {
               }
             >
               <h4 className="text-xs text-gray-500">Cost</h4>
-              <h2 className="my-2 text-3xl font-bold">{saleProfitReport[1].costPrice}{" "}VND</h2>
+              <h2 className="my-2 text-3xl font-bold">
+                {saleProfitReport[1].costPrice} VND
+              </h2>
               <p className="text-xs text-gray-500">
-                <span className={cn(saleProfitReport[1].costPrice <= saleProfitReport[0].costPrice ? "text-green-500" : "text-red-500")}>
-                  {saleProfitReport[1].costPrice <= saleProfitReport[0].costPrice ? "-" : "+"}
+                <span
+                  className={cn(
+                    saleProfitReport[1].costPrice <=
+                      saleProfitReport[0].costPrice
+                      ? "text-green-500"
+                      : "text-red-500",
+                  )}
+                >
+                  {saleProfitReport[1].costPrice <=
+                  saleProfitReport[0].costPrice
+                    ? "-"
+                    : "+"}
                   {Math.abs(
-                        ((saleProfitReport[1].costPrice - saleProfitReport[0].costPrice) /
-                          Math.max(saleProfitReport[0].costPrice, 1)) *
-                          100
-                      ).toFixed(2)
-                    }%
+                    ((saleProfitReport[1].costPrice -
+                      saleProfitReport[0].costPrice) /
+                      Math.max(saleProfitReport[0].costPrice, 1)) *
+                      100,
+                  ).toFixed(2)}
+                  %
                 </span>{" "}
                 compare to last month
               </p>

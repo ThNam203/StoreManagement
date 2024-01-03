@@ -614,7 +614,7 @@ export function AddStaffDialog({
                 >
                   <ScrollArea className="h-full pr-4">
                     <div className="flex flex-col gap-6">
-                      <div className="w-full overflow-hidden rounded shadow-[0px_5px_15px_rgba(0,0,0,.1)]">
+                      <div className="w-full rounded shadow-[0px_5px_15px_rgba(0,0,0,.1)]">
                         <div className="flex flex-row items-center p-4">
                           <CircleDollarSign className="mr-2 h-4 w-4 text-yellow-500" />
                           <span className="font-semibold">Staff salary</span>
@@ -629,23 +629,26 @@ export function AddStaffDialog({
                               control={form.control}
                               name="salaryType"
                               render={({ field }) => (
-                                <FormItem>
+                                <FormItem className="min-w-[400px]">
                                   <FormControl>
-                                    <div className="flex min-w-[400px] flex-row items-center gap-2">
-                                      <MyCombobox
-                                        className="w-full"
-                                        defaultValue={field.value}
-                                        choices={Object.values(SalaryType)}
-                                        onValueChange={(val) => {
-                                          form.setValue(
-                                            "salaryType",
-                                            val as SalaryType,
-                                          );
-                                          onSalaryTypeChange(val);
-                                        }}
-                                      />
-                                      <Info className="h-6 w-6" />
-                                    </div>
+                                    <CustomCombobox<string>
+                                      placeholder="Select salarytype"
+                                      searchPlaceholder={"Find salarytype..."}
+                                      value={field.value}
+                                      choices={Object.values(SalaryType)}
+                                      valueView={OptionView}
+                                      showSearchInput={false}
+                                      itemSearchView={(choice) =>
+                                        OptionSearchView(choice, field.value)
+                                      }
+                                      onItemClick={(val) => {
+                                        form.setValue(
+                                          "salaryType",
+                                          val as SalaryType,
+                                        );
+                                        onSalaryTypeChange(val);
+                                      }}
+                                    />
                                   </FormControl>
                                 </FormItem>
                               )}
@@ -659,7 +662,7 @@ export function AddStaffDialog({
                                 <FormItem>
                                   <div className="flex flex-row items-center justify-between gap-10">
                                     <FormLabel className="flex flex-col items-start">
-                                      <span className="w-[100px] whitespace-nowrap font-semibold">
+                                      <span className="w-[50px] whitespace-nowrap font-semibold">
                                         Default
                                       </span>
                                     </FormLabel>

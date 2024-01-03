@@ -39,14 +39,12 @@ const formSchema = z.object({
 });
 
 export function AddShiftDialog({
-  title = "Add a new shift",
   shift,
   submit,
   open,
   setOpen,
   onRemoveShift,
 }: {
-  title?: string;
   shift: Shift | null;
   submit?: (value: Shift) => any;
   open: boolean;
@@ -77,16 +75,12 @@ export function AddShiftDialog({
     setIsAdding(false);
     setIsRemoving(false);
     if (shift) {
-      title = "Edit shift";
       form.setValue("name", shift.name);
       form.setValue(
         "workingTime.start",
-        format(shift.workingTime.start, "HH:mm:ss"),
+        format(shift.workingTime.start, "HH:mm"),
       );
-      form.setValue(
-        "workingTime.end",
-        format(shift.workingTime.end, "HH:mm:ss"),
-      );
+      form.setValue("workingTime.end", format(shift.workingTime.end, "HH:mm"));
       form.setValue("status", shift.status);
     } else resetToEmptyForm();
   };
@@ -174,7 +168,9 @@ export function AddShiftDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent onInteractOutside={(e) => e.preventDefault()}>
         <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
+          <DialogTitle>
+            {shift ? "Update shift" : "Add a new shift"}
+          </DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>

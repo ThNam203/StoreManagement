@@ -438,7 +438,9 @@ export function TimeKeepingDialog({
                                     className="w-[100px] text-right text-sm"
                                     placeholder="0"
                                     defaultValue={
-                                      punish.value ? punish.value : ""
+                                      punish.value
+                                        ? formatPrice(punish.value)
+                                        : ""
                                     }
                                     onChange={(val) => {
                                       let newPunishList: BonusAndPunish[] = [
@@ -602,7 +604,9 @@ export function TimeKeepingDialog({
                                     className="w-[100px] text-right text-sm"
                                     placeholder="0"
                                     defaultValue={
-                                      bonus.value ? bonus.value : ""
+                                      bonus.value
+                                        ? formatPrice(bonus.value)
+                                        : ""
                                     }
                                     onChange={(val) => {
                                       let newRewardList: BonusAndPunish[] = [
