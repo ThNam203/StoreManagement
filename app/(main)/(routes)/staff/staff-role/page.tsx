@@ -326,7 +326,7 @@ export default function StaffRolePage() {
           try {
             await handleRemoveRole(selectedData.positionId);
           } catch (e) {
-            axiosUIErrorHandler(e, toast);
+            axiosUIErrorHandler(e, toast, router);
           }
         }}
         onCancel={() => setOpenConfirmDialog(false)}

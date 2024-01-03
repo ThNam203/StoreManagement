@@ -64,6 +64,7 @@ import {
   convertStaffReceived,
   convertStaffToSent,
 } from "@/utils/staffApiUtils";
+import { useRouter } from "next/navigation";
 
 enum IconNames {
   GanttChartSquare,
@@ -309,6 +310,7 @@ const SideBar = ({
   isSideBarCollapsed: boolean | null;
 }) => {
   const { toast } = useToast();
+  const router = useRouter();
   const [thisAccount, setThisAccount] = useState<Staff>();
   const [openProfileDialog, setOpenProfileDialog] = useState(false);
   useEffect(() => {
@@ -322,7 +324,7 @@ const SideBar = ({
           convertedStaffs.find((staff) => staff.position === "Owner"),
         );
       } catch (e) {
-        axiosUIErrorHandler(e, toast);
+        axiosUIErrorHandler(e, toast, router);
       }
     };
     fetchData();
@@ -349,7 +351,7 @@ const SideBar = ({
       setThisAccount(staffReceived);
       return Promise.resolve();
     } catch (e) {
-      axiosUIErrorHandler(e, toast);
+      axiosUIErrorHandler(e, toast, router);
       return Promise.reject(e);
     }
   };

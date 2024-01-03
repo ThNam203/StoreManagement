@@ -209,7 +209,7 @@ export default function CustomCombobox<T>({
         </div>
         <div
           className={cn(
-            "flex h-auto max-h-[500px] flex-col overflow-y-auto overflow-x-hidden border-none",
+            "flex h-auto max-h-[200px] flex-col overflow-y-auto overflow-x-hidden border-none",
             scrollbar_style.scrollbar,
           )}
         >

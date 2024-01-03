@@ -111,8 +111,8 @@ export function MakeReceiptDialog({ data, submit, open, setOpen }: Props) {
     (state) => state.transactionStranger.value,
   );
   const staffList = useAppSelector((state) => state.staffs.value);
-  const strangerNames = strangerList.map((stranger) => stranger.name);
-  const staffNameList = staffList.map((staff) => staff.name);
+  const customerList = useAppSelector((state) => state.customers.value);
+  const supplierList = useAppSelector((state) => state.suppliers.value);
   const [targetNames, setTargetNames] = useState<string[]>([]);
   const [targetNameSearch, setTargetNameSearch] = useState<string>("");
   const [openAddTargetDialog, setOpenAddTargetDialog] = useState(false);
@@ -150,6 +150,16 @@ export function MakeReceiptDialog({ data, submit, open, setOpen }: Props) {
     } else if (selectedTargetType === TargetType.STAFF) {
       const staff = staffList.find((staff) => staff.name === values.targetName);
       if (staff) targetId = staff.id;
+    } else if (selectedTargetType === TargetType.CUSTOMER) {
+      const customer = customerList.find(
+        (customer) => customer.name === values.targetName,
+      );
+      if (customer) targetId = customer.id;
+    } else if (selectedTargetType === TargetType.SUPPLIER) {
+      const supplier = supplierList.find(
+        (supplier) => supplier.name === values.targetName,
+      );
+      if (supplier) targetId = supplier.id;
     }
 
     const receipt: Transaction = {
@@ -195,23 +205,35 @@ export function MakeReceiptDialog({ data, submit, open, setOpen }: Props) {
       const res = await TransactionService.createNewStranger(strangerToSent);
       const converted = convertStrangerReceived(res.data);
       dispatch(addStranger(converted));
-
-      console.log(res);
       return Promise.resolve();
     } catch (e) {
       axiosUIErrorHandler(e, toast, router);
+      return Promise.reject(e);
     } finally {
     }
   };
 
   const handleAddNewStranger = async (stranger: Stranger) => {
-    return addNewStranger(stranger);
+    return addNewStranger(stranger).then(() => {
+      setTargetNames((prev) => [...prev, stranger.name]);
+    });
   };
 
   const handleTargetTypeChange = (targetType: TargetType) => {
     setSelectedTargetType(targetType);
-    if (targetType === TargetType.OTHER) setTargetNames(strangerNames);
-    else if (targetType === TargetType.STAFF) setTargetNames(staffNameList);
+    if (targetType === TargetType.OTHER) {
+      const strangerNames = strangerList.map((stranger) => stranger.name);
+      setTargetNames(strangerNames);
+    } else if (targetType === TargetType.STAFF) {
+      const staffNameList = staffList.map((staff) => staff.name);
+      setTargetNames(staffNameList);
+    } else if (targetType === TargetType.CUSTOMER) {
+      const customerNames = customerList.map((customer) => customer.name);
+      setTargetNames(customerNames);
+    } else if (targetType === TargetType.SUPPLIER) {
+      const supplierNames = supplierList.map((supplier) => supplier.name);
+      setTargetNames(supplierNames);
+    }
     form.setValue("targetType", targetType);
     form.resetField("targetName");
   };
