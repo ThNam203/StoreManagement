@@ -48,6 +48,10 @@ import {
   convertStrangerReceived,
 } from "@/utils/transactionApiUtils";
 import { useRouter } from "next/navigation";
+import CustomerService from "@/services/customerService";
+import { setCustomers } from "@/reducers/customersReducer";
+import SupplierService from "@/services/supplierService";
+import { setSuppliers } from "@/reducers/suppliersReducer";
 
 export default function SalesPage() {
   const dispatch = useAppDispatch();
@@ -106,7 +110,9 @@ export default function SalesPage() {
           convertStaffReceived(staff),
         );
         dispatch(
-          setStaffs(staffReceived.filter((staff) => staff.role !== "ADMIN")),
+          setStaffs(
+            staffReceived.filter((staff) => staff.position !== "Owner"),
+          ),
         );
 
         const resStranger = await TransactionService.getAllStrangers();
@@ -114,6 +120,12 @@ export default function SalesPage() {
           convertStrangerReceived(stranger),
         );
         dispatch(setStrangers(strangers));
+
+        const customers = await CustomerService.getAllCustomers();
+        dispatch(setCustomers(customers.data));
+
+        const suppliers = await SupplierService.getAllSuppliers();
+        dispatch(setSuppliers(suppliers.data));
       } catch (e) {
         axiosUIErrorHandler(e, toast, router);
       } finally {
