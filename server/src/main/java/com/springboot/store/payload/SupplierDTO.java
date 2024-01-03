@@ -24,5 +24,4 @@ public class SupplierDTO {
     private Date createdAt;
     private Integer creatorId;
     private String supplierGroupName;
-    private String image;
 }

@@ -54,9 +54,6 @@ public class Supplier {
     @JoinColumn(name = "supplier_group_id")
     private SupplierGroup supplierGroup;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    private Media image;
-
     @ManyToOne()
     @JoinColumn(name = "store_id")
     private Store store;
