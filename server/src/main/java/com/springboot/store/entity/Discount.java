@@ -76,6 +76,8 @@ public class Discount {
     )
     private Set<ProductGroup> productGroups;
 
+
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creator_id", nullable = false)
     private Staff creator;

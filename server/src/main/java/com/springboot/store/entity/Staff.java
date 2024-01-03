@@ -53,6 +53,9 @@ public class Staff implements UserDetails {
     @Column(name = "salary_debt")
     private int salaryDebt = 0;
 
+    @Column(name = "is_deleted")
+    private Boolean isDeleted;
+
     @Column(name = "birthday")
     private Date birthday;
 

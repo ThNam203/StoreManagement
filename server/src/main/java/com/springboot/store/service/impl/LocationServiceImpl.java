@@ -1,6 +1,7 @@
 package com.springboot.store.service.impl;
 
 import com.springboot.store.entity.Location;
+import com.springboot.store.entity.Product;
 import com.springboot.store.entity.Staff;
 import com.springboot.store.payload.LocationDTO;
 import com.springboot.store.repository.LocationRepository;
@@ -61,6 +62,10 @@ public class LocationServiceImpl implements LocationService {
 
     @Override
     public void deleteLocation(int id) {
+        Location location = locationRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Location not found with id: " + id));
+        for (Product product : location.getProducts()) {
+            product.setLocation(null);
+        }
         locationRepository.deleteById(id);
     }
 }

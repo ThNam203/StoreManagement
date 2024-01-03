@@ -37,6 +37,9 @@ public class Supplier {
     @Column(name = "company_name")
     private String companyName;
 
+    @Column(name = "is_deleted")
+    private Boolean isDeleted;
+
     @Column(name = "created_at")
     private Date createdAt;
 

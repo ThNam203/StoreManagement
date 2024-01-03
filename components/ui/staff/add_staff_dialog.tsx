@@ -79,7 +79,7 @@ const createSchema = z.object({
   name: z.string().min(1, { message: "Name is missing" }),
   birthday: z.string(),
   sex: z.string(),
-  cccd: z.string().min(1, { message: "CCCD is missing" }),
+  cccd: z.string(),
   position: z.string().min(1, { message: "Position is missing" }),
   phoneNumber: z.string().min(1, { message: "Phone number is missing" }),
   email: z.string().email({ message: "Please enter a valid email" }),
@@ -96,24 +96,21 @@ const updateSchema = z.object({
   name: z.string().min(1, { message: "Name is missing" }),
   birthday: z.string(),
   sex: z.string(),
-  cccd: z.string().min(1, { message: "CCCD is missing" }),
+  cccd: z.string(),
   position: z.string().min(1, { message: "Position is missing" }),
   phoneNumber: z.string().min(1, { message: "Phone number is missing" }),
   email: z.string().email({ message: "Please enter a valid email" }),
-  password: z.string().nullable(),
+  password: z
+    .string()
+    .min(8, { message: "Password must be at least 8 characters" })
+    .optional(),
   address: z.string().optional(),
   note: z.string().optional(),
   salary: z.number().min(0, { message: "Salary must be greater than 0" }),
   salaryType: z.nativeEnum(SalaryType),
 });
 export type DisableField = "email" | "password" | "position";
-export type HiddenField =
-  | "salary"
-  | "password"
-  | "note"
-  | "cccd"
-  | "phoneNumber"
-  | "email";
+export type HiddenField = "salary" | "password";
 
 export function AddStaffDialog({
   open,
@@ -141,6 +138,8 @@ export function AddStaffDialog({
       salary: undefined,
       salaryType: SalaryType.ByShift,
       password: undefined,
+      cccd: undefined,
+      email: undefined,
     },
   });
 
@@ -173,10 +172,6 @@ export function AddStaffDialog({
         await submit(newStaff, staffAvatar).then(() => {
           form.reset();
           setOpen(false);
-          toast({
-            variant: "default",
-            title: "Add staff successfully",
-          });
         });
       } catch (e) {
         axiosUIErrorHandler(e, toast, router);
@@ -190,7 +185,6 @@ export function AddStaffDialog({
   const dispatch = useDispatch();
   const roleList = useAppSelector((state) => state.role.value);
   const roleNames = roleList.map((role) => role.positionName);
-  console.log("roleNames", roleNames);
   const [openAddPositionDialog, setOpenAddPositionDialog] = useState(false);
   const [salarySetting, setSalarySetting] = useState<SalarySetting>({
     salary: 0,
@@ -214,21 +208,34 @@ export function AddStaffDialog({
     if (staff) {
       form.setValue("avatar", staff.avatar ? staff.avatar : "");
       form.setValue("name", staff.name);
-      form.setValue("birthday", convertDateToString(staff.birthday));
-      form.setValue("sex", staff.sex);
-      form.setValue("cccd", staff.cccd);
+      console.log("birthday", staff.birthday);
+      form.setValue(
+        "birthday",
+        staff.birthday ? convertDateToString(staff.birthday) : "",
+      );
+      form.setValue("sex", staff.sex ? staff.sex : Sex.MALE);
+      if (staff.cccd) form.setValue("cccd", staff.cccd);
       form.setValue("position", staff.position);
-      form.setValue("phoneNumber", staff.phoneNumber);
+      if (staff.phoneNumber) form.setValue("phoneNumber", staff.phoneNumber);
       form.setValue("email", staff.email);
-      form.setValue("address", staff.address);
-      form.setValue("note", staff.note);
-      form.setValue("salary", staff.salarySetting.salary);
-      form.setValue("salaryType", staff.salarySetting.salaryType);
+      form.setValue("address", staff.address ? staff.address : "");
+      form.setValue("note", staff.note ? staff.note : "");
+      form.setValue(
+        "salary",
+        staff.salarySetting ? staff.salarySetting.salary : 0,
+      );
+      form.setValue(
+        "salaryType",
+        staff.salarySetting
+          ? staff.salarySetting.salaryType
+          : SalaryType.ByShift,
+      );
     } else resetToEmptyForm();
     setSalarySetting({
       salary: form.getValues("salary"),
       salaryType: form.getValues("salaryType"),
     });
+    console.log("after setvalue", form.getValues());
   };
 
   const resetToEmptyForm = () => {
@@ -454,7 +461,6 @@ export function AddStaffDialog({
                       <FormField
                         control={form.control}
                         name="position"
-                        disabled={disableFields.includes("position")}
                         render={({ field }) => (
                           <FormItem className="mt-2">
                             <div className="flex flex-row items-center">
@@ -468,6 +474,7 @@ export function AddStaffDialog({
                                   value={field.value}
                                   choices={roleNames}
                                   valueView={OptionView}
+                                  disabled={disableFields.includes("position")}
                                   itemSearchView={(choice) =>
                                     OptionSearchView(choice, field.value)
                                   }
@@ -506,6 +513,10 @@ export function AddStaffDialog({
                                   maxLength={10}
                                   className="w-2/3"
                                   type="tel"
+                                  onKeyUp={(e: any) => {
+                                    removeCharNotANum(e);
+                                    field.onChange(e);
+                                  }}
                                 />
                               </FormControl>
                             </div>
@@ -516,7 +527,6 @@ export function AddStaffDialog({
                       <FormField
                         control={form.control}
                         name="email"
-                        disabled={disableFields.includes("email")}
                         render={({ field }) => (
                           <FormItem className="mt-2">
                             <div className="flex flex-row items-center">
@@ -525,7 +535,12 @@ export function AddStaffDialog({
                               </FormLabel>
 
                               <FormControl className="w-2/3">
-                                <Input type="email" {...field} />
+                                <Input
+                                  type="email"
+                                  placeholder="johndoe@gmail.com"
+                                  {...field}
+                                  disabled={disableFields.includes("email")}
+                                />
                               </FormControl>
                             </div>
                           </FormItem>
@@ -534,9 +549,13 @@ export function AddStaffDialog({
                       <FormField
                         control={form.control}
                         name="password"
-                        disabled={disableFields.includes("password")}
                         render={({ field }) => (
-                          <FormItem className="mt-2">
+                          <FormItem
+                            className={cn(
+                              "mt-2",
+                              hiddenFields.includes("password") ? "hidden" : "",
+                            )}
+                          >
                             <div className="flex flex-row items-center">
                               <FormLabel className="w-1/3">
                                 <h5 className="text-sm">
@@ -680,6 +699,7 @@ export function AddStaffDialog({
                 <Button
                   type="submit"
                   onClick={() => {
+                    console.log("form data", form.getValues());
                     try {
                       if (data) {
                         console.log(updateSchema.parse(form.getValues()));

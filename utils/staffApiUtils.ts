@@ -1,8 +1,11 @@
 import { SalaryType } from "@/entities/SalarySetting";
 import { Staff } from "@/entities/Staff";
 
-const convertStaffToSent = (value: Staff) => {
-  const converted = {
+const convertStaffToSent = (
+  value: Staff,
+  type: "staff" | "owner" = "staff",
+) => {
+  const convertedStaff = {
     id: value.id,
     avatar: value.avatar,
     name: value.name,
@@ -22,8 +25,29 @@ const convertStaffToSent = (value: Staff) => {
       salaryType: value.salarySetting.salaryType,
     },
   };
-  console.log("sent", converted);
-  return converted;
+
+  const convertedOwner = {
+    id: value.id,
+    avatar: value.avatar,
+    name: value.name,
+    email: value.email,
+    password: value.password,
+    address: value.address,
+    phoneNumber: value.phoneNumber,
+    cccd: value.cccd,
+    salaryDebt: value.salaryDebt,
+    note: value.note,
+    birthday: value.birthday.toISOString(),
+    sex: value.sex,
+    position: value.position,
+    role: "OWNER",
+    staffSalary: {
+      salary: value.salarySetting.salary,
+      salaryType: value.salarySetting.salaryType,
+    },
+  };
+  if (type === "staff") return convertedStaff;
+  return convertedOwner;
 };
 
 const convertStaffReceived = (value: any) => {

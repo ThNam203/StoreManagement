@@ -1,5 +1,6 @@
 package com.springboot.store.service.impl;
 
+import com.springboot.store.entity.ProductProperty;
 import com.springboot.store.entity.ProductPropertyName;
 import com.springboot.store.payload.ProductPropertyNameDTO;
 import com.springboot.store.repository.ProductPropertyNameRepository;
@@ -58,6 +59,10 @@ public class ProductPropertyNameServiceImpl implements ProductPropertyNameServic
 
     @Override
     public void deleteProductPropertyName(int id) {
+        ProductPropertyName existingProductPropertyName = productPropertyNameRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("ProductProperty not found with id: " + id));
+        for (ProductProperty productProperty : existingProductPropertyName.getProductProperties()) {
+            productProperty.setPropertyName(null);
+        }
         productPropertyNameRepository.deleteById(id);
     }
 }

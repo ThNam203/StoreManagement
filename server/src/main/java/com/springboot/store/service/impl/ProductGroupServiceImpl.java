@@ -1,5 +1,6 @@
 package com.springboot.store.service.impl;
 
+import com.springboot.store.entity.Product;
 import com.springboot.store.entity.ProductGroup;
 import com.springboot.store.entity.Staff;
 import com.springboot.store.mapper.ProductGroupMapper;
@@ -73,6 +74,9 @@ public class ProductGroupServiceImpl implements ProductGroupService {
     @Override
     public void deleteProductGroup(int id) {
         ProductGroup productGroup = productGroupRepository.findById(id).orElseThrow(() -> new RuntimeException("Product group not found"));
+        for (Product product : productGroup.getProducts()) {
+            product.setProductGroup(null);
+        }
         productGroupRepository.delete(productGroup);
     }
 }

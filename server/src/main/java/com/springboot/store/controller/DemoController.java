@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.view.RedirectView;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
@@ -33,5 +34,10 @@ public class DemoController {
     @GetMapping("/{id}")
     public ResponseEntity<?> hello(@PathVariable Integer id) {
         return ResponseEntity.status(201).body(staffRepository.findByStoreId(id));
+    }
+
+    @GetMapping("/redirect")
+    public RedirectView redirect() {
+        return new RedirectView("https://localhost:5500");
     }
 }

@@ -181,7 +181,8 @@ public class AuthenticationService {
                 response.getWriter().write(new ObjectMapper().writeValueAsString("Refreshed token successfully"));
             } else {
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                response.getWriter().write(new ObjectMapper().writeValueAsString("Refresh token is invalid"));
+                // redirect to login page
+                response.sendRedirect("http://localhost:3000/login");
             }
         }
     }

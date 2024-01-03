@@ -23,6 +23,7 @@ public class CustomerDTO {
     private String status;
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date birthday;
+    private Boolean isDeleted;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdAt;
     private String customerGroup;

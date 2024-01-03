@@ -13,6 +13,7 @@ public class SupplierMapper {
                 .description(supplierDTO.getDescription())
                 .companyName(supplierDTO.getCompanyName())
                 .status(supplierDTO.getStatus())
+                .isDeleted(supplierDTO.getIsDeleted())
                 .createdAt(supplierDTO.getCreatedAt())
                 .build();
     }
@@ -26,6 +27,7 @@ public class SupplierMapper {
                 .description(supplier.getDescription())
                 .companyName(supplier.getCompanyName())
                 .status(supplier.getStatus())
+                .isDeleted(supplier.getIsDeleted())
                 .createdAt(supplier.getCreatedAt())
                 .creatorId(supplier.getCreator() != null ? supplier.getCreator().getId() : null)
                 .supplierGroupName(supplier.getSupplierGroup() != null ? supplier.getSupplierGroup().getName() : null)

@@ -22,6 +22,7 @@ public class StaffResponse {
     private String sex;
     private String position;
     private int salaryDebt;
+    private Boolean isDeleted;
     private Date birthday;
     private Role role;
     private Date createdAt;

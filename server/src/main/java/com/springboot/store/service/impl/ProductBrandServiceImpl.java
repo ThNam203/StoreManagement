@@ -1,5 +1,6 @@
 package com.springboot.store.service.impl;
 
+import com.springboot.store.entity.Product;
 import com.springboot.store.entity.ProductBrand;
 import com.springboot.store.entity.Staff;
 import com.springboot.store.payload.ProductBrandDTO;
@@ -80,6 +81,11 @@ public class ProductBrandServiceImpl implements ProductBrandService {
 
     @Override
     public void deleteProductBrand(int id) {
+        ProductBrand productBrand = productBrandRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("ProductBrand not found with id: " + id));
+        for (Product product : productBrand.getProducts()) {
+            product.setProductBrand(null);
+        }
         productBrandRepository.deleteById(id);
     }
 }
