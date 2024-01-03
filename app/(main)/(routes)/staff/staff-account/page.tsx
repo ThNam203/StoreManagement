@@ -167,18 +167,34 @@ export default function StaffInfoPage() {
 
   const handleFormSubmit = (value: Staff, avatar: File | null) => {
     const index = staffList.findIndex((staff) => staff.id === value.id);
-    if (index !== -1) {
-      console.log("update");
-      return handleUpdateStaff(value, avatar);
-    } else return addNewStaff(value, avatar);
+    if (index !== -1) return handleUpdateStaff(value, avatar);
+    return handleAddNewStaff(value, avatar);
   };
   const handleDeleteStaff = (index: number) => {
     const id = filterdStaffList[index].id;
-    deleteAStaff(id);
+    deleteAStaff(id).then(() => {
+      toast({
+        variant: "default",
+        title: "Delete staff successfully",
+      });
+    });
   };
 
   const handleUpdateStaff = (value: Staff, avatar: File | null) => {
-    return updateAStaff(value, avatar);
+    return updateAStaff(value, avatar).then(() => {
+      toast({
+        variant: "default",
+        title: "Update staff successfully",
+      });
+    });
+  };
+  const handleAddNewStaff = (value: Staff, avatar: File | null) => {
+    return addNewStaff(value, avatar).then(() => {
+      toast({
+        variant: "default",
+        title: "Add staff successfully",
+      });
+    });
   };
 
   const updatePositionMultiFilter = (values: string[]) => {

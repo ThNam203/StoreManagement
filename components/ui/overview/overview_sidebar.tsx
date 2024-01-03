@@ -1,54 +1,70 @@
 "use client";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAppSelector } from "@/hooks";
+import { cn } from "@/lib/utils";
+import { setStaffs } from "@/reducers/staffReducer";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
+import StaffService from "@/services/staff_service";
 import {
-  GanttChartSquare,
-  BarChart3,
-  ShoppingCart,
-  ShoppingBag,
-  Package,
-  User,
-  Contact,
-  CalendarClock,
-  Settings,
-  LogOut,
-  UserCog,
-  Wrench,
-  MenuSquare,
-  CalendarRange,
-  Boxes,
-  Group,
-  Receipt,
-  Users,
-  User2,
-  Truck,
   ArrowLeftCircle,
-  Grid3x3,
-  Eye,
-  Box,
-  PenSquare,
   ArrowLeftRight,
-  Undo,
-  BaggageClaim,
-  ShoppingBasket,
   ArrowUpSquare,
-  PackageX,
-  PieChart,
+  BaggageClaim,
+  Banknote,
+  BarChart3,
+  Box,
+  Boxes,
+  CalendarClock,
+  CalendarRange,
+  Contact,
+  Eye,
   FileBarChart2,
+  GanttChartSquare,
+  Grid3x3,
+  Group,
+  LogOut,
+  MenuSquare,
+  Package,
+  PackageX,
+  PenSquare,
   Percent,
   PercentCircle,
-  Banknote,
+  PieChart,
+  Receipt,
+  Settings,
+  ShoppingBag,
+  ShoppingBasket,
+  ShoppingCart,
+  Truck,
+  Undo,
+  User,
+  User2,
+  UserCog,
+  Users,
+  Wrench,
 } from "lucide-react";
 import Image from "next/image";
-import { cn } from "@/lib/utils";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "../accordion";
-import { Button } from "../button";
-import React, { useState } from "react";
-import Link from "next/link";
+import {
+  AddStaffDialog,
+  DisableField,
+  HiddenField,
+} from "../staff/add_staff_dialog";
+import { useToast } from "../use-toast";
+import { Staff } from "@/entities/Staff";
+import {
+  convertStaffReceived,
+  convertStaffToSent,
+} from "@/utils/staffApiUtils";
+import { useRouter } from "next/navigation";
 
 enum IconNames {
   GanttChartSquare,
@@ -176,12 +192,14 @@ const SideBarButton = ({
   className,
   isCollapsed,
   href,
+  onClick,
 }: {
   iconName?: IconNames;
   title: string;
   className: string;
   isCollapsed: boolean | null;
   href: string;
+  onClick?: () => void;
 }) => {
   const icon = iconName ? LucideIcons(iconName, isCollapsed) : null;
 
@@ -195,6 +213,7 @@ const SideBarButton = ({
           " rounded-sm hover:cursor-pointer ",
         className,
       )}
+      onClick={onClick}
     >
       {icon}
       <p
@@ -290,6 +309,61 @@ const SideBar = ({
   changeSideBarCollapsibility: () => void;
   isSideBarCollapsed: boolean | null;
 }) => {
+  const { toast } = useToast();
+  const router = useRouter();
+  const [thisAccount, setThisAccount] = useState<Staff>();
+  const [openProfileDialog, setOpenProfileDialog] = useState(false);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const resStaff = await StaffService.getAllStaffs();
+        const convertedStaffs = resStaff.data.map((staff) =>
+          convertStaffReceived(staff),
+        );
+        setThisAccount(
+          convertedStaffs.find((staff) => staff.position === "Owner"),
+        );
+      } catch (e) {
+        axiosUIErrorHandler(e, toast, router);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const updateOwner = async (value: Staff, avatar: File | null) => {
+    try {
+      const staffToSent = convertStaffToSent(value, "owner");
+      console.log("value to update", staffToSent);
+      const dataForm: any = new FormData();
+      dataForm.append(
+        "data",
+        new Blob([JSON.stringify(staffToSent)], { type: "application/json" }),
+      );
+      console.log("avatar to update", avatar);
+      dataForm.append("file", avatar);
+      console.log("dataForm", dataForm);
+      const staffResult = await StaffService.updateStaff(
+        staffToSent.id,
+        dataForm,
+      );
+      const staffReceived = convertStaffReceived(staffResult.data);
+      console.log("staffReceived", staffReceived);
+      setThisAccount(staffReceived);
+      return Promise.resolve();
+    } catch (e) {
+      axiosUIErrorHandler(e, toast, router);
+      return Promise.reject(e);
+    }
+  };
+  const handleUpdateStaff = (value: Staff, avatar: File | null) => {
+    return updateOwner(value, avatar).then(() => {
+      toast({
+        variant: "default",
+        title: "Update successfully",
+      });
+    });
+  };
+
   return (
     <div>
       <ArrowLeftCircle
@@ -388,13 +462,14 @@ const SideBar = ({
                 className="!w-full"
                 isCollapsed={isCollapsed}
                 href=""
+                onClick={() => setOpenProfileDialog(true)}
               />
               <SideBarButton
                 iconName={IconNames.LogOut}
                 title="Logout"
                 className="!w-full"
                 isCollapsed={isCollapsed}
-                href="/logout"
+                href="/login"
               />
             </AccordionContent>
           </AccordionItem>
@@ -553,28 +628,28 @@ const SideBar = ({
               className="!w-full"
               isCollapsed={isCollapsed}
               href="/report/revenue-by-staff"
-              />,
-              <SideBarButton
-                key={8}
-                title="Products"
-                className="!w-full"
-                isCollapsed={isCollapsed}
-                href="/report/product"
-              />,
-              <SideBarButton
-              key={4}
-              title="Top Products"
-              className="!w-full"
-              isCollapsed={isCollapsed}
-              href="/report/top-products"
-              />,
-            <SideBarButton
-              key={5}
-              title="Product Sale"
-              className="!w-full"
-              isCollapsed={isCollapsed}
-              href="/report/product-sale"
             />,
+            // <SideBarButton
+            //   key={8}
+            //   title="Products"
+            //   className="!w-full"
+            //   isCollapsed={isCollapsed}
+            //   href="/report/product"
+            // />,
+            <SideBarButton
+              key={4}
+              title="Products"
+              className="!w-full"
+              isCollapsed={isCollapsed}
+              href="/report/products"
+            />,
+            // <SideBarButton
+            //   key={5}
+            //   title="Product Sale"
+            //   className="!w-full"
+            //   isCollapsed={isCollapsed}
+            //   href="/report/product-sale"
+            // />,
             <SideBarButton
               key={6}
               title="Sale By Day"
@@ -655,6 +730,15 @@ const SideBar = ({
           href="/settings"
         />
       </div>
+      <AddStaffDialog
+        data={thisAccount!}
+        open={openProfileDialog}
+        setOpen={setOpenProfileDialog}
+        submit={handleUpdateStaff}
+        title="Edit Profile"
+        disableFields={["position", "email"] as DisableField[]}
+        hiddenFields={["salary", "password"] as HiddenField[]}
+      />
     </div>
   );
 };

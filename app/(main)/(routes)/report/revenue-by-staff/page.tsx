@@ -1,6 +1,12 @@
 "use client";
 
-import { FilterDay, FilterTime, PageWithFilters, RangeFilter, TimeFilter } from "@/components/ui/filter";
+import {
+  FilterDay,
+  FilterTime,
+  PageWithFilters,
+  RangeFilter,
+  TimeFilter,
+} from "@/components/ui/filter";
 import {
   DefaultPDFContent,
   ReportPDFDownloadButton,
@@ -12,7 +18,11 @@ import { useAppDispatch } from "@/hooks";
 import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
 import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import ReportService from "@/services/reportService";
-import { TimeFilterType, getDateRangeFromTimeFilterCondition, handleRangeNumFilter } from "@/utils";
+import {
+  TimeFilterType,
+  getDateRangeFromTimeFilterCondition,
+  handleRangeNumFilter,
+} from "@/utils";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -56,7 +66,10 @@ export default function RevenueByStaffPage() {
         range.endDate,
       );
       const reportData = report.data;
-      const filteredData = handleRangeNumFilter(valueRangeConditions, reportData);
+      const filteredData = handleRangeNumFilter(
+        valueRangeConditions,
+        reportData,
+      );
       setReport(filteredData);
     };
 
@@ -75,31 +88,32 @@ export default function RevenueByStaffPage() {
       onTimeFilterControlChanged={(value) => setReportDateControl(value)}
       onSingleTimeFilterChanged={(value) => setReportDateSingleCondition(value)}
       onRangeTimeFilterChanged={(value) => setReportDateRange(value)}
+      className="mb-2"
     />,
     <RangeFilter
-    key={2}
-    title="Revenue money"
-    range={valueRangeConditions.revenueMoney}
-    onValuesChanged={(value) =>
-      setValueRangeConditions({
-        ...valueRangeConditions,
-        revenueMoney: value,
-      })
-    }
-    className="mb-2"
-  />,
-  <RangeFilter
-    key={3}
-    title="Return money"
-    range={valueRangeConditions.returnMoney}
-    onValuesChanged={(value) =>
-      setValueRangeConditions({
-        ...valueRangeConditions,
-        returnMoney: value,
-      })
-    }
-    className="mb-2"
-  />,
+      key={2}
+      title="Revenue money"
+      range={valueRangeConditions.revenueMoney}
+      onValuesChanged={(value) =>
+        setValueRangeConditions({
+          ...valueRangeConditions,
+          revenueMoney: value,
+        })
+      }
+      className="mb-2"
+    />,
+    <RangeFilter
+      key={3}
+      title="Return money"
+      range={valueRangeConditions.returnMoney}
+      onValuesChanged={(value) =>
+        setValueRangeConditions({
+          ...valueRangeConditions,
+          returnMoney: value,
+        })
+      }
+      className="mb-2"
+    />,
   ];
 
   const PDF = report ? (
@@ -113,16 +127,17 @@ export default function RevenueByStaffPage() {
   ) : null;
 
   return (
-    <PageWithFilters filters={filters} title="Revenue By Staff Report">
+    <PageWithFilters
+      filters={filters}
+      title="Revenue By Staff Report"
+      headerButtons={[<ReportPDFDownloadButton key={0} PdfContent={PDF!} />]}
+    >
       <div className="flex flex-col space-y-4">
         {report ? (
-          <>
-            <ReportPDFDownloadButton PdfContent={PDF!} classname="self-end" />
-            <ReportPDFView
-              PdfContent={PDF!}
-              classname="w-full h-[1000px] bg-black"
-            />
-          </>
+          <ReportPDFView
+            PdfContent={PDF!}
+            classname="w-full h-[1000px] bg-black"
+          />
         ) : null}
       </div>
     </PageWithFilters>

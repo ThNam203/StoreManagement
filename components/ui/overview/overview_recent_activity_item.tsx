@@ -1,13 +1,12 @@
 import Image from "next/image";
-import { Avatar, AvatarFallback, AvatarImage } from "../avatar";
 
 type ActivityModel = {
   id: number;
-  imageUrl: string;
-  staff: string;
-  actionDetail: string;
-  target: string;
-  createdAt: string;
+  staffId: number;
+  staffName: string;
+  staffAvatar: string | null;
+  description: string;
+  createdDate: string;
 };
 
 const RecentActivityItem: React.FC<ActivityModel> = (activity) => {
@@ -19,7 +18,7 @@ const RecentActivityItem: React.FC<ActivityModel> = (activity) => {
           <Image
             width={16}
             height={16}
-            src={"/ic_invoice.svg"}
+            src={activity.staffAvatar ?? "/ic_user.svg"}
             alt="activity image"
           />
         </div>
@@ -27,9 +26,9 @@ const RecentActivityItem: React.FC<ActivityModel> = (activity) => {
       </div>
       <div className="flex-1 my-3">
         <p className="text-sm mb-1">
-          <a href="#" className="text-blue-600">{activity.staff}</a>{" " + activity.actionDetail + " "}<a href="#" className="text-blue-600">{activity.target}</a>
+          <a href="#" className="font-semibold">{activity.staffName}{" "}</a><span className="text-blue-500">{activity.description}</span>
         </p>
-        <p className="text-xs text-gray-500">{activity.createdAt}</p>
+        <p className="text-xs text-gray-500">{activity.createdDate}</p>
       </div>
     </div>
   );

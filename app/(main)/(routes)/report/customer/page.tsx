@@ -1,20 +1,35 @@
 "use client";
 
-import { FilterDay, FilterTime, PageWithFilters, SearchFilterObject, TimeFilter } from "@/components/ui/filter";
+import {
+  FilterDay,
+  FilterTime,
+  PageWithFilters,
+  RangeFilter,
+  SearchFilterObject,
+  TimeFilter,
+} from "@/components/ui/filter";
 import {
   DefaultPDFContent,
   ReportPDFDownloadButton,
   ReportPDFView,
 } from "@/components/ui/pdf";
 import { useToast } from "@/components/ui/use-toast";
-import { CustomerReport, ProductSellReport, SaleByDayReport } from "@/entities/Report";
+import {
+  CustomerReport,
+  ProductSellReport,
+  SaleByDayReport,
+} from "@/entities/Report";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
 import { setStaffs } from "@/reducers/staffReducer";
 import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import ReportService from "@/services/reportService";
 import StaffService from "@/services/staff_service";
-import { TimeFilterType, getDateRangeFromTimeFilterCondition } from "@/utils";
+import {
+  TimeFilterType,
+  getDateRangeFromTimeFilterCondition,
+  handleRangeNumFilter,
+} from "@/utils";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -41,8 +56,31 @@ export default function CustomerReportPage() {
   );
 
   const [customerCreatorCondition, setCustomerCreatorCondition] = useState<
-  { id: number; name: string }[]
->([]);
+    { id: number; name: string }[]
+  >([]);
+
+  const [valueRangeConditions, setValueRangeConditions] = useState({
+    subTotal: {
+      startValue: NaN,
+      endValue: NaN,
+    },
+    discountValue: {
+      startValue: NaN,
+      endValue: NaN,
+    },
+    revenue: {
+      startValue: NaN,
+      endValue: NaN,
+    },
+    returnRevenue: {
+      startValue: NaN,
+      endValue: NaN,
+    },
+    netRevenue: {
+      startValue: NaN,
+      endValue: NaN,
+    },
+  });
 
   useEffect(() => {
     dispatch(showPreloader());
@@ -51,7 +89,13 @@ export default function CustomerReportPage() {
         range.startDate,
         range.endDate,
       );
-      setReport(report.data);
+
+      const reportData = report.data;
+      const filteredData = handleRangeNumFilter(
+        valueRangeConditions,
+        reportData,
+      );
+      setReport(filteredData);
 
       const staffs = await StaffService.getAllStaffs();
       dispatch(setStaffs(staffs.data));
@@ -60,7 +104,12 @@ export default function CustomerReportPage() {
     fetchReport()
       .catch((err) => axiosUIErrorHandler(err, toast, router))
       .finally(() => dispatch(disablePreloader()));
-  }, [reportDateRangeCondition, reportDateSingleCondition, reportDateControl]);
+  }, [
+    reportDateRangeCondition,
+    reportDateSingleCondition,
+    reportDateControl,
+    customerCreatorCondition,
+  ]);
 
   const filters = [
     <TimeFilter
@@ -72,6 +121,7 @@ export default function CustomerReportPage() {
       onTimeFilterControlChanged={(value) => setReportDateControl(value)}
       onSingleTimeFilterChanged={(value) => setReportDateSingleCondition(value)}
       onRangeTimeFilterChanged={(value) => setReportDateRange(value)}
+      className="mb-2"
     />,
     <SearchFilterObject
       key={3}
@@ -100,6 +150,51 @@ export default function CustomerReportPage() {
       }
       className="mb-2"
     />,
+    <RangeFilter
+      key={2}
+      title="Sub Total"
+      range={valueRangeConditions.subTotal}
+      onValuesChanged={(value) =>
+        setValueRangeConditions((prev) => ({ ...prev, subTotal: value }))
+      }
+      className="mb-2"
+    />,
+    <RangeFilter
+      key={3}
+      title="Discount Value"
+      range={valueRangeConditions.discountValue}
+      onValuesChanged={(value) =>
+        setValueRangeConditions((prev) => ({ ...prev, discountValue: value }))
+      }
+      className="mb-2"
+    />,
+    <RangeFilter
+      key={4}
+      title="Revenue"
+      range={valueRangeConditions.revenue}
+      onValuesChanged={(value) =>
+        setValueRangeConditions((prev) => ({ ...prev, revenue: value }))
+      }
+      className="mb-2"
+    />,
+    <RangeFilter
+      key={5}
+      title="Return Revenue"
+      range={valueRangeConditions.returnRevenue}
+      onValuesChanged={(value) =>
+        setValueRangeConditions((prev) => ({ ...prev, returnRevenue: value }))
+      }
+      className="mb-2"
+    />,
+    <RangeFilter
+      key={6}
+      title="Net Revenue"
+      range={valueRangeConditions.netRevenue}
+      onValuesChanged={(value) =>
+        setValueRangeConditions((prev) => ({ ...prev, netRevenue: value }))
+      }
+      className="mb-2"
+    />,
   ];
 
   const PDF = report ? (
@@ -121,16 +216,17 @@ export default function CustomerReportPage() {
   ) : null;
 
   return (
-    <PageWithFilters filters={filters} title="Customer Report">
+    <PageWithFilters
+      filters={filters}
+      title="Customer Report"
+      headerButtons={[<ReportPDFDownloadButton key={0} PdfContent={PDF!} />]}
+    >
       <div className="flex flex-col space-y-4">
         {report ? (
-          <>
-            <ReportPDFDownloadButton PdfContent={PDF!} classname="self-end" />
-            <ReportPDFView
-              PdfContent={PDF!}
-              classname="w-full h-[1000px] bg-black"
-            />
-          </>
+          <ReportPDFView
+            PdfContent={PDF!}
+            classname="w-full h-[1000px] bg-black"
+          />
         ) : null}
       </div>
     </PageWithFilters>

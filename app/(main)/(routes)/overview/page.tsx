@@ -1,17 +1,13 @@
 "use client";
 import Notification from "@/components/ui/notification";
-import { ArrowRightCircle, Bell } from "lucide-react";
-import styles from "./styles.module.css";
-import scrollbar_style from "../../../../styles/scrollbar.module.css";
-import OverviewChart from "@/components/ui/overview/overview_chart";
-import React, { useEffect } from "react";
+import Charts from "@/components/ui/overview/overview_chart";
 import RecentActivityItem from "@/components/ui/overview/overview_recent_activity_item";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import Charts from "@/components/ui/overview/overview_chart";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -21,9 +17,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { useAppDispatch } from "@/hooks";
-import { disablePreloader } from "@/reducers/preloaderReducer";
+import { useAppDispatch, useAppSelector } from "@/hooks";
+import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
+import { ArrowRightCircle, Bell } from "lucide-react";
+import { use, useEffect, useState } from "react";
+import scrollbar_style from "../../../../styles/scrollbar.module.css";
+import styles from "./styles.module.css";
+import { ActivityLog } from "@/entities/ActivityLog";
+import StaffService from "@/services/staff_service";
+import { setStaffs } from "@/reducers/staffReducer";
+import ActivityLogService from "@/services/activityLogService";
+import { format, isAfter, isBefore, set } from "date-fns";
+import { SaleProfitByDayReport } from "@/entities/Report";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
+import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ui/use-toast";
+import ReportService from "@/services/reportService";
+import InvoiceService from "@/services/invoiceService";
+import { setInvoices } from "@/reducers/invoicesReducer";
+import ReturnInvoiceService from "@/services/returnInvoiceService";
+import { cn } from "@/lib/utils";
 
 const notifications = [
   {
@@ -202,35 +215,102 @@ const recentActivities = [
 
 export default function OverviewPage() {
   const dispatch = useAppDispatch();
+  const router = useRouter();
+  const { toast } = useToast();
+  const staffs = useAppSelector((state) => state.staffs.value);
+  const [todayInvoiceAmount, setTodayInvoiceAmount] = useState<number>(0);
+  const [previousDayInvoiceAmount, setPreviousDayInvoiceAmount] = useState(0);
+  const [todayTotalReturnValue, setTodayTotalReturnValue] = useState(0);
+  const [previousDayTotalReturnValue, setPreviousDayTotalReturnValue] =
+    useState(0);
+  const [saleProfitReport, setSaleProfitReport] =
+    useState<SaleProfitByDayReport>([]);
+  const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
 
   useEffect(() => {
+    dispatch(showPreloader());
     const fetchData = async () => {
-      dispatch(disablePreloader())
-    }
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const previousDay = new Date();
+      previousDay.setDate(today.getDate() - 1);
+      previousDay.setHours(0, 0, 0, 0);
+
+      const staffCall = await StaffService.getAllStaffs();
+      dispatch(setStaffs(staffCall.data));
+      const invoicesCall = await InvoiceService.getAllInvoices();
+      const invoices = invoicesCall.data;
+
+      const todayInvoices = invoices.filter(
+        (invoice) => isAfter(new Date(invoice.createdAt), today));
+
+      const previousDayInvoices = invoices.filter(
+        (invoice) => isAfter(new Date(invoice.createdAt), previousDay) && isBefore(new Date(invoice.createdAt), today));
+
+      setTodayInvoiceAmount(todayInvoices.length);
+      setPreviousDayInvoiceAmount(previousDayInvoices.length);
+
+      const returnInvoicesCall = await ReturnInvoiceService.getAllReturnInvoices();
+      const todayReturnsValue = returnInvoicesCall.data.filter(
+        (invoice) => isAfter(new Date(invoice.createdAt), today)).map((v) => v.total).reduce((a, b) => a + b, 0);
+      const previousDayReturnValue = returnInvoicesCall.data.filter(
+        (invoice) => isAfter(new Date(invoice.createdAt), previousDay) && isBefore(new Date(invoice.createdAt), today)).map((v) => v.total).reduce((a, b) => a + b, 0);
+      setTodayTotalReturnValue(todayReturnsValue);
+      setPreviousDayTotalReturnValue(previousDayReturnValue);
+
+      const activityCall = await ActivityLogService.getAllActivityLogs();
+      setActivityLogs(activityCall.data);
+      const saleProfitReportCall = await ReportService.getSaleProfitByDayReport(
+        today,
+        previousDay,
+      );
+      const reportData = saleProfitReportCall.data;
+      if (reportData.length === 0) {
+        reportData.push({
+          costPrice: 0,
+          revenue: 0,
+          date: "",
+          profit: 0,
+        });
+      }
+      if (reportData.length === 1) {
+        reportData.push({
+          costPrice: 0,
+          revenue: 0,
+          date: "",
+          profit: 0,
+        });
+      }
+      setSaleProfitReport(saleProfitReportCall.data);
+    };
 
     fetchData()
-  })
+      .catch((err) => {
+        axiosUIErrorHandler(err, toast, router);
+      })
+      .finally(() => dispatch(disablePreloader()));
+  }, []);
 
   return (
     // if we change 832px to another value, we must change it again in styles.module.css
     // and change the value of mediaquery of notification-board in the same folder
     // to make it work correctly
     <div className="flex flex-col min-[832px]:flex-row">
-      <div className="flex flex-col flex-1 px-4 py-2 rounded-sm min-w-0 bg-white">
+      <div className="flex min-w-0 flex-1 flex-col rounded-sm bg-white px-4 py-2">
         <div className="flex flex-row justify-between">
-          <h2 className="text-start font-semibold text-2xl my-4">Overview</h2>
+          <h2 className="my-4 text-start text-2xl font-semibold">Overview</h2>
           <Popover>
-            <PopoverTrigger className="w-[20px] h-[20px] self-center mr-4">
+            <PopoverTrigger className="mr-4 h-[20px] w-[20px] self-center">
               <div className="relative">
                 <Bell size={20} />
-                <p className="absolute bg-blue-500 rounded-full text-xs -top-2 p-[2px] text-center -right-2">
+                <p className="absolute -right-2 -top-2 rounded-full bg-blue-500 p-[2px] text-center text-xs">
                   10
                 </p>
               </div>
             </PopoverTrigger>
             <PopoverContent
               className={
-                "max-h-[300px] overflow-auto mr-8 p-2 " +
+                "mr-8 max-h-[300px] overflow-auto p-2 " +
                 scrollbar_style.scrollbar
               }
             >
@@ -240,71 +320,115 @@ export default function OverviewPage() {
             </PopoverContent>
           </Popover>
         </div>
-        <div className={styles.overview_cards}>
-          <div
-            className={
-              styles.overview_card_1 +
-              " rounded-lg shadow-md text-start p-4 border-t"
-            }
-          >
-            <h4 className="text-gray-500 text-xs">Total orders</h4>
-            <h2 className="font-bold text-3xl my-2">239.342</h2>
-            <p className="text-gray-500 text-xs">
-              <span className="text-green-500">+3%</span> compare to last month
-            </p>
+        {saleProfitReport.length > 0 ? (
+          <div className={styles.overview_cards}>
+            <div
+              className={
+                styles.overview_card_1 +
+                " rounded-lg border-t p-4 text-start shadow-md"
+              }
+            >
+              <h4 className="text-xs text-gray-500">Total orders</h4>
+              <h2 className="my-2 text-3xl font-bold">{todayInvoiceAmount}</h2>
+              <p className="text-xs text-gray-500">
+                <span className={cn(todayInvoiceAmount > previousDayInvoiceAmount ? "text-green-500" : "text-red-500")}>{todayInvoiceAmount >= previousDayInvoiceAmount
+                    ? "+"
+                    : "-"}
+                  {previousDayInvoiceAmount !== 0
+                    ? Math.abs(
+                        ((todayInvoiceAmount - previousDayInvoiceAmount) /
+                          previousDayInvoiceAmount) *
+                          100
+                      ).toFixed(2)
+                    : "0"}
+                  %</span> compare to last day
+              </p>
+            </div>
+            <div
+              className={
+                styles.overview_card_2 +
+                " rounded-lg border-t p-4 text-start shadow-md"
+              }
+            >
+              <h4 className="text-xs text-gray-500">Revenue</h4>
+              <h2 className="my-2 text-3xl font-bold">
+                {saleProfitReport[1].revenue} VND
+              </h2>
+              <p className="text-xs text-gray-500">
+                <span className={cn(saleProfitReport[1].revenue > saleProfitReport[0].revenue ? "text-green-500" : "text-red-500")}>
+                  {saleProfitReport[1].revenue >= saleProfitReport[0].revenue
+                    ? "+"
+                    : "-"}
+                  {saleProfitReport[0].revenue !== 0
+                    ? Math.abs(
+                        ((saleProfitReport[1].revenue - saleProfitReport[0].revenue) /
+                          saleProfitReport[0].revenue) *
+                          100
+                      ).toFixed(2)
+                    : "0"}
+                  %
+                </span>{" "}
+                compare to last day
+              </p>
+            </div>
+            <div
+              className={
+                styles.overview_card_3 +
+                " rounded-lg border-t p-4 text-start shadow-md"
+              }
+            >
+              <h4 className="text-xs text-gray-500">Refunds</h4>
+              <h2 className="my-2 text-3xl font-bold">{todayTotalReturnValue} VND</h2>
+              <p className="text-xs text-gray-500">
+                <span className={cn(todayTotalReturnValue < previousDayTotalReturnValue ? "text-green-500" : "text-red-500")}>{todayTotalReturnValue <= previousDayTotalReturnValue ? "-" : "+"}
+                  {previousDayTotalReturnValue !== 0
+                    ? Math.abs(
+                        ((todayTotalReturnValue - previousDayTotalReturnValue) /
+                          previousDayTotalReturnValue) *
+                          100
+                      ).toFixed(2)
+                    : "0"}%</span> compare to last month
+              </p>
+            </div>
+            <div
+              className={
+                styles.overview_card_4 +
+                " rounded-lg border-t p-4 text-start shadow-md"
+              }
+            >
+              <h4 className="text-xs text-gray-500">Cost</h4>
+              <h2 className="my-2 text-3xl font-bold">{saleProfitReport[1].costPrice}{" "}VND</h2>
+              <p className="text-xs text-gray-500">
+                <span className={cn(saleProfitReport[1].costPrice < saleProfitReport[0].costPrice ? "text-green-500" : "text-red-500")}>
+                  {saleProfitReport[1].costPrice <= saleProfitReport[0].costPrice ? "-" : "+"}
+                  {saleProfitReport[0].costPrice !== 0
+                    ? Math.abs(
+                        ((saleProfitReport[1].costPrice - saleProfitReport[0].costPrice) /
+                          saleProfitReport[0].costPrice) *
+                          100
+                      ).toFixed(2)
+                    : "0"}%
+                </span>{" "}
+                compare to last month
+              </p>
+            </div>
           </div>
-          <div
-            className={
-              styles.overview_card_2 +
-              " rounded-lg shadow-md text-start p-4 border-t"
-            }
-          >
-            <h4 className="text-gray-500 text-xs">Revenue</h4>
-            <h2 className="font-bold text-3xl my-2">150.340.340 VND</h2>
-            <p className="text-gray-500 text-xs">
-              <span className="text-red-500">-5%</span> compare to last month
-            </p>
-          </div>
-          <div
-            className={
-              styles.overview_card_3 +
-              " rounded-lg shadow-md text-start p-4 border-t"
-            }
-          >
-            <h4 className="text-gray-500 text-xs">Refunds</h4>
-            <h2 className="font-bold text-3xl my-2">2.340.500 VND</h2>
-            <p className="text-gray-500 text-xs">
-              <span className="text-red-500">+3%</span> compare to last month
-            </p>
-          </div>
-          <div
-            className={
-              styles.overview_card_4 +
-              " rounded-lg shadow-md text-start p-4 border-t"
-            }
-          >
-            <h4 className="text-gray-500 text-xs">Cost</h4>
-            <h2 className="font-bold text-3xl my-2">25.400.000 VND</h2>
-            <p className="text-gray-500 text-xs">
-              <span className="text-green-500">-10%</span> compare to last month
-            </p>
-          </div>
-        </div>
+        ) : null}
         <div
           className={
-            " rounded-lg shadow-md text-start p-4 border-t flex flex-col items-center justify-center my-4"
+            " my-4 flex flex-col items-center justify-center rounded-lg border-t p-4 text-start shadow-md"
           }
         >
-          <div className="flex flex-row items-center w-full">
-            <h3 className="uppercase font-bold start">
+          <div className="flex w-full flex-row items-center">
+            <h3 className="start font-bold uppercase">
               Doanh thu thuần hôm nay
             </h3>
-            <ArrowRightCircle
+            {/* <ArrowRightCircle
               size={16}
               fill="rgb(148 163 184)"
               className="mx-2"
             />
-            <h3 className="uppercase font-bold mr-2">2.245.500VND</h3>
+            <h3 className="mr-2 font-bold uppercase">2.245.500VND</h3> */}
             <div className="flex-1"></div>
             <Select defaultValue="apple">
               <SelectTrigger className="w-[180px]">
@@ -334,14 +458,27 @@ export default function OverviewPage() {
         </div> */}
       </div>
       <div className={styles["notification-board"]}>
-        <h3 className="uppercase font-semibold my-2">Recent activities</h3>
+        <h3 className="my-2 font-semibold uppercase">Recent activities</h3>
         <ScrollArea scrollHideDelay={100}>
-          {recentActivities.map((activity) => (
-            <RecentActivityItem
-              {...activity}
-              key={activity.id}
-            ></RecentActivityItem>
-          ))}
+          {activityLogs.map((activity) => {
+            const staff = staffs.find(
+              (staff) => staff.id === activity.staffId,
+            )!;
+            return (
+              <RecentActivityItem
+                key={activity.id}
+                id={activity.id}
+                staffId={activity.staffId}
+                staffName={staff.name}
+                staffAvatar={staff.avatar}
+                description={activity.description}
+                createdDate={format(
+                  new Date(activity.time),
+                  "MM/dd/yyyy HH:mm:ss",
+                )}
+              ></RecentActivityItem>
+            );
+          })}
         </ScrollArea>
       </div>
     </div>

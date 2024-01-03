@@ -13,25 +13,24 @@ import {
   ReportPDFView,
 } from "@/components/ui/pdf";
 import { useToast } from "@/components/ui/use-toast";
-import {
-  FinanceReport,
-  ProductReport,
-  ProductSellReport,
-  SaleByDayReport,
-} from "@/entities/Report";
+import { TopProductsReport } from "@/entities/Report";
 import { useAppDispatch } from "@/hooks";
 import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
 import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import ReportService from "@/services/reportService";
-import { TimeFilterType, getDateRangeFromTimeFilterCondition, handleRangeNumFilter } from "@/utils";
+import {
+  TimeFilterType,
+  getDateRangeFromTimeFilterCondition,
+  handleRangeNumFilter,
+} from "@/utils";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-export default function ProductReportPage() {
+export default function TopProductsPage() {
   const { toast } = useToast();
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const [report, setReport] = useState<ProductReport | null>(null);
+  const [report, setReport] = useState<TopProductsReport | null>(null);
   const [reportDateRangeCondition, setReportDateRange] = useState({
     startDate: new Date(),
     endDate: new Date(),
@@ -49,15 +48,15 @@ export default function ProductReportPage() {
   );
 
   const [valueRangeConditions, setValueRangeConditions] = useState({
-    quantitySell: {
+    totalCustomer: {
       startValue: NaN,
       endValue: NaN,
     },
-    quantityReturn: {
+    totalQuantity: {
       startValue: NaN,
       endValue: NaN,
     },
-    totalSell: {
+    revenue: {
       startValue: NaN,
       endValue: NaN,
     },
@@ -65,7 +64,15 @@ export default function ProductReportPage() {
       startValue: NaN,
       endValue: NaN,
     },
-    total: {
+    returnRevenue: {
+      startValue: NaN,
+      endValue: NaN,
+    },
+    netRevenue: {
+      startValue: NaN,
+      endValue: NaN,
+    },
+    profit: {
       startValue: NaN,
       endValue: NaN,
     },
@@ -74,10 +81,11 @@ export default function ProductReportPage() {
   useEffect(() => {
     dispatch(showPreloader());
     const fetchReport = async () => {
-      const report = await ReportService.getProductReport(
+      const report = await ReportService.getTopProductsRerport(
         range.startDate,
         range.endDate,
       );
+
       const reportData = report.data;
       const filteredData = handleRangeNumFilter(
         valueRangeConditions,
@@ -101,33 +109,46 @@ export default function ProductReportPage() {
       onTimeFilterControlChanged={(value) => setReportDateControl(value)}
       onSingleTimeFilterChanged={(value) => setReportDateSingleCondition(value)}
       onRangeTimeFilterChanged={(value) => setReportDateRange(value)}
+      className="mb-2"
     />,
     <RangeFilter
       key={2}
-      title="Quantity return"
-      range={valueRangeConditions.quantityReturn}
+      title="Total customer"
+      range={valueRangeConditions.totalCustomer}
       onValuesChanged={(value) =>
         setValueRangeConditions({
           ...valueRangeConditions,
-          quantityReturn: value,
+          totalCustomer: value,
         })
       }
       className="mb-2"
     />,
     <RangeFilter
       key={3}
-      title="Quantity sell"
-      range={valueRangeConditions.quantitySell}
+      title="Total quantity"
+      range={valueRangeConditions.totalQuantity}
       onValuesChanged={(value) =>
         setValueRangeConditions({
           ...valueRangeConditions,
-          quantitySell: value,
+          totalQuantity: value,
         })
       }
       className="mb-2"
     />,
     <RangeFilter
       key={4}
+      title="Revenue"
+      range={valueRangeConditions.revenue}
+      onValuesChanged={(value) =>
+        setValueRangeConditions({
+          ...valueRangeConditions,
+          revenue: value,
+        })
+      }
+      className="mb-2"
+    />,
+    <RangeFilter
+      key={5}
       title="Total return"
       range={valueRangeConditions.totalReturn}
       onValuesChanged={(value) =>
@@ -139,25 +160,37 @@ export default function ProductReportPage() {
       className="mb-2"
     />,
     <RangeFilter
-      key={5}
-      title="Total sell"
-      range={valueRangeConditions.totalSell}
+      key={6}
+      title="Return revenue"
+      range={valueRangeConditions.returnRevenue}
       onValuesChanged={(value) =>
         setValueRangeConditions({
           ...valueRangeConditions,
-          totalSell: value,
+          returnRevenue: value,
         })
       }
       className="mb-2"
     />,
     <RangeFilter
-      key={6}
-      title="Total"
-      range={valueRangeConditions.total}
+      key={7}
+      title="Net revenue"
+      range={valueRangeConditions.netRevenue}
       onValuesChanged={(value) =>
         setValueRangeConditions({
           ...valueRangeConditions,
-          total: value,
+          netRevenue: value,
+        })
+      }
+      className="mb-2"
+    />,
+    <RangeFilter
+      key={8}
+      title="Profit"
+      range={valueRangeConditions.profit}
+      onValuesChanged={(value) =>
+        setValueRangeConditions({
+          ...valueRangeConditions,
+          profit: value,
         })
       }
       className="mb-2"
@@ -169,30 +202,37 @@ export default function ProductReportPage() {
       data={report}
       startDate={range.startDate}
       endDate={range.endDate}
-      title="PRODUCT REPORT"
+      title="PRODUCTS REPORT"
       dataProperties={[
         "productId",
-        "name",
-        "quantitySell",
-        "quantityReturn",
-        "totalSell",
+        "totalCustomer",
+        "totalQuantity",
+        "revenue",
         "totalReturn",
-        "total",
+        "returnRevenue",
+        "netRevenue",
+        "profit",
       ]}
     />
   ) : null;
 
   return (
-    <PageWithFilters filters={filters} title="Product Report">
+    <PageWithFilters
+      filters={filters}
+      title="Products Report"
+      headerButtons={[
+        <ReportPDFDownloadButton
+          key={0}
+          PdfContent={PDF!}
+        />,
+      ]}
+    >
       <div className="flex flex-col space-y-4">
         {report ? (
-          <>
-            <ReportPDFDownloadButton PdfContent={PDF!} classname="self-end" />
-            <ReportPDFView
-              PdfContent={PDF!}
-              classname="w-full h-[1000px] bg-black"
-            />
-          </>
+          <ReportPDFView
+            PdfContent={PDF!}
+            classname="w-full h-[1000px] bg-black"
+          />
         ) : null}
       </div>
     </PageWithFilters>

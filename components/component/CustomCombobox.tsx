@@ -114,6 +114,7 @@ export default function CustomCombobox<T>({
   onItemClick,
   filter,
   className,
+  disabled = false,
 }: {
   searchPlaceholder: string;
   placeholder?: string;
@@ -129,6 +130,7 @@ export default function CustomCombobox<T>({
   endIcon?: JSX.Element;
   endIcons?: JSX.Element[];
   className?: string;
+  disabled?: boolean;
 }) {
   let filteredChoices = filter ? choices.filter(filter) : choices;
   const [showSearch, setShowSearch] = useState(false);
@@ -154,6 +156,7 @@ export default function CustomCombobox<T>({
       className={cn(
         "relative flex select-none items-center rounded-sm border",
         className,
+        disabled ? "pointer-events-none opacity-40" : "",
       )}
     >
       <div className="z-0 flex w-full cursor-pointer flex-row items-center gap-1 p-2 duration-100 ease-linear hover:bg-gray-100">

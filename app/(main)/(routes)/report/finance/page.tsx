@@ -1,8 +1,14 @@
 "use client";
 
-import { FilterDay, FilterTime, PageWithFilters, TimeFilter } from "@/components/ui/filter";
+import {
+  FilterDay,
+  FilterTime,
+  PageWithFilters,
+  TimeFilter,
+} from "@/components/ui/filter";
 import {
   DefaultPDFContent,
+  FinanceReportPDFContent,
   ReportPDFDownloadButton,
   ReportPDFView,
 } from "@/components/ui/pdf";
@@ -66,37 +72,24 @@ export default function FinanceReportPage() {
   ];
 
   const PDF = report ? (
-    <DefaultPDFContent
-      data={[report]}
+    <FinanceReportPDFContent
+      data={report}
       startDate={range.startDate}
-      endDate={range.endDate}
-      title="FINANCE REPORT"
-      dataProperties={[
-        "salesRevenue",
-        "adjustmentDiscount",
-        "adjustmentReturn",
-        "netRevenue",
-        "costOfGoodsSold",
-        "grossProfit",
-        "salaryStaff",
-        "bonusStaff",
-        "penaltyStaff",
-        "netProfit",
-      ]}
-    />
+      endDate={range.endDate}/>
   ) : null;
 
   return (
-    <PageWithFilters filters={filters} title="Finance Report">
+    <PageWithFilters
+      filters={filters}
+      title="Finance Report"
+      headerButtons={[<ReportPDFDownloadButton key={0} PdfContent={PDF!} />]}
+    >
       <div className="flex flex-col space-y-4">
         {report ? (
-          <>
-            <ReportPDFDownloadButton PdfContent={PDF!} classname="self-end" />
-            <ReportPDFView
-              PdfContent={PDF!}
-              classname="w-full h-[1000px] bg-black"
-            />
-          </>
+          <ReportPDFView
+            PdfContent={PDF!}
+            classname="w-full h-[1000px]"
+          />
         ) : null}
       </div>
     </PageWithFilters>

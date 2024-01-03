@@ -44,31 +44,31 @@ export type TopProductsReport = {
 
 // record-of-product-sell
 
-export type ProductSellReport = {
-  productId: number;
-  name: string;
-  quantitySell: number;
-  quantityReturn: number;
-  totalSell: number;
-  totalReturn: number;
-  total: number;
-  listInvoice: ProductSellInvoice[];
-  listReturn: ProductSellReturn[];
-}[];
+// export type ProductSellReport = {
+//   productId: number;
+//   name: string;
+//   quantitySell: number;
+//   quantityReturn: number;
+//   totalSell: number;
+//   totalReturn: number;
+//   total: number;
+//   listInvoice: ProductSellInvoice[];
+//   listReturn: ProductSellReturn[];
+// }[];
 
-export type ProductSellInvoice = {
-  date: string;
-  customerName: string;
-  quantity: number;
-  total: number;
-};
+// export type ProductSellInvoice = {
+//   date: string;
+//   customerName: string;
+//   quantity: number;
+//   total: number;
+// };
 
-export type ProductSellReturn = {
-  date: string;
-  customerName: string;
-  quantity: number;
-  total: number;
-};
+// export type ProductSellReturn = {
+//   date: string;
+//   customerName: string;
+//   quantity: number;
+//   total: number;
+// };
 
 // record-of-product-sell END
 
@@ -102,15 +102,15 @@ export type FinanceReport = {
   netProfit: number;
 };
 
-export type ProductReport = {
-  productId: number;
-  name: string;
-  quantitySell: number;
-  quantityReturn: number;
-  totalSell: number;
-  totalReturn: number;
-  total: number;
-}[];
+// export type ProductReport = {
+//   productId: number;
+//   name: string;
+//   quantitySell: number;
+//   quantityReturn: number;
+//   totalSell: number;
+//   totalReturn: number;
+//   total: number;
+// }[];
 
 export type SupplyTransactionReport = {
   supplierId: number;

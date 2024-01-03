@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import AxiosService from "./axiosService";
-import { CustomerReport, FinanceReport, ProductReport, ProductSellReport, RevenueByStaffReport, SaleByDayReport, SaleProfitByDayReport, SaleTransactionReport, SupplyTransactionReport, TopProductsReport } from "@/entities/Report";
+import { CustomerReport, FinanceReport, RevenueByStaffReport, SaleByDayReport, SaleProfitByDayReport, SaleTransactionReport, SupplyTransactionReport, TopProductsReport } from "@/entities/Report";
 
 const dateToUrlPath = (date: Date) => {
     return format(date, 'yyyy-MM-dd');
@@ -22,9 +22,10 @@ const getTopProductsRerport = (startDate: Date, endDate: Date) => {
     return AxiosService.get<TopProductsReport>(`/api/reports/sales-product-profit?start=${dateToUrlPath(startDate)}&end=${dateToUrlPath(endDate)}`);
 };
 
-const getProductSellRecordReport = (startDate: Date, endDate: Date) => {
-    return AxiosService.get<ProductSellReport>(`/api/reports/record-of-product-sell?start=${dateToUrlPath(startDate)}&end=${dateToUrlPath(endDate)}`);
-};
+// const getProductSellRecordReport = (startDate: Date, endDate: Date) => {
+//     return AxiosService.get<ProductSellReport>(`/api/reports/record-of-product-sell?start=${dateToUrlPath(startDate)}&end=${dateToUrlPath(endDate)}`);
+// };
+
 const getSaleByDayReport = (startDate: Date, endDate: Date) => {
     return AxiosService.get<SaleByDayReport>(`/api/reports/record-of-sale?start=${dateToUrlPath(startDate)}&end=${dateToUrlPath(endDate)}`);
 };
@@ -37,9 +38,9 @@ const getFinanceReport = (startDate: Date, endDate: Date) => {
     return AxiosService.get<FinanceReport>(`/api/reports/financial-report?start=${dateToUrlPath(startDate)}&end=${dateToUrlPath(endDate)}`);
 };
 
-const getProductReport = (startDate: Date, endDate: Date) => {
-    return AxiosService.get<ProductReport>(`/api/reports/record-of-product?start=${dateToUrlPath(startDate)}&end=${dateToUrlPath(endDate)}`);
-};
+// const getProductReport = (startDate: Date, endDate: Date) => {
+//     return AxiosService.get<ProductReport>(`/api/reports/record-of-product?start=${dateToUrlPath(startDate)}&end=${dateToUrlPath(endDate)}`);
+// };
 
 const getSupplyTransactionReport = (startDate: Date, endDate: Date) => {
     return AxiosService.get<SupplyTransactionReport>(`/api/reports/record-of-supplier?start=${dateToUrlPath(startDate)}&end=${dateToUrlPath(endDate)}`);
@@ -50,9 +51,7 @@ const ReportService = {
     getSaleProfitByDayReport,
     getRevenueByStaffReport,
     getTopProductsRerport,
-    getProductSellRecordReport,
     getSaleByDayReport,
-    getProductReport,
     getCustomerReport,
     getFinanceReport,
     getSupplyTransactionReport,
