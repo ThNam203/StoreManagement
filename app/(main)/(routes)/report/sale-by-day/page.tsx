@@ -1,6 +1,12 @@
 "use client";
 
-import { FilterDay, FilterTime, PageWithFilters, TimeFilter } from "@/components/ui/filter";
+import {
+  FilterDay,
+  FilterTime,
+  PageWithFilters,
+  RangeFilter,
+  TimeFilter,
+} from "@/components/ui/filter";
 import {
   DefaultPDFContent,
   ReportPDFDownloadButton,
@@ -12,7 +18,11 @@ import { useAppDispatch } from "@/hooks";
 import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
 import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import ReportService from "@/services/reportService";
-import { TimeFilterType, getDateRangeFromTimeFilterCondition } from "@/utils";
+import {
+  TimeFilterType,
+  getDateRangeFromTimeFilterCondition,
+  handleRangeNumFilter,
+} from "@/utils";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -37,6 +47,21 @@ export default function SaleByDayPage() {
     reportDateRangeCondition,
   );
 
+  const [valueRangeConditions, setValueRangeConditions] = useState({
+    total: {
+      startValue: NaN,
+      endValue: NaN,
+    },
+    originalPrice: {
+      startValue: NaN,
+      endValue: NaN,
+    },
+    income: {
+      startValue: NaN,
+      endValue: NaN,
+    },
+  });
+
   useEffect(() => {
     dispatch(showPreloader());
     const fetchReport = async () => {
@@ -44,13 +69,19 @@ export default function SaleByDayPage() {
         range.startDate,
         range.endDate,
       );
-      setReport(report.data);
+
+      const reportData = report.data;
+      const filteredData = handleRangeNumFilter(
+        valueRangeConditions,
+        reportData,
+      );
+      setReport(filteredData);
     };
 
     fetchReport()
       .catch((err) => axiosUIErrorHandler(err, toast, router))
       .finally(() => dispatch(disablePreloader()));
-  }, [reportDateRangeCondition, reportDateSingleCondition, reportDateControl]);
+  }, [reportDateRangeCondition, reportDateSingleCondition, reportDateControl, valueRangeConditions]);
 
   const filters = [
     <TimeFilter
@@ -62,6 +93,34 @@ export default function SaleByDayPage() {
       onTimeFilterControlChanged={(value) => setReportDateControl(value)}
       onSingleTimeFilterChanged={(value) => setReportDateSingleCondition(value)}
       onRangeTimeFilterChanged={(value) => setReportDateRange(value)}
+      className="mb-2"
+    />,
+    <RangeFilter
+      key={2}
+      title="Total"
+      range={valueRangeConditions.total}
+      onValuesChanged={(value) =>
+        setValueRangeConditions((prev) => ({ ...prev, total: value }))
+      }
+      className="mb-2"
+    />,
+    <RangeFilter
+      key={3}
+      title="Original Price"
+      range={valueRangeConditions.originalPrice}
+      onValuesChanged={(value) =>
+        setValueRangeConditions((prev) => ({ ...prev, originalPrice: value }))
+      }
+      className="mb-2"
+    />,
+    <RangeFilter
+      key={4}
+      title="Income"
+      range={valueRangeConditions.income}
+      onValuesChanged={(value) =>
+        setValueRangeConditions((prev) => ({ ...prev, income: value }))
+      }
+      className="mb-2"
     />,
   ];
 
@@ -71,26 +130,22 @@ export default function SaleByDayPage() {
       startDate={range.startDate}
       endDate={range.endDate}
       title="SALE BY DAY REPORT"
-      dataProperties={[
-        "date",
-        "total",
-        "originalPrice",
-        "income",
-      ]}
+      dataProperties={["date", "total", "originalPrice", "income"]}
     />
   ) : null;
 
   return (
-    <PageWithFilters filters={filters} title="Sale By Day Report">
+    <PageWithFilters
+      filters={filters}
+      title="Sale By Day Report"
+      headerButtons={[<ReportPDFDownloadButton key={0} PdfContent={PDF!} />]}
+    >
       <div className="flex flex-col space-y-4">
         {report ? (
-          <>
-            <ReportPDFDownloadButton PdfContent={PDF!} classname="self-end" />
-            <ReportPDFView
-              PdfContent={PDF!}
-              classname="w-full h-[1000px] bg-black"
-            />
-          </>
+          <ReportPDFView
+            PdfContent={PDF!}
+            classname="w-full h-[1000px] bg-black"
+          />
         ) : null}
       </div>
     </PageWithFilters>

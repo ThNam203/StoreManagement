@@ -8,7 +8,7 @@ import java.util.List;
 public interface SupplierService {
     List<SupplierDTO> getAllSuppliers();
     SupplierDTO getSupplierById(int id);
-    SupplierDTO createSupplier(SupplierDTO supplierDTO, MultipartFile file);
-    SupplierDTO updateSupplier(int id, SupplierDTO supplierDTO, MultipartFile file);
+    SupplierDTO createSupplier(SupplierDTO supplierDTO);
+    SupplierDTO updateSupplier(int id, SupplierDTO supplierDTO);
     void deleteSupplier(int id);
 }

@@ -93,16 +93,17 @@ export default function SupplyTransactionReportPage() {
   ) : null;
 
   return (
-    <PageWithFilters filters={filters} title="Supply Transaction Report">
+    <PageWithFilters
+      filters={filters}
+      title="Supply Transaction Report"
+      headerButtons={[<ReportPDFDownloadButton key={0} PdfContent={PDF!} />]}
+    >
       <div className="flex flex-col space-y-4">
         {report ? (
-          <>
-            <ReportPDFDownloadButton PdfContent={PDF!} classname="self-end" />
-            <ReportPDFView
-              PdfContent={PDF!}
-              classname="w-full h-[1000px] bg-black"
-            />
-          </>
+          <ReportPDFView
+            PdfContent={PDF!}
+            classname="w-full h-[1000px] bg-black"
+          />
         ) : null}
       </div>
     </PageWithFilters>

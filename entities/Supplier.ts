@@ -13,6 +13,7 @@ export type Supplier = {
   companyName: string,
   status: "Active" | "Disabled",
   supplierGroupName: string,
+  isDeleted: boolean,
 };
 
 export type SupplierGroup = {

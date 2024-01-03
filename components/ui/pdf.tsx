@@ -23,8 +23,8 @@ import { useState } from "react";
 import { Button } from "./button";
 import { format } from "date-fns";
 import { getDefaultStylePDF } from "./pdf_style";
+import { FinanceReport } from "@/entities/Report";
 
-// export const BusinessReportContentPDF = ({
 //   data,
 //   onNumOfPagesChange,
 // }: {
@@ -156,7 +156,7 @@ const ReportPdfContainer = ({
   const textStyle = " bg-[transparent] text-white";
   return (
     <>
-      <div className="align-center flex flex-row items-center justify-center space-x-6 bg-[#85909d] p-2">
+      {/* <div className="align-center flex flex-row items-center justify-center space-x-6 bg-[#85909d] p-2">
         <button className={iconStyle}>
           <RefreshCcw className="h-4 w-4" strokeWidth={3}></RefreshCcw>
         </button>
@@ -187,7 +187,6 @@ const ReportPdfContainer = ({
           ></input>
           <span className={textStyle}> / {numOfPages}</span>
         </div>
-
         <button className={iconStyle}>
           <ArrowRight className="h-4 w-4" strokeWidth={3}></ArrowRight>
         </button>
@@ -200,16 +199,7 @@ const ReportPdfContainer = ({
         <button className={iconStyle}>
           <Printer className="h-4 w-4" strokeWidth={3}></Printer>
         </button>
-        <button className={iconStyle}>
-          <ZoomIn className="h-4 w-4" strokeWidth={3}></ZoomIn>
-        </button>
-        <button className={iconStyle}>
-          <ZoomOut className="h-4 w-4" strokeWidth={3}></ZoomOut>
-        </button>
-        <button className={iconStyle}>
-          <Maximize className="h-4 w-4" strokeWidth={3}></Maximize>
-        </button>
-      </div>
+      </div> */}
       <PDFViewer className={classname} showToolbar={false}>
         {PdfContent}
       </PDFViewer>
@@ -245,9 +235,9 @@ const ReportPdfDownloader = ({
     >
       {({ loading }) =>
         loading ? (
-          <Button variant={"default"}>Loading document...</Button>
+          <Button variant={"red"}>Loading document...</Button>
         ) : (
-          <Button variant={"default"}>Download</Button>
+          <Button variant={"green"}>Download</Button>
         )
       }
     </PDFDownloadLink>
@@ -318,6 +308,71 @@ const DefaultPDFContent = ({
     </Document>
   );
 };
+const FinanceReportPDFContent = ({
+  data,
+  startDate,
+  endDate,
+}: {
+  data: FinanceReport;
+  startDate: Date;
+  endDate: Date;
+}) => {
+  const styles = getDefaultStylePDF(1);
+  return (
+    <Document>
+      <Page size="A4" style={styles.page}>
+        <View style={styles.header}>
+          <Text style={styles.headerCreatedDate}>
+            {format(new Date(), "MM/dd/yyyy")}
+          </Text>
+          <Text style={styles.headerTitle}>FINANCE REPORT RIGHT?</Text>
+          <Text style={styles.headerContent}>
+            {`${format(startDate, "MM/dd/yyyy")} to ${format(
+              endDate,
+              "MM/dd/yyyy",
+            )}`}
+          </Text>
+        </View>
+        <View
+          style={{
+            width: "100%",
+            marginTop: "10px",
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          {Object.keys(data).map((key) => {
+            return (
+              <View
+                key={key}
+                style={{ display: "flex", alignItems: "center", flexDirection: "row" }}
+                wrap={false}
+              >
+                <View
+                  key={key}
+                  style={{ flexBasis: "100px", flexGrow: 1, flexShrink: 1, backgroundColor: "#f2eed6", padding: "16px" }}
+                >
+                  <Text style={{fontSize: 16, textAlign: "center"}}>
+                    {camelToPascalWithSpaces(key)}
+                  </Text>
+                </View>
+                <View
+                  key={key}
+                  style={{ flexBasis: "100px", flexGrow: 1, flexShrink: 1 }}
+                >
+                  <Text style={{fontSize: 16, textAlign: "center"}}>
+                    {data[key as keyof typeof data]}
+                  </Text>
+                </View>
+              </View>
+            );
+          })}
+        </View>
+        <PdfContentFooter styles={styles} />
+      </Page>
+    </Document>
+  );
+};
 
 const ReportPDFView = dynamic(() => Promise.resolve(ReportPdfContainer), {
   ssr: false,
@@ -333,6 +388,7 @@ const ReportPDFDownloadButton = dynamic(
 export {
   PdfContentFooter,
   DefaultPDFContent,
+  FinanceReportPDFContent,
   ReportPDFDownloadButton,
   ReportPDFView,
 };

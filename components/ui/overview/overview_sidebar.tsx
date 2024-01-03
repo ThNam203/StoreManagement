@@ -469,7 +469,7 @@ const SideBar = ({
                 title="Logout"
                 className="!w-full"
                 isCollapsed={isCollapsed}
-                href="/logout"
+                href="/login"
               />
             </AccordionContent>
           </AccordionItem>
@@ -629,27 +629,27 @@ const SideBar = ({
               isCollapsed={isCollapsed}
               href="/report/revenue-by-staff"
             />,
+            // <SideBarButton
+            //   key={8}
+            //   title="Products"
+            //   className="!w-full"
+            //   isCollapsed={isCollapsed}
+            //   href="/report/product"
+            // />,
             <SideBarButton
-              key={8}
+              key={4}
               title="Products"
               className="!w-full"
               isCollapsed={isCollapsed}
-              href="/report/product"
+              href="/report/products"
             />,
-            <SideBarButton
-              key={4}
-              title="Top Products"
-              className="!w-full"
-              isCollapsed={isCollapsed}
-              href="/report/top-products"
-            />,
-            <SideBarButton
-              key={5}
-              title="Product Sale"
-              className="!w-full"
-              isCollapsed={isCollapsed}
-              href="/report/product-sale"
-            />,
+            // <SideBarButton
+            //   key={5}
+            //   title="Product Sale"
+            //   className="!w-full"
+            //   isCollapsed={isCollapsed}
+            //   href="/report/product-sale"
+            // />,
             <SideBarButton
               key={6}
               title="Sale By Day"

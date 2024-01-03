@@ -45,7 +45,7 @@ public class SupplierServiceImpl implements SupplierService {
     }
 
     @Override
-    public SupplierDTO createSupplier(SupplierDTO supplierDTO, MultipartFile file) {
+    public SupplierDTO createSupplier(SupplierDTO supplierDTO) {
         if (supplierRepository.findByEmail(supplierDTO.getEmail()).isPresent()) {
             throw new CustomException("Email already exists", HttpStatus.BAD_REQUEST);
         }
@@ -62,22 +62,13 @@ public class SupplierServiceImpl implements SupplierService {
                     .orElseThrow(() -> new CustomException("Supplier group not found with name: " + supplierDTO.getSupplierGroupName(), HttpStatus.NOT_FOUND)));
 
         }
-
-        if (file != null && !file.isEmpty()) {
-            String avatarUrl = fileService.uploadFile(file);
-            Media avatar = Media.builder()
-                    .url(avatarUrl)
-                    .build();
-            avatar = mediaRepository.save(avatar);
-            supplier.setImage(avatar);
-        }
         SupplierDTO supplierDTO1 = SupplierMapper.toSupplierDTO(supplierRepository.save(supplier));
         activityLogService.save("created a supplier with id " + supplierDTO1.getId(), creator.getId(), new Date());
         return supplierDTO1;
     }
 
     @Override
-    public SupplierDTO updateSupplier(int id, SupplierDTO supplierDTO, MultipartFile file) {
+    public SupplierDTO updateSupplier(int id, SupplierDTO supplierDTO) {
         Staff creator = staffService.getAuthorizedStaff();
         Supplier supplier = supplierRepository.findById(id).orElseThrow(() -> new CustomException("Supplier not found", HttpStatus.NOT_FOUND));
         if (!supplier.getEmail().equals(supplierDTO.getEmail()) && supplierRepository.findByEmail(supplierDTO.getEmail()).isPresent()) {
@@ -98,15 +89,6 @@ public class SupplierServiceImpl implements SupplierService {
                     .findByNameAndStoreId(supplierDTO.getSupplierGroupName(), creator.getStore().getId())
                     .orElseThrow(() -> new CustomException("Supplier group not found with name: " + supplierDTO.getSupplierGroupName(), HttpStatus.NOT_FOUND)));
 
-        }
-
-        if (file != null && !file.isEmpty()) {
-            String avatarUrl = fileService.uploadFile(file);
-            Media avatar = Media.builder()
-                    .url(avatarUrl)
-                    .build();
-            avatar = mediaRepository.save(avatar);
-            supplier.setImage(avatar);
         }
         SupplierDTO supplierDTO1 = SupplierMapper.toSupplierDTO(supplierRepository.save(supplier));
         activityLogService.save("updated a supplier with id " + supplierDTO1.getId(), creator.getId(), new Date());

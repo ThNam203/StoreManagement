@@ -81,7 +81,6 @@ export default function UpdateSupplierDialog({
   const { toast } = useToast();
 
   const onSubmit = (values: z.infer<typeof updateSupplierFormSchema>) => {
-    //TODO: fix
     const data: any = values;
     setIsUpdatingSupplier(true);
     SupplierService.updateSupplier(data)
@@ -111,7 +110,7 @@ export default function UpdateSupplierDialog({
           )}
         >
           <div className="mb-2 flex flex-row items-center justify-between">
-            <h3 className="text-base font-semibold">Add new supplier</h3>
+            <h3 className="text-base font-semibold">Update supplier</h3>
             <X
               size={24}
               className="rounded-full p-1 hover:cursor-pointer hover:bg-slate-200"

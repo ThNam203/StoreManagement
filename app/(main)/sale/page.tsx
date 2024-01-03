@@ -425,7 +425,7 @@ export default function Sale() {
             onClick={() => addNewInvoice()}
           />
           <div className="min-w-[16px] flex-1" />
-          <ActionMenu />
+          {/* <ActionMenu /> */}
         </div>
         <InvoiceView
           isSubmittingInvoice={isCompletingInvoice}
