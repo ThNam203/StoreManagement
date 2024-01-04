@@ -22,8 +22,7 @@ const Footer = () => {
                   />
                 </Link>
                 <p className="text-body-color mb-9 text-base font-medium leading-relaxed">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  Integer lobortis.
+                  MSTORE
                 </p>
                 <div className="flex items-center">
                   <a

@@ -45,7 +45,7 @@ const updateStoreFormSchema = z.object({
   phoneNumber: z
     .string({ required_error: "Phone number is missing" })
     .trim()
-    .min(1, { message: "Missing group!" })
+    .min(0, { message: "Missing phone number!" })
     .max(10, { message: "Phone number must be at most 10 characters!" }),
   address: z
     .string()
@@ -134,7 +134,13 @@ const FormContent = ({
 }) => {
   const form = useForm<z.infer<typeof updateStoreFormSchema>>({
     resolver: zodResolver(updateStoreFormSchema),
-    defaultValues: { ...storeInfo },
+    defaultValues: { 
+      name: storeInfo.name,
+      description: storeInfo.description ?? "",
+      phoneNumber: storeInfo.phoneNumber ?? "",
+      email: storeInfo.email ?? "",
+      address: storeInfo.address ?? "",
+     },
   });
 
   return (
