@@ -310,7 +310,7 @@ const SideBar = ({
   const router = useRouter();
   const profile = useAppSelector((state) => state.profile.value);
   const roles = useAppSelector((state) => state.role.value);
-  console.log('roles', roles, profile)
+  console.log("roles", roles, profile);
   const userPermissions = roles?.find(
     (role) => role.positionName === profile?.position,
   )!.roleSetting;
@@ -339,7 +339,6 @@ const SideBar = ({
       return Promise.reject(e);
     }
   };
-  
   const handleUpdateStaff = (value: Staff, avatar: File | null) => {
     return updateOwner(value, avatar).then(() => {
       toast({
@@ -462,7 +461,7 @@ const SideBar = ({
                 onClick={() => {
                   AuthService.logOut()
                     .then(() => {
-                      router.push("/login");
+                      router.push("/home");
                       toast({
                         title: "Logout successfully",
                       });
@@ -514,46 +513,49 @@ const SideBar = ({
         )}
 
         {userPermissions.catalog.read ||
-          userPermissions.discount.read ||
-          userPermissions.stockCheck.read ?
-            <SideBarAccordion
-              iconName={IconNames.Box}
-              title="Products"
-              buttons={[
-                <SideBarButton
-                  key={1}
-                  iconName={IconNames.Group}
-                  title="Catalog"
-                  className={
-                    cn("!w-full ", userPermissions.catalog.read ? "" : " hidden")
-                  }
-                  isCollapsed={isCollapsed}
-                  href="/catalog"
-                />,
-                <SideBarButton
-                  key={2}
-                  iconName={IconNames.PercentCircle}
-                  title="Discount"
-                  className={
-                    cn("!w-full ", userPermissions.discount.read ? "" : " hidden")
-                  }
-                  isCollapsed={isCollapsed}
-                  href="/discount"
-                />,
-                <SideBarButton
-                  key={3}
-                  iconName={IconNames.PenSquare}
-                  title="Stock Check"
-                  className={
-                    cn("!w-full ", userPermissions.stockCheck.read ? "" : " hidden")
-                  }
-                  isCollapsed={isCollapsed}
-                  href="/stock-check"
-                />,
-              ]}
-              isCollapsed={isCollapsed}
-            />
-          : null}
+        userPermissions.discount.read ||
+        userPermissions.stockCheck.read ? (
+          <SideBarAccordion
+            iconName={IconNames.Box}
+            title="Products"
+            buttons={[
+              <SideBarButton
+                key={1}
+                iconName={IconNames.Group}
+                title="Catalog"
+                className={cn(
+                  "!w-full ",
+                  userPermissions.catalog.read ? "" : " hidden",
+                )}
+                isCollapsed={isCollapsed}
+                href="/catalog"
+              />,
+              <SideBarButton
+                key={2}
+                iconName={IconNames.PercentCircle}
+                title="Discount"
+                className={cn(
+                  "!w-full ",
+                  userPermissions.discount.read ? "" : " hidden",
+                )}
+                isCollapsed={isCollapsed}
+                href="/discount"
+              />,
+              <SideBarButton
+                key={3}
+                iconName={IconNames.PenSquare}
+                title="Stock Check"
+                className={cn(
+                  "!w-full ",
+                  userPermissions.stockCheck.read ? "" : " hidden",
+                )}
+                isCollapsed={isCollapsed}
+                href="/stock-check"
+              />,
+            ]}
+            isCollapsed={isCollapsed}
+          />
+        ) : null}
 
         {userPermissions.invoice.read ||
         userPermissions.returnInvoice.read ||
@@ -568,9 +570,10 @@ const SideBar = ({
                 key={1}
                 iconName={IconNames.Receipt}
                 title="Invoices"
-                className={
-                  cn("!w-full ", userPermissions.invoice.read ? "" : " hidden")
-                }
+                className={cn(
+                  "!w-full ",
+                  userPermissions.invoice.read ? "" : " hidden",
+                )}
                 isCollapsed={isCollapsed}
                 href="/invoice"
               />,
@@ -578,9 +581,10 @@ const SideBar = ({
                 key={2}
                 iconName={IconNames.Undo}
                 title="Return"
-                className={
-                    cn("!w-full ", userPermissions.returnInvoice.read ? "" : " hidden")
-                }
+                className={cn(
+                  "!w-full ",
+                  userPermissions.returnInvoice.read ? "" : " hidden",
+                )}
                 isCollapsed={isCollapsed}
                 href="/return"
               />,
@@ -588,9 +592,10 @@ const SideBar = ({
                 key={3}
                 iconName={IconNames.BaggageClaim}
                 title="Purchase Orders"
-                className={
-                    cn("!w-full ", userPermissions.purchaseOrder.read ? "" : " hidden")
-                }
+                className={cn(
+                  "!w-full ",
+                  userPermissions.purchaseOrder.read ? "" : " hidden",
+                )}
                 isCollapsed={isCollapsed}
                 href="/purchase-order"
               />,
@@ -598,9 +603,10 @@ const SideBar = ({
                 key={4}
                 iconName={IconNames.ArrowUpSquare}
                 title="Purchase Returns"
-                className={
-                    cn("!w-full ", userPermissions.purchaseReturn.read ? "" : " hidden")
-                }
+                className={cn(
+                  "!w-full ",
+                  userPermissions.purchaseReturn.read ? "" : " hidden",
+                )}
                 isCollapsed={isCollapsed}
                 href="/purchase-return"
               />,
@@ -608,9 +614,10 @@ const SideBar = ({
                 key={5}
                 iconName={IconNames.PackageX}
                 title="Damaged Items"
-                className={
-                  cn("!w-full ", userPermissions.damageItems.read ? "" : " hidden")
-                }
+                className={cn(
+                  "!w-full ",
+                  userPermissions.damageItems.read ? "" : " hidden",
+                )}
                 isCollapsed={isCollapsed}
                 href="/damaged-item"
               />,
@@ -639,9 +646,10 @@ const SideBar = ({
                 key={1}
                 iconName={IconNames.User}
                 title="Customers"
-                className={
-                  cn("!w-full ", userPermissions.customer.read ? "" : " hidden")
-                }
+                className={cn(
+                  "!w-full ",
+                  userPermissions.customer.read ? "" : " hidden",
+                )}
                 isCollapsed={isCollapsed}
                 href="/customer"
               />,
@@ -649,9 +657,10 @@ const SideBar = ({
                 key={2}
                 iconName={IconNames.Truck}
                 title="Supplier"
-                className={
-                  cn("!w-full ", userPermissions.supplier.read ? "" : " hidden")
-                }
+                className={cn(
+                  "!w-full ",
+                  userPermissions.supplier.read ? "" : " hidden",
+                )}
                 isCollapsed={isCollapsed}
                 href="/supplier"
               />,

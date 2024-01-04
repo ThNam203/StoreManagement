@@ -94,11 +94,17 @@ export function TimeKeepingDialog({
   setOpen,
   onRemoveAttendanceRecord,
   onUpdateAttendanceRecord,
+  canCreateAttendance = false,
+  canUpdateAttendance = false,
+  canDeleteAttendance = false,
 }: {
   attendanceRecord: AttendanceRecord | null;
   dailyShift: DailyShift | null;
   open: boolean;
   setOpen: (value: boolean) => void;
+  canCreateAttendance?: boolean;
+  canUpdateAttendance?: boolean;
+  canDeleteAttendance?: boolean;
   onRemoveAttendanceRecord?: (attendanceRecord: AttendanceRecord) => any;
   onUpdateAttendanceRecord?: (attendanceRecord: AttendanceRecord) => any;
 }) {
@@ -379,7 +385,10 @@ export function TimeKeepingDialog({
                                     }
                                     endIcon={
                                       <PlusCircle
-                                        className="h-4 w-4 opacity-50 hover:cursor-pointer hover:opacity-100"
+                                        className={cn(
+                                          "h-4 w-4 opacity-50 hover:cursor-pointer hover:opacity-100",
+                                          canCreateAttendance ? "" : "hidden",
+                                        )}
                                         onClick={() =>
                                           handleOpenViolationOrRewardDialog(
                                             null,
@@ -544,7 +553,10 @@ export function TimeKeepingDialog({
                                     }
                                     endIcon={
                                       <PlusCircle
-                                        className="h-4 w-4 opacity-50 hover:cursor-pointer hover:opacity-100"
+                                        className={cn(
+                                          "h-4 w-4 opacity-50 hover:cursor-pointer hover:opacity-100",
+                                          canCreateAttendance ? "" : "hidden",
+                                        )}
                                         onClick={() =>
                                           handleOpenViolationOrRewardDialog(
                                             null,
@@ -685,7 +697,10 @@ export function TimeKeepingDialog({
                       setOpenConfirmDialog(true);
                     }}
                     variant={"red"}
-                    className="mr-3 gap-1"
+                    className={cn(
+                      "mr-3 gap-1",
+                      canDeleteAttendance ? "" : "hidden",
+                    )}
                     disabled={isAdding || isRemoving}
                   >
                     <Trash size={16}></Trash>
@@ -702,7 +717,7 @@ export function TimeKeepingDialog({
                       }
                     }}
                     variant={"green"}
-                    className="mr-3"
+                    className={cn("mr-3", canUpdateAttendance ? "" : "hidden")}
                     disabled={isAdding || isRemoving}
                   >
                     Save

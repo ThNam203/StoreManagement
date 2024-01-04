@@ -104,10 +104,6 @@ export default function StaffRolePage() {
           .map((staff) => convertStaffReceived(staff))
           .filter((staff) => staff.role !== "OWNER");
         dispatch(setStaffs(staffReceived));
-
-        const resRole = await RoleService.getAllRoles();
-        const converted = resRole.data.map((role) => convertRoleReceived(role));
-        dispatch(setRoles(converted));
       } catch (e) {
         axiosUIErrorHandler(e, toast, router);
       } finally {
@@ -117,7 +113,9 @@ export default function StaffRolePage() {
     fetchData();
   }, []);
 
-  const roleList = useAppSelector((state) => state.role.value);
+  const roleList = useAppSelector((state) => state.role.value).filter(
+    (role) => role.positionName !== "Owner",
+  );
   const roleNames = roleList.map((role) => role.positionName);
 
   const [isUpdating, setIsUpdating] = useState(false);
@@ -160,10 +158,6 @@ export default function StaffRolePage() {
       );
       const convertedRoleReceived = convertRoleReceived(res.data);
       dispatch(updateRole(convertedRoleReceived));
-      toast({
-        variant: "default",
-        description: "Update role successfully",
-      });
       return Promise.resolve();
     } catch (e) {
       axiosUIErrorHandler(e, toast, router);
@@ -174,7 +168,12 @@ export default function StaffRolePage() {
   };
 
   const handleUpdateRole = (positionId: number, value: RoleSetting) => {
-    return updateRoleSetting(positionId, value);
+    return updateRoleSetting(positionId, value).then(() => {
+      toast({
+        variant: "default",
+        title: "Update role successfully",
+      });
+    });
   };
 
   const addNewRole = async (value: Role) => {

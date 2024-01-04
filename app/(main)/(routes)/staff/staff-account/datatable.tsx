@@ -90,6 +90,26 @@ export function DataTable({
   onStaffDeleteButtonClicked: (rowIndex: number) => void;
   onStaffCalculateSalaryButtonClicked?: (rowIndex: number) => any;
 }) {
+  const profile = useAppSelector((state) => state.profile.value);
+  const staffRoleSetting = useAppSelector((state) => state.role.value).find(
+    (role) => role.positionName === profile?.position,
+  )?.roleSetting.staff;
+  const fundLedgerRoleSetting = useAppSelector(
+    (state) => state.role.value,
+  ).find((role) => role.positionName === profile?.position)?.roleSetting
+    .fundLedger;
+
+  let canCreateStaff = false;
+  let canUpdateStaff = false;
+  let canDeleteStaff = false;
+  let canMakePayment = false;
+  if (staffRoleSetting) {
+    canCreateStaff = staffRoleSetting.create;
+    canUpdateStaff = staffRoleSetting.update;
+    canDeleteStaff = staffRoleSetting.delete;
+  }
+  if (fundLedgerRoleSetting) canMakePayment = fundLedgerRoleSetting.create;
+
   const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
   const [openStaffDialog, setOpenStaffDialog] = useState(false);
   const handleOpenStaffDialog = (staff: Staff | null) => {
@@ -278,15 +298,20 @@ export function DataTable({
 
   return (
     <div className="w-full space-y-2">
-      <div className="flex items-center justify-end py-4">
-        <Button variant="green" onClick={() => handleOpenStaffDialog(null)}>
-          Add new staff
-        </Button>
-      </div>
       <CustomDatatable
         data={data}
         columns={staffTableColumns()}
         columnTitles={staffColumnTitles}
+        buttons={[
+          <Button
+            key={1}
+            variant="green"
+            className={cn(canCreateStaff ? "" : "hidden")}
+            onClick={() => handleOpenStaffDialog(null)}
+          >
+            Add new staff
+          </Button>,
+        ]}
         infoTabs={[
           {
             render(row, setShowTabs) {
@@ -294,6 +319,8 @@ export function DataTable({
                 <StaffInfoTab
                   row={row}
                   setShowTabs={setShowTabs}
+                  canUpdateStaff={canUpdateStaff}
+                  canDeleteStaff={canDeleteStaff}
                   onStaffUpdateButtonClicked={onStaffUpdateButtonClicked}
                   onStaffDeleteButtonClicked={onStaffDeleteButtonClicked}
                 />
@@ -319,6 +346,7 @@ export function DataTable({
                 <StaffSalarySettingTab
                   row={row}
                   setShowTabs={setShowTabs}
+                  canUpdateStaff={canUpdateStaff}
                   onStaffUpdateButtonClicked={onStaffUpdateButtonClicked}
                 />
               );
@@ -348,6 +376,7 @@ export function DataTable({
                 <StaffSalaryDebtTab
                   row={row}
                   setShowTabs={setShowTabs}
+                  canMakePayment={canMakePayment}
                   salaryDebtList={salaryDebtList[row.index]}
                   expenseFormsByStaff={expenseFormsByStaff[row.index]}
                 />
@@ -376,8 +405,12 @@ const StaffInfoTab = ({
   setShowTabs,
   onStaffUpdateButtonClicked,
   onStaffDeleteButtonClicked,
+  canUpdateStaff = false,
+  canDeleteStaff = false,
 }: {
   row: Row<Staff>;
+  canUpdateStaff?: boolean;
+  canDeleteStaff?: boolean;
   setShowTabs: (value: boolean) => any;
   onStaffUpdateButtonClicked: (rowIndex: number) => any;
   onStaffDeleteButtonClicked: (rowIndex: number) => any;
@@ -492,12 +525,14 @@ const StaffInfoTab = ({
         <Button
           variant={"green"}
           onClick={(e) => onStaffUpdateButtonClicked(row.index)}
+          className={cn(canUpdateStaff ? "" : "hidden")}
         >
           <PenLine size={16} fill="white" className="mr-2" />
           Update
         </Button>
         <Button
           variant={"red"}
+          className={cn(canDeleteStaff ? "" : "hidden")}
           onClick={() => {
             setContentConfirmDialog({
               title: "Remove staff",
@@ -560,9 +595,11 @@ const StaffSalarySettingTab = ({
   row,
   setShowTabs,
   onStaffUpdateButtonClicked,
+  canUpdateStaff = false,
 }: {
   row: Row<Staff>;
   setShowTabs: (value: boolean) => any;
+  canUpdateStaff?: boolean;
   onStaffUpdateButtonClicked: (rowIndex: number) => any;
 }) => {
   const staff = row.original;
@@ -585,6 +622,7 @@ const StaffSalarySettingTab = ({
         <Button
           variant={"green"}
           onClick={(e) => onStaffUpdateButtonClicked(row.index)}
+          className={cn(canUpdateStaff ? "" : "hidden")}
         >
           <PenLine size={16} fill="white" className="mr-2" />
           Update
@@ -698,8 +736,10 @@ const StaffSalaryDebtTab = ({
   setShowTabs,
   salaryDebtList,
   expenseFormsByStaff,
+  canMakePayment = false,
 }: {
   row: Row<Staff>;
+  canMakePayment?: boolean;
   setShowTabs: (value: boolean) => any;
   salaryDebtList: SimpleTransaction[];
   expenseFormsByStaff: Transaction[];
@@ -749,6 +789,7 @@ const StaffSalaryDebtTab = ({
         <div className="flex-1" />
         <Button
           variant={"green"}
+          className={cn(canMakePayment ? "" : "hidden")}
           onClick={(e) => handleOpenSalaryAdvanceDialog(null)}
         >
           <CreditCard size={16} className="mr-2" />

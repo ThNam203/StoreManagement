@@ -125,6 +125,11 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     @Override
     public void deletePurchaseOrder(int id) {
         PurchaseOrder purchaseOrder = purchaseOrderRepository.findById(id).orElseThrow(() -> new CustomException("Purchase order not found", HttpStatus.NOT_FOUND));
+        purchaseOrder.getPurchaseOrderDetail().forEach(purchaseOrderDetail -> {
+            Product product = productRepository.findById(purchaseOrderDetail.getProduct().getId()).orElseThrow(() -> new CustomException("Product not found", HttpStatus.NOT_FOUND));
+            product.setStock(product.getStock() - purchaseOrderDetail.getQuantity());
+            productRepository.save(product);
+        });
         purchaseOrderRepository.delete(purchaseOrder);
         activityLogService.save("deleted a purchase order with id " + purchaseOrder.getId(), staffService.getAuthorizedStaff().getId(), new Date());
     }

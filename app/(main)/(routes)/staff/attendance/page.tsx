@@ -38,6 +38,10 @@ import { setStaffs } from "@/reducers/staffReducer";
 import { setViolations } from "@/reducers/shiftViolationReducer";
 import { setRewards } from "@/reducers/shiftRewardReducer";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
+import RoleService from "@/services/role_service";
+import { convertRoleReceived } from "@/utils/roleSettingApiUtils";
+import { setRoles } from "@/reducers/roleReducer";
 
 export default function Attendance() {
   const dispatch = useAppDispatch();
@@ -80,6 +84,22 @@ export default function Attendance() {
     };
     fetchData();
   }, []);
+
+  const profile = useAppSelector((state) => state.profile.value);
+  const attendanceRoleSetting = useAppSelector(
+    (state) => state.role.value,
+  ).find((role) => role.positionName === profile?.position)?.roleSetting
+    .attendance;
+  let canCreateAttendance = false;
+  let canUpdateAttendance = false;
+  let canDeleteAttendance = false;
+  if (attendanceRoleSetting) {
+    canCreateAttendance = attendanceRoleSetting.create;
+    canUpdateAttendance = attendanceRoleSetting.update;
+    canDeleteAttendance = attendanceRoleSetting.delete;
+  }
+
+  console.log("attendanceRoleSetting", attendanceRoleSetting);
 
   const [range, setRange] = useState<{ startDate: Date; endDate: Date }>(
     getStaticRangeFilterTime(FilterWeek.ThisWeek),
@@ -252,16 +272,16 @@ export default function Attendance() {
         <div className="flex flex-row items-center gap-4">
           <Button
             variant={"green"}
-            className="gap-2"
+            className={cn("gap-2", canUpdateAttendance ? "" : "hidden")}
             onClick={() => setOpenSetTimeDialog(true)}
           >
             <Plus size={16} />
             <span>Set time</span>
           </Button>
-          <Button variant={"green"} className="gap-2">
+          {/* <Button variant={"green"} className="gap-2">
             <FileDown className="h-4 w-4" />
             <span>Export</span>
-          </Button>
+          </Button> */}
         </div>
       </div>
       {isLoading ? (
@@ -278,6 +298,9 @@ export default function Attendance() {
           onSetTime={handleAddDailyShift}
           onRemoveShift={handleRemoveShift}
           onUpdateDailyShifts={handleUpdateDailyShifts}
+          canCreateAttendance={canCreateAttendance}
+          canUpdateAttendance={canUpdateAttendance}
+          canDeleteAttendance={canDeleteAttendance}
         />
       )}
 

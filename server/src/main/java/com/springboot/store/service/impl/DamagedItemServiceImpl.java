@@ -91,6 +91,11 @@ public class DamagedItemServiceImpl implements DamagedItemService {
     @Override
     public void deleteDamagedItem(int id) {
         DamagedItem damagedItem = damagedItemRepository.findById(id).orElseThrow(() -> new CustomException("Damaged item not found", HttpStatus.NOT_FOUND));
+        damagedItem.getProducts().forEach(damagedItemDetail -> {
+            var product = productRepository.findById(damagedItemDetail.getProduct().getId()).orElseThrow(() -> new CustomException("Product not found", HttpStatus.NOT_FOUND));
+            product.setStock(product.getStock() + damagedItemDetail.getDamagedQuantity());
+            productRepository.save(product);
+        });
         damagedItemRepository.delete(damagedItem);
         activityLogService.save("deleted a damaged item with id " + id, staffService.getAuthorizedStaff().getId(), new Date());
     }
