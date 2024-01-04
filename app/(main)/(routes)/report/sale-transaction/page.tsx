@@ -246,7 +246,7 @@ const PDFContent = ({
               return (
                 <View key={index} style={styles.tableRow} wrap={false}>
                   {invoiceProperties.map((header) => {
-                    const value: number | string =
+                    let value: number | string =
                       invoice[header as keyof typeof invoice];
                       if (header === "date" || header === "Date") value = format(new Date(value), "MM/dd/yyyy");
                     return (

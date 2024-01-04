@@ -13,9 +13,6 @@ import {
 } from "@/components/ui/pdf";
 import { useToast } from "@/components/ui/use-toast";
 import {
-  FinanceReport,
-  ProductSellReport,
-  SaleByDayReport,
   SupplyTransactionReport,
 } from "@/entities/Report";
 import { useAppDispatch } from "@/hooks";
@@ -77,7 +74,7 @@ export default function SupplyTransactionReportPage() {
 
   const PDF = report ? (
     <DefaultPDFContent
-      data={[report]}
+      data={report}
       startDate={range.startDate}
       endDate={range.endDate}
       title="SUPPLY TRANSACTION REPORT"

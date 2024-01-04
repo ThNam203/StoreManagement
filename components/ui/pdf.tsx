@@ -311,6 +311,7 @@ const DefaultPDFContent = ({
     </Document>
   );
 };
+
 const FinanceReportPDFContent = ({
   data,
   startDate,
