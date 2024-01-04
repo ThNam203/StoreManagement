@@ -69,6 +69,9 @@ public class AuthenticationService {
         staff.setStaffPosition(staffPosition);
         staffRepository.save(staff);
 
+        store.setOwner(staff);
+        storeRepository.save(store);
+
 
         var jwtToken = jwtService.generateToken(staff);
         var refreshToken = jwtService.generateRefreshToken(staff);
