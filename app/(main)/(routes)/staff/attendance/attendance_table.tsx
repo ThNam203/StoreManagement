@@ -329,6 +329,9 @@ const AttendanceDataRow = ({
             handleOpenSetTimeDialog={handleOpenSetTimeDialog}
             handleOpenTimeKeepingDialog={handleOpenTimeKeepingDialog}
             className={cn(CellStyle)}
+            canCreateAttendance={canCreateAttendance}
+            canUpdateAttendance={canUpdateAttendance}
+            canDeleteAttendance={canDeleteAttendance}
           />
         );
       })}
@@ -554,7 +557,7 @@ const DataCell = ({
             className={cn(
               "flex w-full cursor-pointer select-none flex-row items-center justify-center bg-gray-100 text-gray-600 backdrop-blur-sm duration-100 ease-linear hover:bg-green-400 hover:font-semibold hover:text-white",
               data.attendList.length > maxItem ? "h-1/2" : "h-full",
-              canCreateAttendance ? "" : "hidden",
+              canUpdateAttendance ? "" : "hidden",
             )}
             onClick={() => {
               if (handleOpenSetTimeDialog) handleOpenSetTimeDialog(data);

@@ -298,19 +298,20 @@ export function DataTable({
 
   return (
     <div className="w-full space-y-2">
-      <div className="flex items-center justify-end py-4">
-        <Button
-          variant="green"
-          className={cn(canCreateStaff ? "" : "hidden")}
-          onClick={() => handleOpenStaffDialog(null)}
-        >
-          Add new staff
-        </Button>
-      </div>
       <CustomDatatable
         data={data}
         columns={staffTableColumns()}
         columnTitles={staffColumnTitles}
+        buttons={[
+          <Button
+            key={1}
+            variant="green"
+            className={cn(canCreateStaff ? "" : "hidden")}
+            onClick={() => handleOpenStaffDialog(null)}
+          >
+            Add new staff
+          </Button>,
+        ]}
         infoTabs={[
           {
             render(row, setShowTabs) {

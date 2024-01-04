@@ -242,26 +242,31 @@ export function DataTable({ data, onSubmit }: Props) {
           </span>
         </div>
       </div>
-      <div className="flex flex-row items-center justify-end gap-2 py-2">
-        <Button
-          variant="blue"
-          className={cn("whitespace-nowrap", canCreate ? "" : "hidden")}
-          onClick={() => handleOpenReceiptForm(null)}
-        >
-          Make Receipt
-        </Button>
-        <Button
-          variant="blue"
-          className={cn("whitespace-nowrap", canCreate ? "" : "hidden")}
-          onClick={() => handleOpenExpenseForm(null)}
-        >
-          Make Expense
-        </Button>
-      </div>
       <CustomDatatable
         data={data}
         columns={fundledgerTableColumns()}
         columnTitles={fundledgerColumnTitles}
+        buttons={[
+          <div
+            key={1}
+            className="flex flex-row items-center justify-end gap-2 py-2"
+          >
+            <Button
+              variant="blue"
+              className={cn("whitespace-nowrap", canCreate ? "" : "hidden")}
+              onClick={() => handleOpenReceiptForm(null)}
+            >
+              Make Receipt
+            </Button>
+            <Button
+              variant="blue"
+              className={cn("whitespace-nowrap", canCreate ? "" : "hidden")}
+              onClick={() => handleOpenExpenseForm(null)}
+            >
+              Make Expense
+            </Button>
+          </div>,
+        ]}
         infoTabs={[
           {
             render(row, setShowTabs) {

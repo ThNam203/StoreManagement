@@ -122,7 +122,7 @@ export function CustomDatatable<TData>({
           />
         )}
         {config.alternativeSearchInput}
-        <div className="flex flex-row gap-2">
+        <div className="flex flex-row items-center gap-2">
           {config.onDeleteRowsBtnClick !== undefined &&
           table.getSelectedRowModel().rows.length > 0 ? (
             <Button

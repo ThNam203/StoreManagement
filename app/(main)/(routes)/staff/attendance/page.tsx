@@ -99,6 +99,8 @@ export default function Attendance() {
     canDeleteAttendance = attendanceRoleSetting.delete;
   }
 
+  console.log("attendanceRoleSetting", attendanceRoleSetting);
+
   const [range, setRange] = useState<{ startDate: Date; endDate: Date }>(
     getStaticRangeFilterTime(FilterWeek.ThisWeek),
   );
@@ -270,7 +272,7 @@ export default function Attendance() {
         <div className="flex flex-row items-center gap-4">
           <Button
             variant={"green"}
-            className={cn("gap-2", canCreateAttendance ? "" : "hidden")}
+            className={cn("gap-2", canUpdateAttendance ? "" : "hidden")}
             onClick={() => setOpenSetTimeDialog(true)}
           >
             <Plus size={16} />
