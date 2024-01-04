@@ -21,9 +21,7 @@ public class StoreServiceImpl implements StoreService {
     public StoreDTO getStore() {
         int storeId = staffService.getAuthorizedStaff().getStore().getId();
         Store store = storeRepository.findById(storeId).orElseThrow(() -> new EntityNotFoundException("Store not found with id: " + storeId));
-        StoreDTO storeDTO = modelMapper.map(store, StoreDTO.class);
-        storeDTO.setOwnerID(store.getOwner().getId());
-        return storeDTO;
+        return modelMapper.map(store, StoreDTO.class);
     }
 
     @Override
