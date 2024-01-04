@@ -292,7 +292,7 @@ const DefaultPDFContent = ({
                   {dataProperties.map((property) => {
                     let value: number | string =
                       report[property as keyof typeof report];
-                    if (property === "date" || property === "createdAt" || property === "createdDate")
+                    if (property === "date" || property === "Date" || property === "createdAt" || property === "createdDate")
                       value = format(new Date(value), "MM/dd/yyyy");
                     
                     return (
