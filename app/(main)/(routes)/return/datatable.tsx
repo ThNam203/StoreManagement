@@ -129,10 +129,10 @@ const DetailInvoiceTab = ({
   const staffs = useAppSelector((state) => state.customers.value);
 
   return (
-    <div className="py-2">
+    <div className="p-2">
       <div className="flex flex-row gap-2">
-        <div className="flex flex-1 flex-row text-[0.8rem]">
-          <div className="flex flex-1 flex-col gap-1 pr-4">
+        <div className="flex flex-1 flex-row text-[0.8rem] gap-4">
+          <div className="flex flex-1 flex-col gap-1">
             <DefaultInformationCellDataTable
               title="Invoice id:"
               value={invoice.id}
@@ -142,7 +142,7 @@ const DetailInvoiceTab = ({
               value={invoice.createdAt}
             />
           </div>
-          <div className="flex flex-1 flex-col gap-1 pr-4">
+          <div className="flex flex-1 flex-col gap-1">
             <DefaultInformationCellDataTable
               title="Staff id:"
               value={
@@ -247,14 +247,13 @@ const DetailInvoiceTab = ({
 };
 
 const returnDetailTitles = {
-  productId: "Product ID",
   quantity: "Quantity",
   price: "Price",
   description: "Description",
 };
 
 const returnDetailColumns = () => {
-  const columns: ColumnDef<ReturnInvoiceDetailServer>[] = [];
+  const columns: ColumnDef<ReturnInvoiceDetailServer>[] = [productIdToProductNameColumn];
   for (const key in returnDetailTitles) {
     columns.push(defaultColumn(key, returnDetailTitles));
   }
@@ -276,3 +275,20 @@ const returnDetailTotalColumn: ColumnDef<ReturnInvoiceDetailServer> = {
     );
   },
 };
+
+const productIdToProductNameColumn: ColumnDef<ReturnInvoiceDetailServer> = {
+  accessorKey: "productId",
+  header: ({ column }) => (
+    <DataTableColumnHeader column={column} title="Product" />
+  ),
+  cell: ({ row }) => {
+    const detail = row.original;
+    return ProductNameCell(detail.productId)
+  },
+};
+
+const ProductNameCell = (productId: number) => {
+  const products = useAppSelector((state) => state.products.value);
+  const product = products.find((v) => v.id === productId)!
+  return <p className={cn("text-[0.8rem]", product.isDeleted ? "text-red-500" : "")}>{product.name}</p>;
+}

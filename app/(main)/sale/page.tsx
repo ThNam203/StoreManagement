@@ -29,6 +29,7 @@ import {
   Search,
   Trash,
   Undo,
+  Undo2,
   X,
 } from "lucide-react";
 import { useRef, useState } from "react";
@@ -321,6 +322,16 @@ export default function Sale() {
       ) : null}
       <div className="flex h-screen w-screen flex-col bg-blue-500">
         <div className="flex h-[calc(35px+1rem)] flex-row items-center px-2">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Undo2 size={32} color="white" className="p-1 hover:cursor-pointer hover:bg-black hover:bg-opacity-40 rounded-full" />
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Go back</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
           <div className="mx-2 my-auto w-[400px] min-w-[250px] max-w-[400px] rounded-sm bg-white">
             <SearchView
               placeholder="Find products by id or name"

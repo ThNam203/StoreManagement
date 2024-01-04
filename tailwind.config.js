@@ -15,9 +15,14 @@ module.exports = {
         "2xl": "1400px",
       },
     },
-    extend: {  
+    extend: {
       fontSize: {
         xs: "0.8rem",
+      },
+      boxShadow: {
+        signUp: "0px 5px 10px rgba(4, 10, 34, 0.2)",
+        one: "0px 2px 3px rgba(7, 7, 77, 0.05)",
+        sticky: "inset 0 -1px 0 0 rgba(0, 0, 0, 0.1)",
       },
       colors: {
         border: "hsl(var(--border))",
@@ -29,6 +34,10 @@ module.exports = {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
         },
+        current: "currentColor",
+        dark: "#1D2144",
+        purple: "#4A6CF7",
+        yellow: "#FBB040",
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
           foreground: "hsl(var(--secondary-foreground))",
@@ -55,9 +64,9 @@ module.exports = {
         },
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        lg: "12px",
+        md: "8px",
+        sm: "4px",
       },
       keyframes: {
         "accordion-down": {
@@ -77,14 +86,14 @@ module.exports = {
           to: { height: 0 },
         },
         marquee: {
-          '0%': { transform: 'translateX(0%)' },
-          '100%': { transform: 'translateX(-100%)' },
+          "0%": { transform: "translateX(0%)" },
+          "100%": { transform: "translateX(-100%)" },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "marquee": 'marquee 10s linear infinite',
+        marquee: "marquee 10s linear infinite",
       },
     },
   },

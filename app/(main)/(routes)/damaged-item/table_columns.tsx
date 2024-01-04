@@ -7,6 +7,8 @@ import {
   defaultColumn,
 } from "@/components/ui/my_table_default_column";
 import { DamagedItemDetail, DamagedItemDocument } from "@/entities/DamagedItemDocument";
+import { useAppSelector } from "@/hooks";
+import { cn } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 
 export const damagedItemDocumentColumnTitles = {
@@ -41,7 +43,6 @@ export const damagedItemDocumentColumns = (): ColumnDef<DamagedItemDocument>[] =
 };
 
 export const damagedItemDocumentDetailColumnTitles = {
-  productId: "Product",
   damagedQuantity: "Quantity",
   costPrice: "Cost Price",
 };
@@ -51,6 +52,7 @@ export const damagedItemDocumentDetailTableColumns =
     const columns: ColumnDef<DamagedItemDetail>[] = [
       defaultSelectColumn<DamagedItemDetail>(),
       defaultIndexColumn<DamagedItemDetail>(),
+      productIdToProductNameColumn,
     ];
 
     for (let key in damagedItemDocumentDetailColumnTitles) {
@@ -95,3 +97,20 @@ const totalColumn: ColumnDef<DamagedItemDocument> = {
     );
   },
 };
+
+const productIdToProductNameColumn: ColumnDef<DamagedItemDetail> = {
+  accessorKey: "productId",
+  header: ({ column }) => (
+    <DataTableColumnHeader column={column} title="Product" />
+  ),
+  cell: ({ row }) => {
+    const detail = row.original;
+    return ProductNameCell(detail.productId)
+  },
+};
+
+const ProductNameCell = (productId: number) => {
+  const products = useAppSelector((state) => state.products.value);
+  const product = products.find((v) => v.id === productId)!
+  return <p className={cn("text-[0.8rem]", product.isDeleted ? "text-red-500" : "")}>{product.name}</p>;
+}

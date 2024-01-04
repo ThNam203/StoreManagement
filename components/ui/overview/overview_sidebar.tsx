@@ -432,9 +432,9 @@ const SideBar = ({
                 )}
               >
                 <h4 className="max-w-[85px] break-words text-start text-sm font-medium">
-                  Nam Huynh
+                  {profile?.name ?? "NAME NOT FOUND"}
                 </h4>
-                <p className="flex-wrap text-start text-xs opacity-75">Staff</p>
+                <p className="flex-wrap text-start text-xs opacity-75">{profile?.position ?? "POSITION NOT FOUND"}</p>
               </div>
             </AccordionTrigger>
             <AccordionContent>
@@ -615,7 +615,48 @@ const SideBar = ({
           isCollapsed={isCollapsed}
         />
 
+        {/* <SideBarButton
+          iconName={IconNames.Settings}
+          title="Settings"
+          className=""
+          isCollapsed={isCollapsed}
+          href="/settings"
+        /> */}
+
         <SideBarAccordion
+          iconName={IconNames.Contact}
+          title="Staff"
+          buttons={[
+            <SideBarButton
+              key={2}
+              iconName={IconNames.MenuSquare}
+              title="Staff Account"
+              className="!w-full"
+              isCollapsed={isCollapsed}
+              href="/staff/staff-account"
+            />,
+            <SideBarButton
+              key={3}
+              iconName={IconNames.Wrench}
+              title="Role Setting"
+              className="!w-full"
+              isCollapsed={isCollapsed}
+              href="/staff/staff-role"
+            />,
+            <SideBarButton
+              key={4}
+              iconName={IconNames.CalendarRange}
+              title="Work Manage"
+              className="!w-full"
+              isCollapsed={isCollapsed}
+              href="/staff/attendance"
+            />,
+          ]}
+          isCollapsed={isCollapsed}
+        />
+
+
+<SideBarAccordion
           iconName={IconNames.BarChart3}
           title="Reports"
           buttons={[
@@ -692,47 +733,6 @@ const SideBar = ({
           ]}
           isCollapsed={isCollapsed}
         />
-
-        {/* <SideBarButton
-          iconName={IconNames.Settings}
-          title="Settings"
-          className=""
-          isCollapsed={isCollapsed}
-          href="/settings"
-        /> */}
-
-        <SideBarAccordion
-          iconName={IconNames.Contact}
-          title="Staff"
-          buttons={[
-            <SideBarButton
-              key={2}
-              iconName={IconNames.MenuSquare}
-              title="Staff Account"
-              className="!w-full"
-              isCollapsed={isCollapsed}
-              href="/staff/staff-account"
-            />,
-            <SideBarButton
-              key={3}
-              iconName={IconNames.Wrench}
-              title="Role Setting"
-              className="!w-full"
-              isCollapsed={isCollapsed}
-              href="/staff/staff-role"
-            />,
-            <SideBarButton
-              key={4}
-              iconName={IconNames.CalendarRange}
-              title="Work Manage"
-              className="!w-full"
-              isCollapsed={isCollapsed}
-              href="/staff/attendance"
-            />,
-          ]}
-          isCollapsed={isCollapsed}
-        />
-
         <SideBarButton
           iconName={IconNames.Settings}
           title="Settings"

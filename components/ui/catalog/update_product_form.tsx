@@ -1206,7 +1206,7 @@ const UpdatePropertyView = ({
             />
           </div>
         </AlertDialogHeader>
-        <AlertDialogFooter>
+        <AlertDialogFooter >
           <Button
             variant={"green"}
             onClick={async (e) => {
@@ -1243,13 +1243,10 @@ const UpdatePropertyView = ({
             Delete property
             {isLoading ? <LoadingCircle /> : null}
           </Button>
-          <AlertDialogCancel
-            className={
-              "!h-[35px] bg-red-400 text-white hover:bg-red-500 hover:text-white"
-            }
-            disabled={isLoading}
-          >
-            Cancel
+          <AlertDialogCancel asChild>
+            <Button variant={"red"}>
+              Cancel
+            </Button>
           </AlertDialogCancel>
         </AlertDialogFooter>
       </AlertDialogContent>

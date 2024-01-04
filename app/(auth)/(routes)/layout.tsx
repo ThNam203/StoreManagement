@@ -12,17 +12,17 @@ const font = Open_Sans({ subsets: ["latin"] });
 
 export default function SubRootLayout({
   children,
-} : {
+}: {
   children: React.ReactNode;
 }) {
   return (
-      <html lang="en">
-        <body>
-          <div className="h-screen flex justify-center items-center">
-            {children}
-          </div>
-          <Toaster/>
-        </body>
-      </html>
+    <html lang="en">
+      <body>
+        <div className="flex h-screen items-center justify-center">
+          {children}
+        </div>
+        <Toaster />
+      </body>
+    </html>
   );
 }

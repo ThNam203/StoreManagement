@@ -108,7 +108,7 @@ const DetailTab = ({
   const router = useRouter();
 
   return (
-    <>
+    <div className="p-2">
       <div className="flex flex-row gap-4">
         <div className="flex flex-1 flex-row text-[0.8rem]">
           <div className="flex flex-1 flex-col gap-2 pr-4">
@@ -126,7 +126,7 @@ const DetailTab = ({
               // TODO:
             />
           </div>
-          <div className="flex flex-1 flex-col pr-4">
+          <div className="flex flex-1 flex-col">
             <p className="mb-2">Note</p>
             <textarea
               readOnly
@@ -223,14 +223,13 @@ const DetailTab = ({
           {disableDeleteButton ? <LoadingCircle /> : null}
         </Button>
       </div>
-    </>
+    </div>
   );
 };
 
 const stockCheckDetailTitles = {
   productId: "Product ID",
   productName: "Name",
-  productProperties: "Properties",
   unitName: "Unit",
   countedStock: "Counted",
   realStock: "In Stock",
