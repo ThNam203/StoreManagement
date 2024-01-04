@@ -49,12 +49,6 @@ export default function StaffInfoPage() {
     const fetchData = async () => {
       dispatch(showPreloader());
       try {
-        const resRole = await RoleService.getAllRoles();
-        const roleReceived = resRole.data.map((role) =>
-          convertRoleReceived(role),
-        );
-        dispatch(setRoles(roleReceived));
-
         const resStaff = await StaffService.getAllStaffs();
         const staffReceived = resStaff.data
           .map((staff) => convertStaffReceived(staff))

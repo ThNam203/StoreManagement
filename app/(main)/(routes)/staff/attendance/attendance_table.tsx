@@ -6,7 +6,12 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { AttendanceRecord, DailyShift, Shift } from "@/entities/Attendance";
+import {
+  AttendanceRecord,
+  DailyShift,
+  Shift,
+  Status,
+} from "@/entities/Attendance";
 import { Staff } from "@/entities/Staff";
 import { cn } from "@/lib/utils";
 import { createRangeDate } from "@/utils";
@@ -19,6 +24,7 @@ import { useEffect, useRef, useState } from "react";
 import { AddShiftDialog } from "../../../../../components/ui/attendance/add_shift_dialog";
 import { SetTimeDialog } from "../../../../../components/ui/attendance/set_time_dialog";
 import { TimeKeepingDialog } from "./timekeeping_dialog";
+import { useAppSelector } from "@/hooks";
 const borderStyle = "border border-gray-100 border-[1px]";
 const HeaderCellStyleWeek = "w-[calc(100%/8)] h-10" + " " + borderStyle;
 const CellStyleWeek = "w-[calc(100%/8)] h-44" + " " + borderStyle;
@@ -38,6 +44,9 @@ const AttendanceTable = ({
   onRemoveShift,
   onSetTime,
   onUpdateDailyShifts,
+  canCreateAttendance = false,
+  canUpdateAttendance = false,
+  canDeleteAttendance = false,
 }: {
   shiftList: Shift[];
   rangeDate: { startDate: Date; endDate: Date };
@@ -47,6 +56,9 @@ const AttendanceTable = ({
   onRemoveShift?: (id: any) => any;
   onSetTime?: (values: DailyShift[]) => any;
   onUpdateDailyShifts?: (values: DailyShift[]) => any;
+  canCreateAttendance?: boolean;
+  canUpdateAttendance?: boolean;
+  canDeleteAttendance?: boolean;
 }) => {
   if (displayType === "Month" || displayType === "Custom") {
     HeaderCellStyle = HeaderCellStyleMonth;
@@ -100,6 +112,7 @@ const AttendanceTable = ({
             range={rangeDate}
             displayType={displayType}
             handleOpenShiftDialog={handleOpenAddShiftDialog}
+            canCreateAttendance={canCreateAttendance}
           />
         </tr>
         {data.length === 0 && (
@@ -120,6 +133,9 @@ const AttendanceTable = ({
                 shift={shift}
                 rangeDate={rangeDate}
                 displayType={displayType}
+                canCreateAttendance={canCreateAttendance}
+                canUpdateAttendance={canUpdateAttendance}
+                canDeleteAttendance={canDeleteAttendance}
                 handleOpenSetTimeDialog={handleOpenSetTimeDialog}
                 handleOpenShiftDialog={handleOpenAddShiftDialog}
                 handleOpenTimeKeepingDialog={handleOpenTimeKeepingDialog}
@@ -134,6 +150,7 @@ const AttendanceTable = ({
         setOpen={setOpenAddShiftDialog}
         submit={onUpdateShift}
         onRemoveShift={onRemoveShift}
+        canDelete={canDeleteAttendance}
       />
       <SetTimeDialog
         open={openSetTimeDialog}
@@ -149,6 +166,8 @@ const AttendanceTable = ({
         setOpen={setOpenTimeKeepingDialog}
         attendanceRecord={selectedAttendance}
         dailyShift={selectedDailyShift}
+        canUpdateAttendance={canUpdateAttendance}
+        canDeleteAttendance={canDeleteAttendance}
         onRemoveAttendanceRecord={(attendanceRecord) => {
           if (!selectedDailyShift) return;
           const newDailyShift: DailyShift = { ...selectedDailyShift };
@@ -192,16 +211,19 @@ const AttendanceHeaderRow = ({
   range,
   displayType = "Week",
   handleOpenShiftDialog,
+  canCreateAttendance = false,
 }: {
   range: { startDate: Date; endDate: Date };
   displayType?: DisplayType;
   handleOpenShiftDialog?: (values: Shift | null) => void;
+  canCreateAttendance?: boolean;
 }) => {
   const rangeDate: Date[] = createRangeDate(range);
   return (
     <div className={cn("flex w-full flex-row items-center")}>
       <ShiftCell
         className={cn(HeaderCellStyle)}
+        canCreateAttendance={canCreateAttendance}
         handleOpenShiftDialog={handleOpenShiftDialog}
       />
       {rangeDate.map((date, index) => {
@@ -266,6 +288,9 @@ const AttendanceDataRow = ({
   shift,
   rangeDate,
   displayType = "Week",
+  canCreateAttendance = false,
+  canUpdateAttendance = false,
+  canDeleteAttendance = false,
   handleOpenShiftDialog,
   handleOpenSetTimeDialog,
   handleOpenTimeKeepingDialog,
@@ -273,6 +298,9 @@ const AttendanceDataRow = ({
   shift: Shift;
   rangeDate: { startDate: Date; endDate: Date };
   displayType?: DisplayType;
+  canCreateAttendance?: boolean;
+  canUpdateAttendance?: boolean;
+  canDeleteAttendance?: boolean;
   handleOpenShiftDialog?: (value: Shift | null) => void;
   handleOpenSetTimeDialog?: (value: DailyShift | null) => void;
   handleOpenTimeKeepingDialog?: (
@@ -290,6 +318,8 @@ const AttendanceDataRow = ({
         className={cn(CellStyle)}
         isInWorkingTime={isInWorkingTime}
         handleOpenShiftDialog={handleOpenShiftDialog}
+        canDeleteAttendance={canDeleteAttendance}
+        canUpdateAttendance={canUpdateAttendance}
       />
       {formattedDailyShiftList.map((dailyShift, index) => {
         return (
@@ -309,9 +339,11 @@ const AttendanceDataRow = ({
 const ShiftCell = ({
   className,
   handleOpenShiftDialog,
+  canCreateAttendance = false,
 }: {
   className?: string;
   handleOpenShiftDialog?: (values: Shift | null) => void;
+  canCreateAttendance?: boolean;
 }) => {
   return (
     <div
@@ -323,7 +355,10 @@ const ShiftCell = ({
       <span className="font-semibold">Shift</span>
       <PlusCircle
         size={16}
-        className="cursor-pointer select-none opacity-50 duration-100 ease-linear hover:opacity-100"
+        className={cn(
+          "cursor-pointer select-none opacity-50 duration-100 ease-linear hover:opacity-100",
+          canCreateAttendance ? "" : "hidden",
+        )}
         onClick={() => {
           if (handleOpenShiftDialog) handleOpenShiftDialog(null);
         }}
@@ -378,21 +413,31 @@ const ShiftInfoCell = ({
   className,
   isInWorkingTime,
   handleOpenShiftDialog,
+  canUpdateAttendance = false,
+  canDeleteAttendance = false,
 }: {
   shift: Shift;
   className?: string;
   isInWorkingTime?: boolean;
   handleOpenShiftDialog?: (values: Shift | null) => void;
+  canUpdateAttendance?: boolean;
+  canDeleteAttendance?: boolean;
 }) => {
+  let bgcolor = "";
+  let pencilColor = "bg-gray-100";
+  if (shift.status === Status.NotWorking) {
+    bgcolor = "bg-red-500 text-white";
+    pencilColor = "bg-red-400";
+  } else if (isInWorkingTime) {
+    bgcolor = "bg-blue-500 text-white";
+    pencilColor = "bg-blue-400";
+  }
   return (
     <div
-      className={cn(
-        "relative flex flex-col p-2",
-        className,
-        isInWorkingTime ? "bg-blue-500 text-white" : "",
-      )}
+      className={cn("relative flex flex-col p-2", className, bgcolor)}
       onClick={() => {
-        if (handleOpenShiftDialog) handleOpenShiftDialog(shift);
+        if (handleOpenShiftDialog && canUpdateAttendance)
+          handleOpenShiftDialog(shift);
       }}
     >
       <span className="font-semibold">{shift.name}</span>
@@ -401,11 +446,16 @@ const ShiftInfoCell = ({
         "hh:mm a",
       )} - ${format(shift.workingTime.end, "hh:mm a")}`}</span>
 
-      <div className="absolute left-0 top-0 h-full w-full cursor-pointer select-none opacity-0 duration-100 ease-linear hover:opacity-100">
+      <div
+        className={cn(
+          "absolute left-0 top-0 h-full w-full cursor-pointer select-none opacity-0 duration-100 ease-linear hover:opacity-100",
+          canUpdateAttendance ? "" : "hidden",
+        )}
+      >
         <div
           className={cn(
             "absolute right-2 top-2 flex justify-center rounded-full  p-1",
-            isInWorkingTime ? "bg-blue-400" : "bg-gray-100",
+            pencilColor,
           )}
         >
           <Pencil size={16} />
@@ -421,10 +471,16 @@ const DataCell = ({
   maxItem = 2,
   handleOpenSetTimeDialog,
   handleOpenTimeKeepingDialog,
+  canCreateAttendance = false,
+  canUpdateAttendance = false,
+  canDeleteAttendance = false,
 }: {
   data: DailyShift;
   className?: string;
   maxItem?: number;
+  canCreateAttendance?: boolean;
+  canUpdateAttendance?: boolean;
+  canDeleteAttendance?: boolean;
   handleOpenSetTimeDialog?: (value: DailyShift | null) => void;
   handleOpenTimeKeepingDialog?: (
     value: AttendanceRecord,
@@ -489,7 +545,7 @@ const DataCell = ({
           <PopoverAnchor asChild>
             <div
               className={cn(
-                "absolute h-5 w-full bg-red-100",
+                "absolute h-5 w-full ",
                 anchorPosition === "top" ? "top-0" : "bottom-0",
               )}
             ></div>
@@ -498,6 +554,7 @@ const DataCell = ({
             className={cn(
               "flex w-full cursor-pointer select-none flex-row items-center justify-center bg-gray-100 text-gray-600 backdrop-blur-sm duration-100 ease-linear hover:bg-green-400 hover:font-semibold hover:text-white",
               data.attendList.length > maxItem ? "h-1/2" : "h-full",
+              canCreateAttendance ? "" : "hidden",
             )}
             onClick={() => {
               if (handleOpenSetTimeDialog) handleOpenSetTimeDialog(data);

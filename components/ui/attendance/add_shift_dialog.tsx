@@ -44,12 +44,14 @@ export function AddShiftDialog({
   open,
   setOpen,
   onRemoveShift,
+  canDelete = false,
 }: {
   shift: Shift | null;
   submit?: (value: Shift) => any;
   open: boolean;
   setOpen: (value: boolean) => void;
   onRemoveShift?: (id: any) => any;
+  canDelete?: boolean;
 }) {
   const { toast } = useToast();
   const form = useForm<z.infer<typeof formSchema>>({
@@ -130,6 +132,8 @@ export function AddShiftDialog({
       status: values.status as Status,
       dailyShiftList: shift ? shift.dailyShiftList : [],
     };
+
+    console.log("check status newShift", newShift);
 
     if (submit) {
       try {
@@ -258,13 +262,20 @@ export function AddShiftDialog({
                               <div
                                 key={status}
                                 className="mr-11 flex flex-row items-center space-x-2"
-                                onClick={() => form.setValue("status", status)}
                               >
                                 <RadioGroupItem
                                   value={status.toString()}
                                   id={status.toString()}
+                                  onClick={() =>
+                                    form.setValue("status", status)
+                                  }
                                 />
-                                <Label htmlFor={status.toString()}>
+                                <Label
+                                  htmlFor={status.toString()}
+                                  onClick={() =>
+                                    form.setValue("status", status)
+                                  }
+                                >
                                   {status.toString()}
                                 </Label>
                               </div>
@@ -289,7 +300,7 @@ export function AddShiftDialog({
                   setOpenConfirmDialog(true);
                 }}
                 variant={"red"}
-                className={cn("mr-3 gap-1", shift ? "visible" : "hidden")}
+                className={cn("mr-3 gap-1", shift && canDelete ? "" : "hidden")}
                 disabled={isAdding || isRemoving}
               >
                 <Trash size={16}></Trash>

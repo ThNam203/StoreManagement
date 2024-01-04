@@ -43,6 +43,24 @@ export function DataTable({ data, onSubmit }: Props) {
   const dispatch = useAppDispatch();
   const { toast } = useToast();
   const router = useRouter();
+
+  const profile = useAppSelector((state) => state.profile.value);
+  const fundLedgerRoleSetting = useAppSelector(
+    (state) => state.role.value,
+  ).find((role) => role.positionName === profile?.position)?.roleSetting
+    .fundLedger;
+
+  let canCreate = false;
+  let canUpdate = false;
+  let canDelete = false;
+  let canExport = false;
+  if (fundLedgerRoleSetting) {
+    canCreate = fundLedgerRoleSetting.create;
+    canUpdate = fundLedgerRoleSetting.update;
+    canDelete = fundLedgerRoleSetting.delete;
+    canExport = fundLedgerRoleSetting.export;
+  }
+
   const [selectedForm, setSelectedForm] = React.useState<Transaction | null>(
     null,
   );
@@ -227,14 +245,14 @@ export function DataTable({ data, onSubmit }: Props) {
       <div className="flex flex-row items-center justify-end gap-2 py-2">
         <Button
           variant="blue"
-          className="whitespace-nowrap"
+          className={cn("whitespace-nowrap", canCreate ? "" : "hidden")}
           onClick={() => handleOpenReceiptForm(null)}
         >
           Make Receipt
         </Button>
         <Button
           variant="blue"
-          className="whitespace-nowrap"
+          className={cn("whitespace-nowrap", canCreate ? "" : "hidden")}
           onClick={() => handleOpenExpenseForm(null)}
         >
           Make Expense
@@ -251,6 +269,8 @@ export function DataTable({ data, onSubmit }: Props) {
                 <DetailFundledgerTab
                   row={row}
                   setShowTabs={setShowTabs}
+                  canUpdate={canUpdate}
+                  canDelete={canDelete}
                   onOpenExpenseForm={handleOpenExpenseForm}
                   onOpenReceiptForm={handleOpenReceiptForm}
                   onRemoveForm={handleRemoveForm}
@@ -262,7 +282,7 @@ export function DataTable({ data, onSubmit }: Props) {
         ]}
         config={{
           defaultVisibilityState: fundledgerDefaultVisibilityState,
-          onExportExcelBtnClick: handleExportExcel,
+          onExportExcelBtnClick: canExport ? handleExportExcel : undefined,
           // onImportExcelBtnClick: () => setOpenImportDialog(true),
         }}
       />
@@ -293,12 +313,16 @@ const DetailFundledgerTab = ({
   onOpenExpenseForm,
   onOpenReceiptForm,
   onRemoveForm,
+  canUpdate = false,
+  canDelete = false,
 }: {
   row: Row<Transaction>;
   setShowTabs: (value: boolean) => any;
   onOpenExpenseForm?: (transaction: Transaction) => any;
   onOpenReceiptForm?: (transaction: Transaction) => any;
   onRemoveForm?: (transaction: Transaction) => any;
+  canUpdate?: boolean;
+  canDelete?: boolean;
 }) => {
   const transaction = row.original;
   //find the target of transaction
@@ -383,6 +407,7 @@ const DetailFundledgerTab = ({
         <div className="flex-1" />
         <Button
           variant={"green"}
+          className={cn(canUpdate ? "" : "hidden")}
           onClick={(e) => {
             if (transaction.formType === FormType.RECEIPT) {
               if (onOpenReceiptForm) onOpenReceiptForm(transaction);
@@ -407,7 +432,9 @@ const DetailFundledgerTab = ({
             });
             setOpenConfirmDialog(true);
           }}
-          className={cn(transaction.linkFormId === -1 ? "visible" : "hidden")}
+          className={cn(
+            transaction.linkFormId === -1 && canDelete ? "" : "hidden",
+          )}
         >
           <Trash size={16} className="mr-2" />
           Remove
