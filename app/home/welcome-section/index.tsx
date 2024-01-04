@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-const Hero = () => {
+const WelcomeSection = () => {
   return (
     <>
       <section
@@ -18,7 +18,7 @@ const Hero = () => {
                   Welcome to MStore: Simplifying Store Management
                 </h1>
                 <p className="text-body-color mb-12 text-base font-medium !leading-relaxed dark:text-white dark:opacity-90 sm:text-lg md:text-xl">
-                  Managing your store has never been easier. StoreEase is your
+                  Managing your store has never been easier. MStore is your
                   all-in-one solution, designed to streamline your operations,
                   delight your customers, and boost your sales.
                 </p>
@@ -286,4 +286,4 @@ const Hero = () => {
   );
 };
 
-export default Hero;
+export default WelcomeSection;

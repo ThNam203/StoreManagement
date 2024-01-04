@@ -1,4 +1,4 @@
-import { Feature } from "@/types/feature";
+import { Feature } from "../types/feature";
 
 const featuresData: Feature[] = [
   {
@@ -61,12 +61,13 @@ const featuresData: Feature[] = [
         stroke-width="2"
         stroke-linecap="round"
         stroke-linejoin="round"
-        className="lucide lucide-scroll-text"
+        className="lucide lucide-git-fork"
       >
-        <path d="M8 21h12a2 2 0 0 0 2-2v-2H10v2a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v3h4" />
-        <path d="M19 17V5a2 2 0 0 0-2-2H4" />
-        <path d="M15 8h-5" />
-        <path d="M15 12h-5" />
+        <circle cx="12" cy="18" r="3" />
+        <circle cx="6" cy="6" r="3" />
+        <circle cx="18" cy="6" r="3" />
+        <path d="M18 9v2c0 .6-.4 1-1 1H7c-.6 0-1-.4-1-1V9" />
+        <path d="M12 12v3" />
       </svg>
     ),
     title: "Order Management",
@@ -100,17 +101,27 @@ const featuresData: Feature[] = [
   {
     id: 5,
     icon: (
-      <svg width="40" height="40" viewBox="0 0 40 40" className="fill-current">
-        <path
-          opacity="0.5"
-          d="M39 12C39.5523 12 40 12.4477 40 13V39C40 39.5523 39.5523 40 39 40H13C12.4477 40 12 39.5523 12 39V33C12 32.4477 12.4477 32 13 32H31C31.5523 32 32 31.5523 32 31V13C32 12.4477 32.4477 12 33 12H39Z"
-        />
-        <rect width="28" height="28" rx="1" />
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        className="lucide lucide-scroll-text"
+      >
+        <path d="M8 21h12a2 2 0 0 0 2-2v-2H10v2a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v3h4" />
+        <path d="M19 17V5a2 2 0 0 0-2-2H4" />
+        <path d="M15 8h-5" />
+        <path d="M15 12h-5" />
       </svg>
     ),
-    title: "Multi-Platform Compatibility",
+    title: "Reporting and Insights",
     paragraph:
-      "Access StoreEase from anywhere, on any device. Whether you're in-store or on-the-go, manage your store hassle-free.",
+      "Track key performance indicators (KPIs), monitor staff productivity, and assess the effectiveness of your marketing campaigns with customizable reports.",
   },
   {
     id: 6,
