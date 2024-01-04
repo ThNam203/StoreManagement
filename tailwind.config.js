@@ -35,7 +35,7 @@ module.exports = {
           foreground: "hsl(var(--primary-foreground))",
         },
         current: "currentColor",
-        dark: "#1D2144",
+        dark: "#090e34",
         purple: "#4A6CF7",
         yellow: "#FBB040",
         secondary: {

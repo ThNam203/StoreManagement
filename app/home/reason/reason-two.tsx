@@ -1,7 +1,7 @@
 import Image from "next/image";
 import SectionTitle from "../components/section-title";
 
-const AboutSectionTwo = () => {
+const ReasonTwo = () => {
   return (
     <section className="py-16 md:py-20 lg:py-28">
       <div className="container">
@@ -55,4 +55,4 @@ const AboutSectionTwo = () => {
   );
 };
 
-export default AboutSectionTwo;
+export default ReasonTwo;

@@ -14,18 +14,11 @@ const Footer = () => {
               <div className="mb-12 max-w-[360px] lg:mb-16">
                 <Link href="/" className="mb-8 inline-block">
                   <Image
-                    src="images/logo/logo-2.svg"
+                    src="/web_avatar.png"
                     alt="logo"
-                    className="w-full dark:hidden"
-                    width={140}
-                    height={30}
-                  />
-                  <Image
-                    src="images/logo/logo.svg"
-                    alt="logo"
-                    className="hidden w-full dark:block"
-                    width={140}
-                    height={30}
+                    className="h-[40px] w-[50px] dark:block"
+                    width={100}
+                    height={100}
                   />
                 </Link>
                 <p className="text-body-color mb-9 text-base font-medium leading-relaxed">
@@ -203,16 +196,6 @@ const Footer = () => {
                 </ul>
               </div>
             </div>
-          </div>
-        </div>
-        <div className="bg-purple/10 py-8">
-          <div className="container">
-            <p className="text-body-color text-center text-base dark:text-white">
-              Template by UIdeck and{" "}
-              <a href="https://nextjstemplates.com" rel="nofollow noopener">
-                Next.js Templates
-              </a>
-            </p>
           </div>
         </div>
         <div className="absolute right-0 top-14 z-[-1]">

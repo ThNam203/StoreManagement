@@ -1,23 +1,19 @@
 "use client";
 
-import { disablePreloader } from "@/reducers/preloaderReducer";
-import AboutSectionOne from "./reason/AboutSectionOne";
-import AboutSectionTwo from "./reason/reason-choose";
-import Features from "./features";
-import Hero from "./first-section/first-section";
 import ScrollUp from "./components/scroll-up";
-import { useDispatch } from "react-redux";
-import Header from "./header";
-import Footer from "./footer";
+import Features from "./features";
+import ReasonOne from "./reason/reason-one";
+import ReasonTwo from "./reason/reason-two";
+import WelcomeSection from "./welcome-section";
 
 export default function HomePage() {
   return (
     <>
       <ScrollUp />
-      <Hero />
+      <WelcomeSection />
       <Features />
-      <AboutSectionOne />
-      <AboutSectionTwo />
+      <ReasonOne />
+      <ReasonTwo />
     </>
   );
 }
