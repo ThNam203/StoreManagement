@@ -52,6 +52,7 @@ import CustomerService from "@/services/customerService";
 import { setCustomers } from "@/reducers/customersReducer";
 import SupplierService from "@/services/supplierService";
 import { setSuppliers } from "@/reducers/suppliersReducer";
+import Image from "next/image";
 
 export default function FundLedger() {
   const dispatch = useAppDispatch();

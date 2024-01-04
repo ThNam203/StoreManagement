@@ -7,6 +7,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
 import { DailyShift, Shift } from "@/entities/Attendance";
 import { useAppDispatch, useAppSelector } from "@/hooks";
+import { cn } from "@/lib/utils";
+import PageBackground from "@/public/page_bg.svg";
 import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
 import {
   addDailyShifts,
@@ -17,8 +19,12 @@ import {
   updateDailyShifts,
   updateShift,
 } from "@/reducers/shiftReducer";
+import { setRewards } from "@/reducers/shiftRewardReducer";
+import { setViolations } from "@/reducers/shiftViolationReducer";
+import { setStaffs } from "@/reducers/staffReducer";
 import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import ShiftService from "@/services/shift_service";
+import StaffService from "@/services/staff_service";
 import { getStaticRangeFilterTime } from "@/utils";
 import {
   convertDailyShiftReceived,
@@ -26,22 +32,15 @@ import {
   convertShiftReceived,
   convertShiftToSent,
 } from "@/utils/shiftApiUtils";
-import { FileDown, Plus } from "lucide-react";
+import { convertStaffReceived } from "@/utils/staffApiUtils";
+import { Plus } from "lucide-react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { DisplayType, Table } from "./attendance_table";
 import { ButtonGroup } from "../../../../../components/ui/attendance/button_group";
 import { MyDateRangePicker } from "../../../../../components/ui/attendance/my_date_range_picker";
 import { SetTimeDialog } from "../../../../../components/ui/attendance/set_time_dialog";
-import { convertStaffReceived } from "@/utils/staffApiUtils";
-import StaffService from "@/services/staff_service";
-import { setStaffs } from "@/reducers/staffReducer";
-import { setViolations } from "@/reducers/shiftViolationReducer";
-import { setRewards } from "@/reducers/shiftRewardReducer";
-import { useRouter } from "next/navigation";
-import { cn } from "@/lib/utils";
-import RoleService from "@/services/role_service";
-import { convertRoleReceived } from "@/utils/roleSettingApiUtils";
-import { setRoles } from "@/reducers/roleReducer";
+import { DisplayType, Table } from "./attendance_table";
 
 export default function Attendance() {
   const dispatch = useAppDispatch();
@@ -257,6 +256,15 @@ export default function Attendance() {
 
   return (
     <div className="flex flex-col gap-4 text-sm">
+      {/* <div className="absolute bottom-0 left-0 right-0">
+        <Image
+          src={PageBackground}
+          alt="shape"
+          width={500}
+          height={500}
+          className="w-full"
+        />
+      </div> */}
       <div className="flex flex-row items-center justify-between">
         <div className="flex flex-row items-center gap-4">
           <MyDateRangePicker

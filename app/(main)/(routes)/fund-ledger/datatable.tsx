@@ -33,6 +33,8 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import Image from "next/image";
+// import PageBackground from "@/public/page_bg.svg";
 
 type Props = {
   data: Transaction[];
@@ -203,6 +205,15 @@ export function DataTable({ data, onSubmit }: Props) {
 
   return (
     <div className="flex flex-col">
+      {/* <div className="absolute bottom-0 left-0 right-0">
+        <Image
+          src={PageBackground}
+          alt="shape"
+          width={500}
+          height={500}
+          className="w-full"
+        />
+      </div> */}
       <div className="flex w-full flex-row items-center justify-end gap-12">
         <div className="flex flex-col items-end">
           <span>Total receipt</span>
