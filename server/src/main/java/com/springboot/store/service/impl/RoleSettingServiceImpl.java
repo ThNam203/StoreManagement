@@ -65,15 +65,7 @@ public class RoleSettingServiceImpl implements RoleSettingService {
         int storeId = staffService.getAuthorizedStaff().getStore().getId();
         List<RoleSetting> roleSettings = roleSettingRepository.findByStoreId(storeId);
 
-        List<RoleSettingDTO> result = new ArrayList<>();
-        for (RoleSetting roleSetting : roleSettings) {
-            if (roleSetting.getStaffPosition().getName().equals("Owner")) {
-                continue;
-            }
-            RoleSettingDTO roleSettingDTO = modelMapper.map(roleSetting, RoleSettingDTO.class);
-            result.add(roleSettingDTO);
-        }
-        return result;
+        return roleSettings.stream().map(roleSetting -> modelMapper.map(roleSetting, RoleSettingDTO.class)).toList();
     }
 
     @Override
