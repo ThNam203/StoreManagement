@@ -68,7 +68,7 @@ export default function InvoicePage() {
   const [statusCondition, setStatusCondition] = useState("All");
 
   useEffect(() => {
-    let filteredValues = handleChoiceFilters(filterConditions, suppliers);
+    let filteredValues = handleChoiceFilters(filterConditions, suppliers.filter((supplier) => !supplier.isDeleted));
     filteredValues = filteredValues.filter((supplier) => {
       if (statusCondition !== "All" && supplier.status !== statusCondition) {
         return false;

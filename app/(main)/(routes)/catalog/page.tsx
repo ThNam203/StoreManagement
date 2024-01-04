@@ -174,12 +174,10 @@ export default function Catalog() {
     }));
   };
 
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>(
-    products.filter((product) => !product.isDeleted),
-  );
+  const [filteredProducts, setFilteredProducts] = useState(products);
 
   useEffect(() => {
-    let filteredList = [...products];
+    let filteredList = products.filter((product) => !product.isDeleted);
     filteredList = handleChoiceFilters(filterConditions, filteredList);
 
     filteredList = filteredList.filter((product) => {
