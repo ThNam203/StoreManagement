@@ -80,7 +80,7 @@ export default function LogIn() {
   }
 
   return (
-    <div className="flex h-auto flex-col rounded-md p-8 shadow-2xl shadow-blue-300">
+    <div className="flex h-auto flex-col rounded-md p-8 shadow-[0px_0px_10px_3px_#94a3b8]">
       <h4 className="text-lg font-bold">Log in</h4>
       <p className="mb-6 text-sm text-gray-500">
         to continue to start using website
