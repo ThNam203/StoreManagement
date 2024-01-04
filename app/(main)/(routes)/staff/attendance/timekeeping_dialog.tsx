@@ -699,7 +699,7 @@ export function TimeKeepingDialog({
                     variant={"red"}
                     className={cn(
                       "mr-3 gap-1",
-                      canDeleteAttendance ? "" : "hidden",
+                      canUpdateAttendance ? "" : "hidden",
                     )}
                     disabled={isAdding || isRemoving}
                   >
