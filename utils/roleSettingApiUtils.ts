@@ -214,7 +214,6 @@ export const convertRoleReceived = (value: any) => {
     positionName: value.staffPositionName,
     roleSetting: roleSetting,
   };
-  console.log("received", converted);
   return converted;
 };
 

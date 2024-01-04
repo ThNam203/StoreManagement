@@ -39,6 +39,9 @@ import { report } from "process";
 import { ReturnInvoiceServer } from "@/entities/ReturnInvoice";
 import { Invoice } from "@/entities/Invoice";
 import { faker } from "@faker-js/faker";
+import RoleService from "@/services/role_service";
+import { setRoles } from "@/reducers/roleReducer";
+import { convertRoleReceived } from "@/utils/roleSettingApiUtils";
 
 const notifications = [
   {
@@ -232,7 +235,7 @@ export default function OverviewPage() {
       };
       if (reportData.length === 0) {
         reportData.push({ ...filledDataReport });
-        reportData.push();
+        reportData.push({ ...filledDataReport});
       } else if (reportData.length === 1) {
         if (
           new Date(reportData[0].date).setHours(0, 0, 0, 0) ===
@@ -382,9 +385,6 @@ export default function OverviewPage() {
               <h2 className="my-2 text-3xl font-bold">
                 {saleProfitReport[1].costPrice} VND
               </h2>
-              <h2 className="my-2 text-3xl font-bold">
-                {saleProfitReport[1].costPrice} VND
-              </h2>
               <p className="text-xs text-gray-500">
                 <span
                   className={cn(
@@ -418,7 +418,7 @@ export default function OverviewPage() {
         >
           <div className="flex w-full flex-row items-center">
             <h3 className="start font-bold uppercase">
-              Doanh thu thuần hôm nay
+              {getChartLabel()}
             </h3>
             {/* <ArrowRightCircle
               size={16}

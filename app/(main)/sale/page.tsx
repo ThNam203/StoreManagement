@@ -324,7 +324,7 @@ export default function Sale() {
         <div className="flex h-[calc(35px+1rem)] flex-row items-center px-2">
         <TooltipProvider>
           <Tooltip>
-            <TooltipTrigger asChild>
+            <TooltipTrigger asChild onClick={() => router.back()}>
               <Undo2 size={32} color="white" className="p-1 hover:cursor-pointer hover:bg-black hover:bg-opacity-40 rounded-full" />
             </TooltipTrigger>
             <TooltipContent>
@@ -486,6 +486,8 @@ const InvoiceView = ({
   const [customerSearch, setCustomerSearch] = useState("");
   const [chosenCustomer, setChosenCustomer] = useState<Customer | null>(null);
   const [openCompleteSheet, setOpenCompleteSheet] = useState(false);
+  const profile = useAppSelector((state) => state.profile.value);
+  const storeInfo = useAppSelector((state) => state.store.information);
 
   const onSubmitInvoice = async () => {
     if (exceedStockDetailIds.length > 0)
@@ -505,7 +507,7 @@ const InvoiceView = ({
         deleteInvoice(invoice.id);
         setChosenCustomer(null);
         dispatch(addInvoice(response.data)); // add to sold invoices
-        createInvoicePdf(submitInvoice, products);
+        createInvoicePdf(submitInvoice, products, profile!, storeInfo!);
       })
       .catch((e) => {
         axiosUIErrorHandler(e, toast, router);

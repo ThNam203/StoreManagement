@@ -14,6 +14,8 @@ import {
   Font,
 } from "@react-pdf/renderer";
 import { Product } from "@/entities/Product";
+import { Staff } from "@/entities/Staff";
+import { Store } from "@/entities/Store";
 
 Font.register({
   family: "OpenSansv2",
@@ -69,7 +71,7 @@ const pdfStyleSheet = StyleSheet.create({
   },
 });
 
-const createInvoicePdf = async (invoice: Invoice, products: Product[]) => {
+const createInvoicePdf = async (invoice: Invoice, products: Product[], staff: Staff, storeInfo: Store) => {
   const InvoiceView = () => (
     <Document>
       <Page size="A4" style={pdfStyleSheet.page}>
@@ -80,17 +82,17 @@ const createInvoicePdf = async (invoice: Invoice, products: Product[]) => {
               <Text style={pdfStyleSheet.descriptionTitle}>
                 Invoice&apos;s id:{" "}
               </Text>
-              <Text>123123123</Text>
+              <Text>{invoice.id}</Text>
             </View>
             <View style={{ display: "flex", flexDirection: "row" }}>
               <Text style={pdfStyleSheet.descriptionTitle}>Staff: </Text>
-              <Text>Nam Huynh</Text>
+              <Text>{staff.name}</Text>
             </View>
           </View>
           <View style={pdfStyleSheet.secondDescription}>
             <View style={{ display: "flex", flexDirection: "row" }}>
               <Text style={pdfStyleSheet.descriptionTitle}>Issued date: </Text>
-              <Text>{format(parseISO(invoice.createdAt), "dd/MM/yyyy")}</Text>
+              <Text>{format(parseISO(invoice.createdAt), "MM/dd/yyyy")}</Text>
             </View>
             <View style={{ display: "flex", flexDirection: "row" }}>
               <Text style={pdfStyleSheet.descriptionTitle}>Issued time: </Text>
@@ -170,7 +172,7 @@ const createInvoicePdf = async (invoice: Invoice, products: Product[]) => {
           </Text>
           <Text style={{ fontWeight: 400 }}>{invoice.total}</Text>
         </View>
-        <Text>Limited Liability Company 4 Members@Inc</Text>
+        <Text>{storeInfo?.name ?? "Limited Liability Company 4 Members@Inc"}</Text>
         <Text>Thank you customer!</Text>
         <Text>See you soon!</Text>
       </Page>

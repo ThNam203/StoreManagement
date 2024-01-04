@@ -1,23 +1,22 @@
-import { Invoice } from "@/entities/Invoice";
-import { format, parseISO } from "date-fns";
 import OpenSansLight from "@/public/fonts/OpenSans-Light.ttf";
-import OpenSansSemiBold from "@/public/fonts/OpenSans-SemiBold.ttf";
 import OpenSansMedium from "@/public/fonts/OpenSans-Medium.ttf";
+import { format, parseISO } from "date-fns";
 
-import {
-  Page,
-  Text,
-  View,
-  Document,
-  StyleSheet,
-  pdf,
-  Font,
-} from "@react-pdf/renderer";
 import { Product } from "@/entities/Product";
 import {
-  ReturnInvoiceClient,
-  ReturnInvoiceServer,
+  ReturnInvoiceClient
 } from "@/entities/ReturnInvoice";
+import {
+  Document,
+  Font,
+  Page,
+  StyleSheet,
+  Text,
+  View,
+  pdf,
+} from "@react-pdf/renderer";
+import { Staff } from "@/entities/Staff";
+import { Store } from "@/entities/Store";
 
 Font.register({
   family: "OpenSansv2",
@@ -76,28 +75,30 @@ const pdfStyleSheet = StyleSheet.create({
 const createInvoicePdf = async (
   invoice: ReturnInvoiceClient,
   products: Product[],
+  staff: Staff,
+  storeInfo: Store
 ) => {
   const InvoiceView = () => (
     <Document>
       <Page size="A4" style={pdfStyleSheet.page}>
-        <Text style={pdfStyleSheet.invoiceTitle}>Invoice</Text>
+        <Text style={pdfStyleSheet.invoiceTitle}>Return Invoice</Text>
         <View style={pdfStyleSheet.description}>
           <View style={pdfStyleSheet.firstDescription}>
             <View style={{ display: "flex", flexDirection: "row" }}>
               <Text style={pdfStyleSheet.descriptionTitle}>
                 Invoice&apos;s id:{" "}
               </Text>
-              <Text>123123123</Text>
+              <Text>{invoice.id}</Text>
             </View>
             <View style={{ display: "flex", flexDirection: "row" }}>
               <Text style={pdfStyleSheet.descriptionTitle}>Staff: </Text>
-              <Text>Nam Huynh</Text>
+              <Text>{staff.name}</Text>
             </View>
           </View>
           <View style={pdfStyleSheet.secondDescription}>
             <View style={{ display: "flex", flexDirection: "row" }}>
               <Text style={pdfStyleSheet.descriptionTitle}>Issued date: </Text>
-              <Text>{format(parseISO(invoice.createdAt), "dd/MM/yyyy")}</Text>
+              <Text>{format(parseISO(invoice.createdAt), "MM/dd/yyyy")}</Text>
             </View>
             <View style={{ display: "flex", flexDirection: "row" }}>
               <Text style={pdfStyleSheet.descriptionTitle}>Issued time: </Text>
@@ -175,7 +176,7 @@ const createInvoicePdf = async (
           </Text>
           <Text style={{ fontWeight: 400 }}>{invoice.total}</Text>
         </View>
-        <Text>Limited Liability Company 4 Members@Inc</Text>
+        <Text>{storeInfo.name ?? "Limited Liability Company 4 Members@Inc"}</Text>
         <Text>Thank you customer!</Text>
         <Text>See you soon!</Text>
       </Page>

@@ -69,6 +69,8 @@ import { useRouter } from "next/navigation";
 import { setProfile } from "@/reducers/profileReducer";
 import { Button } from "../button";
 import AuthService from "@/services/authService";
+import UpdateStoreInformationDialog from "@/components/component/updateStoreInfoDialog";
+import { convertRoleReceived } from "@/utils/roleSettingApiUtils";
 
 enum IconNames {
   GanttChartSquare,
@@ -307,27 +309,29 @@ const SideBar = ({
   const dispatch = useDispatch();
   const router = useRouter();
   const profile = useAppSelector((state) => state.profile.value);
-  console.log("thisAccount", profile);
+  const roles = useAppSelector((state) => state.role.value);
+  console.log('roles', roles, profile)
+  const userPermissions = roles?.find(
+    (role) => role.positionName === profile?.position,
+  )!.roleSetting;
+
+  const storeInfo = useAppSelector((state) => state.store.information);
   const [openProfileDialog, setOpenProfileDialog] = useState(false);
 
   const updateOwner = async (value: Staff, avatar: File | null) => {
     try {
       const staffToSent = convertStaffToSent(value, "owner");
-      console.log("value to update", staffToSent);
       const dataForm: any = new FormData();
       dataForm.append(
         "data",
         new Blob([JSON.stringify(staffToSent)], { type: "application/json" }),
       );
-      console.log("avatar to update", avatar);
       dataForm.append("file", avatar);
-      console.log("dataForm", dataForm);
       const staffResult = await StaffService.updateStaff(
         staffToSent.id,
         dataForm,
       );
       const staffReceived = convertStaffReceived(staffResult.data);
-      console.log("staffReceived", staffReceived);
       dispatch(setProfile(staffReceived));
       return Promise.resolve();
     } catch (e) {
@@ -434,7 +438,9 @@ const SideBar = ({
                 <h4 className="max-w-[85px] break-words text-start text-sm font-medium">
                   {profile?.name ?? "NAME NOT FOUND"}
                 </h4>
-                <p className="flex-wrap text-start text-xs opacity-75">{profile?.position ?? "POSITION NOT FOUND"}</p>
+                <p className="flex-wrap text-start text-xs opacity-75">
+                  {profile?.position ?? "POSITION NOT FOUND"}
+                </p>
               </div>
             </AccordionTrigger>
             <AccordionContent>
@@ -486,134 +492,172 @@ const SideBar = ({
           </AccordionItem>
         </Accordion>
 
-        <SideBarButton
-          iconName={IconNames.Percent}
-          title="Sale in-store"
-          className="border border-blue-400"
-          isCollapsed={isCollapsed}
-          href="/sale"
-        />
+        {userPermissions.invoice.create && (
+          <SideBarButton
+            iconName={IconNames.Percent}
+            title="Sale in-store"
+            className="border border-blue-400"
+            isCollapsed={isCollapsed}
+            href="/sale"
+          />
+        )}
 
-        <SideBarButton
-          iconName={IconNames.Eye}
-          title="Overview"
-          className=""
-          isCollapsed={isCollapsed}
-          href="/overview"
-        />
+        {userPermissions.overview.read && (
+          <SideBarButton
+            iconName={IconNames.Eye}
+            title="Overview"
+            className=""
+            isCollapsed={isCollapsed}
+            href="/overview"
+          />
+        )}
 
-        <SideBarAccordion
-          iconName={IconNames.Box}
-          title="Products"
-          buttons={[
-            <SideBarButton
-              key={1}
-              iconName={IconNames.Group}
-              title="Catalog"
-              className="!w-full"
+        {userPermissions.catalog.read ||
+          userPermissions.discount.read ||
+          userPermissions.stockCheck.read ?
+            <SideBarAccordion
+              iconName={IconNames.Box}
+              title="Products"
+              buttons={[
+                <SideBarButton
+                  key={1}
+                  iconName={IconNames.Group}
+                  title="Catalog"
+                  className={
+                    cn("!w-full ", userPermissions.catalog.read ? "" : " hidden")
+                  }
+                  isCollapsed={isCollapsed}
+                  href="/catalog"
+                />,
+                <SideBarButton
+                  key={2}
+                  iconName={IconNames.PercentCircle}
+                  title="Discount"
+                  className={
+                    cn("!w-full ", userPermissions.discount.read ? "" : " hidden")
+                  }
+                  isCollapsed={isCollapsed}
+                  href="/discount"
+                />,
+                <SideBarButton
+                  key={3}
+                  iconName={IconNames.PenSquare}
+                  title="Stock Check"
+                  className={
+                    cn("!w-full ", userPermissions.stockCheck.read ? "" : " hidden")
+                  }
+                  isCollapsed={isCollapsed}
+                  href="/stock-check"
+                />,
+              ]}
               isCollapsed={isCollapsed}
-              href="/catalog"
-            />,
-            <SideBarButton
-              key={2}
-              iconName={IconNames.PercentCircle}
-              title="Discount"
-              className="!w-full"
-              isCollapsed={isCollapsed}
-              href="/discount"
-            />,
-            <SideBarButton
-              key={3}
-              iconName={IconNames.PenSquare}
-              title="Stock Check"
-              className="!w-full"
-              isCollapsed={isCollapsed}
-              href="/stock-check"
-            />,
-          ]}
-          isCollapsed={isCollapsed}
-        />
+            />
+          : null}
 
-        <SideBarAccordion
-          iconName={IconNames.Receipt}
-          title="Transaction"
-          buttons={[
-            <SideBarButton
-              key={1}
-              iconName={IconNames.Receipt}
-              title="Invoices"
-              className="!w-full"
-              isCollapsed={isCollapsed}
-              href="/invoice"
-            />,
-            <SideBarButton
-              key={2}
-              iconName={IconNames.Undo}
-              title="Return"
-              className="!w-full"
-              isCollapsed={isCollapsed}
-              href="/return"
-            />,
-            <SideBarButton
-              key={3}
-              iconName={IconNames.BaggageClaim}
-              title="Purchase Orders"
-              className="!w-full"
-              isCollapsed={isCollapsed}
-              href="/purchase-order"
-            />,
-            <SideBarButton
-              key={4}
-              iconName={IconNames.ArrowUpSquare}
-              title="Purchase Returns"
-              className="!w-full"
-              isCollapsed={isCollapsed}
-              href="/purchase-return"
-            />,
-            <SideBarButton
-              key={5}
-              iconName={IconNames.PackageX}
-              title="Damaged Items"
-              className="!w-full"
-              isCollapsed={isCollapsed}
-              href="/damaged-item"
-            />,
-          ]}
-          isCollapsed={isCollapsed}
-        />
+        {userPermissions.invoice.read ||
+        userPermissions.returnInvoice.read ||
+        userPermissions.purchaseOrder.read ||
+        userPermissions.purchaseReturn.read ||
+        userPermissions.damageItems.read ? (
+          <SideBarAccordion
+            iconName={IconNames.Receipt}
+            title="Transaction"
+            buttons={[
+              <SideBarButton
+                key={1}
+                iconName={IconNames.Receipt}
+                title="Invoices"
+                className={
+                  cn("!w-full ", userPermissions.invoice.read ? "" : " hidden")
+                }
+                isCollapsed={isCollapsed}
+                href="/invoice"
+              />,
+              <SideBarButton
+                key={2}
+                iconName={IconNames.Undo}
+                title="Return"
+                className={
+                    cn("!w-full ", userPermissions.returnInvoice.read ? "" : " hidden")
+                }
+                isCollapsed={isCollapsed}
+                href="/return"
+              />,
+              <SideBarButton
+                key={3}
+                iconName={IconNames.BaggageClaim}
+                title="Purchase Orders"
+                className={
+                    cn("!w-full ", userPermissions.purchaseOrder.read ? "" : " hidden")
+                }
+                isCollapsed={isCollapsed}
+                href="/purchase-order"
+              />,
+              <SideBarButton
+                key={4}
+                iconName={IconNames.ArrowUpSquare}
+                title="Purchase Returns"
+                className={
+                    cn("!w-full ", userPermissions.purchaseReturn.read ? "" : " hidden")
+                }
+                isCollapsed={isCollapsed}
+                href="/purchase-return"
+              />,
+              <SideBarButton
+                key={5}
+                iconName={IconNames.PackageX}
+                title="Damaged Items"
+                className={
+                  cn("!w-full ", userPermissions.damageItems.read ? "" : " hidden")
+                }
+                isCollapsed={isCollapsed}
+                href="/damaged-item"
+              />,
+            ]}
+            isCollapsed={isCollapsed}
+          />
+        ) : null}
 
-        <SideBarButton
-          iconName={IconNames.BankNote}
-          title="Fund Ledger"
-          className=""
-          isCollapsed={isCollapsed}
-          href="/fund-ledger"
-        />
+        {userPermissions.fundLedger && (
+          <SideBarButton
+            iconName={IconNames.BankNote}
+            title="Fund Ledger"
+            className=""
+            isCollapsed={isCollapsed}
+            href="/fund-ledger"
+          />
+        )}
 
-        <SideBarAccordion
-          iconName={IconNames.Users}
-          title="Partners"
-          buttons={[
-            // SideBarButton("User2", "Customer group", "!w-full", isCollapsed={isCollapsed}, "/partner/customer_group"),
-            <SideBarButton
-              key={1}
-              iconName={IconNames.User}
-              title="Customers"
-              className="!w-full"
-              isCollapsed={isCollapsed}
-              href="/customer"
-            />,
-            <SideBarButton
-              key={2}
-              iconName={IconNames.Truck}
-              title="Supplier"
-              className="!w-full"
-              isCollapsed={isCollapsed}
-              href="/supplier"
-            />,
-          ]}
-          isCollapsed={isCollapsed}
-        />
+        {userPermissions.customer.read || userPermissions.supplier.read ? (
+          <SideBarAccordion
+            iconName={IconNames.Users}
+            title="Partners"
+            buttons={[
+              // SideBarButton("User2", "Customer group", "!w-full", isCollapsed={isCollapsed}, "/partner/customer_group"),
+              <SideBarButton
+                key={1}
+                iconName={IconNames.User}
+                title="Customers"
+                className={
+                  cn("!w-full ", userPermissions.customer.read ? "" : " hidden")
+                }
+                isCollapsed={isCollapsed}
+                href="/customer"
+              />,
+              <SideBarButton
+                key={2}
+                iconName={IconNames.Truck}
+                title="Supplier"
+                className={
+                  cn("!w-full ", userPermissions.supplier.read ? "" : " hidden")
+                }
+                isCollapsed={isCollapsed}
+                href="/supplier"
+              />,
+            ]}
+            isCollapsed={isCollapsed}
+          />
+        ) : null}
 
         {/* <SideBarButton
           iconName={IconNames.Settings}
@@ -655,91 +699,101 @@ const SideBar = ({
           isCollapsed={isCollapsed}
         />
 
+        {userPermissions.report.read && (
+          <SideBarAccordion
+            iconName={IconNames.BarChart3}
+            title="Reports"
+            buttons={[
+              <SideBarButton
+                key={1}
+                title="Sale Transaction"
+                className="!w-full"
+                isCollapsed={isCollapsed}
+                href="/report/sale-transaction"
+              />,
+              <SideBarButton
+                key={2}
+                title="Profit By Day"
+                className="!w-full"
+                isCollapsed={isCollapsed}
+                href="/report/sale-profit-by-day"
+              />,
+              <SideBarButton
+                key={3}
+                title="Revenue By Staff"
+                className="!w-full"
+                isCollapsed={isCollapsed}
+                href="/report/revenue-by-staff"
+              />,
+              // <SideBarButton
+              //   key={8}
+              //   title="Products"
+              //   className="!w-full"
+              //   isCollapsed={isCollapsed}
+              //   href="/report/product"
+              // />,
+              <SideBarButton
+                key={4}
+                title="Products"
+                className="!w-full"
+                isCollapsed={isCollapsed}
+                href="/report/products"
+              />,
+              // <SideBarButton
+              //   key={5}
+              //   title="Product Sale"
+              //   className="!w-full"
+              //   isCollapsed={isCollapsed}
+              //   href="/report/product-sale"
+              // />,
+              <SideBarButton
+                key={6}
+                title="Sale By Day"
+                className="!w-full"
+                isCollapsed={isCollapsed}
+                href="/report/sale-by-day"
+              />,
+              <SideBarButton
+                key={7}
+                title="Customer"
+                className="!w-full"
+                isCollapsed={isCollapsed}
+                href="/report/customer"
+              />,
+              <SideBarButton
+                key={9}
+                title="Finance"
+                className="!w-full"
+                isCollapsed={isCollapsed}
+                href="/report/finance"
+              />,
+              <SideBarButton
+                key={10}
+                title="Supply Transaction"
+                className="!w-full"
+                isCollapsed={isCollapsed}
+                href="/report/supply-transaction"
+              />,
+            ]}
+            isCollapsed={isCollapsed}
+          />
+        )}
 
-<SideBarAccordion
-          iconName={IconNames.BarChart3}
-          title="Reports"
-          buttons={[
-            <SideBarButton
-              key={1}
-              title="Sale Transaction"
-              className="!w-full"
-              isCollapsed={isCollapsed}
-              href="/report/sale-transaction"
-            />,
-            <SideBarButton
-              key={2}
-              title="Profit By Day"
-              className="!w-full"
-              isCollapsed={isCollapsed}
-              href="/report/sale-profit-by-day"
-            />,
-            <SideBarButton
-              key={3}
-              title="Revenue By Staff"
-              className="!w-full"
-              isCollapsed={isCollapsed}
-              href="/report/revenue-by-staff"
-            />,
-            // <SideBarButton
-            //   key={8}
-            //   title="Products"
-            //   className="!w-full"
-            //   isCollapsed={isCollapsed}
-            //   href="/report/product"
-            // />,
-            <SideBarButton
-              key={4}
-              title="Products"
-              className="!w-full"
-              isCollapsed={isCollapsed}
-              href="/report/products"
-            />,
-            // <SideBarButton
-            //   key={5}
-            //   title="Product Sale"
-            //   className="!w-full"
-            //   isCollapsed={isCollapsed}
-            //   href="/report/product-sale"
-            // />,
-            <SideBarButton
-              key={6}
-              title="Sale By Day"
-              className="!w-full"
-              isCollapsed={isCollapsed}
-              href="/report/sale-by-day"
-            />,
-            <SideBarButton
-              key={7}
-              title="Customer"
-              className="!w-full"
-              isCollapsed={isCollapsed}
-              href="/report/customer"
-            />,
-            <SideBarButton
-              key={9}
-              title="Finance"
-              className="!w-full"
-              isCollapsed={isCollapsed}
-              href="/report/finance"
-            />,
-            <SideBarButton
-              key={10}
-              title="Supply Transaction"
-              className="!w-full"
-              isCollapsed={isCollapsed}
-              href="/report/supply-transaction"
-            />,
-          ]}
-          isCollapsed={isCollapsed}
-        />
-        <SideBarButton
-          iconName={IconNames.Settings}
-          title="Settings"
-          className=""
-          isCollapsed={isCollapsed}
-          href="/settings"
-        />
+        {(storeInfo && profile?.position === "owner") ||
+        profile?.position === "Owner" ? (
+          <UpdateStoreInformationDialog
+            DialogTrigger={
+              <SideBarButton
+                iconName={IconNames.Settings}
+                title="Settings"
+                className=""
+                isCollapsed={isCollapsed}
+                href="#"
+              />
+            }
+            storeInfo={storeInfo!}
+          />
+        ) : null}
       </div>
       <AddStaffDialog
         data={profile!}

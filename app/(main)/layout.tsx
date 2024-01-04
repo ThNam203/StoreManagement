@@ -17,6 +17,11 @@ import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 import { convertStaffReceived } from "@/utils/staffApiUtils";
+import StoreService from "@/services/storeService";
+import { setStoreInformation } from "@/reducers/storeReducer";
+import RoleService from "@/services/role_service";
+import { setRoles } from "@/reducers/roleReducer";
+import { convertRoleReceived } from "@/utils/roleSettingApiUtils";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
@@ -33,20 +38,26 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 
 const GlobalState = ({ children }: { children: React.ReactNode }) => {
   const [gotUserInfo, setGotUserInfo] = useState(false);
-  const toast = useToast();
+  const { toast } = useToast();
   const router = useRouter();
   const dispatch = useAppDispatch();
   useEffect(() => {
-    const getUserInfo = async () => {
+    const getGlobalData = async () => {
       const profile = await ProfileService.getProfile();
       const convertedProfile = convertStaffReceived(profile.data);
       dispatch(setProfile(convertedProfile));
+
+      const storeInfo = await StoreService.getStoreInformation();
+      dispatch(setStoreInformation(storeInfo.data));
+
+      const rolesCall = await RoleService.getAllRoles();
+      const convertedRoles = rolesCall.data.map(convertRoleReceived);
+      dispatch(setRoles(convertedRoles));
     };
 
-    getUserInfo()
-      .then(() => {})
-      .catch((e) => axiosUIErrorHandler(e, toast, router))
-      .finally(() => setGotUserInfo(true));
+    getGlobalData()
+      .then(() => setGotUserInfo(true))
+      .catch((e) => axiosUIErrorHandler(e, toast, router));
   }, []);
 
   if (!gotUserInfo) return <GlobalPreloader />;

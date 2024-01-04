@@ -1,9 +1,22 @@
+import { Store } from "@/entities/Store";
+import { useAppDispatch } from "@/hooks";
+import { cn } from "@/lib/utils";
+import { updateStoreInformation } from "@/reducers/storeReducer";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
+import StoreService from "@/services/storeService";
+import scrollbar_style from "@/styles/scrollbar.module.css";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { format } from "date-fns";
+import { X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import z from "zod";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogTrigger,
+} from "../ui/alert-dialog";
 import { Button } from "../ui/button";
-import LoadingCircle from "../ui/loading_circle";
 import {
   Form,
   FormControl,
@@ -12,32 +25,12 @@ import {
   FormLabel,
   FormMessage,
 } from "../ui/form";
-import { Textarea } from "../ui/textarea";
-import scrollbar_style from "@/styles/scrollbar.module.css";
-import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
-import { Label } from "../ui/label";
 import { Input } from "../ui/input";
-import SearchAndChooseButton from "../ui/catalog/search_filter";
-import { cn } from "@/lib/utils";
-import { X } from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogTrigger,
-} from "../ui/alert-dialog";
-import { useEffect, useState } from "react";
-import { useAppDispatch, useAppSelector } from "@/hooks";
-import { axiosUIErrorHandler } from "@/services/axiosUtils";
+import LoadingCircle from "../ui/loading_circle";
+import { Textarea } from "../ui/textarea";
 import { useToast } from "../ui/use-toast";
-import AddNewThing from "../ui/add_new_thing_dialog";
-import SupplierService from "@/services/supplierService";
-import { addSupplierGroup } from "@/reducers/supplierGroupsReducer";
-import { addSupplier, updateSupplier } from "@/reducers/suppliersReducer";
-import { Supplier } from "@/entities/Supplier";
-import { useRouter } from "next/navigation";
 
-const updateSupplierFormSchema = z.object({
-  id: z.number(),
+const updateStoreFormSchema = z.object({
   name: z
     .string()
     .trim()
@@ -59,38 +52,35 @@ const updateSupplierFormSchema = z.object({
     .trim()
     .max(100, { message: "Address must be at most 100 characters!" })
     .optional(),
-  status: z.enum(["Active", "Disabled"]),
   description: z.string(),
-  companyName: z.string(),
-  supplierGroupName: z.string().min(1, "Missing group!").nullable(),
 });
 
-export default function UpdateSupplierDialog({
+export default function UpdateStoreInformationDialog({
   DialogTrigger,
   triggerClassname,
-  supplier,
+  storeInfo,
 }: {
   DialogTrigger: JSX.Element;
   triggerClassname?: string;
-  supplier: Supplier;
+  storeInfo: Store;
 }) {
-  const [isUpdatingSupplier, setIsUpdatingSupplier] = useState(false);
+  const [isUpdatingStore, setIsUpdatingStore] = useState(false);
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { toast } = useToast();
 
-  const onSubmit = (values: z.infer<typeof updateSupplierFormSchema>) => {
+  const onSubmit = (values: z.infer<typeof updateStoreFormSchema>) => {
     const data: any = values;
-    setIsUpdatingSupplier(true);
-    SupplierService.updateSupplier(data)
+    setIsUpdatingStore(true);
+    StoreService.updateStoreInformation(data)
       .then((result) => {
-        dispatch(updateSupplier(result.data));
+        dispatch(updateStoreInformation(result.data));
         setOpen(false);
       })
       .catch((error) => axiosUIErrorHandler(error, toast, router))
       .finally(() => {
-        setIsUpdatingSupplier(false);
+        setIsUpdatingStore(false);
       });
   };
 
@@ -110,7 +100,7 @@ export default function UpdateSupplierDialog({
           )}
         >
           <div className="mb-2 flex flex-row items-center justify-between">
-            <h3 className="text-base font-semibold">Update supplier</h3>
+            <h3 className="text-base font-semibold">Update store information</h3>
             <X
               size={24}
               className="rounded-full p-1 hover:cursor-pointer hover:bg-slate-200"
@@ -120,9 +110,9 @@ export default function UpdateSupplierDialog({
           <div className="flex-1">
             <FormContent
               onSubmit={onSubmit}
-              isUpdatingNewSupplier={isUpdatingSupplier}
+              isUpdatingStoreInfo={isUpdatingStore}
               setOpen={setOpen}
-              supplier={supplier}
+              storeInfo={storeInfo}
             />
           </div>
         </div>
@@ -134,35 +124,18 @@ export default function UpdateSupplierDialog({
 const FormContent = ({
   onSubmit,
   setOpen,
-  isUpdatingNewSupplier,
-  supplier,
+  isUpdatingStoreInfo,
+  storeInfo,
 }: {
   onSubmit: (values: any) => any;
   setOpen: (value: boolean) => any;
-  isUpdatingNewSupplier: boolean;
-  supplier: Supplier;
+  isUpdatingStoreInfo: boolean;
+  storeInfo: Store;
 }) => {
-  const { toast } = useToast();
-  const router = useRouter();
-  const supplierGroups = useAppSelector((state) => state.supplierGroups.value);
-  const form = useForm<z.infer<typeof updateSupplierFormSchema>>({
-    resolver: zodResolver(updateSupplierFormSchema),
-    defaultValues: { ...supplier },
+  const form = useForm<z.infer<typeof updateStoreFormSchema>>({
+    resolver: zodResolver(updateStoreFormSchema),
+    defaultValues: { ...storeInfo },
   });
-
-  const dispatch = useAppDispatch();
-  const [openNewSupplierGroupDialog, setOpenNewSupplierGroupDialog] =
-    useState(false);
-  const addNewSupplierGroup = async (groupName: string) => {
-    try {
-      const data = await SupplierService.uploadSupplierGroup(groupName);
-      dispatch(addSupplierGroup(data.data));
-      return Promise.resolve();
-    } catch (e) {
-      axiosUIErrorHandler(e, toast, router);
-      return Promise.reject(e);
-    }
-  };
 
   return (
     <Form {...form}>
@@ -179,7 +152,7 @@ const FormContent = ({
             <FormItem className="mb-2 flex flex-row">
               <FormLabel className="flex w-[150px] flex-col justify-center text-black">
                 <div className="flex flex-row items-center gap-2">
-                  <h5 className="text-sm">Supplier name</h5>
+                  <h5 className="text-sm">Store name</h5>
                 </div>
                 <FormMessage className="mr-2 text-xs" />
               </FormLabel>
@@ -240,91 +213,6 @@ const FormContent = ({
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="supplierGroupName"
-          render={({ field }) => (
-            <FormItem className="mb-2 flex flex-row">
-              <FormLabel className="flex w-[150px] flex-col justify-center text-black">
-                <div className="flex flex-row items-center gap-2">
-                  <h5 className="text-sm">Supplier group</h5>
-                </div>
-                <FormMessage className="mr-2 text-xs" />
-              </FormLabel>
-              <FormControl>
-                <div className="!m-0 flex min-h-[40px] flex-1 flex-row items-center rounded-md border border-input">
-                  <div className="h-full w-full flex-1">
-                    <SearchAndChooseButton
-                      value={field.value}
-                      placeholder="---Choose group---"
-                      searchPlaceholder="Search group..."
-                      onValueChanged={(val) => {
-                        form.setValue("supplierGroupName", val, {
-                          shouldValidate: true,
-                        });
-                      }}
-                      choices={supplierGroups.map((v) => v.name)}
-                    />
-                  </div>
-                  <AddNewThing
-                    title="Add new supplier group"
-                    placeholder="Group's name"
-                    open={openNewSupplierGroupDialog}
-                    onOpenChange={setOpenNewSupplierGroupDialog}
-                    onAddClick={addNewSupplierGroup}
-                  />
-                </div>
-              </FormControl>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="companyName"
-          render={({ field }) => (
-            <FormItem className="mb-2 flex flex-row">
-              <FormLabel className="flex min-w-[150px] max-w-[150px] flex-col justify-center text-black">
-                <div className="flex flex-row items-center gap-2">
-                  <h5 className="text-sm">Company</h5>
-                </div>
-                <FormMessage className="mr-2 text-xs" />
-              </FormLabel>
-              <FormControl>
-                <Input className="!m-0 flex-1" {...field} />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="status"
-          render={({ field }) => (
-            <FormItem className="mb-3 flex flex-row">
-              <FormLabel className="flex w-[150px] flex-col justify-center text-black">
-                <div className="flex flex-row items-center gap-2">
-                  <h5 className="text-sm">Status</h5>
-                </div>
-                <FormMessage className="mr-2 text-xs" />
-              </FormLabel>
-              <FormControl>
-                <RadioGroup
-                  defaultValue={field.value}
-                  onValueChange={field.onChange}
-                  className="flex flex-row"
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Active" id="r1" />
-                    <Label htmlFor="r1">Active</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Disabled" id="r2" />
-                    <Label htmlFor="r2">Disabled</Label>
-                  </div>
-                </RadioGroup>
-              </FormControl>
-            </FormItem>
-          )}
-        />
         <div className="mb-4 rounded-sm border">
           <FormField
             control={form.control}
@@ -352,11 +240,11 @@ const FormContent = ({
             variant={"green"}
             type="submit"
             className="min-w-[150px] px-4 uppercase"
-            disabled={isUpdatingNewSupplier}
+            disabled={isUpdatingStoreInfo}
           >
             Save
             <LoadingCircle
-              className={"ml-4 !w-4 " + (isUpdatingNewSupplier ? "" : "hidden")}
+              className={"ml-4 !w-4 " + (isUpdatingStoreInfo ? "" : "hidden")}
             />
           </Button>
           <Button
@@ -368,7 +256,7 @@ const FormContent = ({
               e.preventDefault();
               setOpen(false);
             }}
-            disabled={isUpdatingNewSupplier}
+            disabled={isUpdatingStoreInfo}
           >
             Cancel
           </Button>
