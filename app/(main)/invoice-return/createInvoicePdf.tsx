@@ -17,6 +17,7 @@ import {
 } from "@react-pdf/renderer";
 import { Staff } from "@/entities/Staff";
 import { Store } from "@/entities/Store";
+import { Customer } from "@/entities/Customer";
 
 Font.register({
   family: "OpenSansv2",
@@ -76,7 +77,7 @@ const createInvoicePdf = async (
   invoice: ReturnInvoiceClient,
   products: Product[],
   staff: Staff,
-  storeInfo: Store
+  storeInfo: Store,
 ) => {
   const InvoiceView = () => (
     <Document>

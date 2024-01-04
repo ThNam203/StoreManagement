@@ -51,6 +51,8 @@ export default function InvoiceReturnPage() {
   const products = useAppSelector((state) => state.products.value);
   const customers = useAppSelector((state) => state.customers.value);
   const discounts = useAppSelector((state) => state.discounts.value);
+  const storeInfo = useAppSelector((state) => state.store.information);
+  const profile = useAppSelector((state) => state.profile.value);
 
   // include original invoice and modified using returnedInvoices that have been returned before
   // use to define maxQuantity that can return and discountValue is the total discount value that have been returned
@@ -175,7 +177,7 @@ export default function InvoiceReturnPage() {
     setIsCompletingReturn(true);
     await ReturnInvoiceService.uploadReturnInvoice(submitInvoice)
       .then((response) => {
-        createInvoicePdf(returnInvoice!, products);
+        createInvoicePdf(returnInvoice!, products, profile!, storeInfo!);
         router.back();
       })
       .catch((e) => {
@@ -322,7 +324,7 @@ export default function InvoiceReturnPage() {
       <div className="m-2 ml-0 flex shrink grow basis-1/3 flex-col rounded-md bg-white p-2">
         <p className="ml-4">{returnInvoice.createdAt}</p>
         <div className="flex flex-1 flex-col gap-4 px-4">
-          <p className="text-xl font-bold">GUEST</p>
+          {/* <p className="text-xl font-bold">{ ?? "GUEST"}</p> */}
           <div className="flex flex-row items-center justify-between">
             <p>Total original purchase</p>
             <p>{returnInvoice.subTotal}</p>

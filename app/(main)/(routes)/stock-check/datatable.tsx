@@ -220,24 +220,6 @@ const DetailTab = ({
           <PenLine size={16} fill="white" className="mr-2" />
           Update
         </Button>
-        <Button
-          variant={"red"}
-          onClick={(e) => {
-            setDisableDeleteButton(true);
-            StockCheckService.deleteStockCheck(stockCheck.id)
-              .then((result) => {
-                dispatch(deleteStockCheck(stockCheck.id));
-                setShowInfoRow(false);
-              })
-              .catch((error) => axiosUIErrorHandler(error, toast, router))
-              .finally(() => setDisableDeleteButton(false));
-          }}
-          disabled={disableDeleteButton || disableDisableButton}
-        >
-          <Trash size={16} className="mr-2" />
-          Delete
-          {disableDeleteButton ? <LoadingCircle /> : null}
-        </Button>
       </div>
     </>
   );

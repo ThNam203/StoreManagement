@@ -339,6 +339,7 @@ const SideBar = ({
       return Promise.reject(e);
     }
   };
+  
   const handleUpdateStaff = (value: Staff, avatar: File | null) => {
     return updateOwner(value, avatar).then(() => {
       toast({

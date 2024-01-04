@@ -223,7 +223,7 @@ const DetailInvoiceTab = ({
             Return
           {disableDeleteButton ? <LoadingCircle /> : null}
         </Button>
-        <Button
+        {/* <Button
           variant={"red"}
           onClick={(e) => {
             setDisableDeleteButton(true);
@@ -240,7 +240,7 @@ const DetailInvoiceTab = ({
           <Trash size={16} className="mr-2" />
           Delete
           {disableDeleteButton ? <LoadingCircle /> : null}
-        </Button>
+        </Button> */}
       </div>
     </div>
   );

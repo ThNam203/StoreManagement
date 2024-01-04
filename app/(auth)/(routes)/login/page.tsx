@@ -80,33 +80,11 @@ export default function LogIn() {
   }
 
   return (
-    <div className="flex h-auto flex-col rounded-md p-8 shadow-2xl">
+    <div className="flex h-auto flex-col rounded-md p-8 shadow-2xl shadow-blue-300">
       <h4 className="text-lg font-bold">Log in</h4>
       <p className="mb-6 text-sm text-gray-500">
         to continue to start using website
       </p>
-      <Button
-        variant={"ghost"}
-        className="group border border-solid border-slate-200"
-      >
-        <Image
-          width={20}
-          height={20}
-          src={"/ic_google_144x144.svg"}
-          alt="Log in using google"
-        />
-        <span className="mx-8">Log in using Google</span>
-        <ArrowRightCircle
-          width={16}
-          height={16}
-          className="invisible text-gray-500 group-hover:visible"
-        />
-      </Button>
-      <div className="m-4 flex flex-row items-center justify-center">
-        <Separator className="flex-1" />
-        <p className="flex-[0.5] text-center text-sm text-gray-500">or</p>
-        <Separator className="flex-1" />
-      </div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <FormField
@@ -116,7 +94,7 @@ export default function LogIn() {
               <FormItem>
                 <FormLabel className="text-black">Email address</FormLabel>
                 <FormControl>
-                  <Input className="w-full" {...field} />
+                  <Input className="w-[300px]" {...field} />
                 </FormControl>
                 <FormMessage className="text-xs" />
               </FormItem>

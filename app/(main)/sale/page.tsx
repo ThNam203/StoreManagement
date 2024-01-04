@@ -507,7 +507,7 @@ const InvoiceView = ({
         deleteInvoice(invoice.id);
         setChosenCustomer(null);
         dispatch(addInvoice(response.data)); // add to sold invoices
-        createInvoicePdf(submitInvoice, products, profile!, storeInfo!);
+        createInvoicePdf(submitInvoice, products, profile!, storeInfo!, chosenCustomer);
       })
       .catch((e) => {
         axiosUIErrorHandler(e, toast, router);
@@ -799,7 +799,7 @@ const InvoiceView = ({
               <p className="ml-4">{invoice.createdAt}</p>
             </SheetHeader>
             <div className="flex flex-1 flex-col gap-4 px-4">
-              <p className="text-xl font-bold">GUEST</p>
+              <p className="text-xl font-bold">{chosenCustomer?.name ?? "GUEST"}</p>
               <div className="flex flex-row items-center justify-between">
                 <p>Sub total</p>
                 <p>{invoice.subTotal}</p>
