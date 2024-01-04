@@ -133,7 +133,6 @@ const AttendanceTable = ({
                 shift={shift}
                 rangeDate={rangeDate}
                 displayType={displayType}
-                canCreateAttendance={canCreateAttendance}
                 canUpdateAttendance={canUpdateAttendance}
                 canDeleteAttendance={canDeleteAttendance}
                 handleOpenSetTimeDialog={handleOpenSetTimeDialog}
@@ -288,7 +287,6 @@ const AttendanceDataRow = ({
   shift,
   rangeDate,
   displayType = "Week",
-  canCreateAttendance = false,
   canUpdateAttendance = false,
   canDeleteAttendance = false,
   handleOpenShiftDialog,
@@ -298,7 +296,6 @@ const AttendanceDataRow = ({
   shift: Shift;
   rangeDate: { startDate: Date; endDate: Date };
   displayType?: DisplayType;
-  canCreateAttendance?: boolean;
   canUpdateAttendance?: boolean;
   canDeleteAttendance?: boolean;
   handleOpenShiftDialog?: (value: Shift | null) => void;
@@ -318,7 +315,6 @@ const AttendanceDataRow = ({
         className={cn(CellStyle)}
         isInWorkingTime={isInWorkingTime}
         handleOpenShiftDialog={handleOpenShiftDialog}
-        canDeleteAttendance={canDeleteAttendance}
         canUpdateAttendance={canUpdateAttendance}
       />
       {formattedDailyShiftList.map((dailyShift, index) => {
@@ -329,9 +325,7 @@ const AttendanceDataRow = ({
             handleOpenSetTimeDialog={handleOpenSetTimeDialog}
             handleOpenTimeKeepingDialog={handleOpenTimeKeepingDialog}
             className={cn(CellStyle)}
-            canCreateAttendance={canCreateAttendance}
             canUpdateAttendance={canUpdateAttendance}
-            canDeleteAttendance={canDeleteAttendance}
           />
         );
       })}
@@ -417,14 +411,12 @@ const ShiftInfoCell = ({
   isInWorkingTime,
   handleOpenShiftDialog,
   canUpdateAttendance = false,
-  canDeleteAttendance = false,
 }: {
   shift: Shift;
   className?: string;
   isInWorkingTime?: boolean;
   handleOpenShiftDialog?: (values: Shift | null) => void;
   canUpdateAttendance?: boolean;
-  canDeleteAttendance?: boolean;
 }) => {
   let bgcolor = "";
   let pencilColor = "bg-gray-100";
@@ -474,16 +466,12 @@ const DataCell = ({
   maxItem = 2,
   handleOpenSetTimeDialog,
   handleOpenTimeKeepingDialog,
-  canCreateAttendance = false,
   canUpdateAttendance = false,
-  canDeleteAttendance = false,
 }: {
   data: DailyShift;
   className?: string;
   maxItem?: number;
-  canCreateAttendance?: boolean;
   canUpdateAttendance?: boolean;
-  canDeleteAttendance?: boolean;
   handleOpenSetTimeDialog?: (value: DailyShift | null) => void;
   handleOpenTimeKeepingDialog?: (
     value: AttendanceRecord,
@@ -577,16 +565,12 @@ const DataCell = ({
                 if (dataCell) {
                   const rect = dataCell.getBoundingClientRect();
                   const isNearBottom = window.innerHeight - rect.bottom < 200;
-                  console.log("rect bottom", rect.bottom);
-                  console.log("window.innerHeight", window.innerHeight);
-                  console.log("isNearBottom", isNearBottom);
 
                   if (isNearBottom) {
                     setAnchorPosition("bottom");
                   } else {
                     setAnchorPosition("top");
                   }
-                  console.log("anchorPosition", anchorPosition);
                 }
               }}
             >
