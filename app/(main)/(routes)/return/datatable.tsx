@@ -210,7 +210,7 @@ const DetailInvoiceTab = ({
           </div>
         </div>
       </div>
-      <div className="flex flex-row items-center gap-2">
+      {/* <div className="flex flex-row items-center gap-2">
         <div className="flex-1" />
         <Button
           variant={"green"}
@@ -241,7 +241,7 @@ const DetailInvoiceTab = ({
           Delete
           {disableDeleteButton ? <LoadingCircle /> : null}
         </Button>
-      </div>
+      </div> */}
     </div>
   );
 };

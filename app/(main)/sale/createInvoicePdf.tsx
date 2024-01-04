@@ -16,6 +16,7 @@ import {
 import { Product } from "@/entities/Product";
 import { Staff } from "@/entities/Staff";
 import { Store } from "@/entities/Store";
+import { Customer } from "@/entities/Customer";
 
 Font.register({
   family: "OpenSansv2",
@@ -71,7 +72,13 @@ const pdfStyleSheet = StyleSheet.create({
   },
 });
 
-const createInvoicePdf = async (invoice: Invoice, products: Product[], staff: Staff, storeInfo: Store) => {
+const createInvoicePdf = async (
+  invoice: Invoice,
+  products: Product[],
+  staff: Staff,
+  storeInfo: Store,
+  chosenCustomer: Customer | null,
+) => {
   const InvoiceView = () => (
     <Document>
       <Page size="A4" style={pdfStyleSheet.page}>
@@ -172,7 +179,9 @@ const createInvoicePdf = async (invoice: Invoice, products: Product[], staff: St
           </Text>
           <Text style={{ fontWeight: 400 }}>{invoice.total}</Text>
         </View>
-        <Text>{storeInfo?.name ?? "Limited Liability Company 4 Members@Inc"}</Text>
+        <Text>
+          {storeInfo?.name ?? "Limited Liability Company 4 Members@Inc"}
+        </Text>
         <Text>Thank you customer!</Text>
         <Text>See you soon!</Text>
       </Page>

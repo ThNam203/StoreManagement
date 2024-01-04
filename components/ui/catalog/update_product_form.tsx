@@ -760,7 +760,12 @@ export const UpdateProductView = ({
                                               )}
                                             </div>
                                           </PopoverTrigger>
-                                          <PopoverContent className="p-0">
+                                          <PopoverContent
+                                            className={cn(
+                                              "max-h-[200px] overflow-auto p-0",
+                                              scrollbar_style.scrollbar,
+                                            )}
+                                          >
                                             {productPropertyChoices.map(
                                               (choice, choiceIndex) => {
                                                 return (
@@ -1077,13 +1082,12 @@ const AddNewThing = ({
             Done
             {isLoading ? <LoadingCircle /> : null}
           </Button>
-          <AlertDialogCancel
-            className={
-              "!h-[35px] bg-red-400 text-white hover:bg-red-500 hover:text-white"
-            }
-            disabled={isLoading}
+          <AlertDialogCancel asChild
           >
-            Cancel
+            <Button variant={"green"}>
+              Cancel
+
+            </Button>
           </AlertDialogCancel>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -1148,13 +1152,11 @@ const ButtonAddNewThing = ({
             Done
             {isLoading ? <LoadingCircle /> : null}
           </Button>
-          <AlertDialogCancel
-            className={
-              "!h-[35px] bg-red-400 text-white hover:bg-red-500 hover:text-white"
-            }
-            disabled={isLoading}
-          >
-            Cancel
+          
+          <AlertDialogCancel asChild>
+            <Button variant={"red"} disabled={isLoading}>
+              Cancel
+            </Button>
           </AlertDialogCancel>
         </AlertDialogFooter>
       </AlertDialogContent>
