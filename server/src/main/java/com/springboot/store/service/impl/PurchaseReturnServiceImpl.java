@@ -143,6 +143,11 @@ public class PurchaseReturnServiceImpl implements PurchaseReturnService {
     @Override
     public void deletePurchaseReturn(int id) {
         PurchaseReturn purchaseReturn = purchaseReturnRepository.findById(id).orElseThrow(() -> new CustomException("Purchase return not found", HttpStatus.NOT_FOUND));
+        purchaseReturn.getPurchaseReturnDetails().forEach(purchaseReturnDetail -> {
+            Product product = productRepository.findById(purchaseReturnDetail.getProduct().getId()).orElseThrow(() -> new CustomException("Product not found", HttpStatus.NOT_FOUND));
+            product.setStock(product.getStock() + purchaseReturnDetail.getQuantity());
+            productRepository.save(product);
+        });
         purchaseReturnRepository.delete(purchaseReturn);
         activityLogService.save("deleted a purchase return with id " + id, staffService.getAuthorizedStaff().getId(), new Date());
     }
