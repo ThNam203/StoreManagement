@@ -24,6 +24,7 @@ import CustomerService from "@/services/customerService";
 import UpdateCustomerDialog from "@/components/component/update_customer_dialog";
 import { deleteCustomer } from "@/reducers/customersReducer";
 import { useRouter } from "next/navigation";
+import { format } from "date-fns";
 
 export function CustomerDatatable({ data }: { data: Customer[] }) {
   const { toast } = useToast();
@@ -107,7 +108,7 @@ const DetailCustomerTab = ({
             </div>
             <div className="mb-2 flex flex-row border-b font-medium">
               <p className="w-[120px] font-normal">Date of birth:</p>
-              {customer.birthday}
+              {format(new Date(customer.birthday), "MM/dd/yyyy")}
             </div>
             <div className="mb-2 flex flex-row border-b font-medium">
               <p className="w-[120px] font-normal">Email:</p>

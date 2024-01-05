@@ -118,6 +118,14 @@ function getNewInvoice(): Invoice {
   };
 }
 
+function isSameDay(d1: Date, d2: Date) {
+  return (
+    d1.getFullYear() === d2.getFullYear() &&
+    d1.getMonth() === d2.getMonth() &&
+    d1.getDate() === d2.getDate()
+  );
+}
+
 const ProductSearchItemView: (product: Product) => React.ReactNode = (
   product: Product,
 ) => {
@@ -630,20 +638,22 @@ const InvoiceView = ({
               variant: "destructive",
               description: "Invalid discount code",
             });
+          if (!isSameDay(new Date(), new Date(discountInfo.endDate))) {
+            if (isBefore(new Date(), new Date(discountInfo.startDate)))
+              return toast({
+                variant: "destructive",
+                description: "Discount code is not yet available",
+              });
+            if (isBefore(new Date(discountInfo.endDate), new Date()))
+              return toast({
+                variant: "destructive",
+                description: "Discount code is expired",
+              });
+          }
           if (discountCodeInfo.usedDate !== null)
             return toast({
               variant: "destructive",
               description: "Discount code is already used",
-            });
-          if (isBefore(new Date(), new Date(discountInfo.startDate)))
-            return toast({
-              variant: "destructive",
-              description: "Discount code is not yet available",
-            });
-          if (isBefore(new Date(discountInfo.endDate), new Date()))
-            return toast({
-              variant: "destructive",
-              description: "Discount code is expired",
             });
 
           updateInvoice({
