@@ -8,32 +8,24 @@ export const discountsSlice = createSlice({
   },
   reducers: {
     setDiscounts: (state, action: PayloadAction<Discount[]>) => {
-      const payload = action.payload;
-      payload.forEach((discount) => {
-        discount.startDate += "T00:00:00"
-        discount.endDate += "T23:59:59"
-      })
-      state.value = payload
+      state.value = action.payload;
     },
     addDiscount: (state, action: PayloadAction<Discount>) => {
       state.value.push(action.payload);
     },
     deleteDiscount: (state, action: PayloadAction<number>) => {
       state.value = state.value.filter(
-        (invoice) => invoice.id !== action.payload
+        (invoice) => invoice.id !== action.payload,
       );
     },
     updateDiscount: (state, action: PayloadAction<Discount>) => {
       state.value = state.value.map((invoice) =>
-        invoice.id === action.payload.id ? action.payload : invoice
+        invoice.id === action.payload.id ? action.payload : invoice,
       );
     },
   },
 });
 
-export const { setDiscounts,
-    addDiscount,
-    deleteDiscount,
-    updateDiscount } =
-    discountsSlice.actions;
+export const { setDiscounts, addDiscount, deleteDiscount, updateDiscount } =
+  discountsSlice.actions;
 export default discountsSlice.reducer;

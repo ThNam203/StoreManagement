@@ -30,10 +30,17 @@ function defaultColumn<T>(
       const value: ReactNode = row.getValue(accessorKey);
       let formatedValue: ReactNode = "";
       if (value instanceof Date) formatedValue = formatDate(value, "datetime");
-      if ((accessorKey === "createdAt" || accessorKey === "createdDate" || accessorKey === "issuedDate" || accessorKey === "usedDate") && new Date(String(value)) instanceof Date) {
-         formatedValue = format(new Date(String(value)), "MM/dd/yyyy");
-      }
       else if (
+        (accessorKey === "createdAt" ||
+          accessorKey === "createdDate" ||
+          accessorKey === "issuedDate" ||
+          accessorKey === "usedDate") &&
+        value !== null &&
+        value !== undefined &&
+        new Date(String(value)) instanceof Date
+      ) {
+        formatedValue = format(new Date(String(value)), "MM/dd/yyyy");
+      } else if (
         typeof value === "number" &&
         accessorKey !== "phoneNumber" &&
         accessorKey !== "cccd"
