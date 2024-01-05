@@ -102,8 +102,8 @@ export default function NewDiscountForm({
 
     const data: UploadDiscountDataType = {
       ...values,
-      startDate: format(values.time.startDate, "yyyy-MM-dd"),
-      endDate: format(values.time.endDate, "yyyy-MM-dd"),
+      startDate: values.time.startDate.toISOString(),
+      endDate: values.time.endDate.toISOString(),
       maxValue: values.type === "COUPON" ? values.maxValue : null,
     };
 
