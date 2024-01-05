@@ -31,7 +31,7 @@ function defaultColumn<T>(
       let formatedValue: ReactNode = "";
       if (value instanceof Date) formatedValue = formatDate(value, "datetime");
       if ((accessorKey === "createdAt" || accessorKey === "createdDate" || accessorKey === "issuedDate" || accessorKey === "usedDate") && new Date(String(value)) instanceof Date) {
-         formatedValue = formatDate(new Date(String(value)), "datetime");
+         formatedValue = format(new Date(String(value)), "MM/dd/yyyy");
       }
       else if (
         typeof value === "number" &&
