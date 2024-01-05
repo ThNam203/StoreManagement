@@ -121,7 +121,7 @@ export type SupplyTransactionReport = {
   totalReturn: number;
   purchaseOrders: PurchaseOrder[];
   purchaseReturns: PurchaseReturn[];
-};
+}[];
 
 export type PurchaseOrder = {
   id: number;

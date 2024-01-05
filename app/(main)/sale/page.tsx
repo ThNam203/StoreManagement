@@ -174,7 +174,7 @@ export default function Sale() {
   const [isCompletingInvoice, setIsCompletingInvoice] = useState(false);
   const [productSearch, setProductSearch] = useState("");
   const [showScanner, setShowScanner] = useState(false);
-  const products = useAppSelector((state) => state.products.value);
+  const products = useAppSelector((state) => state.products.activeProducts);
   const customers = useAppSelector((state) => state.customers.value);
   const discounts = useAppSelector((state) => state.discounts.value);
   const dispatch = useAppDispatch();

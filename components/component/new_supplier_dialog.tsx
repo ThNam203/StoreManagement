@@ -50,7 +50,7 @@ const newSupplierFormSchema = z.object({
   phoneNumber: z
     .string({ required_error: "Phone number is missing" })
     .trim()
-    .min(1, { message: "Missing group!" })
+    .min(1, { message: "Missing phone number!" })
     .max(10, { message: "Phone number must be at most 10 characters!" }),
   address: z
     .string()

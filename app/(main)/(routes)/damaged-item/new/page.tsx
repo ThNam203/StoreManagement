@@ -72,8 +72,6 @@ export default function NewPurchaseOrderPage() {
   const { toast } = useToast();
 
   const staffs = useAppSelector((state) => state.staffs.value);
-  const suppliers = useAppSelector((state) => state.suppliers.value);
-  // TODO: staff not nullable
   const profile = useAppSelector((state) => state.profile.value);
   const [staff, setStaff] = useState<Staff | null>(profile);
   const [createdDate, setCreatedDate] = useState<Date>(new Date());
@@ -116,12 +114,14 @@ export default function NewPurchaseOrderPage() {
 
   const onDetailQuantityChanged = (productId: number, newQuantity: number) => {
     if (isNaN(newQuantity) || newQuantity < 0) newQuantity = 0;
+    const maxQuantity = (products.find(p => p.id === productId)?.stock ?? 0);
+    if (newQuantity > maxQuantity) newQuantity = maxQuantity;
     setDetails((prev) =>
       prev.map((detail) => {
         return detail.productId === productId
           ? {
               ...detail,
-              quantity: newQuantity,
+              damagedQuantity: newQuantity,
             }
           : detail;
       }),
@@ -216,7 +216,6 @@ export default function NewPurchaseOrderPage() {
           columns={purchaseReturnDetailTableColumns(
             onDetailQuantityChanged,
             onDetailNoteChanged,
-            onDetailReturnPriceChanged,
             products
           )}
           columnTitles={purchaseReturnDetailColumnTitles}
