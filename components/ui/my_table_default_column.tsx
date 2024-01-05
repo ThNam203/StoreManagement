@@ -30,6 +30,9 @@ function defaultColumn<T>(
       const value: ReactNode = row.getValue(accessorKey);
       let formatedValue: ReactNode = "";
       if (value instanceof Date) formatedValue = formatDate(value, "datetime");
+      if ((accessorKey === "createdAt" || accessorKey === "createdDate") && new Date(String(value)) instanceof Date) {
+         formatedValue = formatDate(new Date(String(value)), "datetime");
+      }
       else if (
         typeof value === "number" &&
         accessorKey !== "phoneNumber" &&

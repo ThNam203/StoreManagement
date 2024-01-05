@@ -188,12 +188,12 @@ export default function OverviewPage() {
       const invoiceValues = invoicesByHour.map((invoices) =>
         invoices
           .map((invoice) => invoice.total)
-          .reduce((acc, cur) => acc + cur, 0),
+          .reduce((acc, cur) => acc + cur, 0)
       );
       const returnValues = returnsByHour.map((invoices) =>
         invoices
           .map((invoice) => invoice.total)
-          .reduce((acc, cur) => acc + cur, 0),
+          .reduce((acc, cur) => acc + cur, 0)
       );
       return invoiceValues.map((value, index) => value - returnValues[index]);
     }

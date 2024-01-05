@@ -211,7 +211,7 @@ const DetailTab = ({
           </div>
         </div>
       </div>
-      <div className="flex flex-row items-center gap-2">
+      {/* <div className="flex flex-row items-center gap-2">
         <div className="flex-1" />
         <Button
           variant={"green"}
@@ -221,7 +221,7 @@ const DetailTab = ({
           <PenLine size={16} fill="white" className="mr-2" />
           Update
         </Button>
-      </div>
+      </div> */}
     </>
   );
 };
