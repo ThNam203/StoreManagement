@@ -30,6 +30,8 @@ import { setStaffs } from "@/reducers/staffReducer";
 import CustomerService from "@/services/customerService";
 import { setCustomers } from "@/reducers/customersReducer";
 import { PAYMENT_METHODS } from "@/entities/Invoice";
+import ProductService from "@/services/productService";
+import { setProducts } from "@/reducers/productsReducer";
 
 export default function InvoicePage() {
   const router = useRouter();
@@ -62,6 +64,9 @@ export default function InvoicePage() {
 
       const customers = await CustomerService.getAllCustomers();
       dispatch(setCustomers(customers.data));
+
+      const products = await ProductService.getAllProducts();
+      dispatch(setProducts(products.data));
     };
 
     fetchData()

@@ -42,6 +42,7 @@ import { faker } from "@faker-js/faker";
 import RoleService from "@/services/role_service";
 import { setRoles } from "@/reducers/roleReducer";
 import { convertRoleReceived } from "@/utils/roleSettingApiUtils";
+import { convertStaffReceived } from "@/utils/staffApiUtils";
 
 const notifications = [
   {
@@ -223,8 +224,10 @@ export default function OverviewPage() {
       previousDay.setHours(0, 0, 0, 0);
 
       const staffCall = await StaffService.getAllStaffs();
-      // const convertedStaff = staffCall.data.map((staff) => convertedStaffReceived(staff));
-      dispatch(setStaffs(staffCall.data));
+      const convertedStaff = staffCall.data.map((staff) =>
+        convertStaffReceived(staff),
+      );
+      dispatch(setStaffs(convertedStaff));
       const invoicesCall = await InvoiceService.getAllInvoices();
       const invoices = invoicesCall.data;
 

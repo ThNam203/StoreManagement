@@ -322,16 +322,20 @@ export default function Sale() {
       ) : null}
       <div className="flex h-screen w-screen flex-col bg-blue-500">
         <div className="flex h-[calc(35px+1rem)] flex-row items-center px-2">
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild onClick={() => router.back()}>
-              <Undo2 size={32} color="white" className="p-1 hover:cursor-pointer hover:bg-black hover:bg-opacity-40 rounded-full" />
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Go back</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild onClick={() => router.back()}>
+                <Undo2
+                  size={32}
+                  color="white"
+                  className="rounded-full p-1 hover:cursor-pointer hover:bg-black hover:bg-opacity-40"
+                />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Go back</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
           <div className="mx-2 my-auto w-[400px] min-w-[250px] max-w-[400px] rounded-sm bg-white">
             <SearchView
               placeholder="Find products by id or name"
@@ -496,7 +500,9 @@ const InvoiceView = ({
           "Product exceeds stock, please check your product's quantity",
         variant: "destructive",
       });
+    invoice.createdAt = new Date().toISOString();
     const submitInvoice: any = JSON.parse(JSON.stringify(invoice));
+
     if (submitInvoice["id"]) delete submitInvoice.id;
     if (submitInvoice.invoiceDetails)
       submitInvoice.invoiceDetails.forEach((v: any) => delete v.id);
@@ -507,7 +513,13 @@ const InvoiceView = ({
         deleteInvoice(invoice.id);
         setChosenCustomer(null);
         dispatch(addInvoice(response.data)); // add to sold invoices
-        createInvoicePdf(submitInvoice, products, profile!, storeInfo!, chosenCustomer);
+        createInvoicePdf(
+          submitInvoice,
+          products,
+          profile!,
+          storeInfo!,
+          chosenCustomer,
+        );
       })
       .catch((e) => {
         axiosUIErrorHandler(e, toast, router);
@@ -799,7 +811,9 @@ const InvoiceView = ({
               <p className="ml-4">{invoice.createdAt}</p>
             </SheetHeader>
             <div className="flex flex-1 flex-col gap-4 px-4">
-              <p className="text-xl font-bold">{chosenCustomer?.name ?? "GUEST"}</p>
+              <p className="text-xl font-bold">
+                {chosenCustomer?.name ?? "GUEST"}
+              </p>
               <div className="flex flex-row items-center justify-between">
                 <p>Sub total</p>
                 <p>{invoice.subTotal}</p>

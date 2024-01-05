@@ -96,14 +96,18 @@ export default function UpdateDiscountForm({
       },
     },
   });
+  console.log("discount", discount, "convert", new Date(discount.startDate));
+  console.log("iso", new Date().toISOString());
+
+  console.log("form values", form.getValues());
 
   const onSubmit = (values: z.infer<typeof discountFormSchema>) => {
     setIsCreatingNewDiscount(true);
     const data: any = {
       ...discount,
       ...values,
-      startDate: format(values.time.startDate, "yyyy-MM-dd"),
-      endDate: format(values.time.endDate, "yyyy-MM-dd"),
+      startDate: values.time.startDate.toISOString(),
+      endDate: values.time.endDate.toISOString(),
       maxValue: values.type === "COUPON" ? values.maxValue : null,
     };
 
