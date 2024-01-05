@@ -16,6 +16,5 @@ public class ProductGroupDTO {
     private int id;
     private String name;
     private String description;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdAt;
 }

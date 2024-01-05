@@ -21,29 +21,28 @@ public class Invoice {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name ="cash")
+    @Column(name = "cash")
     private double cash;
 
-    @Column(name ="changed")
+    @Column(name = "changed")
     private double changed;
 
-    @Column(name ="sub_total")
+    @Column(name = "sub_total")
     private double subTotal;
 
-    @Column(name ="discount_value")
+    @Column(name = "discount_value")
     private double discountValue;
 
-    @Column(name ="total")
+    @Column(name = "total")
     private double total;
 
-    @Column(name ="payment_method")
+    @Column(name = "payment_method")
     private String paymentMethod;
 
-    @Column(name ="note")
+    @Column(name = "note")
     private String note;
 
-    @Column(name ="created_at")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Column(name = "created_at")
     private Date createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)

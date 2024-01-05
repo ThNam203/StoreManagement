@@ -29,14 +29,13 @@ public class SupplierGroup {
     @Column(name = "address")
     private String address;
 
-    @Column(name="company")
+    @Column(name = "company")
     private String company;
 
     @OneToMany(mappedBy = "supplierGroup")
     private List<Supplier> suppliers;
 
     @Column(name = "created_at")
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)

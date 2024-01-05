@@ -11,7 +11,6 @@ import java.util.Date;
 @NoArgsConstructor
 @Builder
 public class SalesReportWithProfit {
-    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date date;
     private double revenue;
     private double costPrice;

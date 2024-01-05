@@ -14,6 +14,5 @@ import java.util.Date;
 @Builder
 public class MessageDTO {
     private String message;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date date;
 }

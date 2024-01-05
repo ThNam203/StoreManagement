@@ -27,10 +27,7 @@ public class DiscountDTO {
     private Set<DiscountCodeDTO> discountCodes;
     private Set<Integer> productIds;
     private Set<String> productGroups;
-    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date startDate;
-    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date endDate;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdAt;
 }

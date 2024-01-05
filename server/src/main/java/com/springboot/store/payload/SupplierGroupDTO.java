@@ -17,7 +17,6 @@ public class SupplierGroupDTO {
     private String description;
     private String address;
     private String company;
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date createdAt;
     private Integer creatorId;
 }

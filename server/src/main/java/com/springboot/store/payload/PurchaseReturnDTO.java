@@ -17,7 +17,6 @@ public class PurchaseReturnDTO {
     private int discount;
     private int total;
     private String note;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdDate;
     private List<PurchaseReturnDetailDTO> purchaseReturnDetails;
     private Integer purchaseOrderId;
