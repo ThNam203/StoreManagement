@@ -114,7 +114,7 @@ export default function NewPurchaseOrderPage() {
 
   const onDetailQuantityChanged = (productId: number, newQuantity: number) => {
     if (isNaN(newQuantity) || newQuantity < 0) newQuantity = 0;
-    const maxQuantity = (products.find(p => p.id === productId)?.stock ?? 0);
+    const maxQuantity = products.find((p) => p.id === productId)?.stock ?? 0;
     if (newQuantity > maxQuantity) newQuantity = maxQuantity;
     setDetails((prev) =>
       prev.map((detail) => {
@@ -176,9 +176,11 @@ export default function NewPurchaseOrderPage() {
       });
 
     await DamagedItemService.uploadDamagedItemDocument({
-      products: details.filter((v) => v.damagedQuantity > 0).map((v) => ({ ...v })),
+      products: details
+        .filter((v) => v.damagedQuantity > 0)
+        .map((v) => ({ ...v })),
       note: note,
-      createdDate: format(createdDate, "yyyy-MM-dd HH:mm:ss"),
+      createdDate: createdDate.toISOString(),
       creatorId: staff.id,
     })
       .then((result) => {
@@ -216,7 +218,7 @@ export default function NewPurchaseOrderPage() {
           columns={purchaseReturnDetailTableColumns(
             onDetailQuantityChanged,
             onDetailNoteChanged,
-            products
+            products,
           )}
           columnTitles={purchaseReturnDetailColumnTitles}
           config={{
@@ -253,7 +255,9 @@ export default function NewPurchaseOrderPage() {
         </div>
         <div className="flex items-center justify-between">
           <p className="text-sm">Total quantity:</p>
-          <p>{details.map((v) => v.damagedQuantity).reduce((a, b) => a + b, 0)}</p>
+          <p>
+            {details.map((v) => v.damagedQuantity).reduce((a, b) => a + b, 0)}
+          </p>
         </div>
         <div className="flex items-center justify-between">
           <p className="text-sm">Total damaged value:</p>

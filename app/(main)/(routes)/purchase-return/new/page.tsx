@@ -120,7 +120,8 @@ export default function NewPurchaseOrderPage() {
 
   const onDetailQuantityChanged = (productId: number, newQuantity: number) => {
     if (isNaN(newQuantity) || newQuantity < 0) newQuantity = 0;
-    if (newQuantity > (products.find((p) => p.id === productId)?.stock ?? 0)) newQuantity = products.find((p) => p.id === productId)?.stock ?? 0;
+    if (newQuantity > (products.find((p) => p.id === productId)?.stock ?? 0))
+      newQuantity = products.find((p) => p.id === productId)?.stock ?? 0;
     setDetails((prev) =>
       prev.map((detail) => {
         return detail.productId === productId
@@ -162,9 +163,7 @@ export default function NewPurchaseOrderPage() {
   const deleteRows = async (data: NewPurchaseReturnDetail[]) => {
     const productIds = data.map((d) => d.productId);
     setDetails((prev) =>
-      prev.filter((detail) => 
-        !productIds.includes(detail.productId)
-      ),
+      prev.filter((detail) => !productIds.includes(detail.productId)),
     );
     return Promise.resolve();
   };
@@ -199,7 +198,7 @@ export default function NewPurchaseOrderPage() {
           .map((v) => v.returnPrice * v.quantity)
           .reduce((a, b) => a + b, 0) - discount,
       note: note,
-      createdDate: format(createdDate, "yyyy-MM-dd HH:mm:ss"),
+      createdDate: createdDate.toISOString(),
       staffId: staff.id,
       supplierId: supplier?.id,
     })
@@ -228,7 +227,7 @@ export default function NewPurchaseOrderPage() {
   );
 
   return (
-    <div className="flex flex-row gap-2 w-full">
+    <div className="flex w-full flex-row gap-2">
       <div className="flex flex-1 flex-col gap-2 bg-white p-4">
         <h2 className="my-4 text-start text-2xl font-bold">
           New purchase return
@@ -239,7 +238,7 @@ export default function NewPurchaseOrderPage() {
             onDetailQuantityChanged,
             onDetailNoteChanged,
             onDetailReturnPriceChanged,
-            products
+            products,
           )}
           columnTitles={purchaseReturnDetailColumnTitles}
           config={{

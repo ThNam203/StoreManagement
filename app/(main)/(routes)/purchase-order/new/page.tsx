@@ -183,7 +183,7 @@ export default function NewPurchaseOrderPage() {
           .map((v) => v.price * v.quantity - v.discount)
           .reduce((a, b) => a + b, 0) - discount,
       note: note,
-      createdDate: format(createdDate, "yyyy-MM-dd HH:mm:ss"),
+      createdDate: createdDate.toISOString(),
       staffId: staff?.id,
       supplierId: supplier?.id,
     })
