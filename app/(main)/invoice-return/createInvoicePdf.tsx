@@ -17,7 +17,6 @@ import {
 } from "@react-pdf/renderer";
 import { Staff } from "@/entities/Staff";
 import { Store } from "@/entities/Store";
-import { Customer } from "@/entities/Customer";
 
 Font.register({
   family: "OpenSansv2",
@@ -115,7 +114,7 @@ const createInvoicePdf = async (
             borderBottom: "1 dashed #aaaaaa",
           }}
         />
-        {invoice.returnDetails.map((detail, idx) => {
+        {invoice.returnDetails.filter((v) => v.quantity > 0).map((detail, idx) => {
           const detailProduct = products.find(
             (product) => product.id === detail.productId,
           )!;

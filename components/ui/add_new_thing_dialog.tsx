@@ -65,10 +65,13 @@ const AddNewThing = ({
             Done
             {isLoading ? <LoadingCircle /> : null}
           </Button>
-          <AlertDialogCancel asChild>
-            <Button variant={"red"} disabled={isLoading}>
-              Cancel
-            </Button>
+          <AlertDialogCancel
+            className={
+              "!h-[35px] border-none bg-red-400 text-white hover:bg-red-500 hover:text-white"
+            }
+            disabled={isLoading}
+          >
+            Cancel
           </AlertDialogCancel>
         </AlertDialogFooter>
       </AlertDialogContent>
