@@ -190,7 +190,7 @@ export default function Sale() {
       const discounts = await DiscountService.getAllDiscounts();
       const invoices = await InvoiceService.getAllInvoices();
       dispatch(setProducts(products.data));
-      dispatch(setCustomers(customers.data));
+      dispatch(setCustomers(customers.data.filter((v) => !v.isDeleted)));
       dispatch(setDiscounts(discounts.data));
       dispatch(setCustomerGroups(customerGroups.data));
       dispatch(invoiceReducer.setInvoices(invoices.data));

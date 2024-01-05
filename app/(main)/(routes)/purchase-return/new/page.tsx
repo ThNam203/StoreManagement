@@ -88,9 +88,9 @@ export default function NewPurchaseOrderPage() {
       const staffs = await StaffService.getAllStaffs();
       dispatch(setStaffs(staffs.data));
       const suppliers = await SupplierService.getAllSuppliers();
-      dispatch(setSuppliers(suppliers.data));
+      dispatch(setSuppliers(suppliers.data.filter((v) => !v.isDeleted && v.status === "Active")));
       const products = await ProductService.getAllProducts();
-      dispatch(setProducts(products.data));
+      dispatch(setProducts(products.data.filter((v) => !v.isDeleted && v.status === "Active")));
     };
 
     fetchData()
