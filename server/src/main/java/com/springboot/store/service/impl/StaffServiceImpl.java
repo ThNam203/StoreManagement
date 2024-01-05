@@ -98,9 +98,6 @@ public class StaffServiceImpl implements StaffService {
     public List<StaffResponse> getAllStaffs() {
         int storeId = getAuthorizedStaff().getStore().getId();
         List<Staff> staffs = staffRepository.findByStoreId(storeId);
-        Staff thisStaff = getAuthorizedStaff();
-        staffs.removeIf(staff -> staff.getCreator() == null || staff.getCreator() != thisStaff);
-        staffs.add(thisStaff);
         return staffs.stream().map(this::mapToResponse).toList();
     }
 

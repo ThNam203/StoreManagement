@@ -13,9 +13,7 @@ import java.util.Date;
 public class DiscountCodeDTO {
     private int id;
     private String value;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date issuedDate;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date usedDate;
     private boolean status;
 }

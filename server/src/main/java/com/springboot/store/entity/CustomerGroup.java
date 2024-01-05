@@ -28,7 +28,6 @@ public class CustomerGroup {
     private String description;
 
     @Column(name = "created_at")
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -14,7 +14,6 @@ import java.util.List;
 @Builder
 public class DamagedItemDTO {
     private int id;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdDate;
     private Integer creatorId;
     private String note;

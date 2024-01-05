@@ -132,53 +132,86 @@ export default function OverviewPage() {
   const router = useRouter();
   const { toast } = useToast();
   const staffs = useAppSelector((state) => state.staffs.value);
-  const [chartType, setChartType] = useState<"order" | "revenue" | "refund" | "customer">("order")
+  const [chartType, setChartType] = useState<
+    "order" | "revenue" | "refund" | "customer"
+  >("order");
   const [saleProfitReport, setSaleProfitReport] =
     useState<SaleProfitByDayReport>([]);
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
   const [todayInvoices, setTodayInvoices] = useState<Invoice[]>([]);
-  const [todayReturnInvoices, setTodayReturnInvoices] = useState<ReturnInvoiceServer[]>([]);
+  const [todayReturnInvoices, setTodayReturnInvoices] = useState<
+    ReturnInvoiceServer[]
+  >([]);
   const [previousDayInvoices, setPreviousDayInvoices] = useState<Invoice[]>([]);
-  const [previousDayReturnInvoices, setPreviousDayReturnInvoices] = useState<ReturnInvoiceServer[]>([]);
+  const [previousDayReturnInvoices, setPreviousDayReturnInvoices] = useState<
+    ReturnInvoiceServer[]
+  >([]);
 
-  const todayReturnsValue = todayReturnInvoices.map((v) => v.total).reduce((acc, cur) => acc + cur, 0)
-  const previousDayReturnsValue = previousDayReturnInvoices.map((v) => v.total).reduce((acc, cur) => acc + cur, 0)
+  const todayReturnsValue = todayReturnInvoices
+    .map((v) => v.total)
+    .reduce((acc, cur) => acc + cur, 0);
+  const previousDayReturnsValue = previousDayReturnInvoices
+    .map((v) => v.total)
+    .reduce((acc, cur) => acc + cur, 0);
 
   const getChartLabel = () => {
-    if (chartType === "order") return "Order by hour"
-    if (chartType === "revenue") return "Revenue by hour"
-    if (chartType === "refund") return "Refund by hour"
-    if (chartType === "customer") return "Customer by hour"
-    return ""
-  }
+    if (chartType === "order") return "Order by hour";
+    if (chartType === "revenue") return "Revenue by hour";
+    if (chartType === "refund") return "Refund by hour";
+    if (chartType === "customer") return "Customer by hour";
+    return "";
+  };
 
   const getChartData = () => {
-    const invoicesByHour: Invoice[][] = Array.from({length: 24}, (v, i) => i).map((v) => [])
-    const returnsByHour: ReturnInvoiceServer[][] = Array.from({length: 24}, (v, i) => i).map((v) => [])
+    const invoicesByHour: Invoice[][] = Array.from(
+      { length: 24 },
+      (v, i) => i,
+    ).map((v) => []);
+    const returnsByHour: ReturnInvoiceServer[][] = Array.from(
+      { length: 24 },
+      (v, i) => i,
+    ).map((v) => []);
 
     todayInvoices.forEach((invoice) => {
-      const hour = new Date(invoice.createdAt).getHours()
-      invoicesByHour[hour].push(invoice)
-    })
+      const hour = new Date(invoice.createdAt).getHours();
+      invoicesByHour[hour].push(invoice);
+    });
 
     todayReturnInvoices.forEach((invoice) => {
-      const hour = new Date(invoice.createdAt).getHours()
-      returnsByHour[hour].push(invoice)
-    })
+      const hour = new Date(invoice.createdAt).getHours();
+      returnsByHour[hour].push(invoice);
+    });
 
-    if (chartType === "order") return invoicesByHour.map((invoices) => invoices.length)
+    if (chartType === "order")
+      return invoicesByHour.map((invoices) => invoices.length);
     if (chartType === "revenue") {
-      const invoiceValues = invoicesByHour.map((invoices) => invoices.map((invoice) => invoice.total).reduce((acc, cur) => acc + cur, 0))
-      const returnValues = returnsByHour.map((invoices) => invoices.map((invoice) => invoice.total).reduce((acc, cur) => acc + cur, 0))
-      return invoiceValues.map((value, index) => value - returnValues[index])
+      const invoiceValues = invoicesByHour.map((invoices) =>
+        invoices
+          .map((invoice) => invoice.total)
+          .reduce((acc, cur) => acc + cur, 0),
+      );
+      const returnValues = returnsByHour.map((invoices) =>
+        invoices
+          .map((invoice) => invoice.total)
+          .reduce((acc, cur) => acc + cur, 0),
+      );
+      return invoiceValues.map((value, index) => value - returnValues[index]);
     }
-    if (chartType === "refund") return returnsByHour.map((invoices) => invoices.map((invoice) => invoice.total).reduce((acc, cur) => acc + cur, 0))
+    if (chartType === "refund")
+      return returnsByHour.map((invoices) =>
+        invoices
+          .map((invoice) => invoice.total)
+          .reduce((acc, cur) => acc + cur, 0),
+      );
     if (chartType === "customer") {
       return invoicesByHour.map((invoices) => {
-        return new Set(invoices.map((v) => v.customerId !== null ? v.customerId : {})).size})
+        return new Set(
+          invoices.map((v) => (v.customerId !== null ? v.customerId : {})),
+        ).size;
+      });
     }
-    return []
-  }
+    return [];
+  };
 
   useEffect(() => {
     dispatch(showPreloader());
@@ -190,6 +223,7 @@ export default function OverviewPage() {
       previousDay.setHours(0, 0, 0, 0);
 
       const staffCall = await StaffService.getAllStaffs();
+      // const convertedStaff = staffCall.data.map((staff) => convertedStaffReceived(staff));
       dispatch(setStaffs(staffCall.data));
       const invoicesCall = await InvoiceService.getAllInvoices();
       const invoices = invoicesCall.data;
@@ -209,14 +243,14 @@ export default function OverviewPage() {
 
       const returnInvoicesCall =
         await ReturnInvoiceService.getAllReturnInvoices();
-      const todayReturns = returnInvoicesCall.data
-        .filter((invoice) => isAfter(new Date(invoice.createdAt), today))
-      const previousDayReturns = returnInvoicesCall.data
-        .filter(
-          (invoice) =>
-            isAfter(new Date(invoice.createdAt), previousDay) &&
-            isBefore(new Date(invoice.createdAt), today),
-        )
+      const todayReturns = returnInvoicesCall.data.filter((invoice) =>
+        isAfter(new Date(invoice.createdAt), today),
+      );
+      const previousDayReturns = returnInvoicesCall.data.filter(
+        (invoice) =>
+          isAfter(new Date(invoice.createdAt), previousDay) &&
+          isBefore(new Date(invoice.createdAt), today),
+      );
       setTodayReturnInvoices(todayReturns);
       setPreviousDayReturnInvoices(previousDayReturns);
 
@@ -235,7 +269,7 @@ export default function OverviewPage() {
       };
       if (reportData.length === 0) {
         reportData.push({ ...filledDataReport });
-        reportData.push({ ...filledDataReport});
+        reportData.push({ ...filledDataReport });
       } else if (reportData.length === 1) {
         if (
           new Date(reportData[0].date).setHours(0, 0, 0, 0) ===
@@ -292,7 +326,9 @@ export default function OverviewPage() {
               }
             >
               <h4 className="text-xs text-gray-500">Total orders</h4>
-              <h2 className="my-2 text-3xl font-bold">{todayInvoices.length}</h2>
+              <h2 className="my-2 text-3xl font-bold">
+                {todayInvoices.length}
+              </h2>
               <p className="text-xs text-gray-500">
                 <span
                   className={cn(
@@ -301,7 +337,9 @@ export default function OverviewPage() {
                       : "text-red-500",
                   )}
                 >
-                  {todayInvoices.length >= previousDayInvoices.length ? "+" : "-"}
+                  {todayInvoices.length >= previousDayInvoices.length
+                    ? "+"
+                    : "-"}
                   {Math.abs(
                     ((todayInvoices.length - previousDayInvoices.length) /
                       Math.max(previousDayInvoices.length, 1)) *
@@ -362,9 +400,7 @@ export default function OverviewPage() {
                       : "text-red-500",
                   )}
                 >
-                  {todayReturnsValue <= previousDayReturnsValue
-                    ? "-"
-                    : "+"}
+                  {todayReturnsValue <= previousDayReturnsValue ? "-" : "+"}
                   {Math.abs(
                     ((todayReturnsValue - previousDayReturnsValue) /
                       Math.max(previousDayReturnsValue, 1)) *
@@ -417,9 +453,7 @@ export default function OverviewPage() {
           }
         >
           <div className="flex w-full flex-row items-center">
-            <h3 className="start font-bold uppercase">
-              {getChartLabel()}
-            </h3>
+            <h3 className="start font-bold uppercase">{getChartLabel()}</h3>
             {/* <ArrowRightCircle
               size={16}
               fill="rgb(148 163 184)"
@@ -427,7 +461,12 @@ export default function OverviewPage() {
             />
             <h3 className="mr-2 font-bold uppercase">2.245.500VND</h3> */}
             <div className="flex-1"></div>
-            <Select value={chartType} onValueChange={(e) => setChartType(e as "order" | "revenue" | "refund" | "customer")}>
+            <Select
+              value={chartType}
+              onValueChange={(e) =>
+                setChartType(e as "order" | "revenue" | "refund" | "customer")
+              }
+            >
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Select type" />
               </SelectTrigger>

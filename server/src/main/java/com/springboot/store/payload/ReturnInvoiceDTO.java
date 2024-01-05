@@ -18,7 +18,6 @@ public class ReturnInvoiceDTO {
     private double discountValue;
     private String paymentMethod;
     private String note;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdAt;
     private Integer staffId;
     private Integer invoiceId;

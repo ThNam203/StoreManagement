@@ -52,7 +52,7 @@ export default function StaffInfoPage() {
         const resStaff = await StaffService.getAllStaffs();
         const staffReceived = resStaff.data
           .map((staff) => convertStaffReceived(staff))
-          .filter((staff) => staff.role !== "OWNER");
+          .filter((staff) => staff.position !== "Owner");
         dispatch(setStaffs(staffReceived));
 
         const resExpenseForm = await TransactionService.getAllExpenseForms();

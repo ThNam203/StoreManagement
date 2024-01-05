@@ -407,7 +407,7 @@ const DetailFundledgerTab = ({
               label={
                 transaction.formType === FormType.RECEIPT
                   ? "Receiver type:"
-                  : "Expense type:"
+                  : "Spender type:"
               }
               value={transaction.targetType}
             />

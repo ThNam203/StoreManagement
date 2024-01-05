@@ -18,7 +18,6 @@ public class PurchaseOrderDTO {
     private int total;
     private String note;
     private String paymentMethod;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdDate;
     private List<PurchaseOrderDetailDTO> purchaseOrderDetail;
     private Integer staffId;

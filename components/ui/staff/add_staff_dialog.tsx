@@ -162,7 +162,7 @@ export function AddStaffDialog({
       role: "STAFF",
       salarySetting: {
         salary: values.salary,
-        salaryType: SalaryType.ByShift,
+        salaryType: values.salaryType,
       },
     };
 
@@ -183,7 +183,9 @@ export function AddStaffDialog({
   const { toast } = useToast();
   const router = useRouter();
   const dispatch = useDispatch();
-  const roleList = useAppSelector((state) => state.role.value);
+  const roleList = useAppSelector((state) => state.role.value).filter(
+    (role) => role.positionName !== "Owner",
+  );
   const roleNames = roleList.map((role) => role.positionName);
   const [openAddPositionDialog, setOpenAddPositionDialog] = useState(false);
   const [salarySetting, setSalarySetting] = useState<SalarySetting>({
@@ -616,7 +618,7 @@ export function AddStaffDialog({
                     <div className="flex flex-col gap-6">
                       <div className="w-full rounded shadow-[0px_5px_15px_rgba(0,0,0,.1)]">
                         <div className="flex flex-row items-center p-4">
-                          <CircleDollarSign className="mr-2 h-4 w-4 text-yellow-500" />
+                          <CircleDollarSign className="text-yellow-500 mr-2 h-4 w-4" />
                           <span className="font-semibold">Staff salary</span>
                         </div>
                         <Separator />

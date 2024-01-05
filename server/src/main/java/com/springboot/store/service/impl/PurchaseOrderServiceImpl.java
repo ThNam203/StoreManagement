@@ -71,7 +71,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         }
         PurchaseOrderDTO purchaseOrderDTO1 = PurchaseOrderMapper.toPurchaseOrderDTO(purchaseOrderRepository.save(purchaseOrder));
         //create ExpenseForm for purchase order
-        expenseFormService.createExpenseForm("Supplier", purchaseOrder.getCreatedDate(), purchaseOrder.getPaymentMethod(), purchaseOrder.getTotal(), purchaseOrder.getSupplier().getId(), purchaseOrder.getNote(), "Expense for Supplier", purchaseOrder.getId());
+        expenseFormService.createExpenseForm("Supplier", new Date(), "Cash", purchaseOrder.getTotal(), purchaseOrder.getSupplier().getId(), purchaseOrder.getNote(), "Expense for Supplier", purchaseOrder.getId());
         activityLogService.save("created a purchase order with id " + purchaseOrder.getId(), staffService.getAuthorizedStaff().getId(), new Date());
         return purchaseOrderDTO1;
     }

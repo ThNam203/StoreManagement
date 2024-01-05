@@ -46,15 +46,12 @@ public class Discount {
     private int amount;
 
     @Column(name = "created_at")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdAt;
 
     @Column(name = "start_date")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date startDate;
 
     @Column(name = "end_date")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date endDate;
 
     @OneToMany(mappedBy = "discount", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -75,7 +72,6 @@ public class Discount {
             inverseJoinColumns = @JoinColumn(name = "product_group_id")
     )
     private Set<ProductGroup> productGroups;
-
 
 
     @ManyToOne(fetch = FetchType.LAZY)

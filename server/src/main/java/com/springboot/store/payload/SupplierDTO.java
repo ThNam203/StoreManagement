@@ -20,7 +20,6 @@ public class SupplierDTO {
     private String companyName;
     private Boolean isDeleted;
     private String status;
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date createdAt;
     private Integer creatorId;
     private String supplierGroupName;

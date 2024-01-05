@@ -22,7 +22,6 @@ public class ActivityLog {
     private int id;
     private String description;
     private int staffId;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date time;
     @ManyToOne()
     @JoinColumn(name = "store_id")
