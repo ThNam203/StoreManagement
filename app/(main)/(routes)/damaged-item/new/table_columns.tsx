@@ -24,14 +24,13 @@ export const purchaseReturnDetailColumnTitles = {
   productId: "Product Id",
   productName: "Product Name",
   unit: "Unit",
-  quantity: "Quantity",
-  price: "Original price"
+  damagedQuantity: "Quantity",
+  costPrice: "Cost price"
 };
 
 export const purchaseReturnDetailTableColumns = (
   onQuantityChanged: (productId: number, newQuantity: number) => any,
   onNoteChanged: (productId: number, newNote: string) => any,
-  onReturnPriceChanged: (productId: number, newPrice: number) => any,
   products: Product[],
 ): ColumnDef<NewDamagedItemDetail>[] => {
   const columns: ColumnDef<NewDamagedItemDetail>[] = [
@@ -41,7 +40,7 @@ export const purchaseReturnDetailTableColumns = (
 
   for (let key in purchaseReturnDetailColumnTitles) {
     let col: ColumnDef<NewDamagedItemDetail>;
-    if (key === "quantity") col = quantityColumn(products, onQuantityChanged);
+    if (key === "damagedQuantity") col = quantityColumn(products, onQuantityChanged);
     else if (key === "productName") col = productNameColumn(onNoteChanged);
     else
       col = defaultColumn<NewDamagedItemDetail>(
@@ -95,7 +94,7 @@ function quantityColumn(
   disableSorting: boolean = false,
 ): ColumnDef<NewDamagedItemDetail> {
   const col: ColumnDef<NewDamagedItemDetail> = {
-    accessorKey: "quantity",
+    accessorKey: "damagedQuantity",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Quantity" />
     ),
@@ -144,7 +143,7 @@ const QuantityCell = ({
   row: Row<NewDamagedItemDetail>;
   onQuantityChanged: (productId: number, countedStock: number) => any;
 }) => {
-  const [value, setValue] = useState<number>(getValue());
+  const [value, setValue] = useState<number>(isNaN(getValue()) ? 0 : getValue());
   const onBlur = () => {
     onQuantityChanged(row.original.productId, value);
   };
@@ -153,11 +152,13 @@ const QuantityCell = ({
       <Minus
         size={16}
         onClick={() => {
-          onQuantityChanged(row.original.productId, row.original.damagedQuantity - 1);
+          const newValue = row.original.damagedQuantity - 1;
+          setValue(newValue)
+          onQuantityChanged(row.original.productId, newValue);
         }}
         className={cn(
           "rounded-full hover:bg-slate-300",
-          row.original.damagedQuantity > 1 ? "" : "hidden",
+          value > 1 ? "" : "hidden",
         )}
       />
       <div className="flex flex-col items-center">
@@ -175,7 +176,9 @@ const QuantityCell = ({
       {value < maxValue ? <Plus
         size={16}
         onClick={() => {
-          onQuantityChanged(row.original.productId, row.original.damagedQuantity + 1);
+          const newValue = row.original.damagedQuantity + 1;
+          setValue(newValue)
+          onQuantityChanged(row.original.productId, newValue);
         }}
         className="rounded-full hover:bg-slate-300"
         /> : null}
