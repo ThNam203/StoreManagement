@@ -200,17 +200,22 @@ export default function FundLedger() {
 
   useEffect(() => {
     let filteredList = [...transactionList];
+    console.log("filteredList", filteredList);
     filteredList = handleMultipleFilter<Transaction>(multiFilter, filteredList);
+    console.log("filteredList multi", filteredList);
     filteredList = handleTimeFilter<Transaction>(
       staticRangeFilter,
       rangeTimeFilter,
       timeFilterControl,
       filteredList,
     );
+    console.log("filteredList time", filteredList);
     filteredList = handleRangeNumFilter<Transaction>(
       rangeNumFilter,
       filteredList,
     );
+    console.log("filteredList range num", filteredList);
+
     setFilteredTransactionList([...filteredList]);
   }, [
     multiFilter,

@@ -46,6 +46,7 @@ const convertStaffToSent = (
       salaryType: value.salarySetting.salaryType,
     },
   };
+  console.log("sent", convertedStaff);
   if (type === "staff") return convertedStaff;
   return convertedOwner;
 };
