@@ -28,6 +28,7 @@ import {
 import PurchaseReturnService from "@/services/purchaseReturnService";
 import { deletePurchaseReturn } from "@/reducers/purchaseReturnsReducer";
 import { useRouter } from "next/navigation";
+import { format } from "date-fns";
 
 const visibilityState = {
   creatorId: false,
@@ -103,7 +104,7 @@ const DetailTab = ({
   onUpdateButtonClick: (discountPosition: number) => any;
   setShowInfoRow: (value: boolean) => any;
 }) => {
-  const purchaseOrder: PurchaseReturn = row.original;
+  const purchaseReturn: PurchaseReturn = row.original;
   const [disableDisableButton, setDisableDisableButton] = useState(false);
   const [disableDeleteButton, setDisableDeleteButton] = useState(false);
   const dispatch = useAppDispatch();
@@ -117,15 +118,15 @@ const DetailTab = ({
           <div className="flex flex-1 flex-col gap-2">
             <DefaultInformationCellDataTable
               title="Purchase Return Id:"
-              value={purchaseOrder.id}
+              value={purchaseReturn.id}
             />
             <DefaultInformationCellDataTable
               title="Created Date:"
-              value={purchaseOrder.createdDate}
+              value={format(new Date(purchaseReturn.createdDate), "MM/dd/yyyy")}
             />
             <DefaultInformationCellDataTable
               title="Creator:"
-              value={purchaseOrder.staffId}
+              value={purchaseReturn.staffId}
               // TODO:
             />
           </div>
@@ -137,13 +138,13 @@ const DetailTab = ({
                 "h-[80px] w-full resize-none rounded-sm border-2 p-1",
                 scrollbar_style.scrollbar,
               )}
-              defaultValue={purchaseOrder.note}
+              defaultValue={purchaseReturn.note}
             ></textarea>
           </div>
         </div>
       </div>
       <CustomDatatable
-        data={purchaseOrder.purchaseReturnDetails}
+        data={purchaseReturn.purchaseReturnDetails}
         columnTitles={purchaseReturnDetailColumnTitles}
         columns={purchaseReturnDetailTableColumns()}
         config={{
@@ -159,7 +160,7 @@ const DetailTab = ({
           <div className="flex flex-row">
             <p className="w-48 text-end">Total qty:</p>
             <p className="w-32 text-end font-semibold">
-              {purchaseOrder.purchaseReturnDetails
+              {purchaseReturn.purchaseReturnDetails
                 .map((v) => v.quantity)
                 .reduce((a, b) => a + b, 0)}
             </p>
@@ -167,24 +168,24 @@ const DetailTab = ({
           <div className="flex flex-row">
             <p className="w-48 text-end">Total product:</p>
             <p className="w-32 text-end font-semibold">
-              {purchaseOrder.purchaseReturnDetails.length}
+              {purchaseReturn.purchaseReturnDetails.length}
             </p>
           </div>
           <div className="flex flex-row">
             <p className="w-48 text-end">Sub-total:</p>
             <p className="w-32 text-end font-semibold">
-              {purchaseOrder.subtotal}
+              {purchaseReturn.subtotal}
             </p>
           </div>
           <div className="flex flex-row">
             <p className="w-48 text-end">Discount:</p>
             <p className="w-32 text-end font-semibold">
-              {purchaseOrder.discount}
+              {purchaseReturn.discount}
             </p>
           </div>
           <div className="flex flex-row">
             <p className="w-48 text-end">Total:</p>
-            <p className="w-32 text-end font-semibold">{purchaseOrder.total}</p>
+            <p className="w-32 text-end font-semibold">{purchaseReturn.total}</p>
           </div>
         </div>
       </div>
@@ -202,9 +203,9 @@ const DetailTab = ({
           variant={"red"}
           onClick={(e) => {
             setDisableDeleteButton(true);
-            PurchaseReturnService.deletePurchaseReturn(purchaseOrder.id)
+            PurchaseReturnService.deletePurchaseReturn(purchaseReturn.id)
               .then((result) => {
-                dispatch(deletePurchaseReturn(purchaseOrder.id));
+                dispatch(deletePurchaseReturn(purchaseReturn.id));
                 setShowInfoRow(false);
               })
               .catch((error) => axiosUIErrorHandler(error, toast, router))

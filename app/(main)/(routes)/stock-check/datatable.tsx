@@ -22,6 +22,7 @@ import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import { ColumnDef } from "@tanstack/react-table";
 import { defaultColumn } from "@/components/ui/my_table_default_column";
 import { useRouter } from "next/navigation";
+import { format } from "date-fns";
 
 const visibilityState = {
   creatorId: false,
@@ -115,7 +116,7 @@ const DetailTab = ({
             />
             <DefaultInformationCellDataTable
               title="Created Date:"
-              value={stockCheck.createdDate}
+              value={format(new Date(stockCheck.createdDate), "MM/dd/yyyy")}
             />
             <DefaultInformationCellDataTable
               title="Creator:"

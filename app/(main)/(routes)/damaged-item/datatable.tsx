@@ -24,6 +24,7 @@ import {
   damagedItemDocumentDetailTableColumns,
 } from "./table_columns";
 import { useRouter } from "next/navigation";
+import { format } from "date-fns";
 
 export function DamagedItemsDatatable({
   data,
@@ -119,7 +120,7 @@ const DetailTab = ({
             />
             <DefaultInformationCellDataTable
               title="Created Date:"
-              value={document.createdDate}
+              value={format(new Date(document.createdDate), "MM/dd/yyyy")}
             />
             <DefaultInformationCellDataTable
               title="Creator:"

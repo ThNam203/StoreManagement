@@ -142,7 +142,7 @@ const DetailInvoiceTab = ({
             </div>
             <div className="mb-2 flex flex-row border-b font-medium">
               <p className="w-[120px] font-normal">Created at:</p>
-              <p>{invoice.createdAt}</p>
+              <p>{format(new Date(invoice.createdAt), "MM/dd/yyyy")}</p>
             </div>
             <div className="mb-2 flex flex-row border-b font-medium">
               <p className="w-[120px] font-normal">Customer:</p>

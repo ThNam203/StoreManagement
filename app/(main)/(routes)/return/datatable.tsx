@@ -47,6 +47,7 @@ import {
 } from "@/entities/ReturnInvoice";
 import ReturnInvoiceService from "@/services/returnInvoiceService";
 import { deleteReturnInvoice } from "@/reducers/returnInvoicesReducer";
+import { format } from "date-fns";
 
 export function ReturnDatatable({
   data,
@@ -139,7 +140,7 @@ const DetailInvoiceTab = ({
             />
             <DefaultInformationCellDataTable
               title="Created at:"
-              value={invoice.createdAt}
+              value={format(new Date(invoice.createdAt), "MM/dd/yyyy")}
             />
           </div>
           <div className="flex flex-1 flex-col gap-1">

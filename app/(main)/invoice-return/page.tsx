@@ -40,6 +40,7 @@ import { setDiscounts } from "@/reducers/discountsReducer";
 import { setReturnInvoices } from "@/reducers/returnInvoicesReducer";
 import ReturnInvoiceService from "@/services/returnInvoiceService";
 import { formatNumberInput } from "@/utils";
+import { format } from "date-fns";
 
 export default function InvoiceReturnPage() {
   const params = useSearchParams();
@@ -322,7 +323,7 @@ export default function InvoiceReturnPage() {
         </div>
       </div>
       <div className="m-2 ml-0 flex shrink grow basis-1/3 flex-col rounded-md bg-white p-2">
-        <p className="ml-4">{returnInvoice.createdAt}</p>
+        <p className="ml-4">{format(new Date(returnInvoice.createdAt), "MM/dd/yyyy")}</p>
         <div className="flex flex-1 flex-col gap-4 px-4">
           {/* <p className="text-xl font-bold">{ ?? "GUEST"}</p> */}
           <div className="flex flex-row items-center justify-between">

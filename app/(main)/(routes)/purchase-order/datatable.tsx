@@ -25,6 +25,7 @@ import { PurchaseOrder, PurchaseOrderDetail } from "@/entities/PurchaseOrder";
 import PurchaseOrderService from "@/services/purchaseOrderService";
 import { deletePurchaseOrder } from "@/reducers/purchaseOrdersReducer";
 import { useRouter } from "next/navigation";
+import { format } from "date-fns";
 
 const visibilityState = {
   creatorId: false,
@@ -118,7 +119,7 @@ const DetailTab = ({
             />
             <DefaultInformationCellDataTable
               title="Created Date:"
-              value={purchaseOrder.createdDate}
+              value={format(new Date(purchaseOrder.createdDate), "MM/dd/yyyy")}
             />
             <DefaultInformationCellDataTable
               title="Creator:"
