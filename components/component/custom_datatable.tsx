@@ -108,7 +108,7 @@ export function CustomDatatable<TData>({
     <div ref={tableContainerRef} className="w-full space-y-2">
       <div
         className={cn(
-          "flex flex-col gap-2 md:flex-row md:items-center md:justify-between md:gap-0",
+          "flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between lg:gap-0",
           config.className,
         )}
       >
@@ -144,23 +144,25 @@ export function CustomDatatable<TData>({
           {config.onImportExcelBtnClick !== undefined ? (
             <Button
               variant={"green"}
+              className="gap-2"
               onClick={() => {
                 config!.onImportExcelBtnClick!(table);
               }}
             >
-              <FileUp className="mr-2 h-4 w-4" />
-              Import
+              <FileUp className="h-4 w-4" />
+              <span className="max-xl:hidden max-md:visible">Import</span>
             </Button>
           ) : null}
           {config.onExportExcelBtnClick !== undefined ? (
             <Button
               variant={"green"}
+              className="gap-2"
               onClick={() => {
                 config!.onExportExcelBtnClick!(table);
               }}
             >
-              <FileDown className="mr-2" size={16} />
-              Export Excel
+              <FileDown size={16} />
+              <span className="max-xl:hidden max-md:visible">Export</span>
             </Button>
           ) : null}
 

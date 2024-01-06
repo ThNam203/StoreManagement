@@ -230,7 +230,7 @@ export default function Attendance() {
   };
 
   return (
-    <div className="flex flex-col gap-4 text-sm">
+    <div className="flex w-full flex-col gap-4 text-sm">
       {/* <div className="absolute bottom-0 left-0 right-0">
         <Image
           src={PageBackground}
@@ -240,8 +240,8 @@ export default function Attendance() {
           className="w-full"
         />
       </div> */}
-      <div className="flex flex-row items-center justify-between">
-        <div className="flex flex-row items-center gap-4">
+      <div className="flex flex-row items-center justify-between gap-2">
+        <div className="flex flex-row items-center gap-2">
           <MyDateRangePicker
             rangeTimeValue={range}
             onRangeTimeFilterChanged={handleRangeTimeFilterChange}
@@ -259,7 +259,7 @@ export default function Attendance() {
             onClick={() => setOpenSetTimeDialog(true)}
           >
             <Plus size={16} />
-            <span>Set time</span>
+            <span className="whitespace-nowrap max-md:hidden">Set time</span>
           </Button>
           {/* <Button variant={"green"} className="gap-2">
             <FileDown className="h-4 w-4" />

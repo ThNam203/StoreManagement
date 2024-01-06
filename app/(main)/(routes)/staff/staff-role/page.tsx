@@ -202,7 +202,7 @@ export default function StaffRolePage() {
       </h2>
       <div className="w-full">
         <div className="flex w-full flex-col gap-4">
-          <div className="flex flex-row items-center justify-between">
+          <div className="flex flex-row items-center justify-between gap-2">
             <div className="flex w-[350px] flex-row items-center gap-2">
               <div className="w-[100px]">
                 <p className="text-sm">Role</p>
@@ -226,7 +226,10 @@ export default function StaffRolePage() {
               type="button"
               onClick={() => handleOpenAddRoleDialog()}
             >
-              Add new role
+              <span className="whitespace-nowrap max-sm:hidden">
+                Add new role
+              </span>
+              <span className="whitespace-nowrap sm:hidden">+ Role</span>
             </Button>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">

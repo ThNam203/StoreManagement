@@ -18,7 +18,7 @@ export function ButtonGroup({
   }, [value]);
   return (
     <div
-      className="h-10 flex flex-row items-center bg-white rounded-md border overflow-hidden"
+      className="flex h-10 shrink-0 flex-row items-center overflow-hidden rounded-md border bg-white"
       role="group"
     >
       {choices.map((choice, i) => {
@@ -30,7 +30,7 @@ export function ButtonGroup({
                 "w-[80px] rounded-md",
                 value === choice
                   ? "bg-blue-500 text-white hover:bg-blue-500"
-                  : "bg-white text-black hover:bg-gray-200"
+                  : "bg-white text-black hover:bg-gray-200",
               )}
               onClick={() => setValue(choice)}
             >
@@ -40,7 +40,7 @@ export function ButtonGroup({
               orientation="vertical"
               className={cn(
                 "h-5",
-                i !== choices.length - 1 ? "visible" : "hidden"
+                i !== choices.length - 1 ? "visible" : "hidden",
               )}
             />
           </div>

@@ -26,8 +26,10 @@ import { SetTimeDialog } from "../../../../../components/ui/attendance/set_time_
 import { TimeKeepingDialog } from "./timekeeping_dialog";
 import { useAppSelector } from "@/hooks";
 const borderStyle = "border border-gray-100 border-[1px]";
-const HeaderCellStyleWeek = "w-[calc(100%/8)] h-10" + " " + borderStyle;
-const CellStyleWeek = "w-[calc(100%/8)] h-44" + " " + borderStyle;
+const HeaderCellStyleWeek =
+  "xl:w-[calc(100%/8)] max-2xl:w-40 h-10" + " " + borderStyle;
+const CellStyleWeek =
+  "xl:w-[calc(100%/8)] max-2xl:w-40 h-44" + " " + borderStyle;
 const HeaderCellStyleMonth = "w-40 h-10" + " " + borderStyle;
 const CellStyleMonth = "w-40 h-44" + " " + borderStyle;
 
@@ -105,8 +107,12 @@ const AttendanceTable = ({
   }, [shiftList]);
 
   return (
-    <ScrollArea className={cn("w-full rounded-md pb-2 shadow")}>
-      <table className="w-full overflow-x-scroll bg-white">
+    <div
+      className={cn(
+        "w-full overflow-y-hidden overflow-x-scroll rounded-md shadow",
+      )}
+    >
+      <table className="w-full bg-white">
         <tr>
           <AttendanceHeaderRow
             range={rangeDate}
@@ -201,8 +207,7 @@ const AttendanceTable = ({
           if (onUpdateDailyShifts) return onUpdateDailyShifts([newDailyShift]);
         }}
       />
-      <ScrollBar orientation="horizontal" className="bg-red-300" />
-    </ScrollArea>
+    </div>
   );
 };
 

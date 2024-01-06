@@ -34,20 +34,21 @@ function DataTableViewOptions<TData>({
 }: DataTableViewOptionsProps<TData>) {
   const arrColIndex = Array.from(Array(cols).keys()); // this col start from 0
   if (rowPerCols === undefined)
-    rowPerCols = table
-      .getAllColumns()
-      .filter((column) => column.getCanHide()).length / cols;
+    rowPerCols =
+      table.getAllColumns().filter((column) => column.getCanHide()).length /
+      cols;
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="whitespace-nowrap">
-          {title} <Settings2 className="h-4 w-4" />
+        <Button variant="outline" className="gap-2 whitespace-nowrap">
+          <span className="max-xl:hidden">{title}</span>
+          <Settings2 className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="flex flex-row space-x-2 justify-between"
+        className="flex flex-row justify-between space-x-2"
       >
         {arrColIndex.map((col) => {
           return (
@@ -67,7 +68,7 @@ function DataTableViewOptions<TData>({
                     if (colIndex === col) {
                       return (
                         <div
-                          className="flex flex-row items-center space-x-2 p-2 rounded-md select-none hover:cursor-pointer hover:bg-[#f5f5f4] ease-linear duration-100"
+                          className="flex select-none flex-row items-center space-x-2 rounded-md p-2 duration-100 ease-linear hover:cursor-pointer hover:bg-[#f5f5f4]"
                           key={column.id}
                           onClick={() =>
                             column.toggleVisibility(!column.getIsVisible())

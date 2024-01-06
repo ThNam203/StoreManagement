@@ -267,14 +267,16 @@ export function DataTable({ data, onSubmit }: Props) {
               className={cn("whitespace-nowrap", canCreate ? "" : "hidden")}
               onClick={() => handleOpenReceiptForm(null)}
             >
-              Make Receipt
+              <span className="xl:hidden">Receipt</span>
+              <span className="max-xl:hidden">Make receipt</span>
             </Button>
             <Button
               variant="blue"
               className={cn("whitespace-nowrap", canCreate ? "" : "hidden")}
               onClick={() => handleOpenExpenseForm(null)}
             >
-              Make Expense
+              <span className="xl:hidden">Expense</span>
+              <span className="max-xl:hidden">Make expense</span>
             </Button>
           </div>,
         ]}
