@@ -387,7 +387,7 @@ export function TimeKeepingDialog({
                                       <PlusCircle
                                         className={cn(
                                           "h-4 w-4 opacity-50 hover:cursor-pointer hover:opacity-100",
-                                          canCreateAttendance ? "" : "hidden",
+                                          canUpdateAttendance ? "" : "hidden",
                                         )}
                                         onClick={() =>
                                           handleOpenViolationOrRewardDialog(
@@ -555,7 +555,7 @@ export function TimeKeepingDialog({
                                       <PlusCircle
                                         className={cn(
                                           "h-4 w-4 opacity-50 hover:cursor-pointer hover:opacity-100",
-                                          canCreateAttendance ? "" : "hidden",
+                                          canUpdateAttendance ? "" : "hidden",
                                         )}
                                         onClick={() =>
                                           handleOpenViolationOrRewardDialog(

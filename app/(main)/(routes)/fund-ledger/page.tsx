@@ -107,20 +107,14 @@ export default function FundLedger() {
         dispatch(addTransactions(receiptList));
 
         const resStaff = await StaffService.getAllStaffs();
-        const staffReceived = resStaff.data.map((staff) =>
-          convertStaffReceived(staff),
-        );
         dispatch(
           setStaffs(
-            staffReceived.filter((staff) => staff.position !== "Owner"),
+            resStaff.data.filter((staff) => staff.position !== "Owner"),
           ),
         );
 
         const resStranger = await TransactionService.getAllStrangers();
-        const strangers = resStranger.data.map((stranger) =>
-          convertStrangerReceived(stranger),
-        );
-        dispatch(setStrangers(strangers));
+        dispatch(setStrangers(resStranger.data));
 
         const customers = await CustomerService.getAllCustomers();
         dispatch(setCustomers(customers.data));
@@ -174,6 +168,7 @@ export default function FundLedger() {
         convertedToSent,
       );
       const expense = convertExpenseFormReceived(res.data);
+      console.log("updated expense", expense);
       dispatch(updateTransaction(expense));
       return Promise.resolve();
     } catch (e) {
@@ -190,6 +185,7 @@ export default function FundLedger() {
         convertedToSent,
       );
       const receipt = convertReceiptFormReceived(res.data);
+      console.log("updated receipt", receipt);
       dispatch(updateTransaction(receipt));
       return Promise.resolve();
     } catch (e) {

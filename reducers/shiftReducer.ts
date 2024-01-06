@@ -1,4 +1,8 @@
 import { DailyShift, Shift } from "@/entities/Attendance";
+import {
+  convertDailyShiftReceived,
+  convertShiftReceived,
+} from "@/utils/shiftApiUtils";
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 
 export const shiftSlice = createSlice({
@@ -7,35 +11,43 @@ export const shiftSlice = createSlice({
     value: [] as Shift[],
   },
   reducers: {
-    setShifts: (state, action: PayloadAction<Shift[]>) => {
-      state.value = action.payload;
+    setShifts: (state, action: PayloadAction<any[]>) => {
+      const shifts = action.payload.map((shift) => convertShiftReceived(shift));
+      state.value = shifts;
     },
-    addShift: (state, action: PayloadAction<Shift>) => {
-      state.value.push(action.payload);
+    addShift: (state, action: PayloadAction<any>) => {
+      const shift = convertShiftReceived(action.payload);
+      state.value.push(shift);
     },
-    addShifts: (state, action: PayloadAction<Shift[]>) => {
-      action.payload.forEach((shift) => state.value.push(shift));
+    addShifts: (state, action: PayloadAction<any[]>) => {
+      const shifts = action.payload.map((shift) => convertShiftReceived(shift));
+      shifts.forEach((shift) => state.value.push(shift));
     },
-    updateShift: (state, action: PayloadAction<Shift>) => {
+    updateShift: (state, action: PayloadAction<any>) => {
+      const updatedShift = convertShiftReceived(action.payload);
       state.value = state.value.map((shift) =>
-        shift.id === action.payload.id ? action.payload : shift,
+        shift.id === updatedShift.id ? updatedShift : shift,
       );
     },
     deleteShift: (state, action: PayloadAction<number>) => {
       state.value = state.value.filter((shift) => shift.id !== action.payload);
     },
-    addDailyShift: (state, action: PayloadAction<DailyShift>) => {
+    addDailyShift: (state, action: PayloadAction<any>) => {
+      const dailyShift = convertDailyShiftReceived(action.payload);
       state.value = state.value.map((shift) =>
-        shift.id === action.payload.shiftId
+        shift.id === dailyShift.shiftId
           ? {
               ...shift,
-              dailyShiftList: [...shift.dailyShiftList, action.payload],
+              dailyShiftList: [...shift.dailyShiftList, dailyShift],
             }
           : shift,
       );
     },
-    addDailyShifts: (state, action: PayloadAction<DailyShift[]>) => {
-      action.payload.forEach((dailyShift) => {
+    addDailyShifts: (state, action: PayloadAction<any[]>) => {
+      const dailyShifts = action.payload.map((dailyShift) =>
+        convertDailyShiftReceived(dailyShift),
+      );
+      dailyShifts.forEach((dailyShift) => {
         state.value = state.value.map((shift) =>
           shift.id === dailyShift.shiftId
             ? {
@@ -46,25 +58,29 @@ export const shiftSlice = createSlice({
         );
       });
     },
-    updateDailyShift: (state, action: PayloadAction<DailyShift>) => {
+    updateDailyShift: (state, action: PayloadAction<any>) => {
+      const updatedDailyShift = convertDailyShiftReceived(action.payload);
       state.value = state.value.map((shift) =>
-        shift.id === action.payload.shiftId
+        shift.id === updatedDailyShift.shiftId
           ? {
               ...shift,
               dailyShiftList: shift.dailyShiftList.map((dailyShift) =>
                 dailyShift.date.toLocaleDateString() ===
-                action.payload.date.toLocaleDateString()
-                  ? action.payload
+                updatedDailyShift.date.toLocaleDateString()
+                  ? updatedDailyShift
                   : dailyShift,
               ),
             }
           : shift,
       );
     },
-    updateDailyShifts: (state, action: PayloadAction<DailyShift[]>) => {
+    updateDailyShifts: (state, action: PayloadAction<any[]>) => {
       //get all dailyShifts existed in action.payload but not in state
       //explain: update dailyShifts means override all dailyShifts in state with dailyShifts in action.payload
-      const dailyShiftToAdd = action.payload.filter(
+      const updatedDailyShifts = action.payload.map((dailyShift) =>
+        convertDailyShiftReceived(dailyShift),
+      );
+      const dailyShiftToAdd = updatedDailyShifts.filter(
         (dailyShift) =>
           !state.value
             .find((shift) => shift.id === dailyShift.shiftId)
@@ -86,7 +102,7 @@ export const shiftSlice = createSlice({
         );
       });
 
-      action.payload.forEach((dailyShift) => {
+      updatedDailyShifts.forEach((dailyShift) => {
         state.value = state.value.map((shift) =>
           shift.id === dailyShift.shiftId
             ? {

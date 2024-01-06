@@ -9,36 +9,29 @@ import { useToast } from "@/components/ui/use-toast";
 import { Staff } from "@/entities/Staff";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
+import { setShifts } from "@/reducers/shiftReducer";
+import { setDetailPunishAndBonusList } from "@/reducers/staffPunishAndRewardReducer";
 import {
   addStaff,
   deleteStaff,
   setStaffs,
   updateStaff,
 } from "@/reducers/staffReducer";
+import { setTransactions } from "@/reducers/transactionReducer";
 import { axiosUIErrorHandler } from "@/services/axiosUtils";
+import ShiftService from "@/services/shift_service";
 import StaffService from "@/services/staff_service";
+import TransactionService from "@/services/transaction_service";
 import { handleMultipleFilter, handleRangeNumFilter } from "@/utils";
+import { convertShiftReceived } from "@/utils/shiftApiUtils";
 import {
   convertStaffReceived,
   convertStaffToSent,
 } from "@/utils/staffApiUtils";
+import { convertExpenseFormReceived } from "@/utils/transactionApiUtils";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { DataTable } from "./datatable";
-import { setPositions } from "@/reducers/staffPositionReducer";
-import TransactionService from "@/services/transaction_service";
-import { convertExpenseFormReceived } from "@/utils/transactionApiUtils";
-import {
-  addTransactions,
-  setTransactions,
-} from "@/reducers/transactionReducer";
-import ShiftService from "@/services/shift_service";
-import { convertShiftReceived } from "@/utils/shiftApiUtils";
-import { setShifts } from "@/reducers/shiftReducer";
-import { setDetailPunishAndBonusList } from "@/reducers/staffPunishAndRewardReducer";
-import RoleService from "@/services/role_service";
-import { setRoles } from "@/reducers/roleReducer";
-import { convertRoleReceived } from "@/utils/roleSettingApiUtils";
-import { useRouter } from "next/navigation";
 
 export default function StaffInfoPage() {
   const dispatch = useAppDispatch();
@@ -50,10 +43,11 @@ export default function StaffInfoPage() {
       dispatch(showPreloader());
       try {
         const resStaff = await StaffService.getAllStaffs();
-        const staffReceived = resStaff.data
-          .map((staff) => convertStaffReceived(staff))
-          .filter((staff) => staff.position !== "Owner");
-        dispatch(setStaffs(staffReceived));
+        dispatch(
+          setStaffs(
+            resStaff.data.filter((staff) => staff.position !== "Owner"),
+          ),
+        );
 
         const resExpenseForm = await TransactionService.getAllExpenseForms();
         const expenseFormReceived = resExpenseForm.data.map((form) =>
@@ -62,15 +56,12 @@ export default function StaffInfoPage() {
         dispatch(setTransactions(expenseFormReceived));
 
         const resShift = await ShiftService.getShiftsThisMonth();
-        const shiftReceived = resShift.data.map((shift) =>
-          convertShiftReceived(shift),
-        );
-        dispatch(setShifts(shiftReceived));
+
+        dispatch(setShifts(resShift.data));
 
         const resDetailPunishAndBonus =
           await ShiftService.getPunishAndBonusList();
-        const detailPunishAndBonusList = resDetailPunishAndBonus.data;
-        dispatch(setDetailPunishAndBonusList(detailPunishAndBonusList));
+        dispatch(setDetailPunishAndBonusList(resDetailPunishAndBonus.data));
       } catch (e) {
         axiosUIErrorHandler(e, toast, router);
       } finally {
@@ -111,9 +102,8 @@ export default function StaffInfoPage() {
       );
       dataForm.append("file", avatar);
 
-      const staffResult = await StaffService.createNewStaff(dataForm);
-      const staffReceived = convertStaffReceived(staffResult.data);
-      dispatch(addStaff(staffReceived));
+      const resStaff = await StaffService.createNewStaff(dataForm);
+      dispatch(addStaff(resStaff.data));
       return Promise.resolve();
     } catch (e) {
       console.log(e);
@@ -125,22 +115,14 @@ export default function StaffInfoPage() {
   const updateAStaff = async (value: Staff, avatar: File | null) => {
     try {
       const staffToSent = convertStaffToSent(value);
-      console.log("value to update", staffToSent);
       const dataForm: any = new FormData();
       dataForm.append(
         "data",
         new Blob([JSON.stringify(staffToSent)], { type: "application/json" }),
       );
-      console.log("avatar to update", avatar);
-      dataForm.append("file", avatar);
-      console.log("dataForm", dataForm);
-      const staffResult = await StaffService.updateStaff(
-        staffToSent.id,
-        dataForm,
-      );
-      const staffReceived = convertStaffReceived(staffResult.data);
-      console.log("staffReceived", staffReceived);
-      dispatch(updateStaff(staffReceived));
+
+      const resStaff = await StaffService.updateStaff(staffToSent.id, dataForm);
+      dispatch(updateStaff(resStaff.data));
       return Promise.resolve();
     } catch (e) {
       axiosUIErrorHandler(e, toast, router);
@@ -207,11 +189,8 @@ export default function StaffInfoPage() {
       const res = await StaffService.calculateSalary(
         filterdStaffList[rowIndex].id,
       );
-      console.log("res", res);
-      const salaryDebt = res.data.salaryDebt;
-      dispatch(updateStaff({ ...filterdStaffList[rowIndex], salaryDebt }));
+      dispatch(updateStaff(res.data));
 
-      console.log("salaryDebt", salaryDebt);
       return Promise.resolve();
     } catch (e) {
       console.log(e);

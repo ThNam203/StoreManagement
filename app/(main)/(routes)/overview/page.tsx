@@ -1,24 +1,19 @@
 "use client";
-import Notification from "@/components/ui/notification";
 import Charts from "@/components/ui/overview/overview_chart";
 import RecentActivityItem from "@/components/ui/overview/overview_recent_activity_item";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import { ActivityLog } from "@/entities/ActivityLog";
+import { Invoice } from "@/entities/Invoice";
 import { SaleProfitByDayReport } from "@/entities/Report";
+import { ReturnInvoiceServer } from "@/entities/ReturnInvoice";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { cn } from "@/lib/utils";
 import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
@@ -30,19 +25,10 @@ import ReportService from "@/services/reportService";
 import ReturnInvoiceService from "@/services/returnInvoiceService";
 import StaffService from "@/services/staff_service";
 import { format, isAfter, isBefore } from "date-fns";
-import { Bell } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import scrollbar_style from "../../../../styles/scrollbar.module.css";
 import styles from "./styles.module.css";
-import { report } from "process";
-import { ReturnInvoiceServer } from "@/entities/ReturnInvoice";
-import { Invoice } from "@/entities/Invoice";
-import { faker } from "@faker-js/faker";
-import RoleService from "@/services/role_service";
-import { setRoles } from "@/reducers/roleReducer";
-import { convertRoleReceived } from "@/utils/roleSettingApiUtils";
-import { convertStaffReceived } from "@/utils/staffApiUtils";
 
 const notifications = [
   {
@@ -189,12 +175,12 @@ export default function OverviewPage() {
       const invoiceValues = invoicesByHour.map((invoices) =>
         invoices
           .map((invoice) => invoice.total)
-          .reduce((acc, cur) => acc + cur, 0)
+          .reduce((acc, cur) => acc + cur, 0),
       );
       const returnValues = returnsByHour.map((invoices) =>
         invoices
           .map((invoice) => invoice.total)
-          .reduce((acc, cur) => acc + cur, 0)
+          .reduce((acc, cur) => acc + cur, 0),
       );
       return invoiceValues.map((value, index) => value - returnValues[index]);
     }
@@ -224,10 +210,7 @@ export default function OverviewPage() {
       previousDay.setHours(0, 0, 0, 0);
 
       const staffCall = await StaffService.getAllStaffs();
-      const convertedStaff = staffCall.data.map((staff) =>
-        convertStaffReceived(staff),
-      );
-      dispatch(setStaffs(convertedStaff));
+      dispatch(setStaffs(staffCall.data));
       const invoicesCall = await InvoiceService.getAllInvoices();
       const invoices = invoicesCall.data;
 

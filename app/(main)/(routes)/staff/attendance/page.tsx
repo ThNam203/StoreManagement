@@ -52,17 +52,13 @@ export default function Attendance() {
       dispatch(showPreloader());
       try {
         const resShift = await ShiftService.getShiftsThisMonth();
-        const shiftReceived = resShift.data.map((shift) =>
-          convertShiftReceived(shift),
-        );
-        dispatch(setShifts(shiftReceived));
+        dispatch(setShifts(resShift.data));
 
         const resStaff = await StaffService.getAllStaffs();
-        const staffReceived = resStaff.data.map((staff) =>
-          convertStaffReceived(staff),
-        );
         dispatch(
-          setStaffs(staffReceived.filter((staff) => staff.role !== "OWNER")),
+          setStaffs(
+            resStaff.data.filter((staff) => staff.position !== "Owner"),
+          ),
         );
 
         const resViolationAndReward =
@@ -117,11 +113,7 @@ export default function Attendance() {
     setIsLoading(true);
     try {
       const resShiftList = await ShiftService.getShiftsByRange(range);
-      let shiftList: Shift[] = [];
-      resShiftList.data.forEach((shift) => {
-        shiftList.push(convertShiftReceived(shift));
-      });
-      dispatch(setShifts(shiftList));
+      dispatch(setShifts(resShiftList.data));
     } catch (e) {
       axiosUIErrorHandler(e, toast, router);
       return Promise.reject();
@@ -132,11 +124,7 @@ export default function Attendance() {
   const getShiftsThisMonth = async () => {
     try {
       const resShiftList = await ShiftService.getShiftsThisMonth();
-      let shiftList: Shift[] = [];
-      resShiftList.data.forEach((shift) => {
-        shiftList.push(convertShiftReceived(shift));
-      });
-      dispatch(setShifts(shiftList));
+      dispatch(setShifts(resShiftList.data));
     } catch (e) {
       axiosUIErrorHandler(e, toast, router);
       return Promise.reject();
@@ -164,11 +152,8 @@ export default function Attendance() {
   const AddShift = async (shift: Shift) => {
     try {
       const newShift = convertShiftToSent(shift);
-      console.log("to sent", newShift);
       const res = await ShiftService.createShift(newShift);
-      const result = convertShiftReceived(res.data);
-      console.log("received", result);
-      dispatch(addShift(result));
+      dispatch(addShift(res.data));
       return Promise.resolve();
     } catch (e) {
       axiosUIErrorHandler(e, toast, router);
@@ -180,8 +165,7 @@ export default function Attendance() {
       const newShift = convertShiftToSent(shift);
       console.log("to update shift", newShift);
       const res = await ShiftService.updateShift(id, newShift);
-      const result = convertShiftReceived(res.data);
-      dispatch(updateShift(result));
+      dispatch(updateShift(res.data));
       return Promise.resolve();
     } catch (e) {
       axiosUIErrorHandler(e, toast, router);
@@ -194,13 +178,8 @@ export default function Attendance() {
       const newDailyShiftList = dailyShiftList.map((dailyShift) =>
         convertDailyShiftToSent(dailyShift),
       );
-      console.log("to sent", newDailyShiftList);
       const res = await ShiftService.createDailyShifts(newDailyShiftList);
-      console.log("received", res.data);
-      const result = res.data.map((dailyShift: any) =>
-        convertDailyShiftReceived(dailyShift),
-      );
-      dispatch(addDailyShifts(result));
+      dispatch(addDailyShifts(res.data));
       return Promise.resolve();
     } catch (e) {
       axiosUIErrorHandler(e, toast, router);
@@ -214,11 +193,7 @@ export default function Attendance() {
       );
       const res = await ShiftService.updateDailyShifts(newDailyShiftList);
       if (res.data) {
-        const result = res.data.map((dailyShift: any) =>
-          convertDailyShiftReceived(dailyShift),
-        );
-        console.log("res data", res.data);
-        dispatch(updateDailyShifts(result));
+        dispatch(updateDailyShifts(res.data));
       } else {
         dispatch(deleteDailyShifts(dailyShiftList));
       }

@@ -1,70 +1,38 @@
 "use client";
 
-import { PageWithFilters, SearchFilter } from "@/components/ui/filter";
 import { useToast } from "@/components/ui/use-toast";
-import { Staff } from "@/entities/Staff";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
-import {
-  addPosition,
-  deletePosition,
-  setPositions,
-} from "@/reducers/staffPositionReducer";
-import {
-  addStaff,
-  deleteStaff,
-  setStaffs,
-  updateStaff,
-} from "@/reducers/staffReducer";
+import { setStaffs } from "@/reducers/staffReducer";
 import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import StaffService from "@/services/staff_service";
-import { handleMultipleFilter } from "@/utils";
-import {
-  convertStaffReceived,
-  convertStaffToSent,
-} from "@/utils/staffApiUtils";
-import { use, useEffect, useState } from "react";
+import { convertStaffReceived } from "@/utils/staffApiUtils";
+import { useEffect, useState } from "react";
 
 import CustomCombobox from "@/components/component/CustomCombobox";
+import { Button } from "@/components/ui/button";
+import LoadingCircle from "@/components/ui/loading_circle";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-} from "@/components/ui/form";
-import { RoleList } from "@/components/ui/staff/role_setting_item";
-import * as z from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Check, Pen, PenLine, PlusCircle, Trash } from "lucide-react";
-import { cn } from "@/lib/utils";
+  ConfirmDialogType,
+  MyConfirmDialog,
+} from "@/components/ui/my_confirm_dialog";
 import { RoleSettingDialog } from "@/components/ui/staff/role_setting_dialog";
-import { AddPositionDialog } from "@/components/ui/staff/position_dialog";
+import { RoleList } from "@/components/ui/staff/role_setting_item";
 import {
   Role,
   RoleSetting,
   defaultRole,
   defaultRoleSetting,
 } from "@/entities/RoleSetting";
-import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { addRole, deleteRole, updateRole } from "@/reducers/roleReducer";
 import RoleService from "@/services/role_service";
-import {
-  addRole,
-  deleteRole,
-  setRoles,
-  updateRole,
-} from "@/reducers/roleReducer";
 import {
   convertRoleReceived,
   convertRoleSettingToSent,
   convertRoleToSent,
 } from "@/utils/roleSettingApiUtils";
-import LoadingCircle from "@/components/ui/loading_circle";
-import {
-  ConfirmDialogType,
-  MyConfirmDialog,
-} from "@/components/ui/my_confirm_dialog";
+import { Check, PenLine, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
 const OptionView = (option: string): React.ReactNode => {
   return <p className="whitespace-nowrap text-xs">{option}</p>;
@@ -100,10 +68,11 @@ export default function StaffRolePage() {
       dispatch(showPreloader());
       try {
         const resStaff = await StaffService.getAllStaffs();
-        const staffReceived = resStaff.data
-          .map((staff) => convertStaffReceived(staff))
-          .filter((staff) => staff.role !== "OWNER");
-        dispatch(setStaffs(staffReceived));
+        dispatch(
+          setStaffs(
+            resStaff.data.filter((staff) => staff.position !== "Owner"),
+          ),
+        );
       } catch (e) {
         axiosUIErrorHandler(e, toast, router);
       } finally {
@@ -156,8 +125,7 @@ export default function StaffRolePage() {
         positionId,
         convertedRoleToSent,
       );
-      const convertedRoleReceived = convertRoleReceived(res.data);
-      dispatch(updateRole(convertedRoleReceived));
+      dispatch(updateRole(res.data));
       return Promise.resolve();
     } catch (e) {
       axiosUIErrorHandler(e, toast, router);
@@ -180,8 +148,9 @@ export default function StaffRolePage() {
     try {
       const convertedRoleToSent = convertRoleToSent(value);
       const res = await RoleService.addNewRole(convertedRoleToSent);
+      dispatch(addRole(res.data));
+
       const convertedRoleReceived = convertRoleReceived(res.data);
-      dispatch(addRole(convertedRoleReceived));
       setSelectedData(convertedRoleReceived);
       return Promise.resolve();
     } catch (e) {

@@ -43,12 +43,13 @@ export const transactionSlice = createSlice({
       });
     },
     updateTransaction: (state, action: PayloadAction<Transaction>) => {
-      const formatId = formatID(
+      const formattedId = formatID(
         action.payload.id,
         action.payload.formType === FormType.EXPENSE ? "EF" : "RF",
       );
+      const formatted = { ...action.payload, id: formattedId };
       state.value = state.value.map((transaction) =>
-        transaction.id === formatId ? action.payload : transaction,
+        transaction.id === formattedId ? formatted : transaction,
       );
     },
     deleteTransaction: (

@@ -50,9 +50,8 @@ const GlobalState = ({ children }: { children: React.ReactNode }) => {
       const storeInfo = await StoreService.getStoreInformation();
       dispatch(setStoreInformation(storeInfo.data));
 
-      const rolesCall = await RoleService.getAllRoles();
-      const convertedRoles = rolesCall.data.map(convertRoleReceived);
-      dispatch(setRoles(convertedRoles));
+      const resRole = await RoleService.getAllRoles();
+      dispatch(setRoles(resRole.data));
     };
 
     getGlobalData()

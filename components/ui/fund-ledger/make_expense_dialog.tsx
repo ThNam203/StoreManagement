@@ -202,8 +202,7 @@ export function MakeExpenseDialog({ data, submit, open, setOpen }: Props) {
     try {
       const strangerToSent = convertStrangerToSent(stranger);
       const res = await TransactionService.createNewStranger(strangerToSent);
-      const converted = convertStrangerReceived(res.data);
-      dispatch(addStranger(converted));
+      dispatch(addStranger(res.data));
       return Promise.resolve();
     } catch (e) {
       axiosUIErrorHandler(e, toast, router);
