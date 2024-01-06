@@ -50,7 +50,7 @@ export const damagedItemDocumentDetailColumnTitles = {
 export const damagedItemDocumentDetailTableColumns =
   (): ColumnDef<DamagedItemDetail>[] => {
     const columns: ColumnDef<DamagedItemDetail>[] = [
-      defaultSelectColumn<DamagedItemDetail>(),
+      // defaultSelectColumn<DamagedItemDetail>(),
       defaultIndexColumn<DamagedItemDetail>(),
       productIdToProductNameColumn,
     ];

@@ -348,6 +348,35 @@ const SideBar = ({
     });
   };
 
+  const staffButtons = [
+    <SideBarButton
+      key={2}
+      iconName={IconNames.MenuSquare}
+      title="Staff Account"
+      className="!w-full"
+      isCollapsed={isCollapsed}
+      href="/staff/staff-account"
+    />,
+    <SideBarButton
+      key={4}
+      iconName={IconNames.CalendarRange}
+      title="Work Manage"
+      className="!w-full"
+      isCollapsed={isCollapsed}
+      href="/staff/attendance"
+    />,
+  ]
+
+  if (profile && profile?.position === "Owner") staffButtons.push(
+    <SideBarButton
+      key={3}
+      iconName={IconNames.Wrench}
+      title="Role Setting"
+      className="!w-full"
+      isCollapsed={isCollapsed}
+      href="/staff/staff-role"
+    />,)
+
   return (
     <div>
       <ArrowLeftCircle
@@ -680,32 +709,7 @@ const SideBar = ({
         <SideBarAccordion
           iconName={IconNames.Contact}
           title="Staff"
-          buttons={[
-            <SideBarButton
-              key={2}
-              iconName={IconNames.MenuSquare}
-              title="Staff Account"
-              className="!w-full"
-              isCollapsed={isCollapsed}
-              href="/staff/staff-account"
-            />,
-            <SideBarButton
-              key={3}
-              iconName={IconNames.Wrench}
-              title="Role Setting"
-              className="!w-full"
-              isCollapsed={isCollapsed}
-              href="/staff/staff-role"
-            />,
-            <SideBarButton
-              key={4}
-              iconName={IconNames.CalendarRange}
-              title="Work Manage"
-              className="!w-full"
-              isCollapsed={isCollapsed}
-              href="/staff/attendance"
-            />,
-          ]}
+          buttons={staffButtons}
           isCollapsed={isCollapsed}
         />
 

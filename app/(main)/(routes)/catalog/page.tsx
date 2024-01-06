@@ -293,12 +293,12 @@ export default function Catalog() {
       {showUpdateProductView &&
       chosenProductIndex != null &&
       chosenProductIndex > -1 &&
-      chosenProductIndex < products.length ? (
+      chosenProductIndex < filteredProducts.length ? (
         <UpdateProductView
           onChangeVisibility={(val) => {
             setShowUpdateProductView(val);
           }}
-          product={products[chosenProductIndex]}
+          product={filteredProducts[chosenProductIndex]}
           productIndex={chosenProductIndex}
           onProductUpdated={(data) => dispatch(updateProduct(data))}
           addNewBrand={addNewBrand}
