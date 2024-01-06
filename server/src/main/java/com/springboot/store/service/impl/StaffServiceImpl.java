@@ -215,7 +215,7 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
-    public int getStaffSalary(int id) {
+    public StaffResponse getStaffSalary(int id) {
         Staff staff = staffRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Staff", "id", id));
         int salaryDebt = 0;
         if (staff.getStaffSalary().getSalaryType().equals("Shift-based pay")) {
@@ -235,7 +235,7 @@ public class StaffServiceImpl implements StaffService {
             salaryDebt += staff.getStaffSalary().getSalary() * dayWorking;
             staff.setSalaryDebt(salaryDebt);
             staffRepository.save(staff);
-            return salaryDebt;
+            return mapToResponse(staff);
         } else if (staff.getStaffSalary().getSalaryType().equals("Internship salary")) {
             List<ShiftAttendanceRecord> shiftAttendanceRecords = shiftAttendanceRecordRepository.findByStaffIdAndDateInThisMonth(id);
             for (ShiftAttendanceRecord shiftAttendanceRecord : shiftAttendanceRecords) {
@@ -249,7 +249,7 @@ public class StaffServiceImpl implements StaffService {
             salaryDebt += staff.getStaffSalary().getSalary();
             staff.setSalaryDebt(salaryDebt);
             staffRepository.save(staff);
-            return salaryDebt;
+            return mapToResponse(staff);
         } else if (staff.getStaffSalary().getSalaryType().equals("Fixed salary")) {
             List<ShiftAttendanceRecord> shiftAttendanceRecords = shiftAttendanceRecordRepository.findByStaffIdAndDateInThisMonth(id);
             for (ShiftAttendanceRecord shiftAttendanceRecord : shiftAttendanceRecords) {
@@ -263,9 +263,9 @@ public class StaffServiceImpl implements StaffService {
             salaryDebt += staff.getStaffSalary().getSalary();
             staff.setSalaryDebt(salaryDebt);
             staffRepository.save(staff);
-            return salaryDebt;
+            return mapToResponse(staff);
         }
-        return 0;
+        return null;
     }
 
     @Override

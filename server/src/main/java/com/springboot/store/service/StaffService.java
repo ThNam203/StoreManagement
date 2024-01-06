@@ -19,7 +19,7 @@ public interface StaffService {
 
     void deleteStaff(int id);
 
-    int getStaffSalary(int id);
+    StaffResponse getStaffSalary(int id);
 
     int getStaffSalaryInDate(Date startDate, Date endDate);
 
