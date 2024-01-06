@@ -71,12 +71,7 @@ public class StaffController {
 
     // get staff salary by id
     @GetMapping("/{id}/calculate-salary")
-    public ResponseEntity<Map<String, Integer>> getStaffSalary(@PathVariable(name = "id") int id) {
-        int salary = staffService.getStaffSalary(id);
-
-        Map<String, Integer> response = new HashMap<>();
-        response.put("salaryDebt", salary);
-
-        return ResponseEntity.ok().body(response);
+    public ResponseEntity<?> getStaffSalary(@PathVariable(name = "id") int id) {
+        return ResponseEntity.ok().body(staffService.getStaffSalary(id));
     }
 }
