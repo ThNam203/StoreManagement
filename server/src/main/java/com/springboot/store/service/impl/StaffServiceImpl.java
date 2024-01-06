@@ -272,8 +272,10 @@ public class StaffServiceImpl implements StaffService {
     public int getStaffSalaryInDate(Date startDate, Date endDate) {
 
         List<Staff> staffs = staffRepository.findByStoreId(getAuthorizedStaff().getStore().getId());
+
         int totalSalary = 0;
         for (Staff staff : staffs) {
+            if (staff.getStaffSalary() == null || staff.getStaffSalary().getSalaryType() == null) continue;
             if (staff.getStaffSalary().getSalaryType().equals("Shift-based pay")) {
                 int dayWorking = 0;
                 List<ShiftAttendanceRecord> shiftAttendanceRecords = shiftAttendanceRecordRepository.findByStaffIdAndDateBetween(staff.getId(), startDate, endDate);
