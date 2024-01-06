@@ -210,13 +210,13 @@ const FormContent = ({
   isCreatingNewCustomer: boolean;
 }) => {
   const { toast } = useToast();
-  const router  = useRouter();
+  const router = useRouter();
   const customerGroups = useAppSelector((state) => state.customerGroups.value);
   const form = useForm<z.infer<typeof newCustomerFormSchema>>({
     resolver: zodResolver(newCustomerFormSchema),
     defaultValues: {
       name: "",
-      email: "",
+      email: undefined,
       phoneNumber: "",
       address: "",
       sex: "Male",
@@ -277,7 +277,11 @@ const FormContent = ({
                 <FormMessage className="mr-2 text-xs" />
               </FormLabel>
               <FormControl>
-                <Input className="!m-0 flex-1" {...field} />
+                <Input
+                  className="!m-0 flex-1"
+                  {...field}
+                  placeholder="johndoe@gmail.com"
+                />
               </FormControl>
             </FormItem>
           )}

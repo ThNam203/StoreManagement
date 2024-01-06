@@ -262,12 +262,12 @@ export const NewProductView = ({
       productGroup: "",
       productBrand: undefined,
       location: null,
-      originalPrice: 0,
-      productPrice: 0,
+      originalPrice: undefined,
+      productPrice: undefined,
       status: "Active",
-      stock: 0,
-      weight: 0,
-      minStock: 0,
+      stock: undefined,
+      weight: undefined,
+      minStock: undefined,
       maxStock: 999999999,
       images: [null, null, null, null, null],
       productProperties: null,
@@ -760,6 +760,7 @@ export const NewProductView = ({
                           <Input
                             type="number"
                             min={0}
+                            placeholder="0"
                             step={0.001}
                             className="!m-0 flex-1 text-end"
                             {...field}
@@ -796,6 +797,7 @@ export const NewProductView = ({
                       <FormControl>
                         <Input
                           className="!m-0 flex-1 text-end"
+                          placeholder="0"
                           defaultValue={field.value}
                           onChange={(e) => {
                             const number = formatNumberInput(e);
@@ -828,6 +830,7 @@ export const NewProductView = ({
                       <FormControl>
                         <Input
                           className="!m-0 flex-1 text-end"
+                          placeholder="0"
                           defaultValue={field.value}
                           onChange={(e) => {
                             const number = formatNumberInput(e);
@@ -858,6 +861,7 @@ export const NewProductView = ({
                       <FormControl>
                         <Input
                           className="!m-0 flex-1 text-end"
+                          placeholder="0"
                           defaultValue={field.value}
                           onChange={(e) => {
                             const number = formatNumberInput(e);
@@ -888,6 +892,7 @@ export const NewProductView = ({
                       <FormControl>
                         <Input
                           className="!m-0 flex-1 text-end"
+                          placeholder="0"
                           defaultValue={field.value}
                           onChange={(e) => {
                             const number = formatNumberInput(e);

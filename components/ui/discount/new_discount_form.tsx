@@ -85,11 +85,11 @@ export default function NewDiscountForm({
       maxValue: null,
       status: true,
       type: "COUPON",
-      amount: 0,
+      amount: undefined,
       productGroups: [],
       productIds: [],
       description: "",
-      minSubTotal: 0,
+      minSubTotal: undefined,
       time: {
         startDate: new Date(),
         endDate: new Date(),
@@ -259,6 +259,7 @@ export default function NewDiscountForm({
                           <Input
                             type="number"
                             min={0}
+                            placeholder="0"
                             className="!m-0 flex-1 text-end"
                             value={field.value}
                             onChange={(e) =>
@@ -464,6 +465,7 @@ export default function NewDiscountForm({
                           <Input
                             className="!m-0 flex-1 text-end"
                             value={field.value}
+                            placeholder="0"
                             ref={field.ref}
                             type="number"
                             onChange={(e) =>

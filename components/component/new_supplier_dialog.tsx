@@ -141,7 +141,7 @@ const FormContent = ({
     resolver: zodResolver(newSupplierFormSchema),
     defaultValues: {
       name: "",
-      email: "",
+      email: undefined,
       phoneNumber: "",
       address: "",
       status: "Active",
@@ -202,7 +202,11 @@ const FormContent = ({
                 <FormMessage className="mr-2 text-xs" />
               </FormLabel>
               <FormControl>
-                <Input className="!m-0 flex-1" {...field} />
+                <Input
+                  className="!m-0 flex-1"
+                  {...field}
+                  placeholder="supplier@gmail.com"
+                />
               </FormControl>
             </FormItem>
           )}
