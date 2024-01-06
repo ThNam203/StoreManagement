@@ -962,7 +962,7 @@ const PageWithFilters = ({
     <>
       <div
         className={cn(
-          "flex min-w-0 flex-1 flex-col rounded-sm bg-white px-4 py-2 md:mr-[200px] lg:mr-[260px]",
+          "flex min-w-0 flex-1 flex-col rounded-sm bg-white px-4 py-2 md:mr-[200px] lg:mr-[260px] min-h-screen",
         )}
       >
         <div className="flex flex-row items-center">
