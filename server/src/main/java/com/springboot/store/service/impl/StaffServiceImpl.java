@@ -209,7 +209,8 @@ public class StaffServiceImpl implements StaffService {
             }
         }
         shiftAttendanceRecordRepository.deleteAll(shiftAttendanceRecords);
-        staffRepository.delete(staff);
+        staff.setIsDeleted(true);
+        staffRepository.save(staff);
         // save activity log
         activityLogService.save("deleted staff with id " + staff.getId(), creator.getId(), new Date());
     }
@@ -372,6 +373,7 @@ public class StaffServiceImpl implements StaffService {
                 .role(staff.getStaffRole() != null ? staff.getStaffRole().getName() : null)
                 .creator(staff.getCreator() != null ? staff.getCreator().getId() : null)
                 .staffSalary(staff.getStaffSalary() != null ? staff.getStaffSalary() : null)
+                .isDeleted(staff.getIsDeleted() != null ? staff.getIsDeleted() : false)
                 .build();
     }
 
