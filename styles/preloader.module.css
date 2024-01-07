@@ -1,30 +1,49 @@
 .preloader {
-	position: fixed;
-	width: 100vw;
-	height: 100vh;
-	background-color: #dddddd;
-	z-index: 99999999999999999999999999999;
-	display: flex;
-	justify-content: center;
-	align-items: center;
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  backdrop-filter: blur(10px);
+  background: linear-gradient(
+    45deg,
+    rgb(34, 197, 94, 0.8),
+    rgb(148, 150, 224, 0.8)
+  );
+  z-index: 99999999999999999999999999999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 .preloader .small-circle {
-	stroke-dasharray: 210;
-	stroke-dashoffset: 210;
-	transform-origin: 50%;
-    animation: 1s draw-small infinite alternate;
+  stroke-dasharray: 210;
+  stroke-dashoffset: 210;
+  transform-origin: 50%;
+  animation: 1s draw-small infinite alternate;
+  stroke: white;
 }
 @keyframes draw-small {
-	0% { stroke-dashoffset: 0; transform: rotate(0deg); }
-	100% { stroke-dashoffset: 210; transform: rotate(360deg); }
+  0% {
+    stroke-dashoffset: 0;
+    transform: rotate(0deg);
+  }
+  100% {
+    stroke-dashoffset: 210;
+    transform: rotate(360deg);
+  }
 }
 .preloader .big-circle {
-	stroke-dasharray: 240;
-	stroke-dashoffset: 240;
-	transform-origin: 50%;
-    animation: 1s draw-big infinite alternate 0.5s;
+  stroke-dasharray: 240;
+  stroke-dashoffset: 240;
+  transform-origin: 50%;
+  animation: 1s draw-big infinite alternate 0.5s;
+  stroke: white;
 }
 @keyframes draw-big {
-	0% { stroke-dashoffset: 0; transform: rotateY(180deg) rotate(360deg); }
-	100% { stroke-dashoffset: 240; transform: rotateY(180deg) rotate(0deg); }
+  0% {
+    stroke-dashoffset: 0;
+    transform: rotateY(180deg) rotate(360deg);
+  }
+  100% {
+    stroke-dashoffset: 240;
+    transform: rotateY(180deg) rotate(0deg);
+  }
 }
