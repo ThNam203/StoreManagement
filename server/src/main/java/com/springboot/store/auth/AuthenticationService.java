@@ -62,6 +62,7 @@ public class AuthenticationService {
         staff.setName(request.getName());
         staff.setEmail(request.getEmail());
         staff.setPassword(passwordEncoder.encode(request.getPassword()));
+        staff.setIsDeleted(false);
         staff.setStaffRole(role);
         staff.setStore(store);
 
@@ -99,8 +100,13 @@ public class AuthenticationService {
         var user = staffRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new CustomException("Invalid username/password supplied", HttpStatus.UNPROCESSABLE_ENTITY));
 
+
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new CustomException("Invalid username/password supplied.", HttpStatus.UNPROCESSABLE_ENTITY);
+        }
+
+        if (user.getIsDeleted() != null && user.getIsDeleted()) {
+            throw new CustomException("Account is deleted", HttpStatus.UNPROCESSABLE_ENTITY);
         }
 
         authenticationManager.authenticate(

@@ -60,15 +60,15 @@ public class StaffServiceImpl implements StaffService {
         staff.setStaffPosition(staffPositionRepository.findByNameAndStoreId(newStaff.getPosition(), creator.getStore().getId()).orElseThrow());
 
         //check if cccd is duplicate and valid
-        if (newStaff.getCccd() != null && newStaff.getCccd().length() == 12 && staffRepository.existsByCccd(newStaff.getCccd())) {
-            throw new CustomException("CCCD already in use", HttpStatus.UNPROCESSABLE_ENTITY);
-        }
+//        if (newStaff.getCccd() != null && newStaff.getCccd().length() == 12 && staffRepository.existsByCccd(newStaff.getCccd())) {
+//            throw new CustomException("CCCD already in use", HttpStatus.UNPROCESSABLE_ENTITY);
+//        }
         staff.setCccd(newStaff.getCccd());
 
         //check if phone number is duplicate and valid
-        if (newStaff.getPhoneNumber() != null && staffRepository.existsByPhoneNumber(newStaff.getPhoneNumber())) {
-            throw new CustomException("Phone number already in use", HttpStatus.UNPROCESSABLE_ENTITY);
-        }
+//        if (newStaff.getPhoneNumber() != null && staffRepository.existsByPhoneNumber(newStaff.getPhoneNumber())) {
+//            throw new CustomException("Phone number already in use", HttpStatus.UNPROCESSABLE_ENTITY);
+//        }
 
         staff.setPhoneNumber(newStaff.getPhoneNumber());
 
@@ -210,6 +210,7 @@ public class StaffServiceImpl implements StaffService {
         }
         shiftAttendanceRecordRepository.deleteAll(shiftAttendanceRecords);
         staff.setIsDeleted(true);
+        staff.setEmail(staff.getEmail().replace("@", "_"));
         staffRepository.save(staff);
         // save activity log
         activityLogService.save("deleted staff with id " + staff.getId(), creator.getId(), new Date());
