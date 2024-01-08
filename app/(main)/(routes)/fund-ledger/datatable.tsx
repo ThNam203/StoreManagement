@@ -336,7 +336,7 @@ const DetailFundledgerTab = ({
   const strangerList = useAppSelector(
     (state) => state.transactionStranger.value,
   );
-  const staffList = useAppSelector((state) => state.staffs.value);
+  const staffList = useAppSelector((state) => state.staffs.activeStaffs);
   let target: {
     phonenumber: string;
     address: string;

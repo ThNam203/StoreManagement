@@ -56,7 +56,7 @@ export default function InvoicePage() {
   const invoices = useAppSelector((state) => state.invoices.value);
   const customers = useAppSelector((state) => state.customers.value);
   const customerGroups = useAppSelector((state) => state.customerGroups.value);
-  const staffs = useAppSelector((state) => state.staffs.value);
+  const staffs = useAppSelector((state) => state.staffs.activeStaffs);
 
   useEffect(() => {
     dispatch(showPreloader());

@@ -71,7 +71,7 @@ export default function NewPurchaseOrderPage() {
   const [isCompleting, setIsCompleting] = useState(false);
   const { toast } = useToast();
 
-  const staffs = useAppSelector((state) => state.staffs.value);
+  const staffs = useAppSelector((state) => state.staffs.activeStaffs);
   const profile = useAppSelector((state) => state.profile.value);
   const [staff, setStaff] = useState<Staff | null>(profile);
   const [createdDate, setCreatedDate] = useState<Date>(new Date());
@@ -83,9 +83,17 @@ export default function NewPurchaseOrderPage() {
       const staffs = await StaffService.getAllStaffs();
       dispatch(setStaffs(staffs.data));
       const suppliers = await SupplierService.getAllSuppliers();
-      dispatch(setSuppliers(suppliers.data.filter((v) => !v.isDeleted && v.status === "Active")));
+      dispatch(
+        setSuppliers(
+          suppliers.data.filter((v) => !v.isDeleted && v.status === "Active"),
+        ),
+      );
       const products = await ProductService.getAllProducts();
-      dispatch(setProducts(products.data.filter((v) => !v.isDeleted && v.status === "Active")));
+      dispatch(
+        setProducts(
+          products.data.filter((v) => !v.isDeleted && v.status === "Active"),
+        ),
+      );
     };
 
     fetchData()

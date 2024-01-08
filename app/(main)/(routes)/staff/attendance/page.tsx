@@ -103,7 +103,7 @@ export default function Attendance() {
   const [openSetTimeDialog, setOpenSetTimeDialog] = useState(false);
 
   const table = useAppSelector((state) => state.shift.value);
-  const staffList = useAppSelector((state) => state.staffs.value);
+  const staffList = useAppSelector((state) => state.staffs.activeStaffs);
   const [isLoading, setIsLoading] = useState(false);
 
   const getShiftsByRange = async (range: {

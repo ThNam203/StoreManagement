@@ -6,7 +6,7 @@ import {
   PageWithFilters,
   RangeFilter,
   SearchFilterObject,
-  TimeFilter
+  TimeFilter,
 } from "@/components/ui/filter";
 import { useToast } from "@/components/ui/use-toast";
 import { useAppDispatch, useAppSelector } from "@/hooks";
@@ -34,7 +34,7 @@ export default function PurchaseOrderPage() {
   const { toast } = useToast();
   const router = useRouter();
   const purchaseOrders = useAppSelector((state) => state.purchaseOrders.value);
-  const staffs = useAppSelector((state) => state.staffs.value);
+  const staffs = useAppSelector((state) => state.staffs.activeStaffs);
   const suppliers = useAppSelector((state) => state.suppliers.value);
 
   useEffect(() => {
@@ -137,7 +137,15 @@ export default function PurchaseOrderPage() {
       },
     );
     setFilteredPurchaseOrders(filteredPurchaseReturns);
-  }, [rangeConditions, staffCondition, supplierCondition, purchaseOrders, timeConditions, timeRangeConditions, timeConditionControls]);
+  }, [
+    rangeConditions,
+    staffCondition,
+    supplierCondition,
+    purchaseOrders,
+    timeConditions,
+    timeRangeConditions,
+    timeConditionControls,
+  ]);
 
   const filters = [
     <SearchFilterObject

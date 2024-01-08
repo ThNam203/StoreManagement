@@ -56,7 +56,7 @@ export default function ReturnPage() {
 
   const invoices = useAppSelector((state) => state.invoices.value);
   const returnInvoices = useAppSelector((state) => state.returnInvoices.value);
-  const staffs = useAppSelector((state) => state.staffs.value);
+  const staffs = useAppSelector((state) => state.staffs.activeStaffs);
 
   useEffect(() => {
     dispatch(showPreloader());

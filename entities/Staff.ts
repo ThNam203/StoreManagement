@@ -17,6 +17,7 @@ export type Staff = {
   role: string;
   salarySetting: SalarySetting;
   password: string | null;
+  isDeleted: boolean;
 };
 
 export enum Sex {
