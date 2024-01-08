@@ -71,7 +71,7 @@ export default function StaffInfoPage() {
     fetchData();
   }, []);
 
-  const staffList = useAppSelector((state) => state.staffs.value);
+  const staffList = useAppSelector((state) => state.staffs.activeStaffs);
 
   const [filterdStaffList, setFilteredStaffList] = useState<Staff[]>([]);
   const [multiFilter, setMultiFilter] = useState({

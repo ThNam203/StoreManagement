@@ -48,7 +48,7 @@ export default function InvoicePage() {
   };
 
   const invoices = useAppSelector((state) => state.invoices.value);
-  const staffs = useAppSelector((state) => state.staffs.value);
+  const staffs = useAppSelector((state) => state.staffs.activeStaffs);
   const customers = useAppSelector((state) => state.customers.value);
 
   const [filteredInvoices, setFilteredInvoices] = useState(invoices);

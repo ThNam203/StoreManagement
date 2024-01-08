@@ -65,12 +65,13 @@ import {
   convertStaffReceived,
   convertStaffToSent,
 } from "@/utils/staffApiUtils";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { setProfile } from "@/reducers/profileReducer";
 import { Button } from "../button";
 import AuthService from "@/services/authService";
 import UpdateStoreInformationDialog from "@/components/component/updateStoreInfoDialog";
 import { convertRoleReceived } from "@/utils/roleSettingApiUtils";
+import Preloader from "../preloader";
 
 enum IconNames {
   GanttChartSquare,
@@ -300,10 +301,12 @@ const SideBar = ({
   className,
   changeSideBarCollapsibility,
   isSideBarCollapsed: isCollapsed,
+  showPreloader,
 }: {
   className: string;
   changeSideBarCollapsibility: () => void;
   isSideBarCollapsed: boolean | null;
+  showPreloader: (show: boolean) => void;
 }) => {
   const { toast } = useToast();
   const dispatch = useDispatch();
@@ -348,6 +351,12 @@ const SideBar = ({
     });
   };
 
+  const pathname = usePathname();
+
+  const handleButtonClicked = (path: string) => {
+    if (pathname !== path) showPreloader(true);
+  };
+
   const staffButtons = [
     <SideBarButton
       key={2}
@@ -365,20 +374,23 @@ const SideBar = ({
       isCollapsed={isCollapsed}
       href="/staff/attendance"
     />,
-  ]
+  ];
 
-  if (profile && profile?.position === "Owner") staffButtons.push(
-    <SideBarButton
-      key={3}
-      iconName={IconNames.Wrench}
-      title="Role Setting"
-      className="!w-full"
-      isCollapsed={isCollapsed}
-      href="/staff/staff-role"
-    />,)
+  if (profile && profile?.position === "Owner")
+    staffButtons.push(
+      <SideBarButton
+        key={3}
+        iconName={IconNames.Wrench}
+        title="Role Setting"
+        className="!w-full"
+        isCollapsed={isCollapsed}
+        href="/staff/staff-role"
+      />,
+    );
 
   return (
     <div>
+      {" "}
       <ArrowLeftCircle
         height={20}
         width={20}
@@ -494,6 +506,7 @@ const SideBar = ({
                       toast({
                         title: "Logout successfully",
                       });
+                      handleButtonClicked("/home");
                     })
                     .catch((e) => {
                       axiosUIErrorHandler(e, toast, router);
@@ -528,6 +541,7 @@ const SideBar = ({
             className="border border-blue-400"
             isCollapsed={isCollapsed}
             href="/sale"
+            onClick={() => handleButtonClicked("/sale")}
           />
         )}
 
@@ -538,6 +552,7 @@ const SideBar = ({
             className=""
             isCollapsed={isCollapsed}
             href="/overview"
+            onClick={() => handleButtonClicked("/overview")}
           />
         )}
 
@@ -558,6 +573,7 @@ const SideBar = ({
                 )}
                 isCollapsed={isCollapsed}
                 href="/catalog"
+                onClick={() => handleButtonClicked("/catalog")}
               />,
               <SideBarButton
                 key={2}
@@ -569,6 +585,7 @@ const SideBar = ({
                 )}
                 isCollapsed={isCollapsed}
                 href="/discount"
+                onClick={() => handleButtonClicked("/discount")}
               />,
               <SideBarButton
                 key={3}
@@ -580,6 +597,7 @@ const SideBar = ({
                 )}
                 isCollapsed={isCollapsed}
                 href="/stock-check"
+                onClick={() => handleButtonClicked("/stock-check")}
               />,
             ]}
             isCollapsed={isCollapsed}
@@ -605,6 +623,7 @@ const SideBar = ({
                 )}
                 isCollapsed={isCollapsed}
                 href="/invoice"
+                onClick={() => handleButtonClicked("/invoice")}
               />,
               <SideBarButton
                 key={2}
@@ -616,6 +635,7 @@ const SideBar = ({
                 )}
                 isCollapsed={isCollapsed}
                 href="/return"
+                onClick={() => handleButtonClicked("/return")}
               />,
               <SideBarButton
                 key={3}
@@ -627,6 +647,7 @@ const SideBar = ({
                 )}
                 isCollapsed={isCollapsed}
                 href="/purchase-order"
+                onClick={() => handleButtonClicked("/purchase-order")}
               />,
               <SideBarButton
                 key={4}
@@ -638,6 +659,7 @@ const SideBar = ({
                 )}
                 isCollapsed={isCollapsed}
                 href="/purchase-return"
+                onClick={() => handleButtonClicked("/purchase-return")}
               />,
               <SideBarButton
                 key={5}
@@ -649,6 +671,7 @@ const SideBar = ({
                 )}
                 isCollapsed={isCollapsed}
                 href="/damaged-item"
+                onClick={() => handleButtonClicked("/damaged-item")}
               />,
             ]}
             isCollapsed={isCollapsed}
@@ -662,6 +685,7 @@ const SideBar = ({
             className=""
             isCollapsed={isCollapsed}
             href="/fund-ledger"
+            onClick={() => handleButtonClicked("/fund-ledger")}
           />
         )}
 
@@ -681,6 +705,7 @@ const SideBar = ({
                 )}
                 isCollapsed={isCollapsed}
                 href="/customer"
+                onClick={() => handleButtonClicked("/customer")}
               />,
               <SideBarButton
                 key={2}
@@ -692,6 +717,7 @@ const SideBar = ({
                 )}
                 isCollapsed={isCollapsed}
                 href="/supplier"
+                onClick={() => handleButtonClicked("/supplier")}
               />,
             ]}
             isCollapsed={isCollapsed}
@@ -724,6 +750,7 @@ const SideBar = ({
                 className="!w-full"
                 isCollapsed={isCollapsed}
                 href="/report/sale-transaction"
+                onClick={() => handleButtonClicked("/report/sale-transaction")}
               />,
               <SideBarButton
                 key={2}
@@ -731,6 +758,9 @@ const SideBar = ({
                 className="!w-full"
                 isCollapsed={isCollapsed}
                 href="/report/sale-profit-by-day"
+                onClick={() =>
+                  handleButtonClicked("/report/sale-profit-by-day")
+                }
               />,
               <SideBarButton
                 key={3}
@@ -738,6 +768,7 @@ const SideBar = ({
                 className="!w-full"
                 isCollapsed={isCollapsed}
                 href="/report/revenue-by-staff"
+                onClick={() => handleButtonClicked("/report/revenue-by-staff")}
               />,
               // <SideBarButton
               //   key={8}
@@ -752,6 +783,7 @@ const SideBar = ({
                 className="!w-full"
                 isCollapsed={isCollapsed}
                 href="/report/products"
+                onClick={() => handleButtonClicked("/report/products")}
               />,
               // <SideBarButton
               //   key={5}
@@ -766,6 +798,7 @@ const SideBar = ({
                 className="!w-full"
                 isCollapsed={isCollapsed}
                 href="/report/sale-by-day"
+                onClick={() => handleButtonClicked("/report/sale-by-day")}
               />,
               <SideBarButton
                 key={7}
@@ -773,6 +806,7 @@ const SideBar = ({
                 className="!w-full"
                 isCollapsed={isCollapsed}
                 href="/report/customer"
+                onClick={() => handleButtonClicked("/report/customer")}
               />,
               <SideBarButton
                 key={9}
@@ -780,6 +814,7 @@ const SideBar = ({
                 className="!w-full"
                 isCollapsed={isCollapsed}
                 href="/report/finance"
+                onClick={() => handleButtonClicked("/report/finance")}
               />,
               <SideBarButton
                 key={10}
@@ -787,6 +822,9 @@ const SideBar = ({
                 className="!w-full"
                 isCollapsed={isCollapsed}
                 href="/report/supply-transaction"
+                onClick={() =>
+                  handleButtonClicked("/report/supply-transaction")
+                }
               />,
             ]}
             isCollapsed={isCollapsed}

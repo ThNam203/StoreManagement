@@ -107,7 +107,7 @@ const DetailTab = ({
   const dispatch = useAppDispatch();
   const { toast } = useToast();
   const router = useRouter();
-  const staffs = useAppSelector((state) => state.staffs.value);
+  const staffs = useAppSelector((state) => state.staffs.activeStaffs);
 
   return (
     <>

@@ -4,14 +4,28 @@ import { CustomDatatable } from "@/components/component/custom_datatable";
 import { Button } from "@/components/ui/button";
 import { MakeExpenseDialog } from "@/components/ui/fund-ledger/make_expense_dialog";
 import { MakeReceiptDialog } from "@/components/ui/fund-ledger/make_receipt_dialog";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
+import LoadingCircle from "@/components/ui/loading_circle";
+import {
+  ConfirmDialogType,
+  MyConfirmDialog,
+} from "@/components/ui/my_confirm_dialog";
 import { useToast } from "@/components/ui/use-toast";
 import { FormType, TargetType, Transaction } from "@/entities/Transaction";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { cn } from "@/lib/utils";
+import { deleteTransaction } from "@/reducers/transactionReducer";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
+import TransactionService from "@/services/transaction_service";
 import { exportExcel, formatDate, formatPrice, revertID } from "@/utils";
 import { Row, Table } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { FolderOpen, Info, Trash } from "lucide-react";
+import { useRouter } from "next/navigation";
 import * as React from "react";
 import { ImportDailog } from "../../../../components/ui/my_import_dialog";
 import {
@@ -19,22 +33,6 @@ import {
   fundledgerDefaultVisibilityState,
   fundledgerTableColumns,
 } from "./table_columns";
-import {
-  ConfirmDialogType,
-  MyConfirmDialog,
-} from "@/components/ui/my_confirm_dialog";
-import LoadingCircle from "@/components/ui/loading_circle";
-import TransactionService from "@/services/transaction_service";
-import { deleteTransaction } from "@/reducers/transactionReducer";
-import { axiosUIErrorHandler } from "@/services/axiosUtils";
-import { useRouter } from "next/navigation";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
-import Image from "next/image";
-// import PageBackground from "@/public/page_bg.svg";
 
 type Props = {
   data: Transaction[];
@@ -205,15 +203,6 @@ export function DataTable({ data, onSubmit }: Props) {
 
   return (
     <div className="flex flex-col">
-      {/* <div className="absolute bottom-0 left-0 right-0">
-        <Image
-          src={PageBackground}
-          alt="shape"
-          width={500}
-          height={500}
-          className="w-full"
-        />
-      </div> */}
       <div className="flex w-full flex-row items-center justify-end gap-12">
         <div className="flex flex-col items-end">
           <span>Total receipt</span>
@@ -347,7 +336,7 @@ const DetailFundledgerTab = ({
   const strangerList = useAppSelector(
     (state) => state.transactionStranger.value,
   );
-  const staffList = useAppSelector((state) => state.staffs.value);
+  const staffList = useAppSelector((state) => state.staffs.activeStaffs);
   let target: {
     phonenumber: string;
     address: string;

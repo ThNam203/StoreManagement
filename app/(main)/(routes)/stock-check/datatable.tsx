@@ -98,7 +98,7 @@ const DetailTab = ({
   setShowInfoRow: (value: boolean) => any;
 }) => {
   const stockCheck: StockCheck = row.original;
-  const staffs = useAppSelector((state) => state.staffs.value);
+  const staffs = useAppSelector((state) => state.staffs.activeStaffs);
   const [disableDisableButton, setDisableDisableButton] = useState(false);
   const [disableDeleteButton, setDisableDeleteButton] = useState(false);
   const dispatch = useAppDispatch();

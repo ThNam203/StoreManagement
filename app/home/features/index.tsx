@@ -1,3 +1,4 @@
+"use client";
 import SectionTitle from "../components/section-title";
 import featuresData from "./feature-data";
 import SingleFeature from "./single-feature";

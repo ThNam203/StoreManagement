@@ -118,7 +118,7 @@ export default function OverviewPage() {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const { toast } = useToast();
-  const staffs = useAppSelector((state) => state.staffs.value);
+  const staffs = useAppSelector((state) => state.staffs.activeStaffs);
   const [chartType, setChartType] = useState<
     "order" | "revenue" | "refund" | "customer"
   >("order");

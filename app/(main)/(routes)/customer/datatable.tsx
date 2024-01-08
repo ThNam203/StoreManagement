@@ -84,7 +84,7 @@ const DetailCustomerTab = ({
   setShowTabs: (value: boolean) => any;
 }) => {
   const customer = row.original;
-  const staffs = useAppSelector((state) => state.staffs.value);
+  const staffs = useAppSelector((state) => state.staffs.activeStaffs);
   const [disableDeleteButton, setDisableDeleteButton] = useState(false);
   const dispatch = useAppDispatch();
   const { toast } = useToast();

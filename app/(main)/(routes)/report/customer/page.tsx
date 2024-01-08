@@ -14,9 +14,7 @@ import {
   ReportPDFView,
 } from "@/components/ui/pdf";
 import { useToast } from "@/components/ui/use-toast";
-import {
-  CustomerReport,
-} from "@/entities/Report";
+import { CustomerReport } from "@/entities/Report";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
 import { setStaffs } from "@/reducers/staffReducer";
@@ -36,7 +34,7 @@ export default function CustomerReportPage() {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const [report, setReport] = useState<CustomerReport | null>(null);
-  const staffs = useAppSelector((state) => state.staffs.value);
+  const staffs = useAppSelector((state) => state.staffs.activeStaffs);
   const [reportDateRangeCondition, setReportDateRange] = useState({
     startDate: new Date(),
     endDate: new Date(),

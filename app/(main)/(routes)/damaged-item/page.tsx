@@ -29,15 +29,15 @@ export default function DamagedItemsPage() {
   const damagedItemDocuments = useAppSelector(
     (state) => state.damagedItemDocuments.value,
   );
-  const staffs = useAppSelector((state) => state.staffs.value);
+  const staffs = useAppSelector((state) => state.staffs.activeStaffs);
 
   useEffect(() => {
     dispatch(showPreloader());
     const fetchData = async () => {
       const damagedItemDocuments =
         await DamagedItemService.getAllDamagedItemDocuments();
-        const staffs = await StaffService.getAllStaffs();
-        const products = await ProductService.getAllProducts();
+      const staffs = await StaffService.getAllStaffs();
+      const products = await ProductService.getAllProducts();
 
       dispatch(setDamagedItemDocuments(damagedItemDocuments.data));
       dispatch(setStaffs(staffs.data));

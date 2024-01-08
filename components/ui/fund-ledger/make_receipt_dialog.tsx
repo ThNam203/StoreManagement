@@ -110,7 +110,7 @@ export function MakeReceiptDialog({ data, submit, open, setOpen }: Props) {
   const strangerList = useAppSelector(
     (state) => state.transactionStranger.value,
   );
-  const staffList = useAppSelector((state) => state.staffs.value);
+  const staffList = useAppSelector((state) => state.staffs.activeStaffs);
   const customerList = useAppSelector((state) => state.customers.value);
   const supplierList = useAppSelector((state) => state.suppliers.value);
   const [targetNames, setTargetNames] = useState<string[]>([]);

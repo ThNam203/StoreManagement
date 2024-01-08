@@ -38,7 +38,7 @@ const DISCOUNT_STATUSES = ["Activating", "Disabled", "All"];
 
 export default function DiscountPage() {
   const discounts = useAppSelector((state) => state.discounts.value);
-  const staffs = useAppSelector((state) => state.staffs.value);
+  const staffs = useAppSelector((state) => state.staffs.activeStaffs);
   const [updateOpen, setUpdateOpen] = useState(false);
   const [updatePosition, setUpdatePosition] = useState(0);
   const dispatch = useAppDispatch();

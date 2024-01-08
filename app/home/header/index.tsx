@@ -3,8 +3,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import ThemeToggler from "./ThemeToggler";
+import Preloader from "@/components/ui/preloader";
 
-const Header = () => {
+const Header = ({ showPreloader }: { showPreloader: () => void }) => {
   // Navbar toggle
   const [navbarOpen, setNavbarOpen] = useState(false);
   const navbarToggleHandler = () => {
@@ -29,7 +30,7 @@ const Header = () => {
       <header
         className={`header left-0 top-0 z-40 flex w-full items-center bg-transparent ${
           sticky
-            ? "shadow-sticky dark:!bg-purple !fixed !z-[9999] !bg-white !bg-opacity-80 backdrop-blur-sm !transition dark:!bg-opacity-20"
+            ? "!fixed !z-[9999] !bg-white !bg-opacity-80 shadow-sticky backdrop-blur-sm !transition dark:!bg-purple dark:!bg-opacity-20"
             : "absolute"
         }`}
       >
@@ -56,13 +57,15 @@ const Header = () => {
               <div className="flex items-center justify-end pr-16 lg:pr-0">
                 <Link
                   href="/login"
-                  className="text-dark hidden px-7 py-3 text-base font-bold hover:opacity-70 dark:text-white md:block"
+                  className="hidden px-7 py-3 text-base font-bold text-dark hover:opacity-70 dark:text-white md:block"
+                  onClick={showPreloader}
                 >
                   Sign In
                 </Link>
                 <Link
                   href="/register"
-                  className="ease-in-up hover:shadow-signUp bg-purple hidden rounded-md px-8 py-3 text-base font-bold text-white transition duration-300 hover:bg-opacity-90 md:block md:px-9 lg:px-6 xl:px-9"
+                  className="ease-in-up hidden rounded-md bg-purple px-8 py-3 text-base font-bold text-white transition duration-300 hover:bg-opacity-90 hover:shadow-signUp md:block md:px-9 lg:px-6 xl:px-9"
+                  onClick={showPreloader}
                 >
                   Sign Up
                 </Link>

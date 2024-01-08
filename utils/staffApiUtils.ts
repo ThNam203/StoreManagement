@@ -24,6 +24,7 @@ const convertStaffToSent = (
       salary: value.salarySetting.salary,
       salaryType: value.salarySetting.salaryType,
     },
+    isDeleted: value.isDeleted,
   };
 
   const convertedOwner = {
@@ -45,6 +46,7 @@ const convertStaffToSent = (
       salary: value.salarySetting.salary,
       salaryType: value.salarySetting.salaryType,
     },
+    isDeleted: value.isDeleted,
   };
   console.log("sent", convertedStaff);
   if (type === "staff") return convertedStaff;
@@ -79,6 +81,7 @@ const convertStaffReceived = (value: any) => {
           salaryType: value.staffSalary.salaryType,
         }
       : tempSalarySetting,
+    isDeleted: value.isDeleted,
   };
   console.log("received", staff);
   return staff;

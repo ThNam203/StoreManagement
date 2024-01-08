@@ -1,10 +1,15 @@
-import { cn } from '@/lib/utils';
-import preloaderStyle from '@/styles/preloader.module.css'
+import { cn } from "@/lib/utils";
+import preloaderStyle from "@/styles/preloader.module.css";
 
 const Preloader = () => {
   return (
     <div className={cn(preloaderStyle["preloader"])}>
-      <svg viewBox="0 0 102 102" fill="none" xmlns="http://www.w3.org/2000/svg" className='w-[150px] h-[150px]'>
+      <svg
+        viewBox="0 0 102 102"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-[150px] w-[150px]"
+      >
         <path
           className={preloaderStyle["big-circle"]}
           d="M101 51C101 78.6142 78.6142 101 51 101C23.3858 101 1 78.6142 1 51"
@@ -22,4 +27,4 @@ const Preloader = () => {
   );
 };
 
-export default Preloader
+export default Preloader;

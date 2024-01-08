@@ -1,12 +1,5 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { ArrowRightCircle } from "lucide-react";
-import Image from "next/image";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
-import * as z from "zod";
 import {
   Form,
   FormControl,
@@ -16,11 +9,16 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import Link from "next/link";
-import { useToast } from "@/components/ui/use-toast";
-import { useState } from "react";
 import LoadingCircle from "@/components/ui/loading_circle";
+import Preloader from "@/components/ui/preloader";
+import { useToast } from "@/components/ui/use-toast";
 import AuthService from "@/services/authService";
+import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 
 export const registerFormSchema = z.object({
   firstName: z
@@ -54,7 +52,6 @@ export default function SignUp() {
       password: "",
     },
   });
-
   const [isRegistering, setIsRegistering] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
@@ -87,7 +84,7 @@ export default function SignUp() {
   }
 
   return (
-    <div className="flex h-auto flex-col rounded-md p-8 shadow-[0px_0px_10px_3px_#94a3b8]">
+    <div className="z-10 flex h-auto flex-col rounded-md bg-white p-8 shadow-[0px_0px_10px_3px_#94a3b8]">
       <h4 className="text-lg font-bold">Create your account</h4>
       <p className="mb-6 text-sm text-gray-500">to start using the website</p>
       <Form {...form}>

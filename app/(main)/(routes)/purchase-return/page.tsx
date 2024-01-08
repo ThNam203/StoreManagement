@@ -37,7 +37,7 @@ export default function PurchaseReturnPage() {
   const purchaseReturns = useAppSelector(
     (state) => state.purchaseReturns.value,
   );
-  const staffs = useAppSelector((state) => state.staffs.value);
+  const staffs = useAppSelector((state) => state.staffs.activeStaffs);
   const suppliers = useAppSelector((state) => state.suppliers.value);
 
   useEffect(() => {
