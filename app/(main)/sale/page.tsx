@@ -922,7 +922,7 @@ const InvoiceView = ({
               {invoice.cash > invoice.total ? (
                 <div className="flex flex-row items-center justify-between text-sm">
                   <p>Give change to customer</p>
-                  <p>{invoice.cash - invoice.total}</p>
+                  <p>{formatPrice(invoice.cash - invoice.total)}</p>
                 </div>
               ) : null}
             </div>

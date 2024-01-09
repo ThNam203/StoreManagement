@@ -29,6 +29,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import scrollbar_style from "../../../../styles/scrollbar.module.css";
 import styles from "./styles.module.css";
+import { formatPrice } from "@/utils";
 
 const notifications = [
   {
@@ -344,7 +345,7 @@ export default function OverviewPage() {
             >
               <h4 className="text-xs text-gray-500">Revenue</h4>
               <h2 className="my-2 text-3xl font-bold">
-                {saleProfitReport[1].revenue} VND
+                {formatPrice(saleProfitReport[1].revenue)} VND
               </h2>
               <p className="text-xs text-gray-500">
                 <span
@@ -376,7 +377,7 @@ export default function OverviewPage() {
             >
               <h4 className="text-xs text-gray-500">Refunds</h4>
               <h2 className="my-2 text-3xl font-bold">
-                {todayReturnsValue} VND
+                {formatPrice(todayReturnsValue)} VND
               </h2>
               <p className="text-xs text-gray-500">
                 <span
@@ -405,7 +406,7 @@ export default function OverviewPage() {
             >
               <h4 className="text-xs text-gray-500">Cost</h4>
               <h2 className="my-2 text-3xl font-bold">
-                {saleProfitReport[1].costPrice} VND
+                {formatPrice(saleProfitReport[1].costPrice)} VND
               </h2>
               <p className="text-xs text-gray-500">
                 <span

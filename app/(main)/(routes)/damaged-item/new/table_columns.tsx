@@ -7,6 +7,7 @@ import {
 import { Product } from "@/entities/Product";
 import { cn } from "@/lib/utils";
 import scrollbar_style from "@/styles/scrollbar.module.css";
+import { formatPrice } from "@/utils";
 import { ColumnDef, Getter, Row } from "@tanstack/react-table";
 import { Minus, Pencil, Plus } from "lucide-react";
 import { useState } from "react";
@@ -66,7 +67,7 @@ function totalColumn(
     cell: ({ row }) => {
       return (
         <p className="text-[0.8rem] font-bold">
-          {row.original.damagedQuantity * row.original.costPrice}
+          {formatPrice(row.original.damagedQuantity * row.original.costPrice)}
         </p>
       );
     },

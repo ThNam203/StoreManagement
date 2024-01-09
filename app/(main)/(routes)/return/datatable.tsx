@@ -29,6 +29,7 @@ import {
   returnDefaultVisibilityState,
   returnTableColumns,
 } from "./table_columns";
+import { formatPrice } from "@/utils";
 
 export function ReturnDatatable({
   data,
@@ -253,7 +254,7 @@ const returnDetailTotalColumn: ColumnDef<ReturnInvoiceDetailServer> = {
     const detail = row.original;
     return (
       <p className="text-[0.8rem] font-semibold">
-        {detail.price * detail.quantity}
+        {formatPrice(detail.price * detail.quantity)}
       </p>
     );
   },

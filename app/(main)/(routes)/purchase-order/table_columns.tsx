@@ -9,6 +9,7 @@ import {
 import { PurchaseOrder, PurchaseOrderDetail } from "@/entities/PurchaseOrder";
 import { useAppSelector } from "@/hooks";
 import { cn } from "@/lib/utils";
+import { formatPrice } from "@/utils";
 import { ColumnDef } from "@tanstack/react-table";
 
 export const purchaseOrderColumnTitles = {
@@ -79,7 +80,7 @@ const totalColumn: ColumnDef<PurchaseOrderDetail> = {
     const detail = row.original;
     return (
       <p className="text-[0.8rem]">
-        {detail.price * detail.quantity - detail.discount}
+        {formatPrice(detail.price * detail.quantity - detail.discount)}
       </p>
     );
   },

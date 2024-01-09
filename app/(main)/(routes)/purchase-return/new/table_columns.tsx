@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { Column, ColumnDef, Getter, Row, Table } from "@tanstack/react-table";
 import { Minus, Pencil, Plus } from "lucide-react";
 import { useState } from "react";
+import { formatPrice } from "@/utils";
 
 export type NewPurchaseReturnDetail = {
   productId: number;
@@ -70,7 +71,7 @@ function totalColumn(
     cell: ({ row }) => {
       return (
         <p className="text-[0.8rem] font-bold">
-          {row.original.quantity * row.original.returnPrice}
+          {formatPrice(row.original.quantity * row.original.returnPrice)}
         </p>
       );
     },

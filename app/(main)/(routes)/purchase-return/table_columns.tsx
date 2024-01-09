@@ -9,6 +9,7 @@ import {
 import { PurchaseReturn, PurchaseReturnDetail } from "@/entities/PurchaseReturn";
 import { useAppSelector } from "@/hooks";
 import { cn } from "@/lib/utils";
+import { formatPrice } from "@/utils";
 import { ColumnDef } from "@tanstack/react-table";
 
 export const purchaseReturnColumnTitles = {
@@ -78,7 +79,7 @@ const totalColumn: ColumnDef<PurchaseReturnDetail> = {
     const detail = row.original;
     return (
       <p className="text-[0.8rem]">
-        {detail.returnPrice * detail.quantity}
+        {formatPrice(detail.returnPrice * detail.quantity)}
       </p>
     );
   },

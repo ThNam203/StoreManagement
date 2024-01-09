@@ -9,6 +9,7 @@ import {
 import { DamagedItemDetail, DamagedItemDocument } from "@/entities/DamagedItemDocument";
 import { useAppSelector } from "@/hooks";
 import { cn } from "@/lib/utils";
+import { formatPrice } from "@/utils";
 import { ColumnDef } from "@tanstack/react-table";
 
 export const damagedItemDocumentColumnTitles = {
@@ -94,7 +95,7 @@ const totalColumn: ColumnDef<DamagedItemDocument> = {
     const document = row.original;
     return (
       <p className="text-[0.8rem]">
-        {document.products.map((detail) => detail.costPrice * detail.damagedQuantity).reduce((a, b) => a + b, 0)}
+        {formatPrice(document.products.map((detail) => detail.costPrice * detail.damagedQuantity).reduce((a, b) => a + b, 0))}
       </p>
     );
   },
