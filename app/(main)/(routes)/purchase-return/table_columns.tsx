@@ -29,7 +29,10 @@ export const purchaseReturnColumns = (): ColumnDef<PurchaseReturn>[] => {
   ];
 
   for (let key in purchaseReturnColumnTitles) {
-    const col: ColumnDef<PurchaseReturn> = defaultColumn<PurchaseReturn>(
+    let col: ColumnDef<PurchaseReturn>
+    if (key === "staffId") col = creatorIdColumn;
+    else if (key === "supplierId") col = supplierIdColumn;
+    else col = defaultColumn<PurchaseReturn>(
       key,
       purchaseReturnColumnTitles,
     );
@@ -96,4 +99,42 @@ const ProductNameCell = (productId: number) => {
   const products = useAppSelector((state) => state.products.value);
   const product = products.find((v) => v.id === productId)!
   return <p className={cn("text-[0.8rem]", product.isDeleted ? "text-red-500" : "")}>{product.name}</p>;
+}
+
+const creatorIdColumn: ColumnDef<PurchaseReturn> = {
+  accessorKey: "staffId",
+  header: ({ column }) => (
+    <DataTableColumnHeader
+      column={column}
+      title={"Creator"}
+    />
+  ),
+  cell: ({ row }) => {
+    const value: number = row.getValue("staffId");
+    return CreatorIdCell(value)
+  },
+};
+
+const CreatorIdCell = (staffId: number) => {
+  const staffs = useAppSelector((state) => state.staffs.value);
+  return <p className="text-[0.8rem]">{staffs.find((v) => v.id === staffId)?.name ?? "Not found"}</p>;
+}
+
+const supplierIdColumn: ColumnDef<PurchaseReturn> = {
+  accessorKey: "supplierId",
+  header: ({ column }) => (
+    <DataTableColumnHeader
+      column={column}
+      title={"Supplier"}
+    />
+  ),
+  cell: ({ row }) => {
+    const value: number = row.getValue("supplierId");
+    return SupplierIdCell(value)
+  },
+};
+
+const SupplierIdCell = (supplierId: number) => {
+  const suppliers = useAppSelector((state) => state.suppliers.value);
+  return <p className="text-[0.8rem]">{suppliers.find((v) => v.id === supplierId)?.name ?? "Not found"}</p>;
 }

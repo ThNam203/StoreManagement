@@ -31,6 +31,8 @@ import {
   handleRangeNumFilter,
 } from "@/utils";
 import { PAYMENT_METHODS } from "@/entities/Invoice";
+import ProductService from "@/services/productService";
+import { setProducts } from "@/reducers/productsReducer";
 
 export default function ReturnPage() {
   const router = useRouter();
@@ -56,7 +58,7 @@ export default function ReturnPage() {
 
   const invoices = useAppSelector((state) => state.invoices.value);
   const returnInvoices = useAppSelector((state) => state.returnInvoices.value);
-  const staffs = useAppSelector((state) => state.staffs.activeStaffs);
+  const staffs = useAppSelector((state) => state.staffs.value);
 
   useEffect(() => {
     dispatch(showPreloader());
@@ -67,6 +69,8 @@ export default function ReturnPage() {
       dispatch(setReturnInvoices(returnInvoices.data));
       const staffs = await StaffService.getAllStaffs();
       dispatch(setStaffs(staffs.data));
+      const products = await ProductService.getAllProducts();
+      dispatch(setProducts(products.data));
     };
 
     fetchData()

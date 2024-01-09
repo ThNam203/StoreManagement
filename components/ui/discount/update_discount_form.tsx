@@ -32,6 +32,7 @@ import { Button } from "../button";
 import { Discount } from "@/entities/Discount";
 import { MultipleChoicesSearchInput } from "@/components/component/StringChoicesSearchInput";
 import { useRouter } from "next/navigation";
+import { formatNumberInput, formatPrice } from "@/utils";
 
 const discountFormSchema = z.object({
   name: z
@@ -231,16 +232,15 @@ export default function UpdateDiscountForm({
                               <FormControl>
                                 <Input
                                   className="!m-0 w-[100px] flex-1 text-end lg:w-[140px] xl:w-[180px]"
-                                  type="number"
-                                  value={field.value ? field.value : 0}
-                                  min={0}
+                                  defaultValue={field.value !== null ? formatPrice(field.value) : ""}
                                   onChange={(e) => {
-                                    if (isNaN(e.currentTarget.valueAsNumber))
-                                      form.setValue("maxValue", 0);
+                                    const number = formatNumberInputWithNaN(e);
+                                    if (isNaN(number))
+                                      form.setValue("maxValue", null);
                                     else
                                       form.setValue(
                                         "maxValue",
-                                        e.currentTarget.valueAsNumber,
+                                        number,
                                       );
                                   }}
                                 />
@@ -263,15 +263,41 @@ export default function UpdateDiscountForm({
                         </FormLabel>
                         <FormControl>
                           <Input
-                            type="number"
-                            min={0}
                             className="!m-0 flex-1 text-end"
-                            value={field.value}
-                            onChange={(e) =>
+                            defaultValue={formatPrice(field.value)}
+                            onChange={(e) =>{
+                              const number = formatNumberInput(e)
                               form.setValue(
                                 "amount",
-                                e.currentTarget.valueAsNumber,
-                              )
+                                number,
+                              )}
+                            }
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="minSubTotal"
+                    render={({ field }) => (
+                      <FormItem className="mb-2 flex flex-row">
+                        <FormLabel className="flex h-[41.6px] w-[150px] flex-col justify-center text-black">
+                          <h5 className="text-sm">Min Sub-Total</h5>
+                          <FormMessage className="mr-2 text-xs" />
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            className="!m-0 flex-1 text-end"
+                            placeholder="0"
+                            defaultValue={formatPrice(field.value)}
+                            onChange={(e) =>{
+                              const number = formatNumberInput(e)
+                              form.setValue(
+                                "minSubTotal",
+                                number,
+                                { shouldValidate: true },
+                              )}
                             }
                           />
                         </FormControl>
@@ -580,4 +606,19 @@ const TimeFilterRangePicker = ({
       </div>
     </div>
   );
+};
+
+const formatNumberInputWithNaN = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // remove characters that is not number
+  let rawValue = e.currentTarget.value.replace(/[^\d]/g, "");
+  let num = Number(rawValue);
+  if (rawValue.length === 0 || isNaN(num)) {
+    e.currentTarget.value = "";
+    return NaN}
+  // Add commas for every 3 digits from the right
+  const formattedValue = new Intl.NumberFormat("vi-VN", {
+    style: "decimal",
+  }).format(num);
+  e.currentTarget.value = formattedValue;
+  return num;
 };

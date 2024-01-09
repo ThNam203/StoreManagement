@@ -7,6 +7,7 @@ import {
   defaultIndexColumn,
 } from "@/components/ui/my_table_default_column";
 import { Discount } from "@/entities/Discount";
+import { formatPrice } from "@/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
 import { ReactNode } from "react";
@@ -104,7 +105,7 @@ export const discountTableColumns = (): ColumnDef<Discount>[] => {
       cell: ({ row }) => {
         const value: number | null = row.getValue(accessorKey);
         if (value === null) return null
-        return <p className="text-[0.8rem]">{value}</p>;
+        return <p className="text-[0.8rem]">{formatPrice(value)}</p>;
       },
     };
     return col;

@@ -51,6 +51,7 @@ import LoadingCircle from "../loading_circle";
 import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import { useAppSelector } from "@/hooks";
 import { useRouter } from "next/navigation";
+import { formatDecimal, formatDecimalInput, formatPrice, formatNumberInput } from "@/utils";
 
 const productFormSchema = z.object({
   barcode: z
@@ -440,16 +441,15 @@ export const UpdateProductView = ({
                       <FormControl className="!mt-0 flex flex-1 flex-row items-center">
                         <div className="focus-visible:outline-none">
                           <Input
-                            type="number"
-                            min={0}
+                            defaultValue={formatDecimal(field.value)}
                             className="!m-0 flex-1 text-end"
-                            {...field}
                             onChange={(e) => {
+                              const number = formatDecimalInput(e)
                               form.setValue(
                                 "weight",
-                                isNaN(e.target.valueAsNumber)
+                                isNaN(number)
                                   ? 0
-                                  : e.target.valueAsNumber,
+                                  : number,
                                 { shouldValidate: false },
                               );
                             }}
@@ -477,17 +477,16 @@ export const UpdateProductView = ({
                       <FormControl>
                         <Input
                           className="!m-0 flex-1 text-end"
-                          type="number"
-                          min={0}
-                          {...field}
-                          onChange={(e) =>
+                          defaultValue={formatPrice(field.value)}
+                          onChange={(e) =>{
+                            const number = formatNumberInput(e)
                             form.setValue(
                               "originalPrice",
-                              isNaN(e.target.valueAsNumber)
+                              isNaN(number)
                                 ? 0
-                                : e.target.valueAsNumber,
+                                : number,
                               { shouldValidate: true },
-                            )
+                            )}
                           }
                         />
                       </FormControl>
@@ -509,17 +508,16 @@ export const UpdateProductView = ({
                       <FormControl>
                         <Input
                           className="!m-0 flex-1 text-end"
-                          type="number"
-                          min={0}
-                          {...field}
-                          onChange={(e) =>
+                          defaultValue={formatPrice(field.value)}
+                          onChange={(e) =>{
+                            const number = formatNumberInput(e)
                             form.setValue(
                               "productPrice",
-                              isNaN(e.target.valueAsNumber)
+                              isNaN(number)
                                 ? 0
-                                : e.target.valueAsNumber,
+                                : number,
                               { shouldValidate: true },
-                            )
+                            )}
                           }
                         />
                       </FormControl>
@@ -532,28 +530,25 @@ export const UpdateProductView = ({
                   render={({ field }) => (
                     <FormItem className="mb-2 flex flex-row">
                       <FormLabel className="flex w-[150px] flex-col justify-center text-black">
-                        <div className="flex flex-row items-center gap-2">
                           <h5 className="text-sm">Stock</h5>
-                          <Info size={16} />
-                        </div>
                         <FormMessage className="mr-2 text-xs" />
                       </FormLabel>
                       <FormControl>
                         <Input
                           className="!m-0 flex-1 text-end"
-                          type="number"
-                          min={0}
-                          {...field}
-                          onChange={(e) =>
+                          placeholder="0"
+                          defaultValue={formatPrice(field.value)}
+                          onChange={(e) =>{
+                            const number = formatNumberInput(e)
                             form.setValue(
                               "stock",
-                              isNaN(e.target.valueAsNumber)
+                              isNaN(number)
                                 ? 0
-                                : e.target.valueAsNumber,
+                                : number,
                               {
                                 shouldValidate: true,
                               },
-                            )
+                            )}
                           }
                         />
                       </FormControl>
@@ -575,19 +570,18 @@ export const UpdateProductView = ({
                       <FormControl>
                         <Input
                           className="!m-0 flex-1 text-end"
-                          type="number"
-                          min={0}
-                          {...field}
-                          onChange={(e) =>
+                          defaultValue={formatPrice(field.value)}
+                          onChange={(e) =>{
+                            const number = formatNumberInput(e)
                             form.setValue(
                               "minStock",
-                              isNaN(e.target.valueAsNumber)
+                              isNaN(number)
                                 ? 0
-                                : e.target.valueAsNumber,
+                                : number,
                               {
                                 shouldValidate: true,
                               },
-                            )
+                            )}
                           }
                         />
                       </FormControl>
@@ -609,19 +603,18 @@ export const UpdateProductView = ({
                       <FormControl>
                         <Input
                           className="!m-0 flex-1 text-end"
-                          type="number"
-                          min={0}
-                          {...field}
-                          onChange={(e) =>
+                          defaultValue={formatPrice(field.value)}
+                          onChange={(e) =>{
+                            const number = formatNumberInput(e)
                             form.setValue(
                               "maxStock",
-                              isNaN(e.target.valueAsNumber)
+                              isNaN(number)
                                 ? 0
-                                : e.target.valueAsNumber,
+                                : number,
                               {
                                 shouldValidate: true,
                               },
-                            )
+                            )}
                           }
                         />
                       </FormControl>

@@ -60,7 +60,7 @@ import LoadingCircle from "../loading_circle";
 import { useAppSelector } from "@/hooks";
 import { faker } from "@faker-js/faker";
 import AddNewThing from "../add_new_thing_dialog";
-import { formatNumberInput } from "@/utils";
+import { formatDecimalInput, formatPrice, formatNumberInput } from "@/utils";
 import { useRouter } from "next/navigation";
 
 const newProductFormSchema = z.object({
@@ -758,18 +758,16 @@ export const NewProductView = ({
                       <FormControl className="!mt-0 flex flex-1 flex-row items-center">
                         <div className="focus-visible:outline-none">
                           <Input
-                            type="number"
                             min={0}
                             placeholder="0"
-                            step={0.001}
                             className="!m-0 flex-1 text-end"
-                            {...field}
                             onChange={(e) => {
+                              const number = formatDecimalInput(e);
                               form.setValue(
                                 "weight",
-                                isNaN(e.target.valueAsNumber)
+                                isNaN(number)
                                   ? 0
-                                  : e.target.valueAsNumber,
+                                  : number,
                                 { shouldValidate: false },
                               );
                             }}
@@ -922,7 +920,7 @@ export const NewProductView = ({
                       <FormControl>
                         <Input
                           className="!m-0 flex-1 text-end"
-                          defaultValue={field.value}
+                          defaultValue={formatPrice(field.value)}
                           onChange={(e) => {
                             const number = formatNumberInput(e);
                             form.setValue(

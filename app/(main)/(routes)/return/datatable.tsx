@@ -1,53 +1,34 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
+import {
+  CustomDatatable,
+  DefaultInformationCellDataTable,
+} from "@/components/component/custom_datatable";
+import { DataTableColumnHeader } from "@/components/ui/my_table_column_header";
+import { defaultColumn } from "@/components/ui/my_table_default_column";
+import { useToast } from "@/components/ui/use-toast";
+import {
+  ReturnInvoiceDetailServer,
+  ReturnInvoiceServer
+} from "@/entities/ReturnInvoice";
+import { useAppDispatch, useAppSelector } from "@/hooks";
+import { cn } from "@/lib/utils";
+import { deleteReturnInvoice } from "@/reducers/returnInvoicesReducer";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
+import ReturnInvoiceService from "@/services/returnInvoiceService";
 import scrollbar_style from "@/styles/scrollbar.module.css";
 import {
   ColumnDef,
-  ColumnFiltersState,
-  RowSelectionState,
-  SortingState,
-  VisibilityState,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-  Table as ReactTable,
-  flexRender,
-  Row,
+  Row
 } from "@tanstack/react-table";
-import { Product } from "@/entities/Product";
+import { format } from "date-fns";
+import { AppRouterInstance } from "next/dist/shared/lib/app-router-context";
+import { useState } from "react";
 import {
   returnColumnTitles,
   returnDefaultVisibilityState,
   returnTableColumns,
 } from "./table_columns";
-import { Button } from "@/components/ui/button";
-import React, { Ref, RefObject, useEffect, useRef, useState } from "react";
-import { DataTablePagination } from "@/components/ui/my_table_pagination";
-import Image from "next/image";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { cn } from "@/lib/utils";
-import { ChevronRight, Lock, PenLine, Trash, Undo2 } from "lucide-react";
-import { useAppDispatch, useAppSelector } from "@/hooks";
-import LoadingCircle from "@/components/ui/loading_circle";
-import { axiosUIErrorHandler } from "@/services/axiosUtils";
-import { useToast } from "@/components/ui/use-toast";
-import {
-  CustomDatatable,
-  DefaultInformationCellDataTable,
-} from "@/components/component/custom_datatable";
-import { defaultColumn } from "@/components/ui/my_table_default_column";
-import { DataTableColumnHeader } from "@/components/ui/my_table_column_header";
-import { AppRouterInstance } from "next/dist/shared/lib/app-router-context";
-import {
-  ReturnInvoiceClient,
-  ReturnInvoiceDetailServer,
-  ReturnInvoiceServer,
-} from "@/entities/ReturnInvoice";
-import ReturnInvoiceService from "@/services/returnInvoiceService";
-import { deleteReturnInvoice } from "@/reducers/returnInvoicesReducer";
-import { format } from "date-fns";
 
 export function ReturnDatatable({
   data,
@@ -124,33 +105,34 @@ const DetailInvoiceTab = ({
   router: AppRouterInstance;
 }) => {
   const invoice = row.original;
-  const [disableDeleteButton, setDisableDeleteButton] = useState(false);
-  const dispatch = useAppDispatch();
-  const { toast } = useToast();
-  const staffs = useAppSelector((state) => state.customers.value);
+  const staffs = useAppSelector((state) => state.staffs.value);
 
   return (
     <div className="p-2">
       <div className="flex flex-row gap-2">
         <div className="flex flex-1 flex-row text-[0.8rem] gap-4">
           <div className="flex flex-1 flex-col gap-1">
+          <DefaultInformationCellDataTable
+              title="Return Invoice id:"
+              value={invoice.id}
+            />
             <DefaultInformationCellDataTable
               title="Invoice id:"
-              value={invoice.id}
+              value={invoice.invoiceId}
             />
             <DefaultInformationCellDataTable
               title="Created at:"
               value={format(new Date(invoice.createdAt), "MM/dd/yyyy")}
             />
-          </div>
-          <div className="flex flex-1 flex-col gap-1">
             <DefaultInformationCellDataTable
-              title="Staff id:"
+              title="Staff:"
               value={
                 staffs.find((s) => s.id === invoice.staffId)?.name ??
                 "Not found"
               }
             />
+          </div>
+          <div className="flex flex-1 flex-col gap-1">
             <div>
               <p className="mb-2">Note</p>
               <textarea

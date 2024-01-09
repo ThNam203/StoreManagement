@@ -31,6 +31,7 @@ import { format } from "date-fns";
 import { Button } from "../button";
 import { MultipleChoicesSearchInput } from "@/components/component/StringChoicesSearchInput";
 import { useRouter } from "next/navigation";
+import { formatNumberInput } from "@/utils";
 
 const newDiscountFormSchema = z.object({
   name: z
@@ -85,11 +86,11 @@ export default function NewDiscountForm({
       maxValue: null,
       status: true,
       type: "COUPON",
-      amount: undefined,
+      amount: 0,
       productGroups: [],
       productIds: [],
       description: "",
-      minSubTotal: undefined,
+      minSubTotal: 0,
       time: {
         startDate: new Date(),
         endDate: new Date(),
@@ -225,16 +226,17 @@ export default function NewDiscountForm({
                               <FormControl>
                                 <Input
                                   className="!m-0 w-[100px] flex-1 text-end lg:w-[140px] xl:w-[180px]"
-                                  type="number"
-                                  value={field.value ?? NaN}
                                   min={0}
+                                  // value={field.value}
                                   onChange={(e) => {
-                                    if (isNaN(e.currentTarget.valueAsNumber))
+                                    const number = formatNumberInputWithNaN(e);
+                                    console.log("number", number)
+                                    if (isNaN(number))
                                       form.setValue("maxValue", null);
                                     else
                                       form.setValue(
                                         "maxValue",
-                                        e.currentTarget.valueAsNumber,
+                                        number,
                                       );
                                   }}
                                 />
@@ -257,16 +259,14 @@ export default function NewDiscountForm({
                         </FormLabel>
                         <FormControl>
                           <Input
-                            type="number"
-                            min={0}
                             placeholder="0"
                             className="!m-0 flex-1 text-end"
-                            value={field.value}
-                            onChange={(e) =>
+                            onChange={(e) =>{
+                              const number = formatNumberInput(e)
                               form.setValue(
                                 "amount",
-                                e.currentTarget.valueAsNumber,
-                              )
+                                number,
+                              )}
                             }
                           />
                         </FormControl>
@@ -301,7 +301,6 @@ export default function NewDiscountForm({
                       </FormItem>
                     )}
                   />
-
                   <div className="mb-4 rounded-sm border">
                     <FormField
                       control={form.control}
@@ -464,18 +463,17 @@ export default function NewDiscountForm({
                         <FormControl>
                           <Input
                             className="!m-0 flex-1 text-end"
-                            value={field.value}
                             placeholder="0"
                             ref={field.ref}
-                            type="number"
-                            onChange={(e) =>
+                            onChange={(e) =>{
+                              const number = formatNumberInput(e)
                               form.setValue(
                                 "minSubTotal",
-                                isNaN(e.currentTarget.valueAsNumber)
+                                isNaN(number)
                                   ? 0
-                                  : e.currentTarget.valueAsNumber,
+                                  : number,
                                 { shouldValidate: true },
-                              )
+                              )}
                             }
                           />
                         </FormControl>
@@ -603,4 +601,19 @@ const TimeFilterRangePicker = ({
       </div>
     </div>
   );
+};
+
+const formatNumberInputWithNaN = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // remove characters that is not number
+  let rawValue = e.currentTarget.value.replace(/[^\d]/g, "");
+  let num = Number(rawValue);
+  if (rawValue.length === 0 || isNaN(num)) {
+    e.currentTarget.value = "";
+    return NaN}
+  // Add commas for every 3 digits from the right
+  const formattedValue = new Intl.NumberFormat("vi-VN", {
+    style: "decimal",
+  }).format(num);
+  e.currentTarget.value = formattedValue;
+  return num;
 };

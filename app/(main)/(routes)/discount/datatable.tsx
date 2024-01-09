@@ -50,6 +50,7 @@ import AddNewThing from "@/components/ui/add_new_thing_dialog";
 import { useDispatch } from "react-redux";
 import { CustomDatatable } from "@/components/component/custom_datatable";
 import { useRouter } from "next/navigation";
+import { formatPrice } from "@/utils";
 
 type Props = {
   data: Discount[];
@@ -163,13 +164,17 @@ const DetailTab = ({
               {discount.value}
               {discount.type === "COUPON" ? " %" : null}
             </div>
+            {discount.maxValue !== null && <div className="mb-2 flex flex-row border-b font-medium">
+              <p className="w-[100px] font-normal">Max Value:</p>
+              {formatPrice(discount.maxValue)}
+            </div>}
             <div className="mb-2 flex flex-row border-b font-medium">
               <p className="w-[100px] font-normal">Type:</p>
               {discount.type}
             </div>
             <div className="mb-2 flex flex-row border-b font-medium">
               <p className="w-[100px] font-normal">Amount:</p>
-              <p>{discount.amount}</p>
+              <p>{formatPrice(discount.amount)}</p>
             </div>
             <div className="mb-2 flex flex-row border-b font-medium">
               <p className="w-[100px] font-normal">Status:</p>

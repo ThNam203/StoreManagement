@@ -1,58 +1,31 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
+import { CustomDatatable, DefaultInformationCellDataTable } from "@/components/component/custom_datatable";
+import { Button } from "@/components/ui/button";
+import LoadingCircle from "@/components/ui/loading_circle";
+import { DataTableColumnHeader } from "@/components/ui/my_table_column_header";
+import { defaultColumn } from "@/components/ui/my_table_default_column";
+import { useToast } from "@/components/ui/use-toast";
+import { Invoice, InvoiceDetail } from "@/entities/Invoice";
+import { useAppDispatch, useAppSelector } from "@/hooks";
+import { cn } from "@/lib/utils";
+import { deleteInvoice } from "@/reducers/invoicesReducer";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
+import InvoiceService from "@/services/invoiceService";
 import scrollbar_style from "@/styles/scrollbar.module.css";
 import {
   ColumnDef,
-  ColumnFiltersState,
-  RowSelectionState,
-  SortingState,
-  VisibilityState,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-  Table as ReactTable,
-  flexRender,
-  Row,
+  Row
 } from "@tanstack/react-table";
-import { Product } from "@/entities/Product";
+import { format } from "date-fns";
+import { Undo2 } from "lucide-react";
+import { AppRouterInstance } from "next/dist/shared/lib/app-router-context";
+import { useState } from "react";
 import {
   invoiceColumnTitles,
   invoiceDefaultVisibilityState,
   invoiceTableColumns,
 } from "./table_columns";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { DataTableViewOptions } from "@/components/ui/my_table_column_visibility_toggle";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import React, { Ref, RefObject, useEffect, useRef, useState } from "react";
-import { DataTablePagination } from "@/components/ui/my_table_pagination";
-import Image from "next/image";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { cn } from "@/lib/utils";
-import { ChevronRight, Lock, PenLine, Trash, Undo2 } from "lucide-react";
-import { useAppDispatch, useAppSelector } from "@/hooks";
-import { deleteProduct, updateProduct } from "@/reducers/productsReducer";
-import ProductService from "@/services/productService";
-import LoadingCircle from "@/components/ui/loading_circle";
-import { axiosUIErrorHandler } from "@/services/axiosUtils";
-import { useToast } from "@/components/ui/use-toast";
-import { CustomDatatable } from "@/components/component/custom_datatable";
-import { Invoice, InvoiceDetail } from "@/entities/Invoice";
-import InvoiceService from "@/services/invoiceService";
-import { format } from "date-fns";
-import { defaultColumn } from "@/components/ui/my_table_default_column";
-import { DataTableColumnHeader } from "@/components/ui/my_table_column_header";
-import { AppRouterInstance } from "next/dist/shared/lib/app-router-context";
-import { deleteInvoice } from "@/reducers/invoicesReducer";
 
 export function InvoiceDatatable({
   data,
@@ -128,32 +101,32 @@ const DetailInvoiceTab = ({
 }) => {
   const invoice = row.original;
   const [disableDeleteButton, setDisableDeleteButton] = useState(false);
-  const dispatch = useAppDispatch();
-  const { toast } = useToast();
+  const staffs = useAppSelector((state) => state.staffs.value);
+  const customers = useAppSelector((state) => state.customers.value);
 
   return (
     <div className="p-2">
       <div className="flex flex-row gap-2">
         <div className="flex flex-1 flex-row text-[0.8rem] gap-4">
           <div className="flex flex-1 flex-col gap-1">
-            <div className="mb-2 flex flex-row border-b font-medium">
-              <p className="w-[120px] font-normal">Invoice id:</p>
-              <p>{invoice.id}</p>
-            </div>
-            <div className="mb-2 flex flex-row border-b font-medium">
-              <p className="w-[120px] font-normal">Created at:</p>
-              <p>{format(new Date(invoice.createdAt), "MM/dd/yyyy")}</p>
-            </div>
-            <div className="mb-2 flex flex-row border-b font-medium">
-              <p className="w-[120px] font-normal">Customer:</p>
-              {invoice.customerId}
-            </div>
+            <DefaultInformationCellDataTable
+              title="Invoice id:"
+              value={invoice.id}
+            />
+            <DefaultInformationCellDataTable
+              title="Created at:"
+              value={format(new Date(invoice.createdAt), "MM/dd/yyyy")}
+            />
+            <DefaultInformationCellDataTable
+              title="Customer:"
+              value={customers.find((v) => v.id === invoice.customerId)?.name ?? ""}
+            />
+            <DefaultInformationCellDataTable
+              title="Staff:"
+              value={staffs.find((v) => v.id === invoice.staffId)?.name ?? "Not found"}
+            />
           </div>
           <div className="flex flex-1 flex-col gap-1">
-            <div className="mb-2 flex flex-row border-b font-medium">
-              <p className="w-[120px] font-normal">Staff id:</p>
-              <p>{invoice.staffId}</p>
-            </div>
             <div>
               <p className="mb-2">Note</p>
               <textarea

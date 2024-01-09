@@ -1,5 +1,6 @@
 "use client";
 
+import { DataTableColumnHeader } from "@/components/ui/my_table_column_header";
 import {
   defaultColumn,
   defaultSelectColumn,
@@ -8,6 +9,7 @@ import {
 import { Invoice } from "@/entities/Invoice";
 import {Product} from "@/entities/Product";
 import { ReturnInvoiceServer } from "@/entities/ReturnInvoice";
+import { useAppSelector } from "@/hooks";
 import { ColumnDef } from "@tanstack/react-table";
 
 export const returnDefaultVisibilityState = {
@@ -43,9 +45,29 @@ export const returnTableColumns = (): ColumnDef<ReturnInvoiceServer>[] => {
 
   for (let key in returnColumnTitles) {
     let col: ColumnDef<ReturnInvoiceServer>;
-    col = defaultColumn<ReturnInvoiceServer>(key, returnColumnTitles);
+    if (key === "staffId") col = staffIdColumn;
+    else col = defaultColumn<ReturnInvoiceServer>(key, returnColumnTitles);
     columns.push(col);
   }
 
   return columns;
 };
+
+const staffIdColumn: ColumnDef<ReturnInvoiceServer> = {
+  accessorKey: "staffId",
+  header: ({ column }) => (
+    <DataTableColumnHeader
+      column={column}
+      title={"Staff"}
+    />
+  ),
+  cell: ({ row }) => {
+    const value: number = row.getValue("staffId");
+    return StaffIdCell(value)
+  },
+};
+
+const StaffIdCell = (staffId: number) => {
+  const staffs = useAppSelector((state) => state.staffs.value);
+  return <p className="text-[0.8rem]">{staffs.find((v) => v.id === staffId)?.name ?? "Not found"}</p>;
+}

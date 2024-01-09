@@ -17,10 +17,10 @@ export const customerDefaultVisibilityState = {
   address: false,
   creatorId: false,
   sex: false,
-  email: false,
+  email: true,
   birthday: false,
   createdAt: false,
-  description: false,
+  description: true,
 }
 
 export const customerColumnTitles = {

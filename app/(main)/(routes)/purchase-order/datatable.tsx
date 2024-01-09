@@ -107,6 +107,8 @@ const DetailTab = ({
   const dispatch = useAppDispatch();
   const { toast } = useToast();
   const router = useRouter();
+  const staffs = useAppSelector((state) => state.staffs.value);
+  const suppliers = useAppSelector((state) => state.suppliers.value);
 
   return (
     <div className="p-2">
@@ -123,8 +125,11 @@ const DetailTab = ({
             />
             <DefaultInformationCellDataTable
               title="Creator:"
-              value={purchaseOrder.staffId}
-              // TODO:
+              value={staffs.find((v) => v.id === purchaseOrder.staffId)?.name ?? "Not found"}
+            />
+            <DefaultInformationCellDataTable
+              title="Supplier:"
+              value={suppliers.find((v) => v.id === purchaseOrder.supplierId)?.name ?? "Not found"}
             />
           </div>
           <div className="flex flex-1 flex-col">

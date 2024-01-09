@@ -29,6 +29,7 @@ function defaultColumn<T>(
     cell: ({ row }) => {
       const value: ReactNode = row.getValue(accessorKey);
       let formatedValue: ReactNode = "";
+      if (accessorKey === "maxValue") console.log("type", typeof value)
       if (value instanceof Date) formatedValue = formatDate(value, "datetime");
       else if (
         (accessorKey === "createdAt" ||

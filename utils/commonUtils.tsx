@@ -478,9 +478,39 @@ const formatNumberInput = (e: React.ChangeEvent<HTMLInputElement>) => {
   const formattedValue = new Intl.NumberFormat("vi-VN", {
     style: "decimal",
   }).format(num);
-
   e.currentTarget.value = formattedValue;
   return num;
+};
+
+const formatDecimalInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // remove characters that are not numbers or the first comma
+  let rawValue = e.currentTarget.value.replace(/[^\d,]|(?<=,.*),/g, "");
+
+  // remove leading 0s
+  rawValue = rawValue.replace(/^0+(\d)/, "$1");
+  const splitedValues = rawValue.split(",")
+
+  if (splitedValues.length === 1) e.currentTarget.value = formatPrice(Number(rawValue))
+  else {
+    e.currentTarget.value = `${formatPrice(Number(splitedValues[0]))},${splitedValues[1]}`
+  }
+
+  // add leading zero before the decimal point if needed
+  rawValue = rawValue.replace(/^,/, "0,");
+  // remove comma if there are no numbers after it
+  const value = rawValue.replace(/,(\D*)$/, "$1").replace(",", ".");
+  return Number(value);
+};
+
+const formatDecimal = (e: number) => {
+  // remove characters that are not numbers or the first comma
+  let rawValue = e.toString()
+  const splitedValues = rawValue.split(".")
+
+  if (splitedValues.length === 1) return formatPrice(Number(rawValue))
+  else {
+    return `${formatPrice(Number(splitedValues[0]))},${splitedValues[1]}`
+  }
 };
 
 type DateType = "date" | "datetime" | "time";
@@ -581,4 +611,6 @@ export {
   createRangeDate,
   formatNumberInput,
   zodErrorHandler,
+  formatDecimalInput,
+  formatDecimal
 };

@@ -1,34 +1,31 @@
 "use client";
-import { useState } from "react";
-import {
-  purchaseReturnColumnTitles,
-  purchaseReturnDetailColumnTitles,
-  purchaseReturnColumns,
-  purchaseReturnDetailTableColumns,
-} from "./table_columns";
-import { useAppDispatch, useAppSelector } from "@/hooks";
 import {
   CustomDatatable,
   DefaultInformationCellDataTable,
 } from "@/components/component/custom_datatable";
-import { useToast } from "@/components/ui/use-toast";
-import { cn } from "@/lib/utils";
-import scrollbar_style from "@/styles/scrollbar.module.css";
 import { Button } from "@/components/ui/button";
-import { PenLine, Trash } from "lucide-react";
 import LoadingCircle from "@/components/ui/loading_circle";
-import StockCheckService from "@/services/stockCheckService";
-import { axiosUIErrorHandler } from "@/services/axiosUtils";
-import { ColumnDef, Row } from "@tanstack/react-table";
-import { defaultColumn } from "@/components/ui/my_table_default_column";
+import { useToast } from "@/components/ui/use-toast";
 import {
-  PurchaseReturn,
-  PurchaseReturnDetail,
+  PurchaseReturn
 } from "@/entities/PurchaseReturn";
-import PurchaseReturnService from "@/services/purchaseReturnService";
+import { useAppDispatch, useAppSelector } from "@/hooks";
+import { cn } from "@/lib/utils";
 import { deletePurchaseReturn } from "@/reducers/purchaseReturnsReducer";
-import { useRouter } from "next/navigation";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
+import PurchaseReturnService from "@/services/purchaseReturnService";
+import scrollbar_style from "@/styles/scrollbar.module.css";
+import { Row } from "@tanstack/react-table";
 import { format } from "date-fns";
+import { Trash } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import {
+  purchaseReturnColumnTitles,
+  purchaseReturnColumns,
+  purchaseReturnDetailColumnTitles,
+  purchaseReturnDetailTableColumns,
+} from "./table_columns";
 
 const visibilityState = {
   creatorId: false,
@@ -110,6 +107,8 @@ const DetailTab = ({
   const dispatch = useAppDispatch();
   const { toast } = useToast();
   const router = useRouter();
+  const staffs = useAppSelector((state) => state.staffs.value);
+  const suppliers = useAppSelector((state) => state.suppliers.value);
 
   return (
     <div className="p-2">
@@ -126,8 +125,11 @@ const DetailTab = ({
             />
             <DefaultInformationCellDataTable
               title="Creator:"
-              value={purchaseReturn.staffId}
-              // TODO:
+              value={staffs.find((v) => v.id === purchaseReturn.staffId)?.name ?? "Not found"}
+            />
+            <DefaultInformationCellDataTable
+              title="Supplier:"
+              value={suppliers.find((v) => v.id === purchaseReturn.supplierId)?.name ?? "Not found"}
             />
           </div>
           <div className="flex flex-1 flex-col">

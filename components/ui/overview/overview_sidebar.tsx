@@ -313,7 +313,6 @@ const SideBar = ({
   const router = useRouter();
   const profile = useAppSelector((state) => state.profile.value);
   const roles = useAppSelector((state) => state.role.value);
-  console.log("roles", roles, profile);
   const userPermissions = roles?.find(
     (role) => role.positionName === profile?.position,
   )!.roleSetting;

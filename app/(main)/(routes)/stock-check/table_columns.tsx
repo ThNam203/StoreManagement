@@ -18,9 +18,9 @@ export const stockCheckColumnTitles = {
   stockDifference: "Total Stock Diff",
   totalValueDifference: "Total Value Diff",
   totalValue: "Total Value",
-  note: "Note",
   creatorId: "Creator",
   createdDate: "Created Date",
+  note: "Note",
 };
 
 export const stockCheckTableColumns = (): ColumnDef<StockCheck>[] => {
@@ -30,7 +30,9 @@ export const stockCheckTableColumns = (): ColumnDef<StockCheck>[] => {
   ];
 
   for (let key in stockCheckColumnTitles) {
-    const col: ColumnDef<StockCheck> = defaultColumn<StockCheck>(
+    let col: ColumnDef<StockCheck>
+    if (key === "creatorId") col = creatorIdColumn;
+    else col = defaultColumn<StockCheck>(
       key,
       stockCheckColumnTitles,
     );
@@ -85,3 +87,22 @@ const ProductNameCell = (productId: number) => {
     </p>
   );
 };
+
+const creatorIdColumn: ColumnDef<StockCheck> = {
+  accessorKey: "creatorId",
+  header: ({ column }) => (
+    <DataTableColumnHeader
+      column={column}
+      title={"Creator"}
+    />
+  ),
+  cell: ({ row }) => {
+    const value: number = row.getValue("creatorId");
+    return CreatorIdCell(value)
+  },
+};
+
+const CreatorIdCell = (creatorId: number) => {
+  const staffs = useAppSelector((state) => state.staffs.value);
+  return <p className="text-[0.8rem]">{staffs.find((v) => v.id === creatorId)?.name ?? "Not found"}</p>;
+}

@@ -20,9 +20,9 @@ export const damagedItemDocumentColumnTitles = {
 
 export const damagedItemDocumentColumnVisibilityState = {
   id: true,
-  note: false,
   createdDate: true,
   creatorId:true,
+  note: true,
 };
 
 export const damagedItemDocumentColumns = (): ColumnDef<DamagedItemDocument>[] => {
@@ -32,7 +32,9 @@ export const damagedItemDocumentColumns = (): ColumnDef<DamagedItemDocument>[] =
   ];
 
   for (let key in damagedItemDocumentColumnTitles) {
-    const col: ColumnDef<DamagedItemDocument> = defaultColumn<DamagedItemDocument>(
+    let col: ColumnDef<DamagedItemDocument>
+    if (key === "creatorId") col = creatorIdColumn;
+    else col = defaultColumn<DamagedItemDocument>(
       key,
       damagedItemDocumentColumnTitles,
     );
@@ -113,4 +115,23 @@ const ProductNameCell = (productId: number) => {
   const products = useAppSelector((state) => state.products.value);
   const product = products.find((v) => v.id === productId)!
   return <p className={cn("text-[0.8rem]", product.isDeleted ? "text-red-500" : "")}>{product.name}</p>;
+}
+
+const creatorIdColumn: ColumnDef<DamagedItemDocument> = {
+  accessorKey: "creatorId",
+  header: ({ column }) => (
+    <DataTableColumnHeader
+      column={column}
+      title={"Creator"}
+    />
+  ),
+  cell: ({ row }) => {
+    const value: number = row.getValue("creatorId");
+    return CreatorIdCell(value)
+  },
+};
+
+const CreatorIdCell = (staffId: number) => {
+  const staffs = useAppSelector((state) => state.staffs.value);
+  return <p className="text-[0.8rem]">{staffs.find((v) => v.id === staffId)?.name ?? "Not found"}</p>;
 }

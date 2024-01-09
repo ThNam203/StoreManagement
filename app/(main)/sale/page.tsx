@@ -98,6 +98,7 @@ import { setDiscounts } from "@/reducers/discountsReducer";
 import ChooseInvoiceToReturnDialog from "@/components/component/choose_invoice_to_return_dialog";
 import { setCustomerGroups } from "@/reducers/customerGroupsReducer";
 import { useRouter } from "next/navigation";
+import { formatNumberInput, formatPrice } from "@/utils";
 
 // TODO: add the staffId
 function getNewInvoice(): Invoice {
@@ -214,11 +215,14 @@ export default function Sale() {
       .map((v) => v.price * v.quantity)
       .reduce((prev, cur) => prev + cur, 0);
     updateInvoice.total = updateInvoice.subTotal - updateInvoice.discountValue;
-    updateInvoice.cash = updateInvoice.total;
+    // updateInvoice.cash = updateInvoice.total;
 
     setInvoices((invoices) => {
       return invoices.map((invoice) => {
-        if (invoice.id === updateInvoice.id) return updateInvoice;
+        if (invoice.id === updateInvoice.id) return {
+          ...updateInvoice,
+          cash: invoice.cash === updateInvoice.cash ? invoice.total : updateInvoice.cash,
+        };
         else return invoice;
       });
     });
@@ -725,22 +729,22 @@ const InvoiceView = ({
             <p>
               Total quantity:{" "}
               <span className="font-semibold">
-                {invoice.invoiceDetails
+                {formatPrice(invoice.invoiceDetails
                   .map((v) => v.quantity)
-                  .reduce((prev, cur) => prev + cur, 0)}
+                  .reduce((prev, cur) => prev + cur, 0))}
               </span>
             </p>
             <p>
               Total cost:{" "}
               <span className="font-semibold">
-                {invoice.invoiceDetails
+                {formatPrice(invoice.invoiceDetails
                   .map(
                     (v) =>
                       v.quantity *
                       products.find((product) => product.id === v.productId)!
                         .productPrice,
                   )
-                  .reduce((prev, cur) => prev + cur, 0)}{" "}
+                  .reduce((prev, cur) => prev + cur, 0))}{" "}
                 VNĐ
               </span>
             </p>
@@ -826,7 +830,7 @@ const InvoiceView = ({
               </p>
               <div className="flex flex-row items-center justify-between">
                 <p>Sub total</p>
-                <p>{invoice.subTotal}</p>
+                <p>{formatPrice(invoice.subTotal)}</p>
               </div>
               <div className="flex flex-row items-center justify-between">
                 <div className="flex flex-row gap-4">
@@ -855,11 +859,11 @@ const InvoiceView = ({
                     </div>
                   )}
                 </div>
-                <p>{invoice.discountValue}</p>
+                <p>{formatPrice(invoice.discountValue)}</p>
               </div>
               <div className="flex flex-row items-center justify-between">
                 <p className="font-semibold">Total</p>
-                <p className="font-bold text-blue-500">{invoice.total}</p>
+                <p className="font-bold text-blue-500">{formatPrice(invoice.total)}</p>
               </div>
               <div className="flex flex-row items-center justify-between">
                 <Label htmlFor="customer_pay" className="text-md font-semibold">
@@ -867,12 +871,12 @@ const InvoiceView = ({
                 </Label>
                 <input
                   id="customer_pay"
-                  type="number"
-                  value={invoice.cash}
+                  value={formatPrice(invoice.cash)}
                   onChange={(e) => {
+                    const value = formatNumberInput(e);
                     updateInvoice({
                       ...invoice,
-                      cash: e.currentTarget.valueAsNumber,
+                      cash: value,
                     });
                   }}
                   className="text-md h-[24px] rounded-none border-0 border-b border-black p-0 text-right focus-visible:ring-0 focus-visible:ring-offset-0"
@@ -973,7 +977,7 @@ const ProductView = ({
           />
         </p>
         <p className="text-xs font-semibold text-sky-700">
-          {product.productPrice}/{product.salesUnits.name}
+          {formatPrice(product.productPrice)}/{product.salesUnits.name}
         </p>
       </div>
     </div>
@@ -1101,10 +1105,10 @@ const InvoiceDetailView = ({
         />
         <div className="min-w-[80px] flex-1" />
         <div className="mr-[80px] min-w-[100px] border-b border-gray-500 text-end">
-          <p>{detail.price}</p>
+          <p>{formatPrice(detail.price)}</p>
         </div>
         <div className="min-w-[100px] border-b border-gray-500 text-end">
-          <p>{detail.price * detail.quantity}</p>
+          <p>{formatPrice(detail.price * detail.quantity)}</p>
         </div>
       </div>
       {showDescription ? (

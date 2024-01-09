@@ -1,52 +1,29 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
-import scrollbar_style from "@/styles/scrollbar.module.css";
-import {
-  ColumnDef,
-  ColumnFiltersState,
-  RowSelectionState,
-  SortingState,
-  VisibilityState,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-  Table as ReactTable,
-  flexRender,
-  Row,
-} from "@tanstack/react-table";
+import { CustomDatatable } from "@/components/component/custom_datatable";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { Button } from "@/components/ui/button";
+import LoadingCircle from "@/components/ui/loading_circle";
+import { useToast } from "@/components/ui/use-toast";
 import { Product } from "@/entities/Product";
+import { useAppDispatch } from "@/hooks";
+import { cn } from "@/lib/utils";
+import { deleteProduct, updateProduct } from "@/reducers/productsReducer";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
+import ProductService from "@/services/productService";
+import scrollbar_style from "@/styles/scrollbar.module.css";
+import { formatDecimal, formatPrice } from "@/utils";
+import {
+  Row
+} from "@tanstack/react-table";
+import { ChevronRight, Lock, PenLine, Trash } from "lucide-react";
+import { useRouter } from "next/navigation";
+import React, { useState } from "react";
 import {
   catalogColumnTitles,
   catalogDefaultVisibilityState,
   catalogTableColumns,
 } from "./table_columns";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { DataTableViewOptions } from "@/components/ui/my_table_column_visibility_toggle";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import React, { Ref, RefObject, useEffect, useRef, useState } from "react";
-import { DataTablePagination } from "@/components/ui/my_table_pagination";
-import Image from "next/image";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { cn } from "@/lib/utils";
-import { ChevronRight, Lock, PenLine, Trash } from "lucide-react";
-import { useAppDispatch } from "@/hooks";
-import { deleteProduct, updateProduct } from "@/reducers/productsReducer";
-import ProductService from "@/services/productService";
-import LoadingCircle from "@/components/ui/loading_circle";
-import { axiosUIErrorHandler } from "@/services/axiosUtils";
-import { useToast } from "@/components/ui/use-toast";
-import { CustomDatatable } from "@/components/component/custom_datatable";
-import { useRouter } from "next/navigation";
 
 export function CatalogDatatable({
   data,
@@ -196,28 +173,28 @@ const DetailProductTab = ({
             </div>
             <div className="mb-2 flex flex-row border-b font-medium">
               <p className="w-[120px] font-normal">Stock:</p>
-              <p>{product.stock}</p>
+              <p>{formatPrice(product.stock)}</p>
             </div>
             <div className="mb-2 flex flex-row border-b font-medium">
               <p className="w-[120px] font-normal">Stock quota:</p>
               <div className="flex flex-row items-center">
-                <p>{product.minStock}</p>
+                <p>{formatPrice(product.minStock)}</p>
                 <ChevronRight size={14} className="mx-1 p-0" />
-                <p>{product.maxStock}</p>
+                <p>{formatPrice(product.maxStock)}</p>
               </div>
             </div>
 
             <div className="mb-2 flex flex-row border-b font-medium">
               <p className="w-[120px] font-normal">Product price:</p>
-              <p>{product.productPrice}</p>
+              <p>{formatPrice(product.productPrice)}</p>
             </div>
             <div className="mb-2 flex flex-row border-b font-medium">
               <p className="w-[120px] font-normal">Original price:</p>
-              <p>{product.originalPrice}</p>
+              <p>{formatPrice(product.originalPrice)}</p>
             </div>
             <div className="mb-2 flex flex-row border-b font-medium">
               <p className="w-[120px] font-normal">Weight:</p>
-              <p>{product.weight}</p>
+              <p>{formatDecimal(product.weight)}</p>
             </div>
             <div className="mb-2 flex flex-row border-b font-medium">
               <p className="w-[120px] font-normal">Location:</p>
