@@ -134,6 +134,7 @@ const DetailTab = ({
             <p className="mb-2">Note</p>
             <textarea
               readOnly
+              disabled
               className={cn(
                 "h-[80px] w-full resize-none rounded-sm border-2 p-1",
                 scrollbar_style.scrollbar,

@@ -519,11 +519,11 @@ const DataCell = ({
         })}
         <span
           className={cn(
-            "ml-2 self-start rounded-md bg-pink-200 px-2 py-1 text-xs",
+            "ml-2 self-start rounded-md bg-purple px-2 py-1 text-xs",
             hidedItem > 0 ? "visible" : "hidden",
           )}
         >
-          +{hidedItem}
+          <span className="text-white">+{hidedItem}</span>
         </span>
       </div>
 

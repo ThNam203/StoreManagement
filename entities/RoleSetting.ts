@@ -5,34 +5,48 @@ export type Role = {
 };
 
 export type RoleSetting = {
-  overview: DefaultSetting;
-  catalog: AllSetting;
-  discount: DefaultSetting;
-  stockCheck: DefaultSetting;
-  invoice: DefaultSetting;
-  returnInvoice: DefaultSetting;
-  purchaseOrder: DefaultSetting;
-  purchaseReturn: DefaultSetting;
-  damageItems: DefaultSetting;
-  fundLedger: AllSetting;
-  customer: DefaultSetting;
-  supplier: DefaultSetting;
-  report: AllSetting;
-  staff: AllSetting;
-  attendance: DefaultSetting;
+  overview: R;
+  catalog: CRUD & E;
+  discount: CRUD;
+  stockCheck: CR;
+  invoice: CR;
+  returnInvoice: CR;
+  purchaseOrder: CRD;
+  purchaseReturn: CRD;
+  damageItems: CRD;
+  fundLedger: CRUD & E;
+  customer: CRUD;
+  supplier: CRUD;
+  report: R & E;
+  staff: CRUD;
+  attendance: CRUD;
 };
 
-export type DefaultSetting = {
+export type CR = {
+  create: boolean;
+  read: boolean;
+};
+
+export type R = {
+  read: boolean;
+};
+
+export type CRUD = {
   create: boolean;
   read: boolean;
   update: boolean;
   delete: boolean;
 };
-export type FileSetting = {
-  export: boolean;
+
+export type CRD = {
+  create: boolean;
+  read: boolean;
+  delete: boolean;
 };
 
-export type AllSetting = DefaultSetting & FileSetting;
+export type E = {
+  export: boolean;
+};
 
 export const RoleSettingName = {
   overview: "Overview",
@@ -93,10 +107,7 @@ export const getRoleSettingKeys = (roleSetting: RoleSetting) => {
 
 export const defaultRoleSetting: RoleSetting = {
   overview: {
-    create: false,
     read: false,
-    update: false,
-    delete: false,
   },
   catalog: {
     create: false,
@@ -114,37 +125,28 @@ export const defaultRoleSetting: RoleSetting = {
   stockCheck: {
     create: false,
     read: false,
-    update: false,
-    delete: false,
   },
   invoice: {
     create: false,
     read: false,
-    update: false,
-    delete: false,
   },
   returnInvoice: {
     create: false,
     read: false,
-    update: false,
-    delete: false,
   },
   purchaseOrder: {
     create: false,
     read: false,
-    update: false,
     delete: false,
   },
   purchaseReturn: {
     create: false,
     read: false,
-    update: false,
     delete: false,
   },
   damageItems: {
     create: false,
     read: false,
-    update: false,
     delete: false,
   },
   fundLedger: {
@@ -167,10 +169,7 @@ export const defaultRoleSetting: RoleSetting = {
     delete: false,
   },
   report: {
-    create: false,
     read: false,
-    update: false,
-    delete: false,
     export: false,
   },
   staff: {
@@ -178,7 +177,6 @@ export const defaultRoleSetting: RoleSetting = {
     read: false,
     update: false,
     delete: false,
-    export: false,
   },
   attendance: {
     create: false,

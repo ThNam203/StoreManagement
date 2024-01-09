@@ -82,7 +82,7 @@ export default function NewDiscountForm({
     resolver: zodResolver(newDiscountFormSchema),
     defaultValues: {
       name: "",
-      value: 0,
+      value: undefined,
       maxValue: null,
       status: true,
       type: "COUPON",
@@ -186,6 +186,8 @@ export default function NewDiscountForm({
                               )}
                             >
                               <input
+                                defaultValue={field.value}
+                                placeholder="0"
                                 className="!m-0 w-full flex-1 border-0 text-end focus-visible:outline-none"
                                 type="number"
                                 min={0}

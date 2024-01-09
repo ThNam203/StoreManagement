@@ -31,7 +31,7 @@ import { useForm } from "react-hook-form";
 import { RoleList } from "./role_setting_item";
 
 const schema = z.object({
-  role: z.string().min(1, { message: "Position is missing" }),
+  role: z.string(),
 });
 
 export function RoleSettingDialog({

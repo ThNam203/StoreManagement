@@ -3,10 +3,10 @@ import { Role, RoleSetting } from "@/entities/RoleSetting";
 export const convertRoleSettingToSent = (value: RoleSetting) => {
   const converted = {
     overview: {
-      create: value.overview.create,
+      create: false,
       read: value.overview.read,
-      update: value.overview.update,
-      delete: value.overview.delete,
+      update: false,
+      delete: false,
       export: false,
     },
     catalog: {
@@ -26,42 +26,42 @@ export const convertRoleSettingToSent = (value: RoleSetting) => {
     stockCheck: {
       create: value.stockCheck.create,
       read: value.stockCheck.read,
-      update: value.stockCheck.update,
-      delete: value.stockCheck.delete,
+      update: false,
+      delete: false,
       export: false,
     },
     invoice: {
       create: value.invoice.create,
       read: value.invoice.read,
-      update: value.invoice.update,
-      delete: value.invoice.delete,
+      update: false,
+      delete: false,
       export: false,
     },
     returnInvoice: {
       create: value.returnInvoice.create,
       read: value.returnInvoice.read,
-      update: value.returnInvoice.update,
-      delete: value.returnInvoice.delete,
+      update: false,
+      delete: false,
       export: false,
     },
     purchaseOrder: {
       create: value.purchaseOrder.create,
       read: value.purchaseOrder.read,
-      update: value.purchaseOrder.update,
-      delete: value.purchaseOrder.delete,
+      update: false,
+      delete: false,
       export: false,
     },
     purchaseReturn: {
       create: value.purchaseReturn.create,
       read: value.purchaseReturn.read,
-      update: value.purchaseReturn.update,
+      update: false,
       delete: value.purchaseReturn.delete,
       export: false,
     },
     damageItems: {
       create: value.damageItems.create,
       read: value.damageItems.read,
-      update: value.damageItems.update,
+      update: false,
       delete: value.damageItems.delete,
       export: false,
     },
@@ -87,10 +87,10 @@ export const convertRoleSettingToSent = (value: RoleSetting) => {
       export: false,
     },
     report: {
-      create: value.report.create,
+      create: false,
       read: value.report.read,
-      update: value.report.update,
-      delete: value.report.delete,
+      update: false,
+      delete: false,
       export: value.report.export,
     },
     staff: {
@@ -98,7 +98,7 @@ export const convertRoleSettingToSent = (value: RoleSetting) => {
       read: value.staff.read,
       update: value.staff.update,
       delete: value.staff.delete,
-      export: value.staff.export,
+      export: false,
     },
     attendance: {
       create: value.attendance.create,
@@ -115,10 +115,7 @@ export const convertRoleSettingToSent = (value: RoleSetting) => {
 export const convertRoleReceived = (value: any) => {
   const roleSetting: RoleSetting = {
     overview: {
-      create: value.overview.create,
       read: value.overview.read,
-      update: value.overview.update,
-      delete: value.overview.delete,
     },
     catalog: {
       create: value.catalog.create,
@@ -136,37 +133,28 @@ export const convertRoleReceived = (value: any) => {
     stockCheck: {
       create: value.stockCheck.create,
       read: value.stockCheck.read,
-      update: value.stockCheck.update,
-      delete: value.stockCheck.delete,
     },
     invoice: {
       create: value.invoice.create,
       read: value.invoice.read,
-      update: value.invoice.update,
-      delete: value.invoice.delete,
     },
     returnInvoice: {
       create: value.returnInvoice.create,
       read: value.returnInvoice.read,
-      update: value.returnInvoice.update,
-      delete: value.returnInvoice.delete,
     },
     purchaseOrder: {
       create: value.purchaseOrder.create,
       read: value.purchaseOrder.read,
-      update: value.purchaseOrder.update,
       delete: value.purchaseOrder.delete,
     },
     purchaseReturn: {
       create: value.purchaseReturn.create,
       read: value.purchaseReturn.read,
-      update: value.purchaseReturn.update,
       delete: value.purchaseReturn.delete,
     },
     damageItems: {
       create: value.damageItems.create,
       read: value.damageItems.read,
-      update: value.damageItems.update,
       delete: value.damageItems.delete,
     },
     fundLedger: {
@@ -189,10 +177,7 @@ export const convertRoleReceived = (value: any) => {
       delete: value.supplier.delete,
     },
     report: {
-      create: value.report.create,
       read: value.report.read,
-      update: value.report.update,
-      delete: value.report.delete,
       export: value.report.export,
     },
     staff: {
@@ -200,7 +185,6 @@ export const convertRoleReceived = (value: any) => {
       read: value.staff.read,
       update: value.staff.update,
       delete: value.staff.delete,
-      export: value.staff.export,
     },
     attendance: {
       create: value.attendance.create,
@@ -221,10 +205,10 @@ export const convertRoleToSent = (value: Role) => {
   const converted = {
     staffPositionName: value.positionName,
     overview: {
-      create: value.roleSetting.overview.create,
+      create: false,
       read: value.roleSetting.overview.read,
-      update: value.roleSetting.overview.update,
-      delete: value.roleSetting.overview.delete,
+      update: false,
+      delete: false,
       export: false,
     },
     catalog: {
@@ -244,42 +228,42 @@ export const convertRoleToSent = (value: Role) => {
     stockCheck: {
       create: value.roleSetting.stockCheck.create,
       read: value.roleSetting.stockCheck.read,
-      update: value.roleSetting.stockCheck.update,
-      delete: value.roleSetting.stockCheck.delete,
+      update: false,
+      delete: false,
       export: false,
     },
     invoice: {
       create: value.roleSetting.invoice.create,
       read: value.roleSetting.invoice.read,
-      update: value.roleSetting.invoice.update,
-      delete: value.roleSetting.invoice.delete,
+      update: false,
+      delete: false,
       export: false,
     },
     returnInvoice: {
       create: value.roleSetting.returnInvoice.create,
       read: value.roleSetting.returnInvoice.read,
-      update: value.roleSetting.returnInvoice.update,
-      delete: value.roleSetting.returnInvoice.delete,
+      update: false,
+      delete: false,
       export: false,
     },
     purchaseOrder: {
       create: value.roleSetting.purchaseOrder.create,
       read: value.roleSetting.purchaseOrder.read,
-      update: value.roleSetting.purchaseOrder.update,
+      update: false,
       delete: value.roleSetting.purchaseOrder.delete,
       export: false,
     },
     purchaseReturn: {
       create: value.roleSetting.purchaseReturn.create,
       read: value.roleSetting.purchaseReturn.read,
-      update: value.roleSetting.purchaseReturn.update,
+      update: false,
       delete: value.roleSetting.purchaseReturn.delete,
       export: false,
     },
     damageItems: {
       create: value.roleSetting.damageItems.create,
       read: value.roleSetting.damageItems.read,
-      update: value.roleSetting.damageItems.update,
+      update: false,
       delete: value.roleSetting.damageItems.delete,
       export: false,
     },
@@ -305,10 +289,10 @@ export const convertRoleToSent = (value: Role) => {
       export: false,
     },
     report: {
-      create: value.roleSetting.report.create,
+      create: false,
       read: value.roleSetting.report.read,
-      update: value.roleSetting.report.update,
-      delete: value.roleSetting.report.delete,
+      update: false,
+      delete: false,
       export: value.roleSetting.report.export,
     },
     staff: {
@@ -316,7 +300,7 @@ export const convertRoleToSent = (value: Role) => {
       read: value.roleSetting.staff.read,
       update: value.roleSetting.staff.update,
       delete: value.roleSetting.staff.delete,
-      export: value.roleSetting.staff.export,
+      export: false,
     },
     attendance: {
       create: value.roleSetting.attendance.create,
