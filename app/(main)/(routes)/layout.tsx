@@ -1,21 +1,13 @@
 "use client";
 import "@/app/globals.css";
-import type { Metadata } from "next";
 import SideBar from "@/components/ui/overview/overview_sidebar";
-import no_scrollbar_style from "@/styles/no_scrollbar.module.css";
-import { useCallback, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
-import { Open_Sans } from "next/font/google";
-import Preloader from "@/components/ui/preloader";
-import { useDispatch } from "react-redux";
 import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
+import no_scrollbar_style from "@/styles/no_scrollbar.module.css";
+import { Open_Sans } from "next/font/google";
+import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 const font = Open_Sans({ subsets: ["latin"] });
-
-export const metadata: Metadata = {
-  title: "Convenient Store",
-  description: "Convenient Store Management Website",
-  icons: ["/web_avatar.png"],
-};
 
 export default function RootLayout({
   children,

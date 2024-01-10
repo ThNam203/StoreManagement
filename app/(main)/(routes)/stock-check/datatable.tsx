@@ -1,28 +1,25 @@
 "use client";
+import {
+  CustomDatatable,
+  DefaultInformationCellDataTable,
+} from "@/components/component/custom_datatable";
+import { defaultColumn } from "@/components/ui/my_table_default_column";
+import { useToast } from "@/components/ui/use-toast";
+import { StockCheck, StockCheckDetail } from "@/entities/StockCheck";
+import { useAppDispatch, useAppSelector } from "@/hooks";
+import { cn } from "@/lib/utils";
+import { deleteStockCheck } from "@/reducers/stockChecksReducer";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
+import StockCheckService from "@/services/stockCheckService";
+import scrollbar_style from "@/styles/scrollbar.module.css";
+import { ColumnDef } from "@tanstack/react-table";
+import { format } from "date-fns";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {
   stockCheckColumnTitles,
   stockCheckTableColumns,
 } from "./table_columns";
-import { useAppDispatch, useAppSelector } from "@/hooks";
-import {
-  CustomDatatable,
-  DefaultInformationCellDataTable,
-} from "@/components/component/custom_datatable";
-import { StockCheck, StockCheckDetail } from "@/entities/StockCheck";
-import { useToast } from "@/components/ui/use-toast";
-import { cn } from "@/lib/utils";
-import scrollbar_style from "@/styles/scrollbar.module.css";
-import { Button } from "@/components/ui/button";
-import { PenLine, Trash } from "lucide-react";
-import LoadingCircle from "@/components/ui/loading_circle";
-import StockCheckService from "@/services/stockCheckService";
-import { deleteStockCheck } from "@/reducers/stockChecksReducer";
-import { axiosUIErrorHandler } from "@/services/axiosUtils";
-import { ColumnDef } from "@tanstack/react-table";
-import { defaultColumn } from "@/components/ui/my_table_default_column";
-import { useRouter } from "next/navigation";
-import { format } from "date-fns";
 
 const visibilityState = {
   creatorId: false,
@@ -104,6 +101,11 @@ const DetailTab = ({
   const dispatch = useAppDispatch();
   const { toast } = useToast();
   const router = useRouter();
+  const roles = useAppSelector((state) => state.role.value);
+  const profile = useAppSelector((state) => state.profile.value)!;
+  const userPermissions = roles?.find(
+    (role) => role.positionName === profile?.position,
+  )!.roleSetting;
 
   return (
     <div className="p-2">

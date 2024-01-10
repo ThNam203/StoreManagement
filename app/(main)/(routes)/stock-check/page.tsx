@@ -30,6 +30,11 @@ export default function StockCheck() {
   const { toast } = useToast();
   const router = useRouter();
   const stockChecks = useAppSelector((state) => state.stockChecks.value);
+  const roles = useAppSelector((state) => state.role.value);
+  const profile = useAppSelector((state) => state.profile.value)!;
+  const userPermissions = roles?.find(
+    (role) => role.positionName === profile?.position,
+  )!.roleSetting;
 
   useEffect(() => {
     dispatch(showPreloader());
@@ -129,7 +134,7 @@ export default function StockCheck() {
       ...prev,
       totalCountedStock: condition,
     }));
-  }
+  };
 
   const updateCreatedDateConditionControl = (control: TimeFilterType) => {
     setTimeConditionControls((prev) => ({
@@ -218,14 +223,14 @@ export default function StockCheck() {
       className="mb-2"
       range={rangeConditions.totalCountedStock}
       onValuesChanged={updateTotalCountedStockRangeCondition}
-      />,
-      <RangeFilter
-        key={4}
-        title="Stock"
-        className="mb-2"
-        range={rangeConditions.totalStock}
-        onValuesChanged={updateTotalStockRangeCondition}
-      />,
+    />,
+    <RangeFilter
+      key={4}
+      title="Stock"
+      className="mb-2"
+      range={rangeConditions.totalStock}
+      onValuesChanged={updateTotalStockRangeCondition}
+    />,
     <RangeFilter
       key={3}
       title="Total Value"
@@ -249,20 +254,20 @@ export default function StockCheck() {
     />,
   ];
 
+  const headerButtons = [];
+  if (userPermissions.stockCheck.create)
+    headerButtons.push(
+      <Button
+        key={1}
+        variant={"green"}
+        onClick={() => router.push("/stock-check/new")}
+      >
+        New stock check
+      </Button>,
+    );
+
   return (
-    <PageWithFilters
-      title="Stock check"
-      filters={filters}
-      headerButtons={[
-        <Button
-          key={1}
-          variant={"green"}
-          onClick={() => router.push("/stock-check/new")}
-        >
-          New stock check
-        </Button>,
-      ]}
-    >
+    <PageWithFilters title="Stock check" filters={filters} headerButtons={headerButtons}>
       <StockCheckDatatable data={filteredStockChecks} />
     </PageWithFilters>
   );

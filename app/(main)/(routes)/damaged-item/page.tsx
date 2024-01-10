@@ -30,7 +30,12 @@ export default function DamagedItemsPage() {
     (state) => state.damagedItemDocuments.value,
   );
   const staffs = useAppSelector((state) => state.staffs.activeStaffs);
-
+  const roles = useAppSelector((state) => state.role.value);
+  const profile = useAppSelector((state) => state.profile.value)!;
+  const userPermissions = roles?.find(
+    (role) => role.positionName === profile?.position,
+  )!.roleSetting;
+  
   useEffect(() => {
     dispatch(showPreloader());
     const fetchData = async () => {
@@ -163,20 +168,19 @@ export default function DamagedItemsPage() {
     />,
   ];
 
-  return (
-    <PageWithFilters
-      title="Damaged Items"
-      filters={filters}
-      headerButtons={[
-        <Button
-          key={1}
-          variant={"green"}
-          onClick={() => router.push("/damaged-item/new")}
-        >
-          New document
-        </Button>,
-      ]}
+  const headerButtons = [];
+  if (userPermissions.damageItems.create) {
+    headerButtons.push(<Button
+      key={1}
+      variant={"green"}
+      onClick={() => router.push("/damaged-item/new")}
     >
+      New document
+    </Button>)
+  }
+
+  return (
+    <PageWithFilters title="Damaged Items" filters={filters} headerButtons={headerButtons}>
       <DamagedItemsDatatable data={filteredDamagedItemDocuments} />
     </PageWithFilters>
   );

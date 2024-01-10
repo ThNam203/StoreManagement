@@ -37,8 +37,14 @@ export default function InvoicePage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { toast } = useToast();
+  const roles = useAppSelector((state) => state.role.value);
+  const profile = useAppSelector((state) => state.profile.value)!;
+  const userPermissions = roles?.find(
+    (role) => role.positionName === profile?.position,
+  )!.roleSetting;
 
   const NewInvoiceButton = () => {
+    if (!userPermissions.invoice.create) return null;
     return (
       <Button variant={"green"} onClick={() => router.push("/sale")}>
         <Plus size={16} className="mr-2" />

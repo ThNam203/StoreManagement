@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import LoadingCircle from "@/components/ui/loading_circle";
 import { useToast } from "@/components/ui/use-toast";
 import { Product } from "@/entities/Product";
-import { useAppDispatch } from "@/hooks";
+import { useAppDispatch, useAppSelector } from "@/hooks";
 import { cn } from "@/lib/utils";
 import { deleteProduct, updateProduct } from "@/reducers/productsReducer";
 import { axiosUIErrorHandler } from "@/services/axiosUtils";
@@ -108,6 +108,11 @@ const DetailProductTab = ({
   const dispatch = useAppDispatch();
   const { toast } = useToast();
   const router = useRouter();
+  const roles = useAppSelector((state) => state.role.value);
+  const profile = useAppSelector((state) => state.profile.value)!;
+  const userPermissions = roles?.find(
+    (role) => role.positionName === profile?.position,
+  )!.roleSetting;
 
   return (
     <>
@@ -233,14 +238,14 @@ const DetailProductTab = ({
       </div>
       <div className="flex flex-row items-center gap-2">
         <div className="flex-1" />
-        <Button
+        {userPermissions.catalog.update && <Button
           variant={"green"}
           onClick={(e) => onProductUpdateButtonClicked(row.index)}
           disabled={disableDeleteButton || disableDisableButton}
         >
           <PenLine size={16} fill="white" className="mr-2" />
-          Update
-        </Button>
+            Update
+        </Button>}
         <Button
           variant={product.status === "Active" ? "red" : "green"}
           disabled={disableDeleteButton || disableDisableButton}
@@ -264,7 +269,7 @@ const DetailProductTab = ({
           {product.status === "Active" ? "Disable product" : "Activate product"}
           {disableDisableButton ? <LoadingCircle /> : null}
         </Button>
-        <Button
+        {userPermissions.catalog.delete && <Button
           variant={"red"}
           onClick={(e) => {
             setDisableDeleteButton(true);
@@ -281,7 +286,7 @@ const DetailProductTab = ({
           <Trash size={16} className="mr-2" />
           Delete
           {disableDeleteButton ? <LoadingCircle /> : null}
-        </Button>
+        </Button>}
       </div>
     </>
   );

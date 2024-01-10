@@ -367,6 +367,11 @@ const DetailFundledgerTab = ({
     content: "",
     type: "warning" as ConfirmDialogType,
   });
+  const roles = useAppSelector((state) => state.role.value);
+  const profile = useAppSelector((state) => state.profile.value)!;
+  const userPermissions = roles?.find(
+    (role) => role.positionName === profile?.position,
+  )!.roleSetting;
 
   return (
     <div className="flex h-[300px] flex-col gap-4 px-4 py-2">
@@ -426,7 +431,7 @@ const DetailFundledgerTab = ({
           <FolderOpen size={16} className="mr-2" />
           Open form
         </Button>
-        <Button
+        {userPermissions.fundLedger.delete && <Button
           variant={"red"}
           onClick={() => {
             setContentConfirmDialog({
@@ -444,9 +449,9 @@ const DetailFundledgerTab = ({
           )}
         >
           <Trash size={16} className="mr-2" />
-          Remove
+            Delete
           {isRemoving && <LoadingCircle></LoadingCircle>}
-        </Button>
+        </Button>}
       </div>
       <MyConfirmDialog
         open={openConfirmDialog}

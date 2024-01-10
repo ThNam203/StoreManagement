@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import LoadingCircle from "@/components/ui/loading_circle";
 import { useToast } from "@/components/ui/use-toast";
 import { Supplier } from "@/entities/Supplier";
-import { useAppDispatch } from "@/hooks";
+import { useAppDispatch, useAppSelector } from "@/hooks";
 import { cn } from "@/lib/utils";
 import { deleteSupplier } from "@/reducers/suppliersReducer";
 import { axiosUIErrorHandler } from "@/services/axiosUtils";
@@ -91,6 +91,11 @@ const DetailSupplierTab = ({
   const dispatch = useAppDispatch();
   const { toast } = useToast();
   const router = useRouter();
+  const roles = useAppSelector((state) => state.role.value);
+  const profile = useAppSelector((state) => state.profile.value)!;
+  const userPermissions = roles?.find(
+    (role) => role.positionName === profile?.position,
+  )!.roleSetting;
 
   return (
     <div className="py-2">
@@ -143,7 +148,7 @@ const DetailSupplierTab = ({
       </div>
       <div className="flex flex-row items-center gap-2">
         <div className="flex-1" />
-        <UpdateSupplierDialog
+        {userPermissions.supplier.update && <UpdateSupplierDialog
           DialogTrigger={
             <Button variant={"green"} disabled={disableDeleteButton}>
               <PenLine size={16} className="mr-2" />
@@ -152,8 +157,8 @@ const DetailSupplierTab = ({
             </Button>
           }
           supplier={supplier}
-        />
-        <Button
+        />}
+        {userPermissions.supplier.delete && <Button
           variant={"red"}
           onClick={(e) => {
             setDisableDeleteButton(true);
@@ -170,7 +175,7 @@ const DetailSupplierTab = ({
           <Trash size={16} className="mr-2" />
           Delete
           {disableDeleteButton ? <LoadingCircle /> : null}
-        </Button>
+        </Button>}
       </div>
     </div>
   );

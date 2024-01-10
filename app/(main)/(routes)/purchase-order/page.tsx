@@ -36,6 +36,11 @@ export default function PurchaseOrderPage() {
   const purchaseOrders = useAppSelector((state) => state.purchaseOrders.value);
   const staffs = useAppSelector((state) => state.staffs.activeStaffs);
   const suppliers = useAppSelector((state) => state.suppliers.value);
+  const roles = useAppSelector((state) => state.role.value);
+  const profile = useAppSelector((state) => state.profile.value)!;
+  const userPermissions = roles?.find(
+    (role) => role.positionName === profile?.position,
+  )!.roleSetting;
 
   useEffect(() => {
     dispatch(showPreloader());
@@ -251,19 +256,23 @@ export default function PurchaseOrderPage() {
     />,
   ];
 
+  const headerButtons = [];
+  if (userPermissions.purchaseOrder.create)
+    headerButtons.push(
+      <Button
+        key={1}
+        variant={"green"}
+        onClick={() => router.push("/purchase-order/new")}
+      >
+        New purchase order
+      </Button>,
+    );
+
   return (
     <PageWithFilters
       title="Purchase Order"
       filters={filters}
-      headerButtons={[
-        <Button
-          key={1}
-          variant={"green"}
-          onClick={() => router.push("/purchase-order/new")}
-        >
-          New purchase order
-        </Button>,
-      ]}
+      headerButtons={headerButtons}
     >
       <PurchaseOrderDatatable data={filteredPurchaseOrders} />
     </PageWithFilters>

@@ -89,6 +89,11 @@ const DetailCustomerTab = ({
   const dispatch = useAppDispatch();
   const { toast } = useToast();
   const router = useRouter();
+  const roles = useAppSelector((state) => state.role.value);
+  const profile = useAppSelector((state) => state.profile.value)!;
+  const userPermissions = roles?.find(
+    (role) => role.positionName === profile?.position,
+  )!.roleSetting;
 
   return (
     <div className="py-2">
@@ -152,7 +157,7 @@ const DetailCustomerTab = ({
       </div>
       <div className="flex flex-row items-center gap-2">
         <div className="flex-1" />
-        <UpdateCustomerDialog
+        {userPermissions.customer.update && <UpdateCustomerDialog
           DialogTrigger={
             <Button variant={"green"} disabled={disableDeleteButton}>
               <PenLine size={16} className="mr-2" />
@@ -161,8 +166,8 @@ const DetailCustomerTab = ({
             </Button>
           }
           customer={customer}
-        />
-        <Button
+        />}
+        {userPermissions.customer.delete && <Button
           variant={"red"}
           onClick={(e) => {
             setDisableDeleteButton(true);
@@ -179,7 +184,7 @@ const DetailCustomerTab = ({
           <Trash size={16} className="mr-2" />
           Delete
           {disableDeleteButton ? <LoadingCircle /> : null}
-        </Button>
+        </Button>}
       </div>
     </div>
   );

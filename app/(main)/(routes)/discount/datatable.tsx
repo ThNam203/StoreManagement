@@ -148,6 +148,11 @@ const DetailTab = ({
   const dispatch = useAppDispatch();
   const { toast } = useToast();
   const router = useRouter();
+  const roles = useAppSelector((state) => state.role.value);
+  const profile = useAppSelector((state) => state.profile.value)!;
+  const userPermissions = roles?.find(
+    (role) => role.positionName === profile?.position,
+  )!.roleSetting;
 
   return (
     <div className="p-2">
@@ -242,15 +247,15 @@ const DetailTab = ({
       </div>
       <div className="flex flex-row items-center gap-2">
         <div className="flex-1" />
-        <Button
+        {userPermissions.discount.update && <Button
           variant={"green"}
           disabled={disableDeleteButton || disableDisableButton}
           onClick={() => onUpdateButtonClick(row.index)}
         >
           <PenLine size={16} fill="white" className="mr-2" />
           Update
-        </Button>
-        <Button
+        </Button>}
+        {userPermissions.discount.update && <Button
           variant={discount.status ? "red" : "green"}
           disabled={disableDeleteButton || disableDisableButton}
           onClick={(e) => {
@@ -269,8 +274,8 @@ const DetailTab = ({
           <Lock size={16} className="mr-2" />
           {discount.status ? "Disable discount" : "Activate discount"}
           {disableDisableButton ? <LoadingCircle /> : null}
-        </Button>
-        <Button
+        </Button>}
+        {userPermissions.discount.delete && <Button
           variant={"red"}
           onClick={(e) => {
             setDisableDeleteButton(true);
@@ -287,7 +292,7 @@ const DetailTab = ({
           <Trash size={16} className="mr-2" />
           Delete
           {disableDeleteButton ? <LoadingCircle /> : null}
-        </Button>
+        </Button>}
       </div>
     </div>
   );

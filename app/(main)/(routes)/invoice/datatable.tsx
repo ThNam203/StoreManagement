@@ -104,6 +104,11 @@ const DetailInvoiceTab = ({
   const [disableDeleteButton, setDisableDeleteButton] = useState(false);
   const staffs = useAppSelector((state) => state.staffs.value);
   const customers = useAppSelector((state) => state.customers.value);
+  const roles = useAppSelector((state) => state.role.value);
+  const profile = useAppSelector((state) => state.profile.value)!;
+  const userPermissions = roles?.find(
+    (role) => role.positionName === profile?.position,
+  )!.roleSetting;
 
   return (
     <div className="p-2">
@@ -186,7 +191,7 @@ const DetailInvoiceTab = ({
       </div>
       <div className="flex flex-row items-center gap-2">
         <div className="flex-1" />
-        <Button
+        {userPermissions.returnInvoice.create && <Button
           variant={"green"}
           onClick={(e) => {
             router.push(`/invoice-return?invoiceId=${invoice.id}`);
@@ -196,7 +201,7 @@ const DetailInvoiceTab = ({
           <Undo2 size={16} className="mr-2" />
             Return
           {disableDeleteButton ? <LoadingCircle /> : null}
-        </Button>
+        </Button>}
         {/* <Button
           variant={"red"}
           onClick={(e) => {

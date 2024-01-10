@@ -266,6 +266,7 @@ export default function NewPurchaseOrderPage() {
         </div>
         <CustomCombobox<Supplier>
           searchPlaceholder={"Find supplier..."}
+          placeholder="Choose a supplier"
           value={supplier}
           choices={suppliers}
           valueView={SupplierView}

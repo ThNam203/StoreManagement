@@ -329,7 +329,7 @@ const FinanceReportPDFContent = ({
           <Text style={styles.headerCreatedDate}>
             {format(new Date(), "MM/dd/yyyy")}
           </Text>
-          <Text style={styles.headerTitle}>FINANCE REPORT RIGHT?</Text>
+          <Text style={styles.headerTitle}>FINANCE REPORT</Text>
           <Text style={styles.headerContent}>
             {`${format(startDate, "MM/dd/yyyy")} to ${format(
               endDate,
@@ -365,7 +365,7 @@ const FinanceReportPDFContent = ({
                   style={{ flexBasis: "100px", flexGrow: 1, flexShrink: 1 }}
                 >
                   <Text style={{fontSize: 16, textAlign: "center"}}>
-                    {data[key as keyof typeof data]}
+                    {data[key as keyof typeof data]}{" "}VND
                   </Text>
                 </View>
               </View>

@@ -59,6 +59,12 @@ export default function FundLedger() {
   const { toast } = useToast();
   const router = useRouter();
   const transactionList = useAppSelector((state) => state.transactions.value);
+  const roles = useAppSelector((state) => state.role.value);
+  const profile = useAppSelector((state) => state.profile.value)!;
+  const userPermissions = roles?.find(
+    (role) => role.positionName === profile?.position,
+  )!.roleSetting;
+  
   const [filteredTransactionList, setFilteredTransactionList] = useState<
     Transaction[]
   >([]);

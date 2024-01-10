@@ -39,6 +39,11 @@ export default function PurchaseReturnPage() {
   );
   const staffs = useAppSelector((state) => state.staffs.activeStaffs);
   const suppliers = useAppSelector((state) => state.suppliers.value);
+  const roles = useAppSelector((state) => state.role.value);
+  const profile = useAppSelector((state) => state.profile.value)!;
+  const userPermissions = roles?.find(
+    (role) => role.positionName === profile?.position,
+  )!.roleSetting;
 
   useEffect(() => {
     dispatch(showPreloader());
@@ -256,20 +261,20 @@ export default function PurchaseReturnPage() {
     />,
   ];
 
+  const headerButtons = [];
+  if (userPermissions.purchaseReturn.create)
+    headerButtons.push(
+      <Button
+        key={1}
+        variant={"green"}
+        onClick={() => router.push("/purchase-return/new")}
+      >
+        New purchase return
+      </Button>,
+    );
+
   return (
-    <PageWithFilters
-      title="Purchase Return"
-      filters={filters}
-      headerButtons={[
-        <Button
-          key={1}
-          variant={"green"}
-          onClick={() => router.push("/purchase-return/new")}
-        >
-          New purchase return
-        </Button>,
-      ]}
-    >
+    <PageWithFilters title="Purchase Return" filters={filters} headerButtons={headerButtons}>
       <PurchaseReturnDatatable data={filteredPurchaseReturns} />
     </PageWithFilters>
   );

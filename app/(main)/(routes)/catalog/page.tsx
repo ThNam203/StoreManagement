@@ -48,6 +48,11 @@ export default function Catalog() {
   const productLocations = useAppSelector(
     (state) => state.productLocations.value,
   );
+  const roles = useAppSelector((state) => state.role.value)
+  const profile = useAppSelector((state) => state.profile.value)!
+  const userPermissions = roles?.find(
+    (role) => role.positionName === profile?.position,
+  )!.roleSetting;
 
   useEffect(() => {
     dispatch(showPreloader());
@@ -247,12 +252,12 @@ export default function Catalog() {
   ];
 
   const NewProductButton = () => {
-    return (
+    if (userPermissions.catalog.create) return (
       <Button variant={"green"} onClick={() => setShowNewProductView(true)}>
         <Plus size={16} className="mr-2" />
         New product
       </Button>
-    );
+    ); else return null;
   };
 
   const [showNewProductView, setShowNewProductView] = useState(false);

@@ -108,12 +108,17 @@ const DetailTab = ({
   const { toast } = useToast();
   const router = useRouter();
   const staffs = useAppSelector((state) => state.staffs.activeStaffs);
+  const roles = useAppSelector((state) => state.role.value);
+  const profile = useAppSelector((state) => state.profile.value)!;
+  const userPermissions = roles?.find(
+    (role) => role.positionName === profile?.position,
+  )!.roleSetting;
 
   return (
-    <>
+    <div className="p-2">
       <div className="flex flex-row gap-4">
         <div className="flex flex-1 flex-row text-[0.8rem]">
-          <div className="flex flex-1 flex-col gap-2 pr-4">
+          <div className="flex flex-1 flex-col gap-4">
             <DefaultInformationCellDataTable
               title="Document Id:"
               value={document.id}
@@ -130,7 +135,7 @@ const DetailTab = ({
               }
             />
           </div>
-          <div className="flex flex-1 flex-col pr-4">
+          <div className="flex flex-1 flex-col">
             <p className="mb-2">Note</p>
             <textarea
               readOnly
@@ -178,7 +183,7 @@ const DetailTab = ({
       </div>
       <div className="flex flex-row items-center gap-2">
         <div className="flex-1" />
-        <Button
+        {userPermissions.damageItems.delete && <Button
           variant={"red"}
           onClick={(e) => {
             setDisableDeleteButton(true);
@@ -195,8 +200,8 @@ const DetailTab = ({
           <Trash size={16} className="mr-2" />
           Delete
           {disableDeleteButton ? <LoadingCircle /> : null}
-        </Button>
+        </Button>}
       </div>
-    </>
+    </div>
   );
 };

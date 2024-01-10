@@ -1,4 +1,7 @@
 "use client";
+import { Button } from "@/components/ui/button";
+import NewDiscountForm from "@/components/ui/discount/new_discount_form";
+import UpdateDiscountForm from "@/components/ui/discount/update_discount_form";
 import {
   FilterTime,
   FilterYear,
@@ -8,30 +11,26 @@ import {
   SingleChoiceFilter,
   TimeFilter,
 } from "@/components/ui/filter";
-import React, { useEffect, useState } from "react";
-import { DiscountDatatable } from "./datatable";
-import { Button } from "@/components/ui/button";
-import { Plus, X } from "lucide-react";
-import { useAppDispatch, useAppSelector } from "@/hooks";
-import NewDiscountForm from "@/components/ui/discount/new_discount_form";
-import UpdateDiscountForm from "@/components/ui/discount/update_discount_form";
-import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
-import DiscountService from "@/services/discountService";
-import { setDiscounts } from "@/reducers/discountsReducer";
-import { da } from "date-fns/locale";
-import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import { useToast } from "@/components/ui/use-toast";
-import ProductService from "@/services/productService";
-import { setProducts } from "@/reducers/productsReducer";
+import { useAppDispatch, useAppSelector } from "@/hooks";
+import { setDiscounts } from "@/reducers/discountsReducer";
+import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
 import { setGroups } from "@/reducers/productGroupsReducer";
-import StaffService from "@/services/staff_service";
+import { setProducts } from "@/reducers/productsReducer";
 import { setStaffs } from "@/reducers/staffReducer";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
+import DiscountService from "@/services/discountService";
+import ProductService from "@/services/productService";
+import StaffService from "@/services/staff_service";
 import {
   TimeFilterType,
   handleDateCondition,
   handleRangeNumFilter,
 } from "@/utils";
+import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { DiscountDatatable } from "./datatable";
 
 const DISCOUNT_TYPES = ["Voucher", "Coupon", "All"];
 const DISCOUNT_STATUSES = ["Activating", "Disabled", "All"];
@@ -44,6 +43,11 @@ export default function DiscountPage() {
   const dispatch = useAppDispatch();
   const { toast } = useToast();
   const router = useRouter();
+  const roles = useAppSelector((state) => state.role.value);
+  const profile = useAppSelector((state) => state.profile.value)!;
+  const userPermissions = roles?.find(
+    (role) => role.positionName === profile?.position,
+  )!.roleSetting;
 
   useEffect(() => {
     dispatch(showPreloader());
@@ -237,6 +241,21 @@ export default function DiscountPage() {
     />,
   ];
 
+  const NewDiscountButton = () => {
+    const [open, setOpen] = useState(false);
+    if (!userPermissions.discount.create) return null;
+
+    return (
+      <>
+        <Button variant={"green"} onClick={() => setOpen(true)}>
+          <Plus size={16} className="mr-2" />
+          Create a new discount
+        </Button>
+        {open ? <NewDiscountForm setOpen={setOpen} /> : null}
+      </>
+    );
+  };
+
   return (
     <PageWithFilters
       title="Discounts"
@@ -256,17 +275,3 @@ export default function DiscountPage() {
     </PageWithFilters>
   );
 }
-
-const NewDiscountButton = () => {
-  const [open, setOpen] = useState(false);
-
-  return (
-    <>
-      <Button variant={"green"} onClick={() => setOpen(true)}>
-        <Plus size={16} className="mr-2" />
-        Create a new discount
-      </Button>
-      {open ? <NewDiscountForm setOpen={setOpen} /> : null}
-    </>
-  );
-};
