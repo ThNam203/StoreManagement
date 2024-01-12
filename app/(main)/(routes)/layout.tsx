@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
 import no_scrollbar_style from "@/styles/no_scrollbar.module.css";
 import { Open_Sans } from "next/font/google";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 const font = Open_Sans({ subsets: ["latin"] });
 
@@ -48,8 +48,26 @@ export default function RootLayout({
     else dispatch(disablePreloader());
   };
 
+  const bgGradientMorning = "linear-gradient(45deg,#85FFBD,#FFFB7D)";
+  const bgGradientAfternoon = "linear-gradient(62deg,#4158D0,#C850C0,#FFCC70)";
+  const bgGradientNight = "linear-gradient(90deg,#00DBDE,#FC00FF)";
+  let bgGradient = "";
+
+  if (new Date().getHours() >= 6 && new Date().getHours() < 12)
+    bgGradient = bgGradientMorning;
+  else if (new Date().getHours() >= 12 && new Date().getHours() < 18)
+    bgGradient = bgGradientAfternoon;
+  else if (new Date().getHours() >= 18 && new Date().getHours() < 24)
+    bgGradient = bgGradientNight;
+
   return (
-    <div className={font.className + "  min-h-screen bg-slate-100"}>
+    <div
+      className={cn(font.className, "min-h-screen bg-slate-100")}
+      // style={{
+      //   backgroundImage: bgGradientMorning,
+      //   backgroundSize: "400%",
+      // }}
+    >
       <SideBar
         showPreloader={handleShowPreloader}
         isSideBarCollapsed={isSideBarCollapsed}
@@ -61,7 +79,7 @@ export default function RootLayout({
       />
       <div
         className={cn(
-          "ml-[80px] bg-slate-100 py-2 pr-4 duration-150 ease-linear",
+          "ml-[80px] bg-transparent py-2 pr-4 duration-150 ease-linear",
           isSideBarCollapsed ? "" : "lg:ml-[248px]",
         )}
       >

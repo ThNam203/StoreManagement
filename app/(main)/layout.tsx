@@ -1,27 +1,25 @@
 "use client";
 
-import "../globals.css";
-import { cn } from "@/lib/utils";
-import { Provider } from "react-redux";
-import { Open_Sans } from "next/font/google";
-import { ReactNode, useEffect, useState } from "react";
-const font = Open_Sans({ subsets: ["latin"] });
-import store from "@/store";
-import { useAppDispatch, useAppSelector } from "@/hooks";
 import Preloader from "@/components/ui/preloader";
 import { Toaster } from "@/components/ui/toaster";
-import StaffService from "@/services/staff_service";
-import ProfileService from "@/services/profileService";
-import { setProfile } from "@/reducers/profileReducer";
-import { axiosUIErrorHandler } from "@/services/axiosUtils";
 import { useToast } from "@/components/ui/use-toast";
-import { useRouter } from "next/navigation";
-import { convertStaffReceived } from "@/utils/staffApiUtils";
-import StoreService from "@/services/storeService";
-import { setStoreInformation } from "@/reducers/storeReducer";
-import RoleService from "@/services/role_service";
+import { useAppDispatch, useAppSelector } from "@/hooks";
+import { cn } from "@/lib/utils";
+import { setProfile } from "@/reducers/profileReducer";
 import { setRoles } from "@/reducers/roleReducer";
-import { convertRoleReceived } from "@/utils/roleSettingApiUtils";
+import { setStoreInformation } from "@/reducers/storeReducer";
+import { axiosUIErrorHandler } from "@/services/axiosUtils";
+import ProfileService from "@/services/profileService";
+import RoleService from "@/services/role_service";
+import StoreService from "@/services/storeService";
+import store from "@/store";
+import { convertStaffReceived } from "@/utils/staffApiUtils";
+import { Open_Sans } from "next/font/google";
+import { useRouter } from "next/navigation";
+import { ReactNode, useEffect, useState } from "react";
+import { Provider } from "react-redux";
+import "../globals.css";
+const font = Open_Sans({ subsets: ["latin"] });
 
 import { Metadata } from "next";
 

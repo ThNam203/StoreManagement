@@ -8,7 +8,6 @@ import { useToast } from "@/components/ui/use-toast";
 import { DailyShift, Shift } from "@/entities/Attendance";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { cn } from "@/lib/utils";
-import PageBackground from "@/public/page_bg.svg";
 import { disablePreloader, showPreloader } from "@/reducers/preloaderReducer";
 import {
   addDailyShifts,
@@ -27,14 +26,10 @@ import ShiftService from "@/services/shift_service";
 import StaffService from "@/services/staff_service";
 import { getStaticRangeFilterTime } from "@/utils";
 import {
-  convertDailyShiftReceived,
   convertDailyShiftToSent,
-  convertShiftReceived,
   convertShiftToSent,
 } from "@/utils/shiftApiUtils";
-import { convertStaffReceived } from "@/utils/staffApiUtils";
 import { Plus } from "lucide-react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ButtonGroup } from "../../../../../components/ui/attendance/button_group";
@@ -231,15 +226,6 @@ export default function Attendance() {
 
   return (
     <div className="flex w-full flex-col gap-4 text-sm">
-      {/* <div className="absolute bottom-0 left-0 right-0">
-        <Image
-          src={PageBackground}
-          alt="shape"
-          width={500}
-          height={500}
-          className="w-full"
-        />
-      </div> */}
       <div className="flex flex-row items-center justify-between gap-2">
         <div className="flex flex-row items-center gap-2">
           <MyDateRangePicker

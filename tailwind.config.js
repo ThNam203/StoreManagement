@@ -88,10 +88,22 @@ module.exports = {
           "0%": { transform: "translateX(0%)" },
           "100%": { transform: "translateX(-100%)" },
         },
+        gradient: {
+          "0%": {
+            backgroundPosition: "bottom left",
+          },
+          "50%": {
+            backgroundPosition: "top right",
+          },
+          "100%": {
+            backgroundPosition: "bottom left",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "linear-botleft-to-topright": "gradient 10s linear infinite",
         marquee: "marquee 10s linear infinite",
       },
     },
