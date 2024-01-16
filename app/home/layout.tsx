@@ -44,7 +44,7 @@ export default function HomeLayout({
           ) : null}
           <Header showPreloader={ShowPreloader} />
           {children}
-          <Footer />
+          {/* <Footer /> */}
           <ScrollToTop />
         </Providers>
       </body>
