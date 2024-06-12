@@ -146,8 +146,9 @@ const isInRangeNum = (value: number, startValue: number, endValue: number) => {
   } else if (startValue === endValue) {
     if (value !== startValue) return false;
   } else {
-    if (value < startValue || value > endValue){
-    return false;}
+    if (value < startValue || value > endValue) {
+      return false;
+    }
   }
   return true;
 };
@@ -321,8 +322,9 @@ function handleRangeNumFilter<T>(
         if (isNaN(startValue)) startValue = Number.NEGATIVE_INFINITY;
         if (isNaN(endValue)) endValue = Number.POSITIVE_INFINITY;
         if (!isInRangeNum(ivalue, startValue, endValue)) return false;
-      } else{ 
-        return false;}
+      } else {
+        return false;
+      }
     }
     return true;
   });
@@ -488,11 +490,14 @@ const formatDecimalInput = (e: React.ChangeEvent<HTMLInputElement>) => {
 
   // remove leading 0s
   rawValue = rawValue.replace(/^0+(\d)/, "$1");
-  const splitedValues = rawValue.split(",")
+  const splitedValues = rawValue.split(",");
 
-  if (splitedValues.length === 1) e.currentTarget.value = formatPrice(Number(rawValue))
+  if (splitedValues.length === 1)
+    e.currentTarget.value = formatPrice(Number(rawValue));
   else {
-    e.currentTarget.value = `${formatPrice(Number(splitedValues[0]))},${splitedValues[1]}`
+    e.currentTarget.value = `${formatPrice(Number(splitedValues[0]))},${
+      splitedValues[1]
+    }`;
   }
 
   // add leading zero before the decimal point if needed
@@ -504,12 +509,12 @@ const formatDecimalInput = (e: React.ChangeEvent<HTMLInputElement>) => {
 
 const formatDecimal = (e: number) => {
   // remove characters that are not numbers or the first comma
-  let rawValue = e.toString()
-  const splitedValues = rawValue.split(".")
+  let rawValue = e.toString();
+  const splitedValues = rawValue.split(".");
 
-  if (splitedValues.length === 1) return formatPrice(Number(rawValue))
+  if (splitedValues.length === 1) return formatPrice(Number(rawValue));
   else {
-    return `${formatPrice(Number(splitedValues[0]))},${splitedValues[1]}`
+    return `${formatPrice(Number(splitedValues[0]))},${splitedValues[1]}`;
   }
 };
 
@@ -586,6 +591,52 @@ function capitalizeFirstLetter(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
+const displayNumber = (
+  number: number,
+  unit: "%" | string = "",
+  spaceBetweenNumAndUnit: boolean = false,
+  maximumFractionDigits: number = 2,
+) => {
+  if (isNaN(number)) return "$0.00";
+  if (unit === "%") {
+    if (number < 1000) {
+      return (
+        number.toLocaleString("en-US", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }) +
+        (spaceBetweenNumAndUnit ? " " : "") +
+        unit
+      );
+    } else {
+      return (
+        number.toLocaleString("en-US", {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0,
+        }) +
+        (spaceBetweenNumAndUnit ? " " : "") +
+        unit
+      );
+    }
+  }
+
+  if (unit === "$") {
+    return number.toLocaleString("en-US", {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: maximumFractionDigits,
+    });
+  }
+
+  return (
+    number.toLocaleString("en-US", {
+      maximumFractionDigits: 2,
+    }) +
+    (spaceBetweenNumAndUnit ? " " : "") +
+    unit
+  );
+};
+
 export {
   exportExcel,
   importExcel,
@@ -612,5 +663,6 @@ export {
   formatNumberInput,
   zodErrorHandler,
   formatDecimalInput,
-  formatDecimal
+  formatDecimal,
+  displayNumber,
 };

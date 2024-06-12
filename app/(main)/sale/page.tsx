@@ -219,10 +219,14 @@ export default function Sale() {
 
     setInvoices((invoices) => {
       return invoices.map((invoice) => {
-        if (invoice.id === updateInvoice.id) return {
-          ...updateInvoice,
-          cash: invoice.cash === updateInvoice.cash ? invoice.total : updateInvoice.cash,
-        };
+        if (invoice.id === updateInvoice.id)
+          return {
+            ...updateInvoice,
+            cash:
+              invoice.cash === updateInvoice.cash
+                ? invoice.total
+                : updateInvoice.cash,
+          };
         else return invoice;
       });
     });
@@ -526,7 +530,7 @@ const InvoiceView = ({
         setChosenCustomer(null);
         dispatch(addInvoice(response.data)); // add to sold invoices
         createInvoicePdf(
-          submitInvoice,
+          response.data,
           products,
           profile!,
           storeInfo!,
@@ -729,22 +733,26 @@ const InvoiceView = ({
             <p>
               Total quantity:{" "}
               <span className="font-semibold">
-                {formatPrice(invoice.invoiceDetails
-                  .map((v) => v.quantity)
-                  .reduce((prev, cur) => prev + cur, 0))}
+                {formatPrice(
+                  invoice.invoiceDetails
+                    .map((v) => v.quantity)
+                    .reduce((prev, cur) => prev + cur, 0),
+                )}
               </span>
             </p>
             <p>
               Total cost:{" "}
               <span className="font-semibold">
-                {formatPrice(invoice.invoiceDetails
-                  .map(
-                    (v) =>
-                      v.quantity *
-                      products.find((product) => product.id === v.productId)!
-                        .productPrice,
-                  )
-                  .reduce((prev, cur) => prev + cur, 0))}{" "}
+                {formatPrice(
+                  invoice.invoiceDetails
+                    .map(
+                      (v) =>
+                        v.quantity *
+                        products.find((product) => product.id === v.productId)!
+                          .productPrice,
+                    )
+                    .reduce((prev, cur) => prev + cur, 0),
+                )}{" "}
                 VNĐ
               </span>
             </p>
@@ -863,7 +871,9 @@ const InvoiceView = ({
               </div>
               <div className="flex flex-row items-center justify-between">
                 <p className="font-semibold">Total</p>
-                <p className="font-bold text-blue-500">{formatPrice(invoice.total)}</p>
+                <p className="font-bold text-blue-500">
+                  {formatPrice(invoice.total)}
+                </p>
               </div>
               <div className="flex flex-row items-center justify-between">
                 <Label htmlFor="customer_pay" className="text-md font-semibold">

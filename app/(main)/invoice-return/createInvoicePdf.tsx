@@ -3,9 +3,7 @@ import OpenSansMedium from "@/public/fonts/OpenSans-Medium.ttf";
 import { format, parseISO } from "date-fns";
 
 import { Product } from "@/entities/Product";
-import {
-  ReturnInvoiceClient
-} from "@/entities/ReturnInvoice";
+import { ReturnInvoiceClient } from "@/entities/ReturnInvoice";
 import {
   Document,
   Font,
@@ -17,6 +15,7 @@ import {
 } from "@react-pdf/renderer";
 import { Staff } from "@/entities/Staff";
 import { Store } from "@/entities/Store";
+import { displayNumber } from "@/utils";
 
 Font.register({
   family: "OpenSansv2",
@@ -38,7 +37,7 @@ const pdfStyleSheet = StyleSheet.create({
     width: "100%",
     flexDirection: "column",
     alignItems: "center",
-    backgroundColor: "#E4E4E4",
+    backgroundColor: "#ffffff",
     fontFamily: "OpenSansv2",
   },
   invoiceTitle: {
@@ -114,41 +113,43 @@ const createInvoicePdf = async (
             borderBottom: "1 dashed #aaaaaa",
           }}
         />
-        {invoice.returnDetails.filter((v) => v.quantity > 0).map((detail, idx) => {
-          const detailProduct = products.find(
-            (product) => product.id === detail.productId,
-          )!;
-          return (
-            <View key={idx} style={{ width: "100%" }}>
-              <Text>
-                {detailProduct.name}{" "}
-                {detailProduct.propertiesString
-                  ? `(${detailProduct.propertiesString})`
-                  : ""}
-              </Text>
-              <View
-                style={{
-                  display: "flex",
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  paddingLeft: 20,
-                  width: "100%",
-                }}
-              >
+        {invoice.returnDetails
+          .filter((v) => v.quantity > 0)
+          .map((detail, idx) => {
+            const detailProduct = products.find(
+              (product) => product.id === detail.productId,
+            )!;
+            return (
+              <View key={idx} style={{ width: "100%" }}>
+                <Text>
+                  {detailProduct.name}{" "}
+                  {detailProduct.propertiesString
+                    ? `(${detailProduct.propertiesString})`
+                    : ""}
+                </Text>
                 <View
-                  style={{ display: "flex", flexDirection: "row", gap: 20 }}
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    paddingLeft: 20,
+                    width: "100%",
+                  }}
                 >
-                  <Text>{detail.quantity}</Text>
-                  <Text>{detailProduct.salesUnits.name}</Text>
-                  <Text>x</Text>
-                  <Text>{detail.price}</Text>
+                  <View
+                    style={{ display: "flex", flexDirection: "row", gap: 20 }}
+                  >
+                    <Text>{detail.quantity}</Text>
+                    <Text>{detailProduct.salesUnits.name}</Text>
+                    <Text>x</Text>
+                    <Text>{detail.price}</Text>
+                  </View>
+                  <Text>{detail.price * detail.quantity}</Text>
                 </View>
-                <Text>{detail.price * detail.quantity}</Text>
               </View>
-            </View>
-          );
-        })}
+            );
+          })}
         <View
           style={{
             width: "100%",
@@ -176,7 +177,9 @@ const createInvoicePdf = async (
           </Text>
           <Text style={{ fontWeight: 400 }}>{invoice.total}</Text>
         </View>
-        <Text>{storeInfo.name ?? "Limited Liability Company 4 Members@Inc"}</Text>
+        <Text>
+          {storeInfo.name ?? "Limited Liability Company 4 Members@Inc"}
+        </Text>
         <Text>Thank you customer!</Text>
         <Text>See you soon!</Text>
       </Page>
@@ -186,9 +189,9 @@ const createInvoicePdf = async (
   const blob = await pdf(InvoiceView()).toBlob();
   const objectURL = URL.createObjectURL(blob);
 
-  const pdfWindow = window.open()
+  const pdfWindow = window.open();
   if (pdfWindow) {
-    pdfWindow.location.href = objectURL
+    pdfWindow.location.href = objectURL;
     pdfWindow.print();
   }
 };

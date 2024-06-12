@@ -38,7 +38,7 @@ const pdfStyleSheet = StyleSheet.create({
     width: "100%",
     flexDirection: "column",
     alignItems: "center",
-    backgroundColor: "#E4E4E4",
+    backgroundColor: "#ffffff",
     fontFamily: "OpenSansv2",
   },
   invoiceTitle: {
